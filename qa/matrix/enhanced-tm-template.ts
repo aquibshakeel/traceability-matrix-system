@@ -687,13 +687,17 @@ export function generateEnhancedHTML(data: {
                             } else if (desc.includes('400') && desc.includes('missing id')) {
                               suggestion = 'Create NF_GET_001 scenario: Missing ID parameter in GET request';
                             } else if (desc.includes('201') && desc.includes('profile created')) {
-                              suggestion = 'Create HF_PROFILE_001 scenario: Create profile with valid data';
+                              actionTeam = 'No Action';
+                              suggestion = 'Legacy test - Profile creation removed from identity service (read-only)';
                             } else if (desc.includes('400') && desc.includes('validation')) {
-                              suggestion = 'Create NF_PROFILE_001 scenario: Profile validation errors';
+                              actionTeam = 'No Action';
+                              suggestion = 'Legacy test - Profile validation removed from identity service (read-only)';
                             } else if (desc.includes('400') && desc.includes('invalid age')) {
-                              suggestion = 'Create EC_PROFILE_001 scenario: Age boundary validation (0-150 range)';
+                              actionTeam = 'No Action';
+                              suggestion = 'Legacy test - Age validation removed from identity service (read-only)';
                             } else if (desc.includes('204') && desc.includes('profile deleted')) {
-                              suggestion = 'Create HF_PROFILE_004 scenario: Delete profile successfully';
+                              actionTeam = 'No Action';
+                              suggestion = 'Legacy test - Profile deletion removed from identity service (read-only)';
                             }
                           }
                           // Service-level tests
@@ -703,19 +707,25 @@ export function generateEnhancedHTML(data: {
                             } else if (desc.includes('repository errors') || desc.includes('handle.*errors')) {
                               suggestion = 'Map to DB002 - Service resilience test';
                             } else if (desc.includes('profile') && desc.includes('create') && desc.includes('valid')) {
-                              suggestion = 'Create HF_PROFILE_001 scenario: Profile creation business logic';
+                              actionTeam = 'No Action';
+                              suggestion = 'Legacy test - Profile creation removed from identity service (read-only)';
                             } else if (desc.includes('userid is missing')) {
-                              suggestion = 'Create NF_PROFILE_002 scenario: Required field validation (userId)';
+                              actionTeam = 'No Action';
+                              suggestion = 'Legacy test - userId validation removed from identity service (read-only)';
                             } else if (desc.includes('age is negative') || desc.includes('age is above')) {
-                              suggestion = 'Create EC_PROFILE_001 scenario: Age boundary validation';
+                              actionTeam = 'No Action';
+                              suggestion = 'Legacy test - Age validation removed from identity service (read-only)';
                             } else if (desc.includes('accept age of')) {
-                              suggestion = 'Map to EC_PROFILE_001 scenario: Valid age boundary acceptance';
+                              actionTeam = 'No Action';
+                              suggestion = 'Legacy test - Age validation removed from identity service (read-only)';
                             } else if (desc.includes('return profile when found')) {
-                              suggestion = 'Create HF_PROFILE_002/003 scenario: Get profile by ID/userId';
+                              suggestion = 'Map to existing GET profile scenarios for identity service';
                             } else if (desc.includes('update profile')) {
-                              suggestion = 'Create HF_PROFILE_005 scenario: Update profile with valid data';
+                              actionTeam = 'No Action';
+                              suggestion = 'Legacy test - Profile update removed from identity service (read-only)';
                             } else if (desc.includes('delete profile')) {
-                              suggestion = 'Create HF_PROFILE_004 scenario: Delete profile successfully';
+                              actionTeam = 'No Action';
+                              suggestion = 'Legacy test - Profile deletion removed from identity service (read-only)';
                             }
                           }
                           // Repository-level tests
@@ -723,15 +733,18 @@ export function generateEnhancedHTML(data: {
                             if (desc.includes('invalid objectid') || desc.includes('invalid id')) {
                               suggestion = 'Map to NF002 - Invalid ID format validation';
                             } else if (desc.includes('create') || desc.includes('insert')) {
-                              suggestion = 'Technical test supporting HF_PROFILE_001 - validates MongoDB insertion';
+                              actionTeam = 'No Action';
+                              suggestion = 'Legacy test - Profile creation removed from identity service (read-only)';
                             } else if (desc.includes('return') && desc.includes('found')) {
-                              suggestion = 'Technical test supporting HF_PROFILE_002/003 - validates retrieval';
+                              suggestion = 'Technical test supporting GET profile scenarios';
                             } else if (desc.includes('null')) {
                               suggestion = 'Technical test supporting NF002 - validates not found handling';
                             } else if (desc.includes('update')) {
-                              suggestion = 'Technical test supporting HF_PROFILE_005 - validates MongoDB update';
+                              actionTeam = 'No Action';
+                              suggestion = 'Legacy test - Profile update removed from identity service (read-only)';
                             } else if (desc.includes('delete')) {
-                              suggestion = 'Technical test supporting HF_PROFILE_004 - validates MongoDB deletion';
+                              actionTeam = 'No Action';
+                              suggestion = 'Legacy test - Profile deletion removed from identity service (read-only)';
                             }
                           }
                           // Kafka publisher tests
