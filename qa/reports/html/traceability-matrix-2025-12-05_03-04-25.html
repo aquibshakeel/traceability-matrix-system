@@ -410,7 +410,7 @@
             <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
             <h1>🎯 Traceability Matrix</h1>
             <div class="header-meta">
-                <p>Generated: December 5, 2025 at 08:30 AM</p>
+                <p>Generated: December 5, 2025 at 08:34 AM</p>
                 <p>Mode: Full Suite | Coverage: 0%</p>
             </div>
         </div>
@@ -892,13 +892,16 @@
             });
         });
 
-        // Orphan tests filter functionality
-        let currentServiceFilter = 'all';
-        let currentActionFilter = 'all';
+        // Orphan tests dropdown filter functionality
+        const serviceFilter = document.getElementById('serviceFilter');
+        const actionFilter = document.getElementById('actionFilter');
 
         function applyOrphanFilters() {
             const orphanSection = document.querySelector('.section:has(table:not(#traceabilityTable))');
             if (!orphanSection) return;
+            
+            const currentServiceFilter = serviceFilter ? serviceFilter.value : 'all';
+            const currentActionFilter = actionFilter ? actionFilter.value : 'all';
             
             const rows = orphanSection.querySelectorAll('table tbody tr');
             rows.forEach(row => {
@@ -912,23 +915,13 @@
             });
         }
 
-        document.querySelectorAll('.filter-btn[data-orphan-filter="service"]').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn[data-orphan-filter="service"]').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentServiceFilter = this.dataset.value;
-                applyOrphanFilters();
-            });
-        });
+        if (serviceFilter) {
+            serviceFilter.addEventListener('change', applyOrphanFilters);
+        }
 
-        document.querySelectorAll('.filter-btn[data-orphan-filter="action"]').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn[data-orphan-filter="action"]').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentActionFilter = this.dataset.value;
-                applyOrphanFilters();
-            });
-        });
+        if (actionFilter) {
+            actionFilter.addEventListener('change', applyOrphanFilters);
+        }
 
         // Dark mode toggle
         function toggleDarkMode() {

@@ -611,17 +611,19 @@ export function generateEnhancedHTML(data: {
 
             <div class="filter-section">
                 <span class="filter-label">Filter by Service:</span>
-                <button class="filter-btn active" data-orphan-filter="service" data-value="all">All Services</button>
-                ${[...new Set(orphanTests.map((t: any) => t.service))].map((service: string) => `
-                <button class="filter-btn" data-orphan-filter="service" data-value="${service}">${service}</button>
-                `).join('')}
-            </div>
-
-            <div class="filter-section" style="margin-top: 15px;">
-                <span class="filter-label">Filter by Action:</span>
-                <button class="filter-btn active" data-orphan-filter="action" data-value="all">All Actions</button>
-                <button class="filter-btn" data-orphan-filter="action" data-value="no-action">🟢 No Action</button>
-                <button class="filter-btn" data-orphan-filter="action" data-value="qa-team">🟣 QA Team</button>
+                <select id="serviceFilter" style="padding: 10px 20px; border: 2px solid #6366f1; border-radius: 8px; font-weight: 600; color: #1f2937; cursor: pointer; background: white; min-width: 200px;">
+                    <option value="all">All</option>
+                    ${[...new Set(orphanTests.map((t: any) => t.service))].sort().map((service: string) => `
+                    <option value="${service}">${service}</option>
+                    `).join('')}
+                </select>
+                
+                <span class="filter-label" style="margin-left: 30px;">Filter by Action Required:</span>
+                <select id="actionFilter" style="padding: 10px 20px; border: 2px solid #6366f1; border-radius: 8px; font-weight: 600; color: #1f2937; cursor: pointer; background: white; min-width: 200px;">
+                    <option value="all">All</option>
+                    <option value="qa-team">QA Team</option>
+                    <option value="dev-team">Dev Team</option>
+                </select>
             </div>
             
             <div class="table-container">
@@ -955,13 +957,16 @@ export function generateEnhancedHTML(data: {
             });
         });
 
-        // Orphan tests filter functionality
-        let currentServiceFilter = 'all';
-        let currentActionFilter = 'all';
+        // Orphan tests dropdown filter functionality
+        const serviceFilter = document.getElementById('serviceFilter');
+        const actionFilter = document.getElementById('actionFilter');
 
         function applyOrphanFilters() {
             const orphanSection = document.querySelector('.section:has(table:not(#traceabilityTable))');
             if (!orphanSection) return;
+            
+            const currentServiceFilter = serviceFilter ? serviceFilter.value : 'all';
+            const currentActionFilter = actionFilter ? actionFilter.value : 'all';
             
             const rows = orphanSection.querySelectorAll('table tbody tr');
             rows.forEach(row => {
@@ -975,23 +980,13 @@ export function generateEnhancedHTML(data: {
             });
         }
 
-        document.querySelectorAll('.filter-btn[data-orphan-filter="service"]').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn[data-orphan-filter="service"]').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentServiceFilter = this.dataset.value;
-                applyOrphanFilters();
-            });
-        });
+        if (serviceFilter) {
+            serviceFilter.addEventListener('change', applyOrphanFilters);
+        }
 
-        document.querySelectorAll('.filter-btn[data-orphan-filter="action"]').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn[data-orphan-filter="action"]').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentActionFilter = this.dataset.value;
-                applyOrphanFilters();
-            });
-        });
+        if (actionFilter) {
+            actionFilter.addEventListener('change', applyOrphanFilters);
+        }
 
         // Dark mode toggle
         function toggleDarkMode() {
