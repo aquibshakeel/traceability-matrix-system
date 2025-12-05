@@ -585,7 +585,16 @@ export function generateEnhancedHTML(data: {
                         <tr data-coverage="${m.coverageStatus}" data-priority="${m.scenario.priority}">
                             <td><strong>${m.scenario.id}</strong></td>
                             <td>${m.scenario.description}</td>
-                            <td>${m.matchedTests.length > 0 ? m.matchedTests.map((t: any) => t.id).join(', ') : 'None'}</td>
+                            <td style="font-size: 0.85em; line-height: 1.6;">
+                                ${m.matchedTests.length > 0 
+                                    ? m.matchedTests.map((t: any) => `
+                                        <div style="margin-bottom: 8px; padding: 8px; background: #f3f4f6; border-radius: 6px;">
+                                            <div style="color: #6b7280; font-size: 0.8em; margin-bottom: 4px;">📁 ${t.file}</div>
+                                            <div style="color: #1f2937; font-weight: 500;">${t.description}</div>
+                                        </div>
+                                    `).join('') 
+                                    : '<span style="color: #9ca3af;">None</span>'}
+                            </td>
                             <td><span class="badge badge-info">${services}</span></td>
                             <td><span class="badge ${coverageClass}">${m.coverageStatus}</span></td>
                             <td><span class="badge badge-info">${m.scenario.priority}</span></td>
