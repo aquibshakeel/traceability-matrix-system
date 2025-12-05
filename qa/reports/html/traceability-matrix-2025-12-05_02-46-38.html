@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Traceability Matrix - Enhanced Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--gradient-primary);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        body.dark-mode {
+            --light: #1f2937;
+            --dark: #f9fafb;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+        }
+
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header-meta {
+            font-size: 1.1em;
+            opacity: 0.95;
+            margin-top: 10px;
+        }
+
+        .dark-mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            padding: 40px;
+            background: linear-gradient(to bottom, #f9fafb, #ffffff);
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            border-left: 6px solid var(--primary);
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(99,102,241,0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-value {
+            font-size: 3.5em;
+            font-weight: 900;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1em;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .stat-detail {
+            font-size: 0.9em;
+            color: #9ca3af;
+            margin-top: 8px;
+        }
+
+        .charts-section {
+            padding: 60px 40px;
+            background: #ffffff;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.3s;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .chart-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .chart-canvas {
+            position: relative;
+            height: 300px;
+        }
+
+        .section {
+            padding: 60px 40px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .section h2 {
+            color: var(--dark);
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 800;
+            border-bottom: 4px solid var(--primary);
+            padding-bottom: 15px;
+            display: inline-block;
+        }
+
+        .gap-card {
+            background: white;
+            border-left: 6px solid var(--danger);
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s;
+        }
+
+        .gap-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateX(5px);
+        }
+
+        .gap-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .gap-card.success {
+            border-left-color: var(--success);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        thead {
+            background: var(--gradient-primary);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: 20px 15px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.95em;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 18px 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:hover {
+            background: linear-gradient(to right, #f9fafb, #ffffff);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .badge-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .badge-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .badge-info {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+        }
+
+        .filter-section {
+            margin: 30px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+            border-radius: 16px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .export-btns {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .export-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .export-btn.pdf {
+            background: var(--gradient-danger);
+            color: white;
+        }
+
+        .export-btn.excel {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .stats-grid,
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section {
+                padding: 30px 20px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .dark-mode-toggle,
+            .filter-section,
+            .export-btns {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+            <h1>🎯 Traceability Matrix</h1>
+            <div class="header-meta">
+                <p>Generated: December 5, 2025 at 08:16 AM</p>
+                <p>Mode: Full Suite | Coverage: 0%</p>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card" style="border-left-color: #10b981;">
+                <div class="stat-value">0%</div>
+                <div class="stat-label">Coverage</div>
+                <div class="stat-detail">0/18 scenarios</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #ef4444;">
+                <div class="stat-value">4</div>
+                <div class="stat-label">Critical Gaps</div>
+                <div class="stat-detail">P0 - Immediate action</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #f59e0b;">
+                <div class="stat-value">2</div>
+                <div class="stat-label">High Priority</div>
+                <div class="stat-detail">P1 - Next sprint</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #06b6d4;">
+                <div class="stat-value">0</div>
+                <div class="stat-label">Unit Tests</div>
+                <div class="stat-detail">0 services</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #8b5cf6;">
+                <div class="stat-value">0</div>
+                <div class="stat-label">Orphan Tests</div>
+                <div class="stat-detail">Need mapping</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #10b981;">
+                <div class="stat-value">0</div>
+                <div class="stat-label">Partial</div>
+                <div class="stat-detail">Need improvement</div>
+            </div>
+        </div>
+
+        <div class="charts-section">
+            <h2 style="text-align: center; margin-bottom: 50px;">📊 Visual Analytics</h2>
+            
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-title">Coverage Distribution</div>
+                    <div class="chart-canvas">
+                        <canvas id="coverageChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">Gap Priority Breakdown</div>
+                    <div class="chart-canvas">
+                        <canvas id="gapPriorityChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">Service Test Distribution</div>
+                    <div class="chart-canvas">
+                        <canvas id="serviceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">Coverage Trends</div>
+                    <div class="chart-canvas">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📋 Scenario Traceability</h2>
+            
+            <div class="export-btns">
+                <button class="export-btn pdf" onclick="exportToPDF()">
+                    📄 Export PDF
+                </button>
+                <button class="export-btn excel" onclick="exportToExcel()">
+                    📊 Export Excel
+                </button>
+            </div>
+
+            <div class="filter-section">
+                <span class="filter-label">Filter:</span>
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="covered">Covered</button>
+                <button class="filter-btn" data-filter="partial">Partial</button>
+                <button class="filter-btn" data-filter="uncovered">Not Covered</button>
+                <button class="filter-btn" data-filter="critical">Critical</button>
+            </div>
+
+            <div class="table-container">
+                <table id="traceabilityTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Description</th>
+                            <th>Unit Tests</th>
+                            <th>Service</th>
+                            <th>Coverage</th>
+                            <th>Priority</th>
+                            <th>Gap Analysis</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr data-coverage="Not Covered" data-priority="P3">
+                            <td><strong>HF001</strong></td>
+                            <td>Create user with valid payload</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P3">
+                            <td><strong>HF002</strong></td>
+                            <td>Get user with valid ID</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P2">
+                            <td><strong>NF001</strong></td>
+                            <td>Create user missing required field (email)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P3">
+                            <td><strong>NF002</strong></td>
+                            <td>Get user with invalid ID (404)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P1">
+                            <td><strong>NF003</strong></td>
+                            <td>Malformed JSON payload (400)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P1</span></td>
+                            <td style="font-size: 0.9em;">CRITICAL GAP: No unit test validates graceful handling of malformed JSON. Relies on framework behavior.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P3">
+                            <td><strong>NF004</strong></td>
+                            <td>Duplicate email (409)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P3">
+                            <td><strong>NF005</strong></td>
+                            <td>Invalid email format (400)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P2">
+                            <td><strong>NF006</strong></td>
+                            <td>Missing name field (400)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">GAP: While missing email is tested, missing name is not separately validated.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P2">
+                            <td><strong>NF007</strong></td>
+                            <td>Empty string values (400)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">GAP: No test for empty strings in email/name fields (as opposed to null/undefined).</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P2">
+                            <td><strong>EC001</strong></td>
+                            <td>Boundary-condition input (Max string length)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">Unit test only checks name boundary. Missing boundary check for email field.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P2">
+                            <td><strong>EC002</strong></td>
+                            <td>Very long email (>254 chars)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">GAP: RFC 5321 max email length (254 chars) not validated.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P2">
+                            <td><strong>EC003</strong></td>
+                            <td>Special characters in name</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">GAP: No validation for special chars, emojis, or unicode in name field.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P0">
+                            <td><strong>DB001</strong></td>
+                            <td>DB timeout during user creation</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P0</span></td>
+                            <td style="font-size: 0.9em;">CRITICAL GAP: No unit test verifies service rollback/retry or correct 500 status when DB times out.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P0">
+                            <td><strong>DB002</strong></td>
+                            <td>DB connection failure</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P0</span></td>
+                            <td style="font-size: 0.9em;">CRITICAL GAP: No test for initial DB connection failure handling.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P3">
+                            <td><strong>DB003</strong></td>
+                            <td>DB duplicate key error</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P0">
+                            <td><strong>KAF001</strong></td>
+                            <td>Kafka publish failure post-DB commit</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P0</span></td>
+                            <td style="font-size: 0.9em;">CRITICAL GAP: No test verifies service handles Kafka failure gracefully (logging, DLQ, non-blocking).</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P0">
+                            <td><strong>KAF002</strong></td>
+                            <td>Kafka connection failure</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P0</span></td>
+                            <td style="font-size: 0.9em;">Test exists but doesn't verify user creation succeeds if Kafka is unavailable.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P1">
+                            <td><strong>KAF003</strong></td>
+                            <td>Kafka timeout</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P1</span></td>
+                            <td style="font-size: 0.9em;">GAP: No test for Kafka publish timeout scenario.</td>
+                        </tr>
+                          
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart.js configurations
+        Chart.register(ChartDataLabels);
+        Chart.defaults.font.family = 'Inter, sans-serif';
+
+        // Coverage Pie Chart
+        new Chart(document.getElementById('coverageChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ["Fully Covered","Partially Covered","Not Covered"],
+                datasets: [{
+                    data: [0,0,18],
+                    backgroundColor: ["#10b981","#f59e0b","#ef4444"],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: { size: 12, weight: '600' }
+                        }
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: { size: 16, weight: 'bold' },
+                        formatter: (value) => value > 0 ? value : ''
+                    }
+                }
+            }
+        });
+
+        // Gap Priority Bar Chart
+        new Chart(document.getElementById('gapPriorityChart'), {
+            type: 'bar',
+            data: {
+                labels: ["P0 Critical","P1 High","P2 Medium","P3 Low"],
+                datasets: [{
+                    data: [4,2,6,6],
+                    backgroundColor: ["#dc2626","#f59e0b","#3b82f6","#10b981"],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#1f2937',
+                        font: { size: 14, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { font: { size: 12 } }
+                    },
+                    x: {
+                        ticks: { font: { size: 12, weight: '600' } }
+                    }
+                }
+            }
+        });
+
+        // Service Distribution Chart
+        new Chart(document.getElementById('serviceChart'), {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Unit Tests',
+                    data: [],
+                    backgroundColor: ["#8b5cf6","#ec4899","#06b6d4","#10b981","#f59e0b"],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'right',
+                        color: '#1f2937',
+                        font: { size: 14, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { font: { size: 12 } }
+                    },
+                    y: {
+                        ticks: { font: { size: 12, weight: '600' } }
+                    }
+                }
+            }
+        });
+
+        // Trend Line Chart
+        new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Current'],
+                datasets: [{
+                    label: 'Coverage %',
+                    data: [30, 42, 48, 46, 0],
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        color: '#1f2937',
+                        font: { size: 12, weight: 'bold' },
+                        formatter: (value) => value + '%'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: (value) => value + '%',
+                            font: { size: 12 }
+                        }
+                    },
+                    x: {
+                        ticks: { font: { size: 12 } }
+                    }
+                }
+            }
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                const rows = document.querySelectorAll('#traceabilityTable tbody tr');
+                
+                rows.forEach(row => {
+                    if (filter === 'all') {
+                        row.style.display = '';
+                    } else if (filter === 'covered') {
+                        row.style.display = row.dataset.coverage === 'Fully Covered' ? '' : 'none';
+                    } else if (filter === 'partial') {
+                        row.style.display = row.dataset.coverage === 'Partially Covered' ? '' : 'none';
+                    } else if (filter === 'uncovered') {
+                        row.style.display = row.dataset.coverage === 'Not Covered' ? '' : 'none';
+                    } else if (filter === 'critical') {
+                        row.style.display = row.dataset.priority === 'P0' ? '' : 'none';
+                    }
+                });
+            });
+        });
+
+        // Dark mode toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const btn = document.querySelector('.dark-mode-toggle');
+            btn.textContent = document.body.classList.contains('dark-mode') ? '☀️ Light Mode' : '🌙 Dark Mode';
+        }
+
+        // Export functions
+        function exportToPDF() {
+            window.print();
+        }
+
+        function exportToExcel() {
+            const table = document.getElementById('traceabilityTable');
+            const data = [];
+            
+            table.querySelectorAll('tr').forEach(row => {
+                const rowData = [];
+                row.querySelectorAll('th, td').forEach(cell => {
+                    rowData.push(cell.textContent.trim());
+                });
+                data.push(rowData.join(','));
+            });
+            
+            const csv = data.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'traceability-matrix.csv';
+            a.click();
+        }
+    </script>
+</body>
+</html>

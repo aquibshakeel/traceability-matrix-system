@@ -1,0 +1,186 @@
+{
+  "metadata": {
+    "generatedAt": "2025-12-05T02:46:38.939Z",
+    "mode": "Full Suite",
+    "totalScenarios": 18,
+    "unitTests": 0
+  },
+  "statistics": {
+    "total": 18,
+    "fullyCovered": 0,
+    "partiallyCovered": 0,
+    "notCovered": 18,
+    "byCategory": {
+      "Positive": {
+        "total": 2,
+        "covered": 0,
+        "partial": 0,
+        "notCovered": 2
+      },
+      "Negative": {
+        "total": 7,
+        "covered": 0,
+        "partial": 0,
+        "notCovered": 7
+      },
+      "Edge": {
+        "total": 3,
+        "covered": 0,
+        "partial": 0,
+        "notCovered": 3
+      },
+      "DB_Failure": {
+        "total": 3,
+        "covered": 0,
+        "partial": 0,
+        "notCovered": 3
+      },
+      "Kafka_Failure": {
+        "total": 3,
+        "covered": 0,
+        "partial": 0,
+        "notCovered": 3
+      }
+    },
+    "byPriority": {
+      "P3": 6,
+      "P2": 6,
+      "P1": 2,
+      "P0": 4
+    },
+    "byRisk": {
+      "Low": 9,
+      "Medium": 5,
+      "High": 4
+    }
+  },
+  "services": [],
+  "mappings": [
+    {
+      "scenarioId": "HF001",
+      "description": "Create user with valid payload",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "No unit test coverage found for this scenario."
+    },
+    {
+      "scenarioId": "HF002",
+      "description": "Get user with valid ID",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "No unit test coverage found for this scenario."
+    },
+    {
+      "scenarioId": "NF001",
+      "description": "Create user missing required field (email)",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "No unit test coverage found for this scenario."
+    },
+    {
+      "scenarioId": "NF002",
+      "description": "Get user with invalid ID (404)",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "No unit test coverage found for this scenario."
+    },
+    {
+      "scenarioId": "NF003",
+      "description": "Malformed JSON payload (400)",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "CRITICAL GAP: No unit test validates graceful handling of malformed JSON. Relies on framework behavior."
+    },
+    {
+      "scenarioId": "NF004",
+      "description": "Duplicate email (409)",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "No unit test coverage found for this scenario."
+    },
+    {
+      "scenarioId": "NF005",
+      "description": "Invalid email format (400)",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "No unit test coverage found for this scenario."
+    },
+    {
+      "scenarioId": "NF006",
+      "description": "Missing name field (400)",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "GAP: While missing email is tested, missing name is not separately validated."
+    },
+    {
+      "scenarioId": "NF007",
+      "description": "Empty string values (400)",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "GAP: No test for empty strings in email/name fields (as opposed to null/undefined)."
+    },
+    {
+      "scenarioId": "EC001",
+      "description": "Boundary-condition input (Max string length)",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "Unit test only checks name boundary. Missing boundary check for email field."
+    },
+    {
+      "scenarioId": "EC002",
+      "description": "Very long email (>254 chars)",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "GAP: RFC 5321 max email length (254 chars) not validated."
+    },
+    {
+      "scenarioId": "EC003",
+      "description": "Special characters in name",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "GAP: No validation for special chars, emojis, or unicode in name field."
+    },
+    {
+      "scenarioId": "DB001",
+      "description": "DB timeout during user creation",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "CRITICAL GAP: No unit test verifies service rollback/retry or correct 500 status when DB times out."
+    },
+    {
+      "scenarioId": "DB002",
+      "description": "DB connection failure",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "CRITICAL GAP: No test for initial DB connection failure handling."
+    },
+    {
+      "scenarioId": "DB003",
+      "description": "DB duplicate key error",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "No unit test coverage found for this scenario."
+    },
+    {
+      "scenarioId": "KAF001",
+      "description": "Kafka publish failure post-DB commit",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "CRITICAL GAP: No test verifies service handles Kafka failure gracefully (logging, DLQ, non-blocking)."
+    },
+    {
+      "scenarioId": "KAF002",
+      "description": "Kafka connection failure",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "Test exists but doesn't verify user creation succeeds if Kafka is unavailable."
+    },
+    {
+      "scenarioId": "KAF003",
+      "description": "Kafka timeout",
+      "coverageStatus": "Not Covered",
+      "matchedTestsCount": 0,
+      "gapExplanation": "GAP: No test for Kafka publish timeout scenario."
+    }
+  ]
+}

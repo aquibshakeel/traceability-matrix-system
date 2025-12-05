@@ -1,0 +1,340 @@
+{
+  "stats": {
+    "suites": 4,
+    "tests": 9,
+    "passes": 9,
+    "pending": 0,
+    "failures": 0,
+    "start": "2025-12-05T02:45:59.964Z",
+    "end": "2025-12-05T02:46:00.013Z",
+    "duration": 49,
+    "testsRegistered": 9,
+    "passPercent": 100,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "c376c5b8-dd46-4d16-b053-bb3fc01d92fa",
+      "title": "",
+      "fullFile": "/Users/aquibshakeel/Desktop/ai-dummy-service/qa/tests/e2e/onboarding/ts004_edge_cases.spec.ts",
+      "file": "/tests/e2e/onboarding/ts004_edge_cases.spec.ts",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "a0694f9c-fd8d-419c-8834-157cde5c60de",
+          "title": "[TS004] Edge Cases and Boundary Tests",
+          "fullFile": "/Users/aquibshakeel/Desktop/ai-dummy-service/qa/tests/e2e/onboarding/ts004_edge_cases.spec.ts",
+          "file": "/tests/e2e/onboarding/ts004_edge_cases.spec.ts",
+          "beforeHooks": [],
+          "afterHooks": [
+            {
+              "title": "\"after all\" hook in \"[TS004] Edge Cases and Boundary Tests\"",
+              "fullTitle": "[TS004] Edge Cases and Boundary Tests \"after all\" hook in \"[TS004] Edge Cases and Boundary Tests\"",
+              "timedOut": false,
+              "duration": 0,
+              "state": null,
+              "speed": null,
+              "pass": false,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "if (createdUserIds.length > 0) {\n    console.log(`\\n🧹 Cleaning up ${createdUserIds.length} test user(s)...`);\n    // Note: Add cleanup logic here if delete endpoint exists\n}",
+              "err": {},
+              "uuid": "e28b23ef-8858-4675-a092-6a8d0e6fd361",
+              "parentUUID": "a0694f9c-fd8d-419c-8834-157cde5c60de",
+              "isHook": true,
+              "skipped": false
+            }
+          ],
+          "tests": [],
+          "suites": [
+            {
+              "uuid": "612a3057-2d0e-47b4-8d3d-f1cea0a9f1f0",
+              "title": "Boundary-Condition Input (EC001)",
+              "fullFile": "/Users/aquibshakeel/Desktop/ai-dummy-service/qa/tests/e2e/onboarding/ts004_edge_cases.spec.ts",
+              "file": "/tests/e2e/onboarding/ts004_edge_cases.spec.ts",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should accept maximum valid name length (255 chars) (EC001)",
+                  "fullTitle": "[TS004] Edge Cases and Boundary Tests Boundary-Condition Input (EC001) should accept maximum valid name length (255 chars) (EC001)",
+                  "timedOut": false,
+                  "duration": 20,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Arrange\nconst payload = fixtures_1.TestFixtures.boundaries.maxValidNameLength;\n// Act\nconst response = await apiClient_1.apiClient.createUser(payload);\n// Assert\n(0, chai_1.expect)(response.status).to.equal(201, 'Should accept 255 char name');\n(0, chai_1.expect)(response.data).to.exist;\n(0, chai_1.expect)(response.data.name).to.have.lengthOf(255);\n(0, chai_1.expect)(response.data.email).to.equal(payload.email);\n// Track for cleanup\nif (response.data?.id) {\n    createdUserIds.push(response.data.id);\n}\nconsole.log('✅ EC001: Max name length (255 chars) accepted');",
+                  "err": {},
+                  "uuid": "08e25a7e-0264-4c26-97e2-e7b59fcf173b",
+                  "parentUUID": "612a3057-2d0e-47b4-8d3d-f1cea0a9f1f0",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should accept minimum valid name length (1 char) (EC001)",
+                  "fullTitle": "[TS004] Edge Cases and Boundary Tests Boundary-Condition Input (EC001) should accept minimum valid name length (1 char) (EC001)",
+                  "timedOut": false,
+                  "duration": 4,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Arrange\nconst payload = fixtures_1.TestFixtures.boundaries.minValidName;\n// Act\nconst response = await apiClient_1.apiClient.createUser(payload);\n// Assert\n(0, chai_1.expect)(response.status).to.equal(201, 'Should accept 1 char name');\n(0, chai_1.expect)(response.data).to.exist;\n(0, chai_1.expect)(response.data.name).to.have.lengthOf(1);\n(0, chai_1.expect)(response.data.name).to.equal(payload.name);\n(0, chai_1.expect)(response.data.email).to.equal(payload.email);\n// Track for cleanup\nif (response.data?.id) {\n    createdUserIds.push(response.data.id);\n}\nconsole.log('✅ EC001: Min name length (1 char) accepted');",
+                  "err": {},
+                  "uuid": "56f1701d-c768-4bdb-b8f2-f3ef481757a2",
+                  "parentUUID": "612a3057-2d0e-47b4-8d3d-f1cea0a9f1f0",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should reject very long name (1000 chars) (EC001)",
+                  "fullTitle": "[TS004] Edge Cases and Boundary Tests Boundary-Condition Input (EC001) should reject very long name (1000 chars) (EC001)",
+                  "timedOut": false,
+                  "duration": 3,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Arrange\nconst payload = fixtures_1.TestFixtures.edgeCases.veryLongName;\n// Act\nconst response = await apiClient_1.apiClient.createUser(payload);\n// Assert - Document gap: no unit test for very long names\n// Expected: Should reject with 400, but service behavior is undocumented\nconsole.log(`⚠️  EC001: Very long name (1000 chars) - Status: ${response.status}`);\nconsole.log('⚠️  GAP: No unit test validation for extremely long names');\n(0, chai_1.expect)(response.status).to.be.oneOf([201, 400, 500], 'Should handle very long names (gap documented)');\nif (response.status === 400) {\n    // Validate error response structure\n    (0, chai_1.expect)(response.error).to.exist;\n    console.log('✅ Correctly rejected with 400');\n}\nelse if (response.status === 201) {\n    // Track if accepted (might truncate)\n    if (response.data?.id) {\n        createdUserIds.push(response.data.id);\n    }\n    console.log(`⚠️  Accepted - Name length in response: ${response.data?.name.length}`);\n}",
+                  "err": {},
+                  "uuid": "895d0b02-fb50-4366-b247-5cefcb5aacfc",
+                  "parentUUID": "612a3057-2d0e-47b4-8d3d-f1cea0a9f1f0",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [
+                "08e25a7e-0264-4c26-97e2-e7b59fcf173b",
+                "56f1701d-c768-4bdb-b8f2-f3ef481757a2",
+                "895d0b02-fb50-4366-b247-5cefcb5aacfc"
+              ],
+              "failures": [],
+              "pending": [],
+              "skipped": [],
+              "duration": 27,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "98d4cc72-664b-42f2-b7f5-d34ad991ba14",
+              "title": "Very Long Email (EC002)",
+              "fullFile": "/Users/aquibshakeel/Desktop/ai-dummy-service/qa/tests/e2e/onboarding/ts004_edge_cases.spec.ts",
+              "file": "/tests/e2e/onboarding/ts004_edge_cases.spec.ts",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should handle very long email (over RFC limit) (EC002)",
+                  "fullTitle": "[TS004] Edge Cases and Boundary Tests Very Long Email (EC002) should handle very long email (over RFC limit) (EC002)",
+                  "timedOut": false,
+                  "duration": 2,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Arrange\nconst payload = fixtures_1.TestFixtures.edgeCases.veryLongEmail;\n// Act\nconst response = await apiClient_1.apiClient.createUser(payload);\n// Assert - Document gap: RFC 5321 max email length is 254 characters\nconsole.log(`⚠️  EC002: Very long email (${payload.email.length} chars) - Status: ${response.status}`);\nconsole.log('⚠️  CRITICAL GAP: No RFC 5321 email length validation in unit tests');\n(0, chai_1.expect)(response.status).to.be.oneOf([400, 201], 'Should handle RFC limit violation (gap documented)');\nif (response.status === 400) {\n    // Validate error response structure\n    (0, chai_1.expect)(response.error).to.exist;\n    console.log('✅ Correctly rejected RFC-violating email with 400');\n}\nelse if (response.status === 201) {\n    if (response.data?.id) {\n        createdUserIds.push(response.data.id);\n    }\n    console.log('⚠️  WARNING: Service accepted email longer than RFC 5321 limit!');\n}",
+                  "err": {},
+                  "uuid": "e526d9f5-4fba-4c68-a20f-d0c38e382c53",
+                  "parentUUID": "98d4cc72-664b-42f2-b7f5-d34ad991ba14",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should accept email at RFC limit (254 chars) (EC002)",
+                  "fullTitle": "[TS004] Edge Cases and Boundary Tests Very Long Email (EC002) should accept email at RFC limit (254 chars) (EC002)",
+                  "timedOut": false,
+                  "duration": 4,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Arrange\nconst payload = fixtures_1.TestFixtures.boundaries.maxValidEmailLength;\n// Act\nconst response = await apiClient_1.apiClient.createUser(payload);\n// Assert\n(0, chai_1.expect)(response.status).to.equal(201, 'Should accept 254 char email per RFC 5321');\n(0, chai_1.expect)(response.data).to.exist;\n(0, chai_1.expect)(response.data.email).to.equal(payload.email);\n(0, chai_1.expect)(response.data.email).to.have.lengthOf(254);\n// Track for cleanup\nif (response.data?.id) {\n    createdUserIds.push(response.data.id);\n}\nconsole.log('✅ EC002: Max valid email length (254 chars) accepted');",
+                  "err": {},
+                  "uuid": "e5a8c14c-c236-4903-bdcd-61249b581eb0",
+                  "parentUUID": "98d4cc72-664b-42f2-b7f5-d34ad991ba14",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [
+                "e526d9f5-4fba-4c68-a20f-d0c38e382c53",
+                "e5a8c14c-c236-4903-bdcd-61249b581eb0"
+              ],
+              "failures": [],
+              "pending": [],
+              "skipped": [],
+              "duration": 6,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            },
+            {
+              "uuid": "e4bdb18d-ac43-4f6f-ae61-566a30ed9b3f",
+              "title": "Special Characters in Name (EC003)",
+              "fullFile": "/Users/aquibshakeel/Desktop/ai-dummy-service/qa/tests/e2e/onboarding/ts004_edge_cases.spec.ts",
+              "file": "/tests/e2e/onboarding/ts004_edge_cases.spec.ts",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "should handle special characters in name (EC003)",
+                  "fullTitle": "[TS004] Edge Cases and Boundary Tests Special Characters in Name (EC003) should handle special characters in name (EC003)",
+                  "timedOut": false,
+                  "duration": 4,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Arrange\nconst payload = fixtures_1.TestFixtures.edgeCases.specialCharactersName;\n// Act\nconst response = await apiClient_1.apiClient.createUser(payload);\n// Assert - Document gap: no unit test for special characters\nconsole.log(`⚠️  EC003: Special characters in name - Status: ${response.status}`);\nconsole.log(`⚠️  GAP: No unit test for special character validation`);\n(0, chai_1.expect)(response.status).to.be.oneOf([201, 400], 'Should handle special characters (gap documented)');\nif (response.status === 201) {\n    (0, chai_1.expect)(response.data).to.exist;\n    (0, chai_1.expect)(response.data.name).to.equal(payload.name);\n    if (response.data?.id) {\n        createdUserIds.push(response.data.id);\n    }\n    console.log(`✅ Service accepted special characters: ${payload.name}`);\n}\nelse if (response.status === 400) {\n    (0, chai_1.expect)(response.error).to.exist;\n    console.log(`❌ Service rejected special characters with 400`);\n}",
+                  "err": {},
+                  "uuid": "35175c60-e83b-45c0-bc54-4ff6cd49f07b",
+                  "parentUUID": "e4bdb18d-ac43-4f6f-ae61-566a30ed9b3f",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should handle unicode characters in name (EC003)",
+                  "fullTitle": "[TS004] Edge Cases and Boundary Tests Special Characters in Name (EC003) should handle unicode characters in name (EC003)",
+                  "timedOut": false,
+                  "duration": 3,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Arrange\nconst payload = fixtures_1.TestFixtures.edgeCases.unicodeName;\n// Act\nconst response = await apiClient_1.apiClient.createUser(payload);\n// Assert - Document gap: no unit test for unicode validation\nconsole.log(`⚠️  EC003: Unicode characters - Status: ${response.status}`);\nconsole.log('⚠️  GAP: No unit test for unicode character validation');\n(0, chai_1.expect)(response.status).to.be.oneOf([201, 400], 'Should handle unicode (gap documented)');\nif (response.status === 201) {\n    (0, chai_1.expect)(response.data).to.exist;\n    (0, chai_1.expect)(response.data.name).to.equal(payload.name);\n    if (response.data?.id) {\n        createdUserIds.push(response.data.id);\n    }\n    console.log(`✅ Unicode preserved: ${response.data.name}`);\n}\nelse if (response.status === 400) {\n    (0, chai_1.expect)(response.error).to.exist;\n    console.log('❌ Service rejected unicode characters with 400');\n}",
+                  "err": {},
+                  "uuid": "fd9a3a4a-6af0-483f-ab2b-e82c5499f074",
+                  "parentUUID": "e4bdb18d-ac43-4f6f-ae61-566a30ed9b3f",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should handle emoji characters in name (EC003)",
+                  "fullTitle": "[TS004] Edge Cases and Boundary Tests Special Characters in Name (EC003) should handle emoji characters in name (EC003)",
+                  "timedOut": false,
+                  "duration": 3,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Arrange\nconst payload = fixtures_1.TestFixtures.edgeCases.emojiName;\n// Act\nconst response = await apiClient_1.apiClient.createUser(payload);\n// Assert - Document gap: no unit test for emoji validation\nconsole.log(`⚠️  EC003: Emoji characters - Status: ${response.status}`);\nconsole.log('⚠️  GAP: No unit test for emoji character validation');\n(0, chai_1.expect)(response.status).to.be.oneOf([201, 400], 'Should handle emojis (gap documented)');\nif (response.status === 201) {\n    (0, chai_1.expect)(response.data).to.exist;\n    (0, chai_1.expect)(response.data.name).to.equal(payload.name);\n    if (response.data?.id) {\n        createdUserIds.push(response.data.id);\n    }\n    console.log(`✅ Emoji accepted: ${response.data.name}`);\n}\nelse if (response.status === 400) {\n    (0, chai_1.expect)(response.error).to.exist;\n    console.log('❌ Service rejected emojis with 400');\n}",
+                  "err": {},
+                  "uuid": "4b7eda78-3055-432a-8fc7-50ed6d9bd07c",
+                  "parentUUID": "e4bdb18d-ac43-4f6f-ae61-566a30ed9b3f",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should handle null character in name (EC003)",
+                  "fullTitle": "[TS004] Edge Cases and Boundary Tests Special Characters in Name (EC003) should handle null character in name (EC003)",
+                  "timedOut": false,
+                  "duration": 3,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "// Arrange\nconst payload = fixtures_1.TestFixtures.edgeCases.nullCharacterName;\n// Act\nconst response = await apiClient_1.apiClient.createUser(payload);\n// Assert - Security concern: null characters can cause issues\nconsole.log(`⚠️  EC003: Null character - Status: ${response.status}`);\nconsole.log('⚠️  SECURITY GAP: Null character handling not validated in unit tests');\n(0, chai_1.expect)(response.status).to.be.oneOf([201, 400], 'Should handle null chars (security gap documented)');\nif (response.status === 400) {\n    // Expected: should reject for security\n    (0, chai_1.expect)(response.error).to.exist;\n    console.log('✅ Correctly rejected null character with 400 (secure)');\n}\nelse if (response.status === 201) {\n    // Warning: accepting null characters is a security risk\n    if (response.data?.id) {\n        createdUserIds.push(response.data.id);\n    }\n    console.log('⚠️  SECURITY WARNING: Service accepted null character!');\n}",
+                  "err": {},
+                  "uuid": "39199197-b725-4e43-bcdd-5957ee53e193",
+                  "parentUUID": "e4bdb18d-ac43-4f6f-ae61-566a30ed9b3f",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [
+                "35175c60-e83b-45c0-bc54-4ff6cd49f07b",
+                "fd9a3a4a-6af0-483f-ab2b-e82c5499f074",
+                "4b7eda78-3055-432a-8fc7-50ed6d9bd07c",
+                "39199197-b725-4e43-bcdd-5957ee53e193"
+              ],
+              "failures": [],
+              "pending": [],
+              "skipped": [],
+              "duration": 13,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            }
+          ],
+          "passes": [],
+          "failures": [],
+          "pending": [],
+          "skipped": [],
+          "duration": 0,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "10.8.2"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "selective-test-report-20251205_081558",
+        "saveHtml": true,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.4"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "reports/html",
+        "reportFilename": "selective-test-report-20251205_081558",
+        "reportTitle": "QA Test Report",
+        "reportPageTitle": "Test Execution",
+        "html": "true",
+        "json": "true",
+        "inline": "true",
+        "charts": "true",
+        "code": "true"
+      },
+      "version": "6.3.2"
+    }
+  }
+}

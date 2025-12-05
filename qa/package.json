@@ -25,15 +25,24 @@
     "generate:selective-matrix": "ts-node matrix/generate-traceability-matrix.ts --selective",
     "clean": "sh scripts/clean-artifacts.sh"
   },
-  "keywords": ["qa", "automation", "playwright", "mocha", "chai"],
+  "keywords": [
+    "qa",
+    "automation",
+    "playwright",
+    "mocha",
+    "chai"
+  ],
   "author": "QA Team",
   "license": "ISC",
   "devDependencies": {
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.10.6",
+    "allure-commandline": "^2.34.1",
+    "allure-mocha": "^3.4.3",
     "chai": "^4.3.10",
     "mocha": "^10.2.0",
+    "mocha-multi-reporters": "^1.5.1",
     "mochawesome": "^7.1.3",
     "playwright": "^1.40.1",
     "ts-node": "^10.9.2",

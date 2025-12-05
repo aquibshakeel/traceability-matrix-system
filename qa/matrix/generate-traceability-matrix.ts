@@ -12,6 +12,7 @@ import * as path from 'path';
 import { UnitTestParser } from './parse-unit-tests';
 import { SCENARIOS, Scenario } from './scenario-definitions';
 import { ScenarioMapper, ScenarioMapping } from './scenario-mapper';
+import { generateEnhancedHTML } from './enhanced-tm-template';
 
 // ============================================================================
 // TYPES
@@ -192,19 +193,28 @@ async function generateTraceabilityMatrix(options: GenerationOptions) {
     fs.writeFileSync(outputPath, markdown, 'utf-8');
     console.log(`✅ Markdown TM saved: ${outputPath}\n`);
   } else {
-    const html = generateHTML(
+    const tmTimestamp = new Date().toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Asia/Kolkata'
+    });
+    
+    const html = generateEnhancedHTML({
       mappings,
       stats,
-      displaySummaries,
+      serviceSummaries: displaySummaries,
       criticalGaps,
       highPriorityGaps,
       allGaps,
-      mode === 'selective' ? 'Selective' : 'Full Suite',
-      executedScenarioIds,
-      executedTestCount,
-      orphanTests,
-      relevantUnitTests.length
-    );
+      executionMode: mode === 'selective' ? 'Selective' : 'Full Suite',
+      timestamp: tmTimestamp,
+      coveragePercent,
+      totalTests: relevantUnitTests.length,
+      orphanTests
+    });
     
     const filename = outputName || (mode === 'selective' ? 'selective-traceability-matrix.html' : 'traceability-matrix.html');
     const outputPath = path.join(__dirname, '../reports/html', filename);

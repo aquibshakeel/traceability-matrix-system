@@ -1,0 +1,17 @@
+{
+  "reporterEnabled": "mochawesome, allure-mocha",
+  "mochawesomeReporterOptions": {
+    "reportDir": "reports/html",
+    "reportFilename": "test-report-[datetime]",
+    "reportTitle": "QA Test Report",
+    "reportPageTitle": "Test Execution Report",
+    "html": true,
+    "json": true,
+    "inline": true,
+    "charts": true,
+    "code": true
+  },
+  "allureMochaReporterOptions": {
+    "resultsDir": "reports/allure-results"
+  }
+}
