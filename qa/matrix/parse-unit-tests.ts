@@ -30,9 +30,9 @@ export class UnitTestParser {
       if (fs.existsSync('/workspace')) {
         rootDir = '/workspace';
       } else {
-        // Use process.cwd() as fallback for better context awareness
-        const cwdPath = path.resolve(process.cwd(), '..');
-        rootDir = fs.existsSync(cwdPath) ? '..' : '../..';
+        // When running locally, go up two levels from qa/matrix/ to reach project root
+        // where services (identity-service/, onboarding-service/) are located
+        rootDir = '../..';
       }
     }
     this.rootDir = path.resolve(__dirname, rootDir);

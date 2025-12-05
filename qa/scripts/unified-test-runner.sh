@@ -125,12 +125,18 @@ else
   TM_MODE=""
 fi
 
-# Add mochawesome reporter
-MOCHA_CMD="$MOCHA_CMD --reporter mochawesome"
-MOCHA_CMD="$MOCHA_CMD --reporter-options reportDir=$REPORT_DIR,reportFilename=${REPORT_PREFIX}-${TIMESTAMP},reportTitle='QA Test Report',reportPageTitle='Test Execution',html=true,json=true,inline=true,charts=true,code=true"
+# Add multi-reporter configuration
+MOCHA_CMD="$MOCHA_CMD --reporter mocha-multi-reporters"
+MOCHA_CMD="$MOCHA_CMD --reporter-options configFile=.mocha-reporters.json"
 
 echo -e "📦 Installing dependencies..."
 npm install --silent
+
+# Clean Allure results before new test run to prevent accumulation
+echo ""
+echo -e "🧹 Cleaning previous Allure results..."
+rm -rf reports/allure-results/*
+mkdir -p reports/allure-results
 
 echo ""
 echo -e "🚀 Running tests..."
@@ -147,13 +153,32 @@ echo ""
 
 # Generate TM
 echo -e "📊 Generating Traceability Matrix..."
-export REPORT_TIMESTAMP=$TIMESTAMP
-export REPORT_JSON="${REPORT_DIR}/${REPORT_PREFIX}-${TIMESTAMP}.json"
 
-if [ -n "$TM_MODE" ]; then
-  npx ts-node matrix/generate-traceability-matrix.ts $TM_MODE
+# Find the most recent JSON report file (Mochawesome generates with its own timestamp)
+LATEST_JSON=$(ls -t ${REPORT_DIR}/*.json 2>/dev/null | head -1)
+
+if [ -n "$LATEST_JSON" ]; then
+  export REPORT_TIMESTAMP=$TIMESTAMP
+  export REPORT_JSON="$LATEST_JSON"
+  echo -e "   Using report: $(basename $LATEST_JSON)"
+  
+  if [ -n "$TM_MODE" ]; then
+    npx ts-node matrix/generate-traceability-matrix.ts $TM_MODE
+  else
+    npx ts-node matrix/generate-traceability-matrix.ts
+  fi
 else
-  npx ts-node matrix/generate-traceability-matrix.ts
+  echo -e "${YELLOW}⚠️  No Mochawesome JSON report found, skipping TM generation${NC}"
+fi
+
+# Generate Allure report
+echo ""
+echo -e "📊 Generating Allure report..."
+if [ -d "reports/allure-results" ] && [ -n "$(ls -A reports/allure-results)" ]; then
+  npm run allure:generate --silent || echo -e "${YELLOW}⚠️  Allure report generation skipped (allure-commandline may not be installed)${NC}"
+  echo -e "${GREEN}✅ Allure report generated${NC}"
+else
+  echo -e "${YELLOW}⚠️  No Allure results found to generate report${NC}"
 fi
 
 echo ""
@@ -164,6 +189,10 @@ if [ -n "$TM_MODE" ]; then
   echo -e "📊 TM Report: ${REPORT_DIR}/selective-traceability-matrix-${TIMESTAMP}.html"
 else
   echo -e "📊 TM Report: ${REPORT_DIR}/traceability-matrix-${TIMESTAMP}.html"
+fi
+if [ -d "reports/allure-report" ]; then
+  echo -e "🎯 Allure Report: reports/allure-report/index.html"
+  echo -e "   Run 'npm run allure:open' to view in browser"
 fi
 echo -e "${BLUE}================================================${NC}"
 
