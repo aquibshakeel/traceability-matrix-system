@@ -617,17 +617,123 @@ export function generateEnhancedHTML(data: {
                             <th>Service</th>
                             <th>Description</th>
                             <th>File</th>
+                            <th>Action Required</th>
+                            <th>Suggestion</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${orphanTests.map((test: any) => `
+                        ${orphanTests.map((test: any) => {
+                          const desc = test.description.toLowerCase();
+                          const file = test.file.toLowerCase();
+                          let actionTeam = 'QA Team';
+                          let suggestion = '';
+                          
+                          // Infrastructure tests - No business scenario mapping needed
+                          if (desc.includes('timestamp') || desc.includes('createdat') || desc.includes('updatedat')) {
+                            actionTeam = 'No Action';
+                            suggestion = 'Technical test - validates data persistence timestamps';
+                          } else if (desc.includes('unique index') || desc.includes('create unique index') || desc.includes('createindex')) {
+                            actionTeam = 'No Action';
+                            suggestion = 'Database schema test - validates DB constraints';
+                          } else if (desc.includes('connect to kafka')) {
+                            actionTeam = 'No Action';
+                            suggestion = 'Infrastructure test - validates connection lifecycle';
+                          } else if (desc.includes('disconnect from kafka')) {
+                            actionTeam = 'No Action';
+                            suggestion = 'Infrastructure test - validates connection lifecycle';
+                          } else if (desc.includes('message key')) {
+                            actionTeam = 'No Action';
+                            suggestion = 'Messaging implementation test - validates Kafka protocol details';
+                          } else if (desc.includes('serialize')) {
+                            actionTeam = 'No Action';
+                            suggestion = 'Messaging implementation test - validates Kafka protocol details';
+                          } else if (desc.includes('default topic')) {
+                            actionTeam = 'No Action';
+                            suggestion = 'Messaging implementation test - validates Kafka protocol details';
+                          } else if (desc.includes('timestamp in message')) {
+                            actionTeam = 'No Action';
+                            suggestion = 'Infrastructure test - validates technical implementation detail';
+                          }
+                          // Controller-level tests
+                          else if (file.includes('controller')) {
+                            if (desc.includes('500') && desc.includes('unexpected')) {
+                              suggestion = 'Map to DB001/DB002 scenarios for database failure error handling';
+                            } else if (desc.includes('400') && desc.includes('missing id')) {
+                              suggestion = 'Create NF_GET_001 scenario: Missing ID parameter in GET request';
+                            } else if (desc.includes('201') && desc.includes('profile created')) {
+                              suggestion = 'Create HF_PROFILE_001 scenario: Create profile with valid data';
+                            } else if (desc.includes('400') && desc.includes('validation')) {
+                              suggestion = 'Create NF_PROFILE_001 scenario: Profile validation errors';
+                            } else if (desc.includes('400') && desc.includes('invalid age')) {
+                              suggestion = 'Create EC_PROFILE_001 scenario: Age boundary validation (0-150 range)';
+                            } else if (desc.includes('204') && desc.includes('profile deleted')) {
+                              suggestion = 'Create HF_PROFILE_004 scenario: Delete profile successfully';
+                            }
+                          }
+                          // Service-level tests
+                          else if (file.includes('/service') && !file.includes('repository')) {
+                            if (desc.includes('publish') && desc.includes('event')) {
+                              suggestion = 'IMPORTANT: Map to HF001 - Event publishing is core to user creation flow';
+                            } else if (desc.includes('repository errors') || desc.includes('handle.*errors')) {
+                              suggestion = 'Map to DB002 - Service resilience test';
+                            } else if (desc.includes('profile') && desc.includes('create') && desc.includes('valid')) {
+                              suggestion = 'Create HF_PROFILE_001 scenario: Profile creation business logic';
+                            } else if (desc.includes('userid is missing')) {
+                              suggestion = 'Create NF_PROFILE_002 scenario: Required field validation (userId)';
+                            } else if (desc.includes('age is negative') || desc.includes('age is above')) {
+                              suggestion = 'Create EC_PROFILE_001 scenario: Age boundary validation';
+                            } else if (desc.includes('accept age of')) {
+                              suggestion = 'Map to EC_PROFILE_001 scenario: Valid age boundary acceptance';
+                            } else if (desc.includes('return profile when found')) {
+                              suggestion = 'Create HF_PROFILE_002/003 scenario: Get profile by ID/userId';
+                            } else if (desc.includes('update profile')) {
+                              suggestion = 'Create HF_PROFILE_005 scenario: Update profile with valid data';
+                            } else if (desc.includes('delete profile')) {
+                              suggestion = 'Create HF_PROFILE_004 scenario: Delete profile successfully';
+                            }
+                          }
+                          // Repository-level tests
+                          else if (file.includes('/repository') || file.includes('Repository')) {
+                            if (desc.includes('invalid objectid') || desc.includes('invalid id')) {
+                              suggestion = 'Map to NF002 - Invalid ID format validation';
+                            } else if (desc.includes('create') || desc.includes('insert')) {
+                              suggestion = 'Technical test supporting HF_PROFILE_001 - validates MongoDB insertion';
+                            } else if (desc.includes('return') && desc.includes('found')) {
+                              suggestion = 'Technical test supporting HF_PROFILE_002/003 - validates retrieval';
+                            } else if (desc.includes('null')) {
+                              suggestion = 'Technical test supporting NF002 - validates not found handling';
+                            } else if (desc.includes('update')) {
+                              suggestion = 'Technical test supporting HF_PROFILE_005 - validates MongoDB update';
+                            } else if (desc.includes('delete')) {
+                              suggestion = 'Technical test supporting HF_PROFILE_004 - validates MongoDB deletion';
+                            }
+                          }
+                          // Kafka publisher tests
+                          else if (file.includes('kafka')) {
+                            if (desc.includes('publish event to kafka')) {
+                              suggestion = 'IMPORTANT: Map to HF001 - Kafka publishing is critical to user creation';
+                            }
+                          }
+                          
+                          if (!suggestion) {
+                            suggestion = 'Analyze test context and create appropriate scenario definition';
+                          }
+                          
+                          const actionBadge = actionTeam === 'No Action' 
+                            ? '<span class="badge badge-success">No Action</span>'
+                            : '<span class="badge" style="background: #9b59b6; color: white;">QA Team</span>';
+                          
+                          return `
                         <tr>
                             <td><strong>${test.id}</strong></td>
                             <td><span class="badge badge-info">${test.service}</span></td>
                             <td style="font-size: 0.9em;">${test.description}</td>
                             <td style="font-size: 0.85em; color: #666;">${test.file}</td>
+                            <td>${actionBadge}</td>
+                            <td style="font-size: 0.85em;">${suggestion}</td>
                         </tr>
-                        `).join('')}
+                          `;
+                        }).join('')}
                     </tbody>
                 </table>
             </div>

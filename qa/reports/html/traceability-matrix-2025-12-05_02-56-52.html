@@ -410,19 +410,19 @@
             <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
             <h1>🎯 Traceability Matrix</h1>
             <div class="header-meta">
-                <p>Generated: December 5, 2025 at 08:20 AM</p>
-                <p>Mode: Full Suite | Coverage: 50%</p>
+                <p>Generated: December 5, 2025 at 08:26 AM</p>
+                <p>Mode: Full Suite | Coverage: 0%</p>
             </div>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card" style="border-left-color: #10b981;">
-                <div class="stat-value">50%</div>
+                <div class="stat-value">0%</div>
                 <div class="stat-label">Coverage</div>
-                <div class="stat-detail">9/18 scenarios</div>
+                <div class="stat-detail">0/18 scenarios</div>
             </div>
             <div class="stat-card" style="border-left-color: #ef4444;">
-                <div class="stat-value">3</div>
+                <div class="stat-value">4</div>
                 <div class="stat-label">Critical Gaps</div>
                 <div class="stat-detail">P0 - Immediate action</div>
             </div>
@@ -432,17 +432,17 @@
                 <div class="stat-detail">P1 - Next sprint</div>
             </div>
             <div class="stat-card" style="border-left-color: #06b6d4;">
-                <div class="stat-value">77</div>
+                <div class="stat-value">0</div>
                 <div class="stat-label">Unit Tests</div>
-                <div class="stat-detail">2 services</div>
+                <div class="stat-detail">0 services</div>
             </div>
             <div class="stat-card" style="border-left-color: #8b5cf6;">
-                <div class="stat-value">41</div>
+                <div class="stat-value">0</div>
                 <div class="stat-label">Orphan Tests</div>
                 <div class="stat-detail">Need mapping</div>
             </div>
             <div class="stat-card" style="border-left-color: #10b981;">
-                <div class="stat-value">2</div>
+                <div class="stat-value">0</div>
                 <div class="stat-label">Partial</div>
                 <div class="stat-detail">Need improvement</div>
             </div>
@@ -518,44 +518,44 @@
                     </thead>
                     <tbody>
                         
-                        <tr data-coverage="Fully Covered" data-priority="P3">
+                        <tr data-coverage="Not Covered" data-priority="P3">
                             <td><strong>HF001</strong></td>
                             <td>Create user with valid payload</td>
-                            <td>test_onboarding_user_controller_1, test_onboarding_user_service_1, test_onboarding_mongo_user_repository_1</td>
-                            <td><span class="badge badge-info">onboarding-service</span></td>
-                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
                             <td><span class="badge badge-info">P3</span></td>
-                            <td style="font-size: 0.9em;">None. Multiple unit tests cover this scenario comprehensively.</td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
                         </tr>
                           
-                        <tr data-coverage="Fully Covered" data-priority="P3">
+                        <tr data-coverage="Not Covered" data-priority="P3">
                             <td><strong>HF002</strong></td>
                             <td>Get user with valid ID</td>
-                            <td>test_onboarding_user_service_7, test_onboarding_mongo_user_repository_3, test_onboarding_mongo_user_repository_6, test_identity_profile_controller_5, test_identity_profile_controller_7, test_identity_profile_controller_9, test_onboarding_user_controller_7</td>
-                            <td><span class="badge badge-info">onboarding-service, identity-service</span></td>
-                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
                             <td><span class="badge badge-info">P3</span></td>
-                            <td style="font-size: 0.9em;">None. Multiple unit tests cover this scenario comprehensively.</td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
                         </tr>
                           
-                        <tr data-coverage="Fully Covered" data-priority="P2">
+                        <tr data-coverage="Not Covered" data-priority="P2">
                             <td><strong>NF001</strong></td>
                             <td>Create user missing required field (email)</td>
-                            <td>test_onboarding_user_controller_2</td>
-                            <td><span class="badge badge-info">onboarding-service</span></td>
-                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
                             <td><span class="badge badge-info">P2</span></td>
-                            <td style="font-size: 0.9em;">None. Happy path is properly validated.</td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
                         </tr>
                           
-                        <tr data-coverage="Fully Covered" data-priority="P3">
+                        <tr data-coverage="Not Covered" data-priority="P3">
                             <td><strong>NF002</strong></td>
                             <td>Get user with invalid ID (404)</td>
-                            <td>test_identity_profile_controller_6, test_identity_profile_controller_10, test_identity_profile_controller_13, test_identity_profile_service_9, test_identity_profile_service_11, test_identity_profile_service_13, test_identity_profile_service_16, test_identity_mongo_profile_repository_3, test_identity_mongo_profile_repository_9, test_onboarding_user_controller_9, test_onboarding_user_service_8, test_onboarding_mongo_user_repository_4, test_onboarding_mongo_user_repository_7, test_identity_profile_controller_8</td>
-                            <td><span class="badge badge-info">identity-service, onboarding-service</span></td>
-                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
                             <td><span class="badge badge-info">P3</span></td>
-                            <td style="font-size: 0.9em;">None. Multiple unit tests cover this scenario comprehensively.</td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
                         </tr>
                           
                         <tr data-coverage="Not Covered" data-priority="P1">
@@ -568,44 +568,44 @@
                             <td style="font-size: 0.9em;">CRITICAL GAP: No unit test validates graceful handling of malformed JSON. Relies on framework behavior.</td>
                         </tr>
                           
-                        <tr data-coverage="Fully Covered" data-priority="P3">
+                        <tr data-coverage="Not Covered" data-priority="P3">
                             <td><strong>NF004</strong></td>
                             <td>Duplicate email (409)</td>
-                            <td>test_onboarding_user_controller_5, test_identity_profile_service_3, test_onboarding_user_service_3, test_identity_profile_controller_3</td>
-                            <td><span class="badge badge-info">onboarding-service, identity-service</span></td>
-                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
                             <td><span class="badge badge-info">P3</span></td>
-                            <td style="font-size: 0.9em;">None. Multiple unit tests cover this scenario comprehensively.</td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
                         </tr>
                           
-                        <tr data-coverage="Fully Covered" data-priority="P3">
+                        <tr data-coverage="Not Covered" data-priority="P3">
                             <td><strong>NF005</strong></td>
                             <td>Invalid email format (400)</td>
-                            <td>test_onboarding_user_controller_4, test_onboarding_user_service_4, test_onboarding_user_service_5, test_onboarding_user_service_6</td>
-                            <td><span class="badge badge-info">onboarding-service</span></td>
-                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
                             <td><span class="badge badge-info">P3</span></td>
-                            <td style="font-size: 0.9em;">None. Multiple unit tests cover this scenario comprehensively.</td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
                         </tr>
                           
-                        <tr data-coverage="Partially Covered" data-priority="P2">
+                        <tr data-coverage="Not Covered" data-priority="P2">
                             <td><strong>NF006</strong></td>
                             <td>Missing name field (400)</td>
-                            <td>test_onboarding_user_controller_3</td>
-                            <td><span class="badge badge-info">onboarding-service</span></td>
-                            <td><span class="badge badge-warning">Partially Covered</span></td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
                             <td><span class="badge badge-info">P2</span></td>
-                            <td style="font-size: 0.9em;">Some aspects covered, but incomplete validation</td>
+                            <td style="font-size: 0.9em;">GAP: While missing email is tested, missing name is not separately validated.</td>
                         </tr>
                           
-                        <tr data-coverage="Fully Covered" data-priority="P2">
+                        <tr data-coverage="Not Covered" data-priority="P2">
                             <td><strong>NF007</strong></td>
                             <td>Empty string values (400)</td>
-                            <td>test_onboarding_user_controller_3</td>
-                            <td><span class="badge badge-info">onboarding-service</span></td>
-                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
                             <td><span class="badge badge-info">P2</span></td>
-                            <td style="font-size: 0.9em;">Unexpectedly covered by unit tests</td>
+                            <td style="font-size: 0.9em;">GAP: No test for empty strings in email/name fields (as opposed to null/undefined).</td>
                         </tr>
                           
                         <tr data-coverage="Not Covered" data-priority="P2">
@@ -658,34 +658,34 @@
                             <td style="font-size: 0.9em;">CRITICAL GAP: No test for initial DB connection failure handling.</td>
                         </tr>
                           
-                        <tr data-coverage="Fully Covered" data-priority="P3">
+                        <tr data-coverage="Not Covered" data-priority="P3">
                             <td><strong>DB003</strong></td>
                             <td>DB duplicate key error</td>
-                            <td>test_onboarding_user_controller_5, test_identity_profile_service_3, test_onboarding_user_service_3</td>
-                            <td><span class="badge badge-info">onboarding-service, identity-service</span></td>
-                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
                             <td><span class="badge badge-info">P3</span></td>
-                            <td style="font-size: 0.9em;">None. Multiple unit tests cover this scenario comprehensively.</td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
                         </tr>
                           
-                        <tr data-coverage="Fully Covered" data-priority="P0">
+                        <tr data-coverage="Not Covered" data-priority="P0">
                             <td><strong>KAF001</strong></td>
                             <td>Kafka publish failure post-DB commit</td>
-                            <td>test_onboarding_kafka_event_publisher_8</td>
-                            <td><span class="badge badge-info">onboarding-service</span></td>
-                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
                             <td><span class="badge badge-info">P0</span></td>
-                            <td style="font-size: 0.9em;">Unexpectedly covered by unit tests</td>
+                            <td style="font-size: 0.9em;">CRITICAL GAP: No test verifies service handles Kafka failure gracefully (logging, DLQ, non-blocking).</td>
                         </tr>
                           
-                        <tr data-coverage="Partially Covered" data-priority="P0">
+                        <tr data-coverage="Not Covered" data-priority="P0">
                             <td><strong>KAF002</strong></td>
                             <td>Kafka connection failure</td>
-                            <td>test_onboarding_kafka_event_publisher_2</td>
-                            <td><span class="badge badge-info">onboarding-service</span></td>
-                            <td><span class="badge badge-warning">Partially Covered</span></td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
                             <td><span class="badge badge-info">P0</span></td>
-                            <td style="font-size: 0.9em;">Some aspects covered, but incomplete validation</td>
+                            <td style="font-size: 0.9em;">Test exists but doesn't verify user creation succeeds if Kafka is unavailable.</td>
                         </tr>
                           
                         <tr data-coverage="Not Covered" data-priority="P1">
@@ -702,6 +702,18 @@
                 </table>
             </div>
         </div>
+
+        
+        <div class="section">
+            <h2>🔍 Orphan Unit Tests</h2>
+            <div class="gap-card success">
+                <h3>✅ Perfect Traceability</h3>
+                <p style="color: #666; margin-top: 10px;">
+                    All unit tests are mapped to defined scenarios. No orphan tests detected!
+                </p>
+            </div>
+        </div>
+        
     </div>
 
     <script>
@@ -715,7 +727,7 @@
             data: {
                 labels: ["Fully Covered","Partially Covered","Not Covered"],
                 datasets: [{
-                    data: [9,2,7],
+                    data: [0,0,18],
                     backgroundColor: ["#10b981","#f59e0b","#ef4444"],
                     borderWidth: 0
                 }]
@@ -746,7 +758,7 @@
             data: {
                 labels: ["P0 Critical","P1 High","P2 Medium","P3 Low"],
                 datasets: [{
-                    data: [3,2,6,6],
+                    data: [4,2,6,6],
                     backgroundColor: ["#dc2626","#f59e0b","#3b82f6","#10b981"],
                     borderRadius: 8
                 }]
@@ -779,10 +791,10 @@
         new Chart(document.getElementById('serviceChart'), {
             type: 'bar',
             data: {
-                labels: ["identity-service","onboarding-service"],
+                labels: [],
                 datasets: [{
                     label: 'Unit Tests',
-                    data: [41,36],
+                    data: [],
                     backgroundColor: ["#8b5cf6","#ec4899","#06b6d4","#10b981","#f59e0b"],
                     borderRadius: 8
                 }]
@@ -819,7 +831,7 @@
                 labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Current'],
                 datasets: [{
                     label: 'Coverage %',
-                    data: [30, 42, 48, 46, 50],
+                    data: [30, 42, 48, 46, 0],
                     borderColor: '#6366f1',
                     backgroundColor: 'rgba(99, 102, 241, 0.1)',
                     tension: 0.4,
