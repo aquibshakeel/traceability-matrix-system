@@ -1,59 +1,4 @@
-/**
- * Enhanced Traceability Matrix HTML Template
- * With Chart.js visualizations and premium UI
- */
-
-export function generateEnhancedHTML(data: {
-  mappings: any[];
-  stats: any;
-  serviceSummaries: any[];
-  criticalGaps: any[];
-  highPriorityGaps: any[];
-  allGaps: any[];
-  executionMode: string;
-  timestamp: string;
-  coveragePercent: number;
-  totalTests: number;
-  orphanTests: any[];
-}): string {
-  const {
-    mappings,
-    stats,
-    serviceSummaries,
-    criticalGaps,
-    highPriorityGaps,
-    executionMode,
-    timestamp,
-    coveragePercent,
-    totalTests,
-    orphanTests
-  } = data;
-
-  // Calculate data for charts
-  const coverageData = {
-    labels: ['Fully Covered', 'Partially Covered', 'Not Covered'],
-    data: [stats.fullyCovered, stats.partiallyCovered, stats.notCovered],
-    colors: ['#10b981', '#f59e0b', '#ef4444']
-  };
-
-  const gapPriorityData = {
-    labels: ['P0 Critical', 'P1 High', 'P2 Medium', 'P3 Low'],
-    data: [
-      criticalGaps.length,
-      highPriorityGaps.length,
-      mappings.filter((m: any) => m.scenario.priority === 'P2').length,
-      mappings.filter((m: any) => m.scenario.priority === 'P3').length
-    ],
-    colors: ['#dc2626', '#f59e0b', '#3b82f6', '#10b981']
-  };
-
-  const serviceData = {
-    labels: serviceSummaries.map((s: any) => s.serviceName),
-    data: serviceSummaries.map((s: any) => s.testCount),
-    colors: ['#8b5cf6', '#ec4899', '#06b6d4', '#10b981', '#f59e0b']
-  };
-
-  return `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -465,39 +410,39 @@ export function generateEnhancedHTML(data: {
             <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
             <h1>🎯 Traceability Matrix</h1>
             <div class="header-meta">
-                <p>Generated: ${timestamp}</p>
-                <p>Mode: ${executionMode} | Coverage: ${coveragePercent}%</p>
+                <p>Generated: December 5, 2025 at 08:22 AM</p>
+                <p>Mode: Full Suite | Coverage: 0%</p>
             </div>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card" style="border-left-color: #10b981;">
-                <div class="stat-value">${coveragePercent}%</div>
+                <div class="stat-value">0%</div>
                 <div class="stat-label">Coverage</div>
-                <div class="stat-detail">${stats.fullyCovered}/${stats.total} scenarios</div>
+                <div class="stat-detail">0/18 scenarios</div>
             </div>
             <div class="stat-card" style="border-left-color: #ef4444;">
-                <div class="stat-value">${criticalGaps.length}</div>
+                <div class="stat-value">4</div>
                 <div class="stat-label">Critical Gaps</div>
                 <div class="stat-detail">P0 - Immediate action</div>
             </div>
             <div class="stat-card" style="border-left-color: #f59e0b;">
-                <div class="stat-value">${highPriorityGaps.length}</div>
+                <div class="stat-value">2</div>
                 <div class="stat-label">High Priority</div>
                 <div class="stat-detail">P1 - Next sprint</div>
             </div>
             <div class="stat-card" style="border-left-color: #06b6d4;">
-                <div class="stat-value">${totalTests}</div>
+                <div class="stat-value">0</div>
                 <div class="stat-label">Unit Tests</div>
-                <div class="stat-detail">${serviceSummaries.length} services</div>
+                <div class="stat-detail">0 services</div>
             </div>
             <div class="stat-card" style="border-left-color: #8b5cf6;">
-                <div class="stat-value">${orphanTests.length}</div>
+                <div class="stat-value">0</div>
                 <div class="stat-label">Orphan Tests</div>
                 <div class="stat-detail">Need mapping</div>
             </div>
             <div class="stat-card" style="border-left-color: #10b981;">
-                <div class="stat-value">${stats.partiallyCovered}</div>
+                <div class="stat-value">0</div>
                 <div class="stat-label">Partial</div>
                 <div class="stat-detail">Need improvement</div>
             </div>
@@ -572,78 +517,193 @@ export function generateEnhancedHTML(data: {
                         </tr>
                     </thead>
                     <tbody>
-                        ${mappings.map((m: any) => {
-                          const coverageClass = 
-                            m.coverageStatus === 'Fully Covered' ? 'badge-success' :
-                            m.coverageStatus === 'Partially Covered' ? 'badge-warning' : 'badge-danger';
-                          
-                          const services = m.matchedTests.length > 0
-                            ? [...new Set(m.matchedTests.map((t: any) => t.service))].join(', ')
-                            : 'N/A';
-                          
-                          return `
-                        <tr data-coverage="${m.coverageStatus}" data-priority="${m.scenario.priority}">
-                            <td><strong>${m.scenario.id}</strong></td>
-                            <td>${m.scenario.description}</td>
-                            <td>${m.matchedTests.length > 0 ? m.matchedTests.map((t: any) => t.id).join(', ') : 'None'}</td>
-                            <td><span class="badge badge-info">${services}</span></td>
-                            <td><span class="badge ${coverageClass}">${m.coverageStatus}</span></td>
-                            <td><span class="badge badge-info">${m.scenario.priority}</span></td>
-                            <td style="font-size: 0.9em;">${m.gapExplanation}</td>
+                        
+                        <tr data-coverage="Not Covered" data-priority="P3">
+                            <td><strong>HF001</strong></td>
+                            <td>Create user with valid payload</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
                         </tr>
-                          `;
-                        }).join('')}
+                          
+                        <tr data-coverage="Not Covered" data-priority="P3">
+                            <td><strong>HF002</strong></td>
+                            <td>Get user with valid ID</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P2">
+                            <td><strong>NF001</strong></td>
+                            <td>Create user missing required field (email)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P3">
+                            <td><strong>NF002</strong></td>
+                            <td>Get user with invalid ID (404)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P1">
+                            <td><strong>NF003</strong></td>
+                            <td>Malformed JSON payload (400)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P1</span></td>
+                            <td style="font-size: 0.9em;">CRITICAL GAP: No unit test validates graceful handling of malformed JSON. Relies on framework behavior.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P3">
+                            <td><strong>NF004</strong></td>
+                            <td>Duplicate email (409)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P3">
+                            <td><strong>NF005</strong></td>
+                            <td>Invalid email format (400)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P2">
+                            <td><strong>NF006</strong></td>
+                            <td>Missing name field (400)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">GAP: While missing email is tested, missing name is not separately validated.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P2">
+                            <td><strong>NF007</strong></td>
+                            <td>Empty string values (400)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">GAP: No test for empty strings in email/name fields (as opposed to null/undefined).</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P2">
+                            <td><strong>EC001</strong></td>
+                            <td>Boundary-condition input (Max string length)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">Unit test only checks name boundary. Missing boundary check for email field.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P2">
+                            <td><strong>EC002</strong></td>
+                            <td>Very long email (>254 chars)</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">GAP: RFC 5321 max email length (254 chars) not validated.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P2">
+                            <td><strong>EC003</strong></td>
+                            <td>Special characters in name</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">GAP: No validation for special chars, emojis, or unicode in name field.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P0">
+                            <td><strong>DB001</strong></td>
+                            <td>DB timeout during user creation</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P0</span></td>
+                            <td style="font-size: 0.9em;">CRITICAL GAP: No unit test verifies service rollback/retry or correct 500 status when DB times out.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P0">
+                            <td><strong>DB002</strong></td>
+                            <td>DB connection failure</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P0</span></td>
+                            <td style="font-size: 0.9em;">CRITICAL GAP: No test for initial DB connection failure handling.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P3">
+                            <td><strong>DB003</strong></td>
+                            <td>DB duplicate key error</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">No unit test coverage found for this scenario.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P0">
+                            <td><strong>KAF001</strong></td>
+                            <td>Kafka publish failure post-DB commit</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P0</span></td>
+                            <td style="font-size: 0.9em;">CRITICAL GAP: No test verifies service handles Kafka failure gracefully (logging, DLQ, non-blocking).</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P0">
+                            <td><strong>KAF002</strong></td>
+                            <td>Kafka connection failure</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P0</span></td>
+                            <td style="font-size: 0.9em;">Test exists but doesn't verify user creation succeeds if Kafka is unavailable.</td>
+                        </tr>
+                          
+                        <tr data-coverage="Not Covered" data-priority="P1">
+                            <td><strong>KAF003</strong></td>
+                            <td>Kafka timeout</td>
+                            <td>None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P1</span></td>
+                            <td style="font-size: 0.9em;">GAP: No test for Kafka publish timeout scenario.</td>
+                        </tr>
+                          
                     </tbody>
                 </table>
             </div>
         </div>
 
-        ${orphanTests.length > 0 ? `
-        <div class="section">
-            <h2>🔍 Orphan Unit Tests</h2>
-            <div class="gap-card warning">
-                <h3>⚠️ ${orphanTests.length} unit test(s) not mapped to any scenario</h3>
-                <p style="color: #666; margin-top: 10px;">
-                    <strong>Definition:</strong> These unit tests exist but are not linked to any documented test scenario.
-                    This may indicate undocumented scenarios or tests that need review.
-                </p>
-            </div>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Test ID</th>
-                            <th>Service</th>
-                            <th>Description</th>
-                            <th>File</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${orphanTests.map((test: any) => `
-                        <tr>
-                            <td><strong>${test.id}</strong></td>
-                            <td><span class="badge badge-info">${test.service}</span></td>
-                            <td style="font-size: 0.9em;">${test.description}</td>
-                            <td style="font-size: 0.85em; color: #666;">${test.file}</td>
-                        </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-
-            <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 5px solid #ffbb33;">
-                <h4 style="color: #856404; margin-bottom: 10px;">📋 Recommended Actions:</h4>
-                <ul style="color: #856404; margin-left: 20px; line-height: 1.8;">
-                    <li>Review each orphan test to understand what scenario it covers</li>
-                    <li>Add corresponding scenario definitions to <code>scenario-definitions.ts</code></li>
-                    <li>Update scenario mapping patterns to include these tests</li>
-                    <li>Consider if any tests are redundant and can be removed</li>
-                    <li>Ensure bidirectional traceability (Scenarios ↔ Tests)</li>
-                </ul>
-            </div>
-        </div>
-        ` : `
+        
         <div class="section">
             <h2>🔍 Orphan Unit Tests</h2>
             <div class="gap-card success">
@@ -653,7 +713,7 @@ export function generateEnhancedHTML(data: {
                 </p>
             </div>
         </div>
-        `}
+        
     </div>
 
     <script>
@@ -665,10 +725,10 @@ export function generateEnhancedHTML(data: {
         new Chart(document.getElementById('coverageChart'), {
             type: 'doughnut',
             data: {
-                labels: ${JSON.stringify(coverageData.labels)},
+                labels: ["Fully Covered","Partially Covered","Not Covered"],
                 datasets: [{
-                    data: ${JSON.stringify(coverageData.data)},
-                    backgroundColor: ${JSON.stringify(coverageData.colors)},
+                    data: [0,0,18],
+                    backgroundColor: ["#10b981","#f59e0b","#ef4444"],
                     borderWidth: 0
                 }]
             },
@@ -696,10 +756,10 @@ export function generateEnhancedHTML(data: {
         new Chart(document.getElementById('gapPriorityChart'), {
             type: 'bar',
             data: {
-                labels: ${JSON.stringify(gapPriorityData.labels)},
+                labels: ["P0 Critical","P1 High","P2 Medium","P3 Low"],
                 datasets: [{
-                    data: ${JSON.stringify(gapPriorityData.data)},
-                    backgroundColor: ${JSON.stringify(gapPriorityData.colors)},
+                    data: [4,2,6,6],
+                    backgroundColor: ["#dc2626","#f59e0b","#3b82f6","#10b981"],
                     borderRadius: 8
                 }]
             },
@@ -731,11 +791,11 @@ export function generateEnhancedHTML(data: {
         new Chart(document.getElementById('serviceChart'), {
             type: 'bar',
             data: {
-                labels: ${JSON.stringify(serviceData.labels)},
+                labels: [],
                 datasets: [{
                     label: 'Unit Tests',
-                    data: ${JSON.stringify(serviceData.data)},
-                    backgroundColor: ${JSON.stringify(serviceData.colors)},
+                    data: [],
+                    backgroundColor: ["#8b5cf6","#ec4899","#06b6d4","#10b981","#f59e0b"],
                     borderRadius: 8
                 }]
             },
@@ -771,7 +831,7 @@ export function generateEnhancedHTML(data: {
                 labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Current'],
                 datasets: [{
                     label: 'Coverage %',
-                    data: [30, 42, 48, 46, ${coveragePercent}],
+                    data: [30, 42, 48, 46, 0],
                     borderColor: '#6366f1',
                     backgroundColor: 'rgba(99, 102, 241, 0.1)',
                     tension: 0.4,
@@ -856,7 +916,7 @@ export function generateEnhancedHTML(data: {
                 data.push(rowData.join(','));
             });
             
-            const csv = data.join('\\n');
+            const csv = data.join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -866,5 +926,4 @@ export function generateEnhancedHTML(data: {
         }
     </script>
 </body>
-</html>`;
-}
+</html>

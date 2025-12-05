@@ -1,15 +1,15 @@
 {
   "metadata": {
-    "generatedAt": "2025-12-05T02:23:28.087Z",
-    "mode": "Full Suite",
-    "totalScenarios": 18,
+    "generatedAt": "2025-12-05T02:49:03.889Z",
+    "mode": "Selective",
+    "totalScenarios": 13,
     "unitTests": 77
   },
   "statistics": {
-    "total": 18,
-    "fullyCovered": 9,
-    "partiallyCovered": 2,
-    "notCovered": 7,
+    "total": 13,
+    "fullyCovered": 7,
+    "partiallyCovered": 1,
+    "notCovered": 5,
     "byCategory": {
       "Positive": {
         "total": 2,
@@ -29,28 +29,20 @@
         "partial": 0,
         "notCovered": 3
       },
-      "DB_Failure": {
-        "total": 3,
-        "covered": 1,
-        "partial": 0,
-        "notCovered": 2
-      },
       "Kafka_Failure": {
-        "total": 3,
-        "covered": 1,
-        "partial": 1,
+        "total": 1,
+        "covered": 0,
+        "partial": 0,
         "notCovered": 1
       }
     },
     "byPriority": {
       "P1": 2,
-      "P2": 4,
-      "P0": 3
+      "P2": 4
     },
     "byRisk": {
       "Medium": 4,
-      "Low": 2,
-      "High": 3
+      "Low": 2
     }
   },
   "services": [
@@ -767,41 +759,6 @@
       "coverageStatus": "Not Covered",
       "matchedTestsCount": 0,
       "gapExplanation": "GAP: No validation for special chars, emojis, or unicode in name field."
-    },
-    {
-      "scenarioId": "DB001",
-      "description": "DB timeout during user creation",
-      "coverageStatus": "Not Covered",
-      "matchedTestsCount": 0,
-      "gapExplanation": "CRITICAL GAP: No unit test verifies service rollback/retry or correct 500 status when DB times out."
-    },
-    {
-      "scenarioId": "DB002",
-      "description": "DB connection failure",
-      "coverageStatus": "Not Covered",
-      "matchedTestsCount": 0,
-      "gapExplanation": "CRITICAL GAP: No test for initial DB connection failure handling."
-    },
-    {
-      "scenarioId": "DB003",
-      "description": "DB duplicate key error",
-      "coverageStatus": "Fully Covered",
-      "matchedTestsCount": 3,
-      "gapExplanation": "None. Multiple unit tests cover this scenario comprehensively."
-    },
-    {
-      "scenarioId": "KAF001",
-      "description": "Kafka publish failure post-DB commit",
-      "coverageStatus": "Fully Covered",
-      "matchedTestsCount": 1,
-      "gapExplanation": "Unexpectedly covered by unit tests"
-    },
-    {
-      "scenarioId": "KAF002",
-      "description": "Kafka connection failure",
-      "coverageStatus": "Partially Covered",
-      "matchedTestsCount": 1,
-      "gapExplanation": "Some aspects covered, but incomplete validation"
     },
     {
       "scenarioId": "KAF003",
