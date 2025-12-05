@@ -1,0 +1,44 @@
+# Integration/E2E Tests Directory
+
+This directory contains integration and end-to-end tests that run outside the service container.
+
+Integration tests should:
+- Test interactions between components
+- Use real external services (MongoDB, Kafka)
+- Verify API contracts
+- Test complete user flows
+
+## Running Integration Tests
+
+```bash
+# Start services first
+docker-compose up -d
+
+# Run integration tests from host
+npm run test:integration
+
+# Or run inside a separate test container
+docker-compose run --rm test-runner npm run test:integration
+```
+
+## Example Test Structure
+
+```
+test/integration/
+├── api/
+│   ├── user-creation.test.ts
+│   └── user-retrieval.test.ts
+├── events/
+│   └── onboarding-events.test.ts
+└── helpers/
+    ├── db-helper.ts
+    └── kafka-helper.ts
+```
+
+## Test Data Cleanup
+
+Integration tests should:
+1. Set up test data before each test
+2. Clean up test data after each test
+3. Use unique identifiers to avoid conflicts
+4. Not affect production data

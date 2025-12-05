@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  qa-tests:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: onboarding-qa-tests
+    environment:
+      - API_BASE_URL=http://service:3000
+      - NODE_ENV=test
+      - TEST_MODE=${TEST_MODE:-all}
+      - TEST_TARGET=${TEST_TARGET:-}
+      - GENERATE_TM=${GENERATE_TM:-true}
+    depends_on:
+      service:
+        condition: service_healthy
+    networks:
+      - test-network
+    volumes:
+      - ./reports:/qa/reports
+    command: sh scripts/docker-run-tests.sh
+
+  # Use the existing service from main docker-compose
+  service:
+    image: ai-dummy-service-service:latest
+    container_name: onboarding-service-qa
+    environment:
+      PORT: 3000
+      MONGODB_URI: mongodb://mongodb:27017
+      MONGODB_DATABASE: onboarding-service-qa
+      KAFKA_BROKERS: kafka:29092
+      KAFKA_CLIENT_ID: onboarding-service-qa
+      KAFKA_TOPIC: user-onboarding-qa
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  mongodb:
+    image: mongo:7
+    container_name: onboarding-mongodb-qa
+    environment:
+      MONGO_INITDB_DATABASE: onboarding-service-qa
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: onboarding-zookeeper-qa
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - test-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: onboarding-kafka-qa
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+networks:
+  test-network:
+    driver: bridge

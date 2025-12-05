@@ -1,0 +1,53 @@
+# Node modules
+node_modules/
+npm-debug.log
+
+# Tests
+test/
+tests/
+*.test.ts
+*.spec.ts
+coverage/
+
+# Documentation
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts (old)
+dist/
+build/
+
+# Environment files
+.env*
+
+# Test reports
+test-reports/
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Old files from previous implementation
+index.html
+playwright.config.ts
+.eslintrc.json
+*.sh
+DOCKER*.md
+QUICKSTART.md
+TEST_*.md
+STEP_BY_STEP_DOCKER.md

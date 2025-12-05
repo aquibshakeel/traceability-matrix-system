@@ -1,0 +1,57 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+echo ""
+
+# Run linting
+echo "📝 Running ESLint..."
+npm run lint
+LINT_EXIT_CODE=$?
+
+if [ $LINT_EXIT_CODE -ne 0 ]; then
+  echo "❌ Linting failed! Please fix the errors above."
+  exit 1
+fi
+
+echo "✅ Linting passed"
+echo ""
+
+# Run tests
+echo "🧪 Running tests..."
+npm run test:run
+TEST_EXIT_CODE=$?
+
+if [ $TEST_EXIT_CODE -ne 0 ]; then
+  echo ""
+  echo "❌ Tests failed! Commit blocked."
+  echo "📊 Check test-reports/test-report.html for detailed results"
+  echo "📸 Screenshots available in test-reports/screenshots/"
+  echo "📊 Traces available in test-reports/traces/"
+  exit 1
+fi
+
+echo ""
+echo "✅ All tests passed"
+echo ""
+
+# Check for breaking changes
+echo "🔎 Checking for breaking changes..."
+
+# Parse test results to check if breaking change tests passed
+if grep -q "Breaking Change Detection" test-reports/test-report.json 2>/dev/null; then
+  if grep -q '"pass":.*Breaking Change Detection' test-reports/test-report.json; then
+    echo "✅ No breaking changes detected"
+  else
+    echo "❌ Breaking changes detected in API! Commit blocked."
+    echo "   Review the failing tests in test-reports/test-report.html"
+    exit 1
+  fi
+else
+  echo "⚠️  Could not verify breaking changes (test report not found)"
+fi
+
+echo ""
+echo "✅ All pre-commit checks passed!"
+echo "📊 Test report: test-reports/test-report.html"
+echo ""

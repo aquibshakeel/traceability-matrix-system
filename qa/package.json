@@ -1,0 +1,41 @@
+{
+  "name": "onboarding-service-qa",
+  "version": "1.0.0",
+  "description": "QA Automation Framework for Onboarding Service",
+  "scripts": {
+    "test": "TIMESTAMP=$(date +%Y%m%d_%H%M%S) && mocha --require ts-node/register 'tests/**/*.spec.ts' --reporter mochawesome --reporter-options reportDir=reports/html,reportFilename=test-report-$TIMESTAMP,reportTitle='QA Test Report',reportPageTitle='Onboarding Service QA',html=true,json=true,inline=true,charts=true,code=true; REPORT_TIMESTAMP=$TIMESTAMP REPORT_JSON=reports/html/test-report-$TIMESTAMP.json ts-node matrix/generate-traceability-matrix.ts",
+    "test:console": "mocha --require ts-node/register 'tests/**/*.spec.ts'",
+    "test:report": "npm test",
+    "test:selective": "TIMESTAMP=$(date +%Y%m%d_%H%M%S) && mocha --require ts-node/register 'tests/**/*.spec.ts' --reporter mochawesome --reporter-options reportDir=reports/html,reportFilename=selective-test-report-$TIMESTAMP,reportTitle='Selective QA Test Report',reportPageTitle='Selective Test Execution',html=true,json=true,inline=true,charts=true,code=true; REPORT_TIMESTAMP=$TIMESTAMP REPORT_JSON=reports/html/selective-test-report-$TIMESTAMP.json ts-node matrix/generate-traceability-matrix.ts --selective",
+    "test:case": "sh scripts/unified-test-runner.sh --case",
+    "test:cases": "sh scripts/unified-test-runner.sh --cases",
+    "test:file": "sh scripts/unified-test-runner.sh --file",
+    "test:folder": "sh scripts/unified-test-runner.sh --folder",
+    "test:all": "sh scripts/unified-test-runner.sh --all",
+    "test:with-matrix": "npm test",
+    "generate:tm": "ts-node matrix/generate-traceability-matrix.ts",
+    "generate:matrix": "ts-node matrix/generate-traceability-matrix.ts",
+    "generate:html-tm": "ts-node matrix/generate-traceability-matrix.ts",
+    "generate:tm:selective": "ts-node matrix/generate-traceability-matrix.ts --selective",
+    "generate:selective-matrix": "ts-node matrix/generate-traceability-matrix.ts --selective",
+    "clean": "sh scripts/clean-artifacts.sh",
+    "test:docker": "docker-compose -f docker-compose.qa.yml up --build --abort-on-container-exit"
+  },
+  "keywords": ["qa", "automation", "playwright", "mocha", "chai"],
+  "author": "QA Team",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.10.6",
+    "chai": "^4.3.10",
+    "mocha": "^10.2.0",
+    "mochawesome": "^7.1.3",
+    "playwright": "^1.40.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "axios": "^1.6.5"
+  }
+}
