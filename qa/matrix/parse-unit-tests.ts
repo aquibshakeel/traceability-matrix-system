@@ -30,7 +30,9 @@ export class UnitTestParser {
       if (fs.existsSync('/workspace')) {
         rootDir = '/workspace';
       } else {
-        rootDir = '../..';
+        // Use process.cwd() as fallback for better context awareness
+        const cwdPath = path.resolve(process.cwd(), '..');
+        rootDir = fs.existsSync(cwdPath) ? '..' : '../..';
       }
     }
     this.rootDir = path.resolve(__dirname, rootDir);
@@ -42,27 +44,36 @@ export class UnitTestParser {
   discoverServices(): string[] {
     const services: string[] = [];
     
-    // Check for service directories (e.g., onboarding-service/, identity-service/)
-    const entries = fs.readdirSync(this.rootDir, { withFileTypes: true });
+    // Directories to exclude from service discovery
+    const excludedDirs = new Set([
+      'node_modules', 'coverage', 'dist', 'qa', 
+      '.git', 'build', '.idea', '.vscode', 
+      'reports', 'logs', 'tmp'
+    ]);
+    
+    try {
+      // Check for service directories (e.g., onboarding-service/, identity-service/)
+      const entries = fs.readdirSync(this.rootDir, { withFileTypes: true });
 
-    for (const entry of entries) {
-      if (entry.isDirectory() && 
-          entry.name.endsWith('-service') && 
-          entry.name !== 'node_modules' && 
-          entry.name !== 'coverage' && 
-          entry.name !== 'dist' && 
-          entry.name !== 'qa') {
-        const servicePath = path.join(this.rootDir, entry.name);
-        
-        // Check if directory has test/unit structure
-        const testPath = path.join(servicePath, 'test/unit');
-        if (fs.existsSync(testPath)) {
-          services.push(entry.name);
+      for (const entry of entries) {
+        if (entry.isDirectory() && 
+            entry.name.endsWith('-service') && 
+            !excludedDirs.has(entry.name)) {
+          const servicePath = path.join(this.rootDir, entry.name);
+          
+          // Check if directory has test/unit structure
+          const testPath = path.join(servicePath, 'test/unit');
+          if (fs.existsSync(testPath)) {
+            services.push(entry.name);
+          }
         }
       }
-    }
 
-    console.log(`🔍 Discovered services: ${services.join(', ')}`);
+      console.log(`🔍 Discovered services: ${services.join(', ')}`);
+    } catch (error) {
+      console.error(`❌ Error discovering services: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    
     return services;
   }
 
@@ -161,72 +172,86 @@ export class UnitTestParser {
   /**
    * Parse a single test file
    */
-  private async parseTestFile(filePath: string, serviceName: string): Promise<UnitTest[]> {
-    const content = fs.readFileSync(filePath, 'utf-8');
+  private parseTestFile(filePath: string, serviceName: string): UnitTest[] {
     const tests: UnitTest[] = [];
     
-    // Extract relative path and layer info
-    const relativePath = path.relative(this.rootDir, filePath);
-    const layer = this.extractLayer(relativePath);
-    const fileName = path.basename(filePath);
-
-    // Extract suite name from describe blocks
-    const describeRegex = /describe\(['"`]([^'"`]+)['"`]/g;
-    let suiteMatch;
-    const suites: string[] = [];
-    
-    while ((suiteMatch = describeRegex.exec(content)) !== null) {
-      suites.push(suiteMatch[1]);
-    }
-
-    const suiteName = suites[0] || fileName.replace('.test.ts', '');
-
-    // Extract individual test cases
-    const itRegex = /it\(['"`]([^'"`]+)['"`]/g;
-    let testMatch;
-    let testIndex = 1;
-
-    while ((testMatch = itRegex.exec(content)) !== null) {
-      const description = testMatch[1];
-      const testId = this.generateTestId(fileName, testIndex);
+    try {
+      const content = fs.readFileSync(filePath, 'utf-8');
       
-      tests.push({
-        id: testId,
-        description,
-        file: relativePath,
-        suite: suiteName,
-        layer,
-        service: serviceName
-      });
+      // Extract relative path and layer info
+      const relativePath = path.relative(this.rootDir, filePath);
+      const layer = this.extractLayer(relativePath);
+      const fileName = path.basename(filePath);
 
-      testIndex++;
+      // Extract suite names from describe blocks (including nested)
+      const describeRegex = /(?:describe|describe\.(?:skip|only))\s*\(\s*['"`]([^'"`]+)['"`]/g;
+      const suites: string[] = [];
+      let suiteMatch;
+      
+      while ((suiteMatch = describeRegex.exec(content)) !== null) {
+        suites.push(suiteMatch[1]);
+      }
+
+      // Build suite name from nested describes or fall back to file name
+      const suiteName = suites.length > 0 ? suites.join(' > ') : fileName.replace('.test.ts', '');
+
+      // Extract individual test cases (including it.skip and it.only)
+      const itRegex = /(?:it|test|it\.(?:skip|only)|test\.(?:skip|only))\s*\(\s*['"`]([^'"`]+)['"`]/g;
+      let testMatch;
+      let testIndex = 1;
+
+      while ((testMatch = itRegex.exec(content)) !== null) {
+        const description = testMatch[1];
+        const testId = this.generateTestId(serviceName, fileName, testIndex);
+        
+        tests.push({
+          id: testId,
+          description,
+          file: relativePath,
+          suite: suites[0] || fileName.replace('.test.ts', ''), // Use first describe for consistency
+          layer,
+          service: serviceName
+        });
+
+        testIndex++;
+      }
+    } catch (error) {
+      console.error(`❌ Error parsing test file ${filePath}: ${error instanceof Error ? error.message : String(error)}`);
     }
 
     return tests;
   }
 
   /**
-   * Extract layer from file path
+   * Extract layer from file path with better precision
    */
   private extractLayer(filePath: string): string {
-    if (filePath.includes('application')) return 'Application';
-    if (filePath.includes('infrastructure')) return 'Infrastructure';
-    if (filePath.includes('api')) return 'API';
-    if (filePath.includes('domain')) return 'Domain';
+    // Use path segments to avoid false positives
+    const segments = filePath.split(path.sep);
+    
+    // Look for layer indicators in path segments
+    for (const segment of segments) {
+      if (segment === 'application') return 'Application';
+      if (segment === 'infrastructure') return 'Infrastructure';
+      if (segment === 'api') return 'API';
+      if (segment === 'domain') return 'Domain';
+    }
+    
     return 'Unknown';
   }
 
   /**
-   * Generate unique test ID
+   * Generate unique test ID including service name to prevent collisions
    */
-  private generateTestId(fileName: string, index: number): string {
+  private generateTestId(serviceName: string, fileName: string, index: number): string {
+    const serviceSlug = serviceName.replace(/-service$/, '').toLowerCase();
     const baseName = fileName
       .replace('.test.ts', '')
       .replace(/([A-Z])/g, '_$1')
       .toLowerCase()
       .replace(/^_/, '');
     
-    return `test_${baseName}_${index}`;
+    return `test_${serviceSlug}_${baseName}_${index}`;
   }
 
   /**

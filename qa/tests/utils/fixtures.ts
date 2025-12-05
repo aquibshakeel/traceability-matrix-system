@@ -147,7 +147,9 @@ export class TestFixtures {
       maxValidEmailLength: {
         // Generate email at RFC 5321 limit (254 chars) that's still unique
         // Format: aaaa...aaaa.timestamp.random@example.com
-        email: 'a'.repeat(244 - uniquePart.length) + uniquePart + '@example.com',
+        // Total: prefix + uniquePart + '@example.com' = 254
+        // @example.com = 12 chars, so prefix + uniquePart = 242
+        email: 'a'.repeat(242 - uniquePart.length) + uniquePart + '@example.com',
         name: 'Max Email Length',
       },
     };
