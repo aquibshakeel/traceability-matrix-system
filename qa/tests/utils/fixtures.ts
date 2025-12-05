@@ -90,52 +90,68 @@ export class TestFixtures {
   };
 
   /**
-   * Edge case payloads
+   * Edge case payloads (use getters to generate unique emails each time)
    */
-  static edgeCases = {
-    veryLongName: {
-      email: this.generateEmail(),
-      name: 'A'.repeat(1000), // 1000 characters
-    },
-    veryLongEmail: {
-      email: 'a'.repeat(250) + '@example.com', // 263 characters (over RFC limit)
-      name: 'Long Email Test',
-    },
-    specialCharactersName: {
-      email: this.generateEmail(),
-      name: '!@#$%^&*()_+-=[]{}|;:\'",.<>?/',
-    },
-    unicodeName: {
-      email: this.generateEmail(),
-      name: '测试用户 тест юзер 🎉🎊',
-    },
-    emojiName: {
-      email: this.generateEmail(),
-      name: '😀😁😂🤣😃😄😅😆',
-    },
-    nullCharacterName: {
-      email: this.generateEmail(),
-      name: 'Test\0User',
-    },
-  };
+  static get edgeCases() {
+    const timestamp = Date.now().toString();
+    const random = Math.floor(Math.random() * 10000).toString();
+    const uniquePart = `${timestamp}.${random}`;
+    
+    return {
+      veryLongName: {
+        email: this.generateEmail(),
+        name: 'A'.repeat(1000), // 1000 characters
+      },
+      veryLongEmail: {
+        // Generate a long email (263 chars) that's still unique
+        // Format: aaaa...aaaa.timestamp.random@example.com
+        email: 'a'.repeat(250 - uniquePart.length) + uniquePart + '@example.com',
+        name: 'Long Email Test',
+      },
+      specialCharactersName: {
+        email: this.generateEmail(),
+        name: '!@#$%^&*()_+-=[]{}|;:\'",.<>?/',
+      },
+      unicodeName: {
+        email: this.generateEmail(),
+        name: '测试用户 тест юзер 🎉🎊',
+      },
+      emojiName: {
+        email: this.generateEmail(),
+        name: '😀😁😂🤣😃😄😅😆',
+      },
+      nullCharacterName: {
+        email: this.generateEmail(),
+        name: 'Test\0User',
+      },
+    };
+  }
 
   /**
-   * Boundary test cases
+   * Boundary test cases (use getters to generate unique emails each time)
    */
-  static boundaries = {
-    maxValidNameLength: {
-      email: this.generateEmail(),
-      name: 'A'.repeat(255), // Typical max varchar
-    },
-    minValidName: {
-      email: this.generateEmail(),
-      name: 'A', // Single character
-    },
-    maxValidEmailLength: {
-      email: 'a'.repeat(244) + '@example.com', // 254 chars (RFC 5321 limit)
-      name: 'Max Email Length',
-    },
-  };
+  static get boundaries() {
+    const timestamp = Date.now().toString();
+    const random = Math.floor(Math.random() * 10000).toString();
+    const uniquePart = `${timestamp}.${random}`;
+    
+    return {
+      maxValidNameLength: {
+        email: this.generateEmail(),
+        name: 'A'.repeat(255), // Typical max varchar
+      },
+      minValidName: {
+        email: this.generateEmail(),
+        name: 'A', // Single character
+      },
+      maxValidEmailLength: {
+        // Generate email at RFC 5321 limit (254 chars) that's still unique
+        // Format: aaaa...aaaa.timestamp.random@example.com
+        email: 'a'.repeat(244 - uniquePart.length) + uniquePart + '@example.com',
+        name: 'Max Email Length',
+      },
+    };
+  }
 
   /**
    * Get a random valid user

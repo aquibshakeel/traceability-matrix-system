@@ -14,6 +14,13 @@
     "types": ["node", "mocha", "chai"],
     "typeRoots": ["./node_modules/@types"]
   },
-  "include": ["tests/**/*", "matrix/**/*"],
+  "ts-node": {
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "commonjs",
+      "types": ["node", "mocha", "chai"]
+    }
+  },
+  "include": ["tests/**/*", "matrix/**/*", "scripts/**/*"],
   "exclude": ["node_modules", "dist", "reports"]
 }
