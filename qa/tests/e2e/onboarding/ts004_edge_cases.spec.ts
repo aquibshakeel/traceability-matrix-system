@@ -5,6 +5,7 @@
  */
 
 import { expect } from 'chai';
+import { allure } from 'allure-mocha/runtime';
 import { apiClient } from '../../utils/apiClient';
 import { TestFixtures } from '../../utils/fixtures';
 
@@ -22,6 +23,26 @@ describe('[TS004] Edge Cases and Boundary Tests', () => {
   
   describe('Boundary-Condition Input (EC001)', () => {
     it('should accept maximum valid name length (255 chars) (EC001)', async function() {
+      allure.epic('Data Quality');
+      allure.feature('Boundary Validation');
+      allure.story('EC001 - Name Length Boundaries');
+      allure.severity('normal');
+      allure.tag('edge-case');
+      allure.tag('boundary');
+      allure.tag('validation');
+      allure.owner('QA Team');
+      allure.description(`
+        **Test Case ID:** TS004-01
+        **Scenario:** EC001 - Maximum valid name length
+        
+        **Objective:** Verify system accepts names at maximum valid length (255 characters)
+        
+        **Business Impact:** Ensures users can use reasonably long names
+        
+        **Expected Result:**
+        - HTTP 201 Created
+        - Full 255-character name preserved
+      `);
       // Arrange
       const payload = TestFixtures.boundaries.maxValidNameLength;
       
@@ -43,20 +64,45 @@ describe('[TS004] Edge Cases and Boundary Tests', () => {
     });
 
     it('should accept minimum valid name length (1 char) (EC001)', async function() {
-      // Arrange
+      allure.epic('Data Quality');
+      allure.feature('Boundary Validation');
+      allure.story('EC001 - Name Length Boundaries');
+      allure.severity('normal');
+      allure.tag('edge-case');
+      allure.tag('boundary');
+      allure.tag('validation');
+      allure.owner('QA Team');
+      allure.description(`
+        **Test Case ID:** TS004-02
+        **Scenario:** EC001 - Minimum valid name length
+        
+        **Objective:** Verify system accepts single-character names
+        
+        **Expected Result:**
+        - HTTP 201 Created
+        - Single character name preserved
+      `);
+      
       const payload = TestFixtures.boundaries.minValidName;
       
-      // Act
-      const response = await apiClient.createUser(payload);
+      await allure.step('Arrange: Prepare single-character name payload', async () => {
+        allure.attachment('Test Payload', JSON.stringify(payload, null, 2), 'application/json');
+      });
       
-      // Assert
-      expect(response.status).to.equal(201, 'Should accept 1 char name');
-      expect(response.data).to.exist;
-      expect(response.data!.name).to.have.lengthOf(1);
-      expect(response.data!.name).to.equal(payload.name);
-      expect(response.data!.email).to.equal(payload.email);
+      let response: any;
+      await allure.step('Act: Create user with 1-char name', async () => {
+        response = await apiClient.createUser(payload);
+        allure.attachment('API Response', JSON.stringify(response, null, 2), 'application/json');
+      });
       
-      // Track for cleanup
+      await allure.step('Assert: Verify acceptance and data preservation', () => {
+        expect(response.status).to.equal(201, 'Should accept 1 char name');
+        expect(response.data).to.exist;
+        expect(response.data!.name).to.have.lengthOf(1);
+        expect(response.data!.name).to.equal(payload.name);
+        expect(response.data!.email).to.equal(payload.email);
+      });
+      
       if (response.data?.id) {
         createdUserIds.push(response.data.id);
       }

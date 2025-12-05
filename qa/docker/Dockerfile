@@ -1,6 +1,6 @@
 FROM node:18-alpine
 
-# Install required tools
+# Install required tools including Java for Allure
 RUN apk add --no-cache \
     bash \
     git \
@@ -9,7 +9,8 @@ RUN apk add --no-cache \
     freetype \
     harfbuzz \
     ca-certificates \
-    ttf-freefont
+    ttf-freefont \
+    openjdk11-jre
 
 # Set Playwright to use installed chromium
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
@@ -22,6 +23,7 @@ WORKDIR /qa
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY .mocharc.json ./
+COPY .mocha-reporters.json ./
 
 # Install dependencies
 RUN npm install
@@ -32,7 +34,7 @@ COPY matrix ./matrix
 COPY scripts ./scripts
 
 # Create reports directory with proper permissions
-RUN mkdir -p reports/html reports/screenshots && \
+RUN mkdir -p reports/html reports/screenshots reports/allure-results reports/allure-report && \
     chmod -R 777 reports
 
 # Make scripts executable

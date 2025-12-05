@@ -36,6 +36,11 @@ yarn-error.log*
 
 # Test reports
 test-reports/
+qa/reports/allure-results/
+qa/reports/allure-report/
+.allure/
+allure-results/
+allure-report/
 
 # Docker volumes
 mongodb_data/

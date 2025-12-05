@@ -9,6 +9,7 @@ This QA framework provides:
 - ✅ Automated traceability matrix generation
 - ✅ Gap analysis with priority scoring (P0/P1/P2)
 - ✅ HTML reports with interactive UI
+- ✅ **Allure reporting with rich visualizations**
 - ✅ Selective test execution
 - ✅ Docker support for isolated testing
 - ✅ Unit test to scenario mapping
@@ -277,7 +278,7 @@ The traceability matrix maps:
 
 ## 📊 Reports
 
-### Test Report
+### Mochawesome Test Report
 **Location:** `reports/html/test-report-*.html`
 
 **Features:**
@@ -287,6 +288,27 @@ The traceability matrix maps:
 - Stack traces for failures
 - Filter by status
 - Search functionality
+
+### Allure Test Report (NEW!)
+**Location:** `reports/allure-report/index.html`
+
+**Features:**
+- Rich interactive dashboard
+- Test history and trends
+- Timeline view of execution
+- Categorized test organization
+- Detailed error reporting
+- Screenshots and attachments support
+
+**Quick Commands:**
+```bash
+npm run allure:generate  # Generate report
+npm run allure:open      # Open in browser
+npm run allure:serve     # Generate and serve
+npm run allure:clean     # Clean Allure artifacts
+```
+
+**📖 Full Documentation:** See [ALLURE.md](./ALLURE.md) for detailed Allure reporting guide.
 
 ### Traceability Matrix Report
 **Location:** `reports/html/traceability-matrix-*.html`
@@ -545,6 +567,7 @@ npm run generate:tm:selective    # Selective matrix
 
 ## 📚 Additional Resources
 
+- [Allure Reporting Guide](./ALLURE.md) - **NEW!** Complete Allure documentation
 - [Test Scenarios Catalog](./matrix/scenario-definitions.ts)
 - [API Client Implementation](./tests/utils/apiClient.ts)
 - [Test Fixtures](./tests/utils/fixtures.ts)

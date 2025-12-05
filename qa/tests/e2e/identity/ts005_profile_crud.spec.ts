@@ -4,6 +4,7 @@
  */
 
 import { expect } from 'chai';
+import { allure } from 'allure-mocha/runtime';
 import { apiClient } from '../../utils/apiClient';
 
 describe('[TS005] Profile CRUD Operations', () => {
@@ -16,20 +17,54 @@ describe('[TS005] Profile CRUD Operations', () => {
   });
 
   describe('Create Profile (POST /api/profile)', () => {
-    it('should create profile with valid data and return 201', async () => {
-      const response = await apiClient.post('/api/profile', {
+    it('should create profile with valid data and return 201', async function() {
+      allure.epic('Identity Management');
+      allure.feature('Profile Management');
+      allure.story('Profile Creation');
+      allure.severity('critical');
+      allure.tag('smoke');
+      allure.tag('crud');
+      allure.tag('profile');
+      allure.tag('identity-service');
+      allure.owner('QA Team');
+      allure.description(`
+        **Test Case ID:** TS005-01
+        **Scenario:** Create profile with valid data
+        
+        **Objective:** Verify profile can be created successfully
+        
+        **Expected Result:**
+        - HTTP 201 Created
+        - Profile with unique ID returned
+        - All fields preserved correctly
+      `);
+      
+      const payload = {
         userId: testUserId,
         age: 28,
         location: 'New York'
+      };
+      
+      allure.parameter('User ID', testUserId);
+      allure.parameter('Age', 28);
+      allure.parameter('Location', 'New York');
+      
+      let response: any;
+      await allure.step('Act: Create profile', async () => {
+        response = await apiClient.post('/api/profile', payload);
+        allure.attachment('API Response', JSON.stringify(response.data, null, 2), 'application/json');
       });
 
-      expect(response.status).to.equal(201);
-      expect(response.data).to.have.property('id');
-      expect(response.data.userId).to.equal(testUserId);
-      expect(response.data.age).to.equal(28);
-      expect(response.data.location).to.equal('New York');
+      await allure.step('Assert: Verify profile created', () => {
+        expect(response.status).to.equal(201);
+        expect(response.data).to.have.property('id');
+        expect(response.data.userId).to.equal(testUserId);
+        expect(response.data.age).to.equal(28);
+        expect(response.data.location).to.equal('New York');
+      });
       
       createdProfileId = response.data.id;
+      allure.parameter('Created Profile ID', createdProfileId);
       console.log(`✅ Profile created: ${createdProfileId}`);
     });
 

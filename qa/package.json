@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "QA Automation Framework for Onboarding Service",
   "scripts": {
-    "test": "TIMESTAMP=$(date +%Y%m%d_%H%M%S) && mocha --require ts-node/register 'tests/**/*.spec.ts' --reporter mochawesome --reporter-options reportDir=reports/html,reportFilename=test-report-$TIMESTAMP,reportTitle='QA Test Report',reportPageTitle='Onboarding Service QA',html=true,json=true,inline=true,charts=true,code=true; REPORT_TIMESTAMP=$TIMESTAMP REPORT_JSON=reports/html/test-report-$TIMESTAMP.json ts-node matrix/generate-traceability-matrix.ts",
+    "test": "TIMESTAMP=$(date +%Y%m%d_%H%M%S) && mocha --require ts-node/register 'tests/**/*.spec.ts' --reporter mocha-multi-reporters --reporter-options configFile=.mocha-reporters.json; REPORT_TIMESTAMP=$TIMESTAMP REPORT_JSON=reports/html/test-report-$TIMESTAMP.json ts-node matrix/generate-traceability-matrix.ts",
     "test:console": "mocha --require ts-node/register 'tests/**/*.spec.ts'",
     "test:report": "npm test",
-    "test:selective": "TIMESTAMP=$(date +%Y%m%d_%H%M%S) && mocha --require ts-node/register 'tests/**/*.spec.ts' --reporter mochawesome --reporter-options reportDir=reports/html,reportFilename=selective-test-report-$TIMESTAMP,reportTitle='Selective QA Test Report',reportPageTitle='Selective Test Execution',html=true,json=true,inline=true,charts=true,code=true; REPORT_TIMESTAMP=$TIMESTAMP REPORT_JSON=reports/html/selective-test-report-$TIMESTAMP.json ts-node matrix/generate-traceability-matrix.ts --selective",
+    "test:selective": "TIMESTAMP=$(date +%Y%m%d_%H%M%S) && mocha --require ts-node/register 'tests/**/*.spec.ts' --reporter mocha-multi-reporters --reporter-options configFile=.mocha-reporters.json; REPORT_TIMESTAMP=$TIMESTAMP REPORT_JSON=reports/html/selective-test-report-$TIMESTAMP.json ts-node matrix/generate-traceability-matrix.ts --selective",
     "test:case": "sh scripts/unified-test-runner.sh --case",
     "test:cases": "sh scripts/unified-test-runner.sh --cases",
     "test:file": "sh scripts/unified-test-runner.sh --file",
@@ -23,7 +23,11 @@
     "generate:html-tm": "ts-node matrix/generate-traceability-matrix.ts",
     "generate:tm:selective": "ts-node matrix/generate-traceability-matrix.ts --selective",
     "generate:selective-matrix": "ts-node matrix/generate-traceability-matrix.ts --selective",
-    "clean": "sh scripts/clean-artifacts.sh"
+    "clean": "sh scripts/clean-artifacts.sh",
+    "allure:generate": "allure generate reports/allure-results --clean -o reports/allure-report",
+    "allure:open": "allure open reports/allure-report",
+    "allure:serve": "allure serve reports/allure-results",
+    "allure:clean": "rm -rf reports/allure-results reports/allure-report"
   },
   "keywords": [
     "qa",
