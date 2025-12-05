@@ -24,7 +24,15 @@ export interface ServiceTestSummary {
 export class UnitTestParser {
   private rootDir: string;
 
-  constructor(rootDir: string = '../..') {
+  constructor(rootDir?: string) {
+    // Check if running in Docker (workspace is mounted at /workspace)
+    if (!rootDir) {
+      if (fs.existsSync('/workspace')) {
+        rootDir = '/workspace';
+      } else {
+        rootDir = '../..';
+      }
+    }
     this.rootDir = path.resolve(__dirname, rootDir);
   }
 

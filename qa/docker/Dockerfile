@@ -1,14 +1,12 @@
 FROM node:18-alpine
 
-# Set working directory
-WORKDIR /qa
-
-# Install dependencies for Playwright (if needed later)
+# Install required tools
 RUN apk add --no-cache \
+    bash \
+    git \
     chromium \
     nss \
     freetype \
-    freetype-dev \
     harfbuzz \
     ca-certificates \
     ttf-freefont
@@ -17,21 +15,28 @@ RUN apk add --no-cache \
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
     PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-# Copy package files
+# Set working directory
+WORKDIR /qa
+
+# Copy package files first for better caching
 COPY package*.json ./
 COPY tsconfig.json ./
+COPY .mocharc.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install
 
-# Copy test files and matrix files
+# Copy all source files
 COPY tests ./tests
 COPY matrix ./matrix
 COPY scripts ./scripts
-COPY .mocharc.json ./
 
-# Create reports directory
-RUN mkdir -p reports/html reports/screenshots
+# Create reports directory with proper permissions
+RUN mkdir -p reports/html reports/screenshots && \
+    chmod -R 777 reports
 
-# Run tests by default
-CMD ["npm", "run", "test:report"]
+# Make scripts executable
+RUN chmod +x scripts/*.sh
+
+# Default command - can be overridden
+CMD ["npm", "run", "test:all"]

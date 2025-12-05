@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕵️ Traceability Matrix Report</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-size: 0.95em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        .stat-detail {
+            font-size: 0.85em;
+            color: #999;
+        }
+        .section { padding: 40px; }
+        .section h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .table-container { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden; }
+        thead { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        th { padding: 15px; text-align: left; font-weight: 600; font-size: 0.95em; }
+        td { padding: 15px; border-bottom: 1px solid #f0f0f0; }
+        tbody tr:hover { background: #f8f9fa; }
+        .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 600; }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        .gap-card {
+            background: white;
+            border-left: 5px solid #ff4444;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .gap-card.warning { border-left-color: #ffbb33; }
+        .gap-card h3 { color: #333; margin-bottom: 10px; }
+        .gap-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .gap-detail { background: #f8f9fa; padding: 10px; border-radius: 5px; }
+        .gap-detail-label { font-size: 0.85em; color: #666; margin-bottom: 5px; }
+        .gap-detail-value { font-weight: 600; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕵️ Traceability Matrix Report</h1>
+            <p style="font-size: 1.1em; margin-top: 10px;">Generated: December 5, 2025 at 07:35 AM | Mode: Full Suite</p>
+            <p style="margin-top: 10px; opacity: 0.9;">Comprehensive Unit Test Coverage Analysis</p>
+        </div>
+        
+        
+    <div class="stats-grid">
+        <div class="stat-card" style="border-left-color: #00C851;">
+            <div class="stat-value">50%</div>
+            <div class="stat-label">Coverage</div>
+            <div class="stat-detail">9/18 scenarios</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #ff4444;">
+            <div class="stat-value">3</div>
+            <div class="stat-label">P0 Critical Gaps</div>
+            <div class="stat-detail">Immediate action required</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #ffbb33;">
+            <div class="stat-value">2</div>
+            <div class="stat-label">P1 High Priority</div>
+            <div class="stat-detail">Next sprint</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #33b5e5;">
+            <div class="stat-value">77</div>
+            <div class="stat-label">Unit Tests</div>
+            <div class="stat-detail">2 services</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #9933CC;">
+            <div class="stat-value">41</div>
+            <div class="stat-label">Orphan Tests</div>
+            <div class="stat-detail">Need scenario mapping</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #669900;">
+            <div class="stat-value">2</div>
+            <div class="stat-label">Partial Coverage</div>
+            <div class="stat-detail">Needs improvement</div>
+        </div>
+    </div>
+        
+        
+    <div class="section">
+        <h2>🚨 Critical Gaps (P0) - Immediate Action Required</h2>
+        
+            <div class="gap-card">
+                <h3>🔴 DB001: DB timeout during user creation</h3>
+                <p style="color: #666; margin: 10px 0;"><strong>Impact:</strong> Production stability - must handle gracefully</p>
+                <div class="gap-details">
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Gap Explanation</div>
+                        <div class="gap-detail-value">CRITICAL GAP: No unit test verifies service rollback/retry or correct 500 status when DB times out.</div>
+                    </div>
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Risk Level</div>
+                        <div class="gap-detail-value">High</div>
+                    </div>
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Unit Tests Found</div>
+                        <div class="gap-detail-value">0</div>
+                    </div>
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">API Endpoint</div>
+                        <div class="gap-detail-value">POST /api/user</div>
+                    </div>
+                </div>
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <strong>🤖 AI Test Generation Prompt:</strong>
+                    <p style="margin-top: 10px; font-family: monospace; font-size: 0.9em;">
+                        "Generate unit test for scenario DB001: DB timeout during user creation. 
+                        Test should validate POST /api/user endpoint behavior. 
+                        Risk level: High."
+                    </p>
+                </div>
+            </div>
+        
+            <div class="gap-card">
+                <h3>🔴 DB002: DB connection failure</h3>
+                <p style="color: #666; margin: 10px 0;"><strong>Impact:</strong> Service availability</p>
+                <div class="gap-details">
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Gap Explanation</div>
+                        <div class="gap-detail-value">CRITICAL GAP: No test for initial DB connection failure handling.</div>
+                    </div>
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Risk Level</div>
+                        <div class="gap-detail-value">High</div>
+                    </div>
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Unit Tests Found</div>
+                        <div class="gap-detail-value">0</div>
+                    </div>
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">API Endpoint</div>
+                        <div class="gap-detail-value">POST /api/user</div>
+                    </div>
+                </div>
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <strong>🤖 AI Test Generation Prompt:</strong>
+                    <p style="margin-top: 10px; font-family: monospace; font-size: 0.9em;">
+                        "Generate unit test for scenario DB002: DB connection failure. 
+                        Test should validate POST /api/user endpoint behavior. 
+                        Risk level: High."
+                    </p>
+                </div>
+            </div>
+        
+            <div class="gap-card">
+                <h3>🔴 KAF002: Kafka connection failure</h3>
+                <p style="color: #666; margin: 10px 0;"><strong>Impact:</strong> Business continuity</p>
+                <div class="gap-details">
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Gap Explanation</div>
+                        <div class="gap-detail-value">Some aspects covered, but incomplete validation</div>
+                    </div>
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Risk Level</div>
+                        <div class="gap-detail-value">High</div>
+                    </div>
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Unit Tests Found</div>
+                        <div class="gap-detail-value">1</div>
+                    </div>
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">API Endpoint</div>
+                        <div class="gap-detail-value">POST /api/user</div>
+                    </div>
+                </div>
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <strong>🤖 AI Test Generation Prompt:</strong>
+                    <p style="margin-top: 10px; font-family: monospace; font-size: 0.9em;">
+                        "Generate unit test for scenario KAF002: Kafka connection failure. 
+                        Test should validate POST /api/user endpoint behavior. 
+                        Risk level: High."
+                    </p>
+                </div>
+            </div>
+        
+    </div>
+  
+        
+        
+    <div class="section">
+        <h2>⚠️ High Priority Gaps (P1) - Next Sprint</h2>
+        
+            <div class="gap-card warning">
+                <h3>🟡 NF003: Malformed JSON payload (400)</h3>
+                <p style="color: #666; margin: 10px 0;"><strong>Impact:</strong> Security - prevents crashes from bad input</p>
+                <div class="gap-details">
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Gap Explanation</div>
+                        <div class="gap-detail-value">CRITICAL GAP: No unit test validates graceful handling of malformed JSON. Relies on framework behavior.</div>
+                    </div>
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Priority</div>
+                        <div class="gap-detail-value">P1</div>
+                    </div>
+                </div>
+            </div>
+        
+            <div class="gap-card warning">
+                <h3>🟡 KAF003: Kafka timeout</h3>
+                <p style="color: #666; margin: 10px 0;"><strong>Impact:</strong> Performance degradation</p>
+                <div class="gap-details">
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Gap Explanation</div>
+                        <div class="gap-detail-value">GAP: No test for Kafka publish timeout scenario.</div>
+                    </div>
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Priority</div>
+                        <div class="gap-detail-value">P1</div>
+                    </div>
+                </div>
+            </div>
+        
+    </div>
+  
+        
+        <div class="section">
+            <h2>📋 Complete Scenario-to-Unit-Test Mapping</h2>
+            <p style="color: #666; margin-bottom: 20px;">Clear mapping of business scenarios to unit test cases</p>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Scenario ID</th>
+                            <th>Description</th>
+                            <th>Unit Tests</th>
+                            <th>Service</th>
+                            <th>Coverage</th>
+                            <th>Priority</th>
+                            <th>Gap Analysis</th>
+                            <th>Action Required</th>
+                            <th>Suggestion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td><strong>HF001</strong></td>
+                            <td>Create user with valid payload</td>
+                            <td style="font-size: 0.85em;">test_user_controller_1, test_user_service_1, test_mongo_user_repository_1</td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">None. Multiple unit tests cover this scenario comprehensively.</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Scenario is adequately covered</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>HF002</strong></td>
+                            <td>Get user with valid ID</td>
+                            <td style="font-size: 0.85em;">test_user_service_7, test_mongo_user_repository_3, test_mongo_user_repository_6, test_profile_controller_5, test_profile_controller_7, test_profile_controller_9, test_user_controller_7</td>
+                            <td><span class="badge badge-info">onboarding-service, identity-service</span></td>
+                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">None. Multiple unit tests cover this scenario comprehensively.</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Scenario is adequately covered</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>NF001</strong></td>
+                            <td>Create user missing required field (email)</td>
+                            <td style="font-size: 0.85em;">test_user_controller_2</td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">None. Happy path is properly validated.</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Scenario is adequately covered</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>NF002</strong></td>
+                            <td>Get user with invalid ID (404)</td>
+                            <td style="font-size: 0.85em;">test_profile_controller_6, test_profile_controller_10, test_profile_controller_13, test_profile_service_9, test_profile_service_11, test_profile_service_13, test_profile_service_16, test_mongo_profile_repository_3, test_mongo_profile_repository_9, test_user_controller_9, test_user_service_8, test_mongo_user_repository_4, test_mongo_user_repository_7, test_profile_controller_8</td>
+                            <td><span class="badge badge-info">identity-service, onboarding-service</span></td>
+                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">None. Multiple unit tests cover this scenario comprehensively.</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Scenario is adequately covered</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>NF003</strong></td>
+                            <td>Malformed JSON payload (400)</td>
+                            <td style="font-size: 0.85em;">None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P1</span></td>
+                            <td style="font-size: 0.9em;">CRITICAL GAP: No unit test validates graceful handling of malformed JSON. Relies on framework behavior.</td>
+                            <td><span class="badge" style="background: #ff6b6b; color: white;">Dev Team</span></td>
+                            <td style="font-size: 0.85em;">Implement unit tests for: Malformed JSON payload (400). Focus on POST /api/user endpoint validation.</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>NF004</strong></td>
+                            <td>Duplicate email (409)</td>
+                            <td style="font-size: 0.85em;">test_user_controller_5, test_profile_service_3, test_user_service_3, test_profile_controller_3</td>
+                            <td><span class="badge badge-info">onboarding-service, identity-service</span></td>
+                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">None. Multiple unit tests cover this scenario comprehensively.</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Scenario is adequately covered</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>NF005</strong></td>
+                            <td>Invalid email format (400)</td>
+                            <td style="font-size: 0.85em;">test_user_controller_4, test_user_service_4, test_user_service_5, test_user_service_6</td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">None. Multiple unit tests cover this scenario comprehensively.</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Scenario is adequately covered</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>NF006</strong></td>
+                            <td>Missing name field (400)</td>
+                            <td style="font-size: 0.85em;">test_user_controller_3</td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td><span class="badge badge-warning">Partially Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">Some aspects covered, but incomplete validation</td>
+                            <td><span class="badge" style="background: #feca57; color: #333;">Dev Team</span></td>
+                            <td style="font-size: 0.85em;">Add more unit tests to cover edge cases and negative scenarios comprehensively.</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>NF007</strong></td>
+                            <td>Empty string values (400)</td>
+                            <td style="font-size: 0.85em;">test_user_controller_3</td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">Unexpectedly covered by unit tests</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Scenario is adequately covered</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>EC001</strong></td>
+                            <td>Boundary-condition input (Max string length)</td>
+                            <td style="font-size: 0.85em;">None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">Unit test only checks name boundary. Missing boundary check for email field.</td>
+                            <td><span class="badge" style="background: #ff6b6b; color: white;">Dev Team</span></td>
+                            <td style="font-size: 0.85em;">Implement unit tests for: Boundary-condition input (Max string length). Focus on POST /api/user endpoint validation.</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>EC002</strong></td>
+                            <td>Very long email (>254 chars)</td>
+                            <td style="font-size: 0.85em;">None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">GAP: RFC 5321 max email length (254 chars) not validated.</td>
+                            <td><span class="badge" style="background: #ff6b6b; color: white;">Dev Team</span></td>
+                            <td style="font-size: 0.85em;">Implement unit tests for: Very long email (>254 chars). Focus on POST /api/user endpoint validation.</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>EC003</strong></td>
+                            <td>Special characters in name</td>
+                            <td style="font-size: 0.85em;">None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P2</span></td>
+                            <td style="font-size: 0.9em;">GAP: No validation for special chars, emojis, or unicode in name field.</td>
+                            <td><span class="badge" style="background: #ff6b6b; color: white;">Dev Team</span></td>
+                            <td style="font-size: 0.85em;">Implement unit tests for: Special characters in name. Focus on POST /api/user endpoint validation.</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>DB001</strong></td>
+                            <td>DB timeout during user creation</td>
+                            <td style="font-size: 0.85em;">None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P0</span></td>
+                            <td style="font-size: 0.9em;">CRITICAL GAP: No unit test verifies service rollback/retry or correct 500 status when DB times out.</td>
+                            <td><span class="badge" style="background: #ff6b6b; color: white;">Dev Team</span></td>
+                            <td style="font-size: 0.85em;">Implement unit tests for: DB timeout during user creation. Focus on POST /api/user endpoint validation.</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>DB002</strong></td>
+                            <td>DB connection failure</td>
+                            <td style="font-size: 0.85em;">None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P0</span></td>
+                            <td style="font-size: 0.9em;">CRITICAL GAP: No test for initial DB connection failure handling.</td>
+                            <td><span class="badge" style="background: #ff6b6b; color: white;">Dev Team</span></td>
+                            <td style="font-size: 0.85em;">Implement unit tests for: DB connection failure. Focus on POST /api/user endpoint validation.</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>DB003</strong></td>
+                            <td>DB duplicate key error</td>
+                            <td style="font-size: 0.85em;">test_user_controller_5, test_profile_service_3, test_user_service_3</td>
+                            <td><span class="badge badge-info">onboarding-service, identity-service</span></td>
+                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td><span class="badge badge-info">P3</span></td>
+                            <td style="font-size: 0.9em;">None. Multiple unit tests cover this scenario comprehensively.</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Scenario is adequately covered</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>KAF001</strong></td>
+                            <td>Kafka publish failure post-DB commit</td>
+                            <td style="font-size: 0.85em;">test_kafka_event_publisher_8</td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td><span class="badge badge-success">Fully Covered</span></td>
+                            <td><span class="badge badge-info">P0</span></td>
+                            <td style="font-size: 0.9em;">Unexpectedly covered by unit tests</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Scenario is adequately covered</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>KAF002</strong></td>
+                            <td>Kafka connection failure</td>
+                            <td style="font-size: 0.85em;">test_kafka_event_publisher_2</td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td><span class="badge badge-warning">Partially Covered</span></td>
+                            <td><span class="badge badge-info">P0</span></td>
+                            <td style="font-size: 0.9em;">Some aspects covered, but incomplete validation</td>
+                            <td><span class="badge" style="background: #feca57; color: #333;">Dev Team</span></td>
+                            <td style="font-size: 0.85em;">Add more unit tests to cover edge cases and negative scenarios comprehensively.</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>KAF003</strong></td>
+                            <td>Kafka timeout</td>
+                            <td style="font-size: 0.85em;">None</td>
+                            <td><span class="badge badge-info">N/A</span></td>
+                            <td><span class="badge badge-danger">Not Covered</span></td>
+                            <td><span class="badge badge-info">P1</span></td>
+                            <td style="font-size: 0.9em;">GAP: No test for Kafka publish timeout scenario.</td>
+                            <td><span class="badge" style="background: #ff6b6b; color: white;">Dev Team</span></td>
+                            <td style="font-size: 0.85em;">Implement unit tests for: Kafka timeout. Focus on POST /api/user endpoint validation.</td>
+                        </tr>
+                          
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        
+        <!-- Orphan Unit Tests -->
+        <div class="section">
+            <h2>🔍 Orphan Unit Tests</h2>
+            <div class="gap-card warning">
+                <h3>⚠️ 41 unit test(s) not mapped to any scenario</h3>
+                <p style="color: #666; margin-top: 10px;">
+                    <strong>Definition:</strong> These unit tests exist but are not linked to any documented test scenario.
+                    This may indicate undocumented scenarios or tests that need review.
+                </p>
+                <div class="gap-details">
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Total Orphan Tests</div>
+                        <div class="gap-detail-value">41</div>
+                    </div>
+                    <div class="gap-detail">
+                        <div class="gap-detail-label">Action Required</div>
+                        <div class="gap-detail-value">Review & Document</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Test ID</th>
+                            <th>Service</th>
+                            <th>File</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                            <td><strong>test_profile_controller_1</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/api/controllers/ProfileController.test.ts</td>
+                            <td style="font-size: 0.9em;">Create Profile API: Returns 201 Created with profile data on successful creation</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Create HF_PROFILE_001 scenario: Create profile with valid data (identity-service)</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_controller_2</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/api/controllers/ProfileController.test.ts</td>
+                            <td style="font-size: 0.9em;">Profile API: Returns 400 Bad Request for validation errors (missing/invalid fields)</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Create NF_PROFILE_001 scenario: Profile validation errors (missing/invalid fields)</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_controller_4</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/api/controllers/ProfileController.test.ts</td>
+                            <td style="font-size: 0.9em;">Profile API: Returns 500 Internal Server Error when database operation fails</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Map to DB_FAILURE scenarios for profile service database errors</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_controller_11</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/api/controllers/ProfileController.test.ts</td>
+                            <td style="font-size: 0.9em;">Profile Validation: Returns 400 Bad Request when age is outside valid range (0-150)</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Create EC_PROFILE_001 scenario: Age boundary validation (0-150 range)</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_controller_12</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/api/controllers/ProfileController.test.ts</td>
+                            <td style="font-size: 0.9em;">Delete Profile API: Returns 204 No Content on successful profile deletion</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Create HF_PROFILE_004 scenario: Delete profile successfully</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_service_1</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/application/services/ProfileService.test.ts</td>
+                            <td style="font-size: 0.9em;">Profile Creation Logic: Creates profile with valid data and returns profile object</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Create HF_PROFILE_001 scenario: Profile creation business logic</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_service_2</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/application/services/ProfileService.test.ts</td>
+                            <td style="font-size: 0.9em;">Profile Validation: Throws error when required userId field is not provided</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Create NF_PROFILE_002 scenario: Required field validation (userId)</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_service_4</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/application/services/ProfileService.test.ts</td>
+                            <td style="font-size: 0.9em;">Age Validation: Throws error when age value is negative (below 0)</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Create EC_PROFILE_001 scenario: Age boundary validation (negative/above 150)</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_service_5</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/application/services/ProfileService.test.ts</td>
+                            <td style="font-size: 0.9em;">Age Validation: Throws error when age exceeds maximum allowed value (above 150)</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Create EC_PROFILE_001 scenario: Age boundary validation (negative/above 150)</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_service_6</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/application/services/ProfileService.test.ts</td>
+                            <td style="font-size: 0.9em;">Age Boundary: Accepts minimum valid age value of 0 (newborn)</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Map to EC_PROFILE_001 scenario: Valid age boundary acceptance (0 and 150)</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_service_7</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/application/services/ProfileService.test.ts</td>
+                            <td style="font-size: 0.9em;">Age Boundary: Accepts maximum valid age value of 150 (elderly)</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Map to EC_PROFILE_001 scenario: Valid age boundary acceptance (0 and 150)</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_service_8</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/application/services/ProfileService.test.ts</td>
+                            <td style="font-size: 0.9em;">Profile Retrieval: Returns profile data when queried by profile ID</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Create HF_PROFILE_002 scenario: Get profile by ID successfully</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_service_10</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/application/services/ProfileService.test.ts</td>
+                            <td style="font-size: 0.9em;">Profile Retrieval: Returns profile data when queried by user ID</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Create HF_PROFILE_003 scenario: Get profile by userId successfully</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_service_12</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/application/services/ProfileService.test.ts</td>
+                            <td style="font-size: 0.9em;">Profile Update Logic: Updates profile with new data and returns updated profile</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Create HF_PROFILE_005 scenario: Update profile with valid data</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_service_14</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/application/services/ProfileService.test.ts</td>
+                            <td style="font-size: 0.9em;">Update Validation: Throws error when update contains invalid age value</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Create NF_PROFILE_003 scenario: Profile update validation (invalid age)</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_profile_service_15</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/application/services/ProfileService.test.ts</td>
+                            <td style="font-size: 0.9em;">Profile Deletion Logic: Successfully deletes profile when it exists in database</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Create HF_PROFILE_004 scenario: Delete profile successfully</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_mongo_profile_repository_1</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/infrastructure/database/MongoProfileRepository.test.ts</td>
+                            <td style="font-size: 0.9em;">should create profile successfully</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Analyze test context and create appropriate scenario definition</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_mongo_profile_repository_2</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/infrastructure/database/MongoProfileRepository.test.ts</td>
+                            <td style="font-size: 0.9em;">should return profile when found</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Analyze test context and create appropriate scenario definition</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_mongo_profile_repository_4</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/infrastructure/database/MongoProfileRepository.test.ts</td>
+                            <td style="font-size: 0.9em;">should return null for invalid ObjectId</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Analyze test context and create appropriate scenario definition</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_mongo_profile_repository_5</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/infrastructure/database/MongoProfileRepository.test.ts</td>
+                            <td style="font-size: 0.9em;">should return profile for valid userId</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Analyze test context and create appropriate scenario definition</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_mongo_profile_repository_6</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/infrastructure/database/MongoProfileRepository.test.ts</td>
+                            <td style="font-size: 0.9em;">should return null when user has no profile</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Analyze test context and create appropriate scenario definition</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_mongo_profile_repository_7</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/infrastructure/database/MongoProfileRepository.test.ts</td>
+                            <td style="font-size: 0.9em;">should update profile successfully</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Analyze test context and create appropriate scenario definition</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_mongo_profile_repository_8</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/infrastructure/database/MongoProfileRepository.test.ts</td>
+                            <td style="font-size: 0.9em;">should throw error for invalid profile ID</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Analyze test context and create appropriate scenario definition</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_mongo_profile_repository_10</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/infrastructure/database/MongoProfileRepository.test.ts</td>
+                            <td style="font-size: 0.9em;">should delete profile successfully</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Analyze test context and create appropriate scenario definition</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_mongo_profile_repository_11</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/infrastructure/database/MongoProfileRepository.test.ts</td>
+                            <td style="font-size: 0.9em;">should throw error for invalid ID</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Analyze test context and create appropriate scenario definition</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_mongo_profile_repository_12</strong></td>
+                            <td><span class="badge badge-info">identity-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">identity-service/test/unit/infrastructure/database/MongoProfileRepository.test.ts</td>
+                            <td style="font-size: 0.9em;">Database Schema: Ensures unique index exists on userId field</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Database schema test - validates DB constraints</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_user_controller_6</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/api/controllers/UserController.test.ts</td>
+                            <td style="font-size: 0.9em;">Create User API: Returns 500 Internal Server Error when database connection fails</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Map to DB002 (DB connection failure) for POST /api/user error handling</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_user_controller_8</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/api/controllers/UserController.test.ts</td>
+                            <td style="font-size: 0.9em;">Get User API: Returns 400 Bad Request when ID parameter is missing from request</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Map to new negative scenario: NF_GET_001 - Missing ID parameter in GET request</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_user_controller_10</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/api/controllers/UserController.test.ts</td>
+                            <td style="font-size: 0.9em;">Get User API: Returns 500 Internal Server Error when database query times out</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Map to DB001 (DB timeout) for GET /api/user/:id error handling</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_user_service_2</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/application/services/UserService.test.ts</td>
+                            <td style="font-size: 0.9em;">User Creation Flow: Publishes "user.created" event to Kafka after successful user creation</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">IMPORTANT: Map to HF001 - Event publishing is core to user creation flow</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_user_service_9</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/application/services/UserService.test.ts</td>
+                            <td style="font-size: 0.9em;">Error Resilience: Service handles database errors gracefully without crashing</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Map to DB002 (DB connection failure) - service resilience test</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_mongo_user_repository_2</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/infrastructure/database/MongoUserRepository.test.ts</td>
+                            <td style="font-size: 0.9em;">Database: Validates automatic timestamp generation (createdAt/updatedAt)</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Technical test - validates data persistence timestamps</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_mongo_user_repository_5</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/infrastructure/database/MongoUserRepository.test.ts</td>
+                            <td style="font-size: 0.9em;">should return null for invalid ObjectId</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">Analyze test context and create appropriate scenario definition</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_mongo_user_repository_8</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/infrastructure/database/MongoUserRepository.test.ts</td>
+                            <td style="font-size: 0.9em;">Database Schema: Ensures unique index exists on email field</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Database schema test - validates DB constraints</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_kafka_event_publisher_1</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/infrastructure/messaging/KafkaEventPublisher.test.ts</td>
+                            <td style="font-size: 0.9em;">Kafka Infrastructure: Validates successful connection to message broker</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Infrastructure test - validates connection lifecycle</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_kafka_event_publisher_3</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/infrastructure/messaging/KafkaEventPublisher.test.ts</td>
+                            <td style="font-size: 0.9em;">Kafka Infrastructure: Validates graceful disconnection from message broker</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Infrastructure test - validates connection lifecycle</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_kafka_event_publisher_4</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/infrastructure/messaging/KafkaEventPublisher.test.ts</td>
+                            <td style="font-size: 0.9em;">Event Publishing: Successfully publishes domain event message to Kafka topic</td>
+                            <td><span class="badge" style="background: #9b59b6; color: white;">QA Team</span></td>
+                            <td style="font-size: 0.85em;">IMPORTANT: Map to HF001 - Kafka publishing is critical to user creation flow</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_kafka_event_publisher_5</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/infrastructure/messaging/KafkaEventPublisher.test.ts</td>
+                            <td style="font-size: 0.9em;">Kafka Message: Validates userId is used as partition key for event distribution</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Messaging implementation test - validates Kafka protocol details</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_kafka_event_publisher_6</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/infrastructure/messaging/KafkaEventPublisher.test.ts</td>
+                            <td style="font-size: 0.9em;">Kafka Message: Validates event data is properly serialized to JSON format</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Messaging implementation test - validates Kafka protocol details</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_kafka_event_publisher_7</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/infrastructure/messaging/KafkaEventPublisher.test.ts</td>
+                            <td style="font-size: 0.9em;">Database: Validates automatic timestamp generation (createdAt/updatedAt)</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Technical test - validates data persistence timestamps</td>
+                        </tr>
+                          
+                        <tr>
+                            <td><strong>test_kafka_event_publisher_9</strong></td>
+                            <td><span class="badge badge-info">onboarding-service</span></td>
+                            <td style="font-size: 0.85em; color: #666;">onboarding-service/test/unit/infrastructure/messaging/KafkaEventPublisher.test.ts</td>
+                            <td style="font-size: 0.9em;">Kafka Configuration: Validates default topic is used when not specified</td>
+                            <td><span class="badge badge-success">No Action</span></td>
+                            <td style="font-size: 0.85em;">Messaging implementation test - validates Kafka protocol details</td>
+                        </tr>
+                          
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 5px solid #ffbb33;">
+                <h4 style="color: #856404; margin-bottom: 10px;">📋 Recommended Actions:</h4>
+                <ul style="color: #856404; margin-left: 20px; line-height: 1.8;">
+                    <li>Review each orphan test to understand what scenario it covers</li>
+                    <li>Add corresponding scenario definitions to <code>scenario-definitions.ts</code></li>
+                    <li>Update scenario mapping patterns to include these tests</li>
+                    <li>Consider if any tests are redundant and can be removed</li>
+                    <li>Ensure bidirectional traceability (Scenarios ↔ Tests)</li>
+                </ul>
+            </div>
+        </div>
+  
+        
+        <div class="section" style="background: #f8f9fa; text-align: center;">
+            <h3 style="color: #667eea; margin-bottom: 15px;">📊 Coverage Summary</h3>
+            <p style="font-size: 1.2em; color: #333;">
+                <strong>50%</strong> of scenarios have adequate unit test coverage
+            </p>
+            <p style="color: #666; margin-top: 10px;">
+                9 fully covered | 2 partial | 7 not covered
+            </p>
+        </div>
+    </div>
+</body>
+</html>
