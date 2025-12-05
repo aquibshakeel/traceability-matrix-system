@@ -77,14 +77,26 @@ Use the HTML as a reference and recreate slides manually for best control:
    - Footer: "Version 1.0 | December 2025"
 
 2. **Slide 2 - Executive Summary**
-   - 6 stat cards (Coverage, Gaps, Tests, etc.)
+   - 6 stat cards:
+     - Coverage: 50% (9/18 scenarios)
+     - P0 Critical Gaps: 2 (DB001, DB002)
+     - P1 High Priority: 2 (NF003, KAF003)
+     - Unit Tests: 54 (across 2 services)
+     - Orphan Tests: 26
+     - Total Scenarios: 18
    - Key capabilities list
 
 3. **Slide 3 - How It Works**
    - Core question box
    - Pattern matching explanation
    - Code examples
-
+   - 6-phase process flow:
+     - Phase 1: Dynamic Service Discovery (Found 2 services)
+     - Phase 2: Unit Test Parsing (Parsed 54 unit tests)
+     - Phase 3: Scenario Definition (18 scenarios defined)
+     - Phase 4: Intelligent Mapping (28 tests mapped, 26 orphans)
+     - Phase 5: Gap Analysis (2 P0 critical, 2 P1 high priority)
+     - Phase 6: Report Generation
 4. **Slide 4 - Pattern Matching**
    - Flow diagram showing matching logic
    - Example table

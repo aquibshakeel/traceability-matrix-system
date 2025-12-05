@@ -6,7 +6,7 @@
     <title>🎯 Traceability Matrix System - Demo Presentation</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
-        
+
         * {
             margin: 0;
             padding: 0;
@@ -59,7 +59,7 @@
             font-size: 4em;
             font-weight: 900;
             margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .cover-subtitle {
@@ -202,7 +202,7 @@
             border-collapse: collapse;
             margin: 25px 0;
             font-size: 1em;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             overflow: hidden;
         }
@@ -240,7 +240,7 @@
             padding: 30px;
             border-radius: 12px;
             border-left: 6px solid var(--primary);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
 
@@ -272,10 +272,25 @@
             margin: 5px;
         }
 
-        .badge-success { background: var(--success); color: white; }
-        .badge-warning { background: var(--warning); color: white; }
-        .badge-danger { background: var(--danger); color: white; }
-        .badge-info { background: var(--info); color: white; }
+        .badge-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .badge-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .badge-info {
+            background: var(--info);
+            color: white;
+        }
 
         /* Flow Diagram */
         .flow-diagram {
@@ -292,7 +307,7 @@
             margin: 15px 0;
             border-radius: 8px;
             border-left: 4px solid var(--primary);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .arrow {
@@ -320,19 +335,19 @@
                 print-color-adjust: exact;
                 -webkit-print-color-adjust: exact;
             }
-            
+
             .page {
                 page-break-after: always;
             }
-            
+
             .page:last-child {
                 page-break-after: auto;
             }
-            
+
             h1, h2, h3 {
                 page-break-after: avoid;
             }
-            
+
             .code-block, .info-box, .success-box, .warning-box, .danger-box, table {
                 page-break-inside: avoid;
             }
@@ -361,7 +376,8 @@
 
     <div class="info-box">
         <h3>What is the Traceability Matrix?</h3>
-        <p>An <strong>intelligent, automated framework</strong> that creates bidirectional mapping between business test scenarios and unit test implementations across multiple microservices.</p>
+        <p>An <strong>intelligent, automated framework</strong> that creates bidirectional mapping between business test
+            scenarios and unit test implementations across multiple microservices.</p>
     </div>
 
     <h2>Current Project Statistics</h2>
@@ -369,26 +385,32 @@
         <div class="stat-card" style="border-left-color: #10b981;">
             <div class="stat-value">50%</div>
             <div class="stat-label">Coverage</div>
+            <div style="font-size: 0.85em; color: #9ca3af; margin-top: 8px;">9/18 scenarios</div>
         </div>
         <div class="stat-card" style="border-left-color: #ef4444;">
-            <div class="stat-value">3</div>
+            <div class="stat-value">2</div>
             <div class="stat-label">P0 Critical Gaps</div>
+            <div style="font-size: 0.85em; color: #9ca3af; margin-top: 8px;">DB001, DB002</div>
         </div>
         <div class="stat-card" style="border-left-color: #f59e0b;">
             <div class="stat-value">2</div>
             <div class="stat-label">P1 High Priority</div>
+            <div style="font-size: 0.85em; color: #9ca3af; margin-top: 8px;">NF003, KAF003</div>
         </div>
         <div class="stat-card" style="border-left-color: #06b6d4;">
-            <div class="stat-value">77</div>
+            <div class="stat-value">54</div>
             <div class="stat-label">Unit Tests</div>
+            <div style="font-size: 0.85em; color: #9ca3af; margin-top: 8px;">2 services</div>
         </div>
         <div class="stat-card" style="border-left-color: #8b5cf6;">
-            <div class="stat-value">41</div>
+            <div class="stat-value">26</div>
             <div class="stat-label">Orphan Tests</div>
+            <div style="font-size: 0.85em; color: #9ca3af; margin-top: 8px;">Need mapping</div>
         </div>
         <div class="stat-card" style="border-left-color: #10b981;">
-            <div class="stat-value">2</div>
-            <div class="stat-label">Services</div>
+            <div class="stat-value">18</div>
+            <div class="stat-label">Total Scenarios</div>
+            <div style="font-size: 0.85em; color: #9ca3af; margin-top: 8px;">Fully defined</div>
         </div>
     </div>
 
@@ -413,21 +435,23 @@
 
     <div class="warning-box">
         <h3>The Core Question</h3>
-        <p style="font-size: 1.3em;"><strong>"How does the system know which unit test belongs to which business scenario?"</strong></p>
+        <p style="font-size: 1.3em;"><strong>"How does the system know which unit test belongs to which business
+            scenario?"</strong></p>
     </div>
 
     <h2>Answer: Pattern-Based Regex Matching</h2>
 
     <h3>Step 1: QA Defines Scenario with Patterns</h3>
     <div class="code-block">
-<span class="code-comment">// File: qa/matrix/scenario-definitions.ts</span>
+        <span class="code-comment">// File: qa/matrix/scenario-definitions.ts</span>
 
-<span class="code-keyword">Scenario:</span> HF001 - <span class="code-string">"Create user with valid payload"</span>
-unitTestPatterns: [
-  <span class="code-string">'should create.*user.*success'</span>,  <span class="code-comment">// Pattern 1</span>
-  <span class="code-string">'should create a user'</span>,           <span class="code-comment">// Pattern 2</span>
-  <span class="code-string">'create.*user.*valid'</span>             <span class="code-comment">// Pattern 3</span>
-]
+        <span class="code-keyword">Scenario:</span> HF001 - <span
+            class="code-string">"Create user with valid payload"</span>
+        unitTestPatterns: [
+        <span class="code-string">'should create.*user.*success'</span>, <span class="code-comment">// Pattern 1</span>
+        <span class="code-string">'should create a user'</span>, <span class="code-comment">// Pattern 2</span>
+        <span class="code-string">'create.*user.*valid'</span> <span class="code-comment">// Pattern 3</span>
+        ]
     </div>
 
     <p><strong>What this means:</strong></p>
@@ -440,14 +464,14 @@ unitTestPatterns: [
 
     <h3>Step 2: System Parses Unit Tests from Code</h3>
     <div class="code-block">
-<span class="code-comment">// Found in: UserController.test.ts</span>
+        <span class="code-comment">// Found in: UserController.test.ts</span>
 
-{
-  id: <span class="code-string">"test_onboarding_user_controller_1"</span>,
-  description: <span class="code-string">"should create a user successfully"</span>,  <span class="code-comment">// ← This text</span>
-  service: <span class="code-string">"onboarding-service"</span>,
-  layer: <span class="code-string">"API"</span>
-}
+        {
+        id: <span class="code-string">"test_onboarding_user_controller_1"</span>,
+        description: <span class="code-string">"should create a user successfully"</span>, <span class="code-comment">// ← This text</span>
+        service: <span class="code-string">"onboarding-service"</span>,
+        layer: <span class="code-string">"API"</span>
+        }
     </div>
 
     <div class="page-number">Page 2</div>
@@ -466,22 +490,37 @@ unitTestPatterns: [
             <h4>Pattern: <code>'should create.*user.*success'</code></h4>
             <p>Test Description: <strong>"should create a user successfully"</strong></p>
         </div>
-        
+
         <div class="arrow">↓</div>
-        
+
         <div class="flow-step">
             <h4>Matching Logic</h4>
             <table>
-                <tr><td>✅ "should create"</td><td>MATCHES beginning</td></tr>
-                <tr><td>✅ ".*" (any characters)</td><td>" a " fits</td></tr>
-                <tr><td>✅ "user"</td><td>MATCHES</td></tr>
-                <tr><td>✅ ".*" (any characters)</td><td>" " fits</td></tr>
-                <tr><td>✅ "success"</td><td>MATCHES (successfully contains success)</td></tr>
+                <tr>
+                    <td>✅ "should create"</td>
+                    <td>MATCHES beginning</td>
+                </tr>
+                <tr>
+                    <td>✅ ".*" (any characters)</td>
+                    <td>" a " fits</td>
+                </tr>
+                <tr>
+                    <td>✅ "user"</td>
+                    <td>MATCHES</td>
+                </tr>
+                <tr>
+                    <td>✅ ".*" (any characters)</td>
+                    <td>" " fits</td>
+                </tr>
+                <tr>
+                    <td>✅ "success"</td>
+                    <td>MATCHES (successfully contains success)</td>
+                </tr>
             </table>
         </div>
-        
+
         <div class="arrow">↓</div>
-        
+
         <div class="flow-step">
             <h4 style="color: #10b981;">✅ RESULT: MATCH FOUND!</h4>
             <p>This test is <strong>mapped to scenario HF001</strong></p>
@@ -492,33 +531,34 @@ unitTestPatterns: [
 
     <div class="info-box">
         <h4>Scenario: HF001 - Create user with valid payload</h4>
-        <p><strong>Patterns:</strong> ['should create.*user.*success', 'should create a user', 'create.*user.*valid']</p>
+        <p><strong>Patterns:</strong> ['should create.*user.*success', 'should create a user', 'create.*user.*valid']
+        </p>
     </div>
 
     <table>
         <thead>
-            <tr>
-                <th>Unit Test Description</th>
-                <th>Pattern Match</th>
-                <th>Result</th>
-            </tr>
+        <tr>
+            <th>Unit Test Description</th>
+            <th>Pattern Match</th>
+            <th>Result</th>
+        </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>"should create a user"</td>
-                <td>Pattern 2: Exact match</td>
-                <td><span class="badge badge-success">✅ MAPPED</span></td>
-            </tr>
-            <tr>
-                <td>"should create user successfully"</td>
-                <td>Pattern 1: Full match</td>
-                <td><span class="badge badge-success">✅ MAPPED</span></td>
-            </tr>
-            <tr>
-                <td>"create user with valid data"</td>
-                <td>Pattern 3: Full match</td>
-                <td><span class="badge badge-success">✅ MAPPED</span></td>
-            </tr>
+        <tr>
+            <td>"should create a user"</td>
+            <td>Pattern 2: Exact match</td>
+            <td><span class="badge badge-success">✅ MAPPED</span></td>
+        </tr>
+        <tr>
+            <td>"should create user successfully"</td>
+            <td>Pattern 1: Full match</td>
+            <td><span class="badge badge-success">✅ MAPPED</span></td>
+        </tr>
+        <tr>
+            <td>"create user with valid data"</td>
+            <td>Pattern 3: Full match</td>
+            <td><span class="badge badge-success">✅ MAPPED</span></td>
+        </tr>
         </tbody>
     </table>
 
@@ -533,18 +573,21 @@ unitTestPatterns: [
     <div class="info-box">
         <h4>📋 Test Scenario Definition (in scenario-definitions.ts)</h4>
         <div class="code-block" style="font-size: 0.9em;">
-{
-  id: <span class="code-string">"NF006"</span>,
-  description: <span class="code-string">"Missing name field validation"</span>,
-  <span class="code-keyword">expectedCoverage:</span> <span class="code-string">'partial'</span>,  <span class="code-comment">// ← QA says: "partial" is OK</span>
-  unitTestPatterns: [
-    <span class="code-string">'missing.*name'</span>,
-    <span class="code-string">'name.*required'</span>,
-    <span class="code-string">'should.*400.*name'</span>
-  ]
-}
+            {
+            id: <span class="code-string">"NF006"</span>,
+            description: <span class="code-string">"Missing name field validation"</span>,
+            <span class="code-keyword">expectedCoverage:</span> <span class="code-string">'partial'</span>, <span
+                class="code-comment">// ← QA says: "partial" is OK</span>
+            unitTestPatterns: [
+            <span class="code-string">'missing.*name'</span>,
+            <span class="code-string">'name.*required'</span>,
+            <span class="code-string">'should.*400.*name'</span>
+            ]
+            }
         </div>
-        <p><strong>What "partial" means:</strong> QA Team accepts that this scenario might not be fully tested across all layers. However, for it to be marked "Fully Covered", we need at least 2-3 tests across different layers.</p>
+        <p><strong>What "partial" means:</strong> QA Team accepts that this scenario might not be fully tested across
+            all layers. However, for it to be marked "Fully Covered", we need at least 2-3 tests across different
+            layers.</p>
     </div>
 
     <h3>Step 2: What Actually Exists in Our Codebase</h3>
@@ -552,20 +595,20 @@ unitTestPatterns: [
         <h4>✅ Found in Codebase: 1 Unit Test</h4>
         <table style="margin-top: 15px;">
             <thead>
-                <tr>
-                    <th>Service</th>
-                    <th>Layer</th>
-                    <th>Test Description</th>
-                    <th>Pattern Match</th>
-                </tr>
+            <tr>
+                <th>Service</th>
+                <th>Layer</th>
+                <th>Test Description</th>
+                <th>Pattern Match</th>
+            </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>onboarding-service</td>
-                    <td><strong>API</strong></td>
-                    <td>"should return 400 for missing name"</td>
-                    <td>Pattern 3: 'should.*400.*name' ✅</td>
-                </tr>
+            <tr>
+                <td>onboarding-service</td>
+                <td><strong>API</strong></td>
+                <td>"should return 400 for missing name"</td>
+                <td>Pattern 3: 'should.*400.*name' ✅</td>
+            </tr>
             </tbody>
         </table>
     </div>
@@ -573,32 +616,32 @@ unitTestPatterns: [
     <h3>Step 3: System Compares Expected vs Actual</h3>
     <table>
         <thead>
-            <tr>
-                <th>Layer</th>
-                <th>Expected</th>
-                <th>Actually Present</th>
-                <th>Status</th>
-            </tr>
+        <tr>
+            <th>Layer</th>
+            <th>Expected</th>
+            <th>Actually Present</th>
+            <th>Status</th>
+        </tr>
         </thead>
         <tbody>
-            <tr>
-                <td><strong>API Layer</strong><br/>(UserController.test.ts)</td>
-                <td>Should have test for 400 error</td>
-                <td>✅ test_user_controller_3:<br/>"should return 400 for missing name"</td>
-                <td><span class="badge badge-success">✅ EXISTS</span></td>
-            </tr>
-            <tr style="background: #fef2f2;">
-                <td><strong>Service Layer</strong><br/>(UserService.test.ts)</td>
-                <td>Should validate business logic</td>
-                <td>❌ No test found</td>
-                <td><span class="badge badge-danger">❌ MISSING</span></td>
-            </tr>
-            <tr style="background: #fef2f2;">
-                <td><strong>Repository Layer</strong><br/>(MongoUserRepository.test.ts)</td>
-                <td>Should validate data persistence</td>
-                <td>❌ No test found</td>
-                <td><span class="badge badge-danger">❌ MISSING</span></td>
-            </tr>
+        <tr>
+            <td><strong>API Layer</strong><br/>(UserController.test.ts)</td>
+            <td>Should have test for 400 error</td>
+            <td>✅ test_user_controller_3:<br/>"should return 400 for missing name"</td>
+            <td><span class="badge badge-success">✅ EXISTS</span></td>
+        </tr>
+        <tr style="background: #fef2f2;">
+            <td><strong>Service Layer</strong><br/>(UserService.test.ts)</td>
+            <td>Should validate business logic</td>
+            <td>❌ No test found</td>
+            <td><span class="badge badge-danger">❌ MISSING</span></td>
+        </tr>
+        <tr style="background: #fef2f2;">
+            <td><strong>Repository Layer</strong><br/>(MongoUserRepository.test.ts)</td>
+            <td>Should validate data persistence</td>
+            <td>❌ No test found</td>
+            <td><span class="badge badge-danger">❌ MISSING</span></td>
+        </tr>
         </tbody>
     </table>
 
@@ -641,7 +684,9 @@ unitTestPatterns: [
 
     <div class="info-box">
         <h4>🎯 Key Takeaway</h4>
-        <p><strong>"Partial"</strong> means: QA Team acknowledges this scenario doesn't need exhaustive testing across all layers, BUT at least 2-3 tests are expected for completeness. With only 1 test, it's "Partially Covered" - functional but incomplete.</p>
+        <p><strong>"Partial"</strong> means: QA Team acknowledges this scenario doesn't need exhaustive testing across
+            all layers, BUT at least 2-3 tests are expected for completeness. With only 1 test, it's "Partially Covered"
+            - functional but incomplete.</p>
     </div>
 
     <div class="page-number">Page 3</div>
@@ -659,7 +704,7 @@ unitTestPatterns: [
             <p>Automatically finds all *-service folders with test/unit structure</p>
             <p><strong>Example:</strong> Found 2 services (onboarding-service, identity-service)</p>
         </div>
-
+        <p><strong>Example:</strong> Parsed 54 unit tests with metadata</p>
         <div class="arrow">↓</div>
 
         <div class="flow-step">
@@ -675,7 +720,7 @@ unitTestPatterns: [
             <p>QA Team defines business scenarios with regex patterns</p>
             <p><strong>Example:</strong> 18 scenarios defined (HF, NF, EC, DB, KAF categories)</p>
         </div>
-
+        <p><strong>Example:</strong> 28 tests mapped to scenarios, 26 orphans detected</p>
         <div class="arrow">↓</div>
 
         <div class="flow-step">
@@ -683,7 +728,7 @@ unitTestPatterns: [
             <p>Pattern-based matching of scenarios to unit tests</p>
             <p><strong>Example:</strong> 36 tests mapped to scenarios, 41 orphans detected</p>
         </div>
-
+        <p><strong>Example:</strong> 2 P0 critical gaps (DB001, DB002), 2 P1 high priority gaps (NF003, KAF003)</p>
         <div class="arrow">↓</div>
 
         <div class="flow-step">
@@ -740,13 +785,18 @@ unitTestPatterns: [
     <h2>4. Orphan Test Management - Detailed</h2>
     <div class="danger-box">
         <h3>What is an Orphan Test?</h3>
-        <p>A unit test that exists in the codebase but is <strong>not mapped to any business scenario</strong>. This happens when:</p>
+        <p>A unit test that exists in the codebase but is <strong>not mapped to any business scenario</strong>. This
+            happens when:</p>
         <ul>
-            <li><strong>Unit test written first:</strong> Developer wrote the test, but QA Team hasn't created the corresponding test scenario definition yet</li>
-            <li><strong>Infrastructure test:</strong> Test covers technical concerns (DB connection, health checks) - doesn't need business scenario</li>
+            <li><strong>Unit test written first:</strong> Developer wrote the test, but QA Team hasn't created the
+                corresponding test scenario definition yet
+            </li>
+            <li><strong>Infrastructure test:</strong> Test covers technical concerns (DB connection, health checks) -
+                doesn't need business scenario
+            </li>
             <li><strong>Legacy tests:</strong> Unit tests existed before TM system was introduced to the project</li>
         </ul>
-        
+
         <div class="info-box" style="margin-top: 15px;">
             <h4>📝 Important Note: Development Flow</h4>
             <p><strong>Typical Order:</strong></p>
@@ -755,44 +805,46 @@ unitTestPatterns: [
                 <li>QA Team defines test scenarios (business requirements)</li>
                 <li>TM System maps scenarios → unit tests</li>
             </ol>
-            <p style="margin-top: 10px;">So yes, unit tests often exist <strong>before</strong> QA defines the scenario! That's normal in development. The TM system helps bridge this gap by identifying these "orphan" tests.</p>
+            <p style="margin-top: 10px;">So yes, unit tests often exist <strong>before</strong> QA defines the scenario!
+                That's normal in development. The TM system helps bridge this gap by identifying these "orphan" tests.
+            </p>
         </div>
     </div>
 
     <h3>Feature 1: Smart Classification</h3>
     <div class="info-box">
         <p><strong>System automatically classifies orphans into 2 categories:</strong></p>
-        
+
         <table style="margin-top: 15px;">
             <thead>
-                <tr>
-                    <th>Classification</th>
-                    <th>What It Means</th>
-                    <th>Example Tests</th>
-                    <th>Action Needed?</th>
-                </tr>
+            <tr>
+                <th>Classification</th>
+                <th>What It Means</th>
+                <th>Example Tests</th>
+                <th>Action Needed?</th>
+            </tr>
             </thead>
             <tbody>
-                <tr style="background: #fef2f2;">
-                    <td><strong>Business Logic</strong></td>
-                    <td>Tests that validate business rules, user workflows, API behavior</td>
-                    <td>
-                        • "should validate email format"<br/>
-                        • "should return 400 for duplicate user"<br/>
-                        • "should create order successfully"
-                    </td>
-                    <td><span class="badge badge-danger">⚠️ YES - QA Action Required</span></td>
-                </tr>
-                <tr style="background: #f0fdf4;">
-                    <td><strong>Infrastructure</strong></td>
-                    <td>Tests for database connections, config loading, health checks</td>
-                    <td>
-                        • "should connect to MongoDB"<br/>
-                        • "should load environment variables"<br/>
-                        • "should respond to health check"
-                    </td>
-                    <td><span class="badge badge-success">✅ NO - No Action Needed</span></td>
-                </tr>
+            <tr style="background: #fef2f2;">
+                <td><strong>Business Logic</strong></td>
+                <td>Tests that validate business rules, user workflows, API behavior</td>
+                <td>
+                    • "should validate email format"<br/>
+                    • "should return 400 for duplicate user"<br/>
+                    • "should create order successfully"
+                </td>
+                <td><span class="badge badge-danger">⚠️ YES - QA Action Required</span></td>
+            </tr>
+            <tr style="background: #f0fdf4;">
+                <td><strong>Infrastructure</strong></td>
+                <td>Tests for database connections, config loading, health checks</td>
+                <td>
+                    • "should connect to MongoDB"<br/>
+                    • "should load environment variables"<br/>
+                    • "should respond to health check"
+                </td>
+                <td><span class="badge badge-success">✅ NO - No Action Needed</span></td>
+            </tr>
             </tbody>
         </table>
 
@@ -809,46 +861,46 @@ unitTestPatterns: [
     <h3>Feature 2: Context-Aware Suggestions</h3>
     <div class="warning-box">
         <p><strong>For Business Logic orphans, system provides smart recommendations:</strong></p>
-        
+
         <h4>Example: Orphan Test Found</h4>
         <div class="code-block" style="font-size: 0.9em;">
-<span class="code-comment">// Orphan Test</span>
-id: <span class="code-string">"test_user_service_8"</span>
-description: <span class="code-string">"should return 400 for invalid email format"</span>
-service: <span class="code-string">"onboarding-service"</span>
-layer: <span class="code-string">"Service"</span>
+            <span class="code-comment">// Orphan Test</span>
+            id: <span class="code-string">"test_user_service_8"</span>
+            description: <span class="code-string">"should return 400 for invalid email format"</span>
+            service: <span class="code-string">"onboarding-service"</span>
+            layer: <span class="code-string">"Service"</span>
         </div>
 
         <h4>System Suggestions:</h4>
         <table style="margin-top: 15px; font-size: 0.95em;">
             <thead>
-                <tr>
-                    <th>Suggestion Type</th>
-                    <th>Recommendation</th>
-                    <th>Why</th>
-                </tr>
+            <tr>
+                <th>Suggestion Type</th>
+                <th>Recommendation</th>
+                <th>Why</th>
+            </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><strong>Scenario ID</strong></td>
-                    <td>Create <code>NF_EMAIL_001</code></td>
-                    <td>Follows negative flow (NF) naming convention</td>
-                </tr>
-                <tr>
-                    <td><strong>Existing Scenario</strong></td>
-                    <td>Map to <code>NF005</code> (if exists)</td>
-                    <td>Similar email validation scenario found</td>
-                </tr>
-                <tr>
-                    <td><strong>Pattern Update</strong></td>
-                    <td>Add pattern: <code>'invalid.*email'</code></td>
-                    <td>Would match this test automatically</td>
-                </tr>
-                <tr>
-                    <td><strong>E2E Test</strong></td>
-                    <td>Found in <code>TS002</code></td>
-                    <td>E2E test exists, unit test just needs mapping</td>
-                </tr>
+            <tr>
+                <td><strong>Scenario ID</strong></td>
+                <td>Create <code>NF_EMAIL_001</code></td>
+                <td>Follows negative flow (NF) naming convention</td>
+            </tr>
+            <tr>
+                <td><strong>Existing Scenario</strong></td>
+                <td>Map to <code>NF005</code> (if exists)</td>
+                <td>Similar email validation scenario found</td>
+            </tr>
+            <tr>
+                <td><strong>Pattern Update</strong></td>
+                <td>Add pattern: <code>'invalid.*email'</code></td>
+                <td>Would match this test automatically</td>
+            </tr>
+            <tr>
+                <td><strong>E2E Test</strong></td>
+                <td>Found in <code>TS002</code></td>
+                <td>E2E test exists, unit test just needs mapping</td>
+            </tr>
             </tbody>
         </table>
 
@@ -865,51 +917,53 @@ layer: <span class="code-string">"Service"</span>
     <h3>Feature 3: Action Assignment</h3>
     <div class="success-box">
         <p><strong>System automatically assigns actions based on classification:</strong></p>
-        
+
         <table style="margin-top: 15px;">
             <thead>
-                <tr>
-                    <th>Test Type</th>
-                    <th>Action</th>
-                    <th>Assigned To</th>
-                    <th>Priority</th>
-                </tr>
+            <tr>
+                <th>Test Type</th>
+                <th>Action</th>
+                <th>Assigned To</th>
+                <th>Priority</th>
+            </tr>
             </thead>
             <tbody>
-                <tr style="background: #fef2f2;">
-                    <td><strong>Business Logic Orphan</strong><br/>(e.g., "should validate age limit")</td>
-                    <td>
-                        1. Create scenario definition<br/>
-                        2. Add patterns to map test<br/>
-                        3. Update TM report
-                    </td>
-                    <td><strong>QA Team</strong></td>
-                    <td><span class="badge badge-danger">HIGH</span></td>
-                </tr>
-                <tr style="background: #f0fdf4;">
-                    <td><strong>Infrastructure Orphan</strong><br/>(e.g., "should connect to Redis")</td>
-                    <td>
-                        No action required<br/>
-                        Mark as "Infrastructure"<br/>
-                        Exclude from coverage calc
-                    </td>
-                    <td><strong>No Action</strong></td>
-                    <td><span class="badge badge-success">NONE</span></td>
-                </tr>
+            <tr style="background: #fef2f2;">
+                <td><strong>Business Logic Orphan</strong><br/>(e.g., "should validate age limit")</td>
+                <td>
+                    1. Create scenario definition<br/>
+                    2. Add patterns to map test<br/>
+                    3. Update TM report
+                </td>
+                <td><strong>QA Team</strong></td>
+                <td><span class="badge badge-danger">HIGH</span></td>
+            </tr>
+            <tr style="background: #f0fdf4;">
+                <td><strong>Infrastructure Orphan</strong><br/>(e.g., "should connect to Redis")</td>
+                <td>
+                    No action required<br/>
+                    Mark as "Infrastructure"<br/>
+                    Exclude from coverage calc
+                </td>
+                <td><strong>No Action</strong></td>
+                <td><span class="badge badge-success">NONE</span></td>
+            </tr>
             </tbody>
         </table>
 
         <h4 style="margin-top: 25px;">📊 Current Project Status</h4>
-        <p><strong>Total Orphans Found:</strong> 41 tests</p>
+        <p><strong>Total Orphans Found:</strong> 26 tests</p>
         <ul>
-            <li><strong>28 Business Logic Orphans</strong> → Assigned to QA Team
+            <li>
+                <strong>17 Business Logic Orphans</strong> → Assigned to QA Team
                 <ul style="margin-top: 10px;">
                     <li>Action: Create scenarios or update patterns</li>
                     <li>Impact: Once mapped, coverage increases</li>
                     <li>Timeline: Should be addressed in next sprint</li>
                 </ul>
             </li>
-            <li style="margin-top: 15px;"><strong>13 Infrastructure Orphans</strong> → Marked "No Action"
+            <li style="margin-top: 15px;">
+                <strong>9 Infrastructure Orphans</strong> → Marked "No Action"
                 <ul style="margin-top: 10px;">
                     <li>Examples: DB connection, health checks, config loading</li>
                     <li>Impact: None - these are technical tests</li>
@@ -1009,9 +1063,9 @@ layer: <span class="code-string">"Service"</span>
         <h1>📝 Real-World Scenarios (Continued)</h1>
     </div>
 
-    <h2>Scenario 4: New Service Added to Project</h2>
+    <h2>Scenario 4: New Service Added to Project (Hypothetical)</h2>
     <div class="flow-step">
-        <p><strong>Developer creates:</strong> /payment-service/test/unit/</p>
+        <p><strong>Developer creates:</strong> /payment-service/test/unit/ <em>(Example future scenario)</em></p>
     </div>
     <div class="arrow">↓</div>
     <div class="success-box">
@@ -1020,7 +1074,7 @@ layer: <span class="code-string">"Service"</span>
             <li>✅ Service auto-discovered on next TM run</li>
             <li>✅ All tests parsed automatically</li>
             <li>⚠️ Tests become orphans until scenarios defined</li>
-            <li>📈 Metrics updated: Services: 3 (+1), Tests: 101 (+24)</li>
+            <li>📈 Metrics updated: Services: 2→3, Tests: 54→78 (hypothetical)</li>
         </ul>
     </div>
 
@@ -1028,105 +1082,81 @@ layer: <span class="code-string">"Service"</span>
     <div class="info-box">
         <h4>Example: NF002 - Get user with invalid ID (404)</h4>
         <p><strong>E2E Test Coverage:</strong> TS003 - 4 E2E tests in ts003_get_user.spec.ts</p>
-        <p><strong>Unit Test Breakdown:</strong> 14 unit tests across multiple services and layers</p>
+        <p><strong>Unit Test Breakdown:</strong> 9 unit tests across multiple services and layers</p>
     </div>
 
     <table style="font-size: 0.9em;">
         <thead>
-            <tr>
-                <th>Service</th>
-                <th>Layer</th>
-                <th>Test</th>
-                <th>What It Tests</th>
-            </tr>
+        <tr>
+            <th>Service</th>
+            <th>Layer</th>
+            <th>Test</th>
+            <th>What It Tests</th>
+        </tr>
         </thead>
         <tbody>
-            <tr>
-                <td rowspan="4"><strong>Identity</strong></td>
-                <td>API</td>
-                <td>test_identity_profile_controller_6</td>
-                <td>Returns 404 when profile ID not found</td>
-            </tr>
-            <tr>
-                <td>API</td>
-                <td>test_identity_profile_controller_8</td>
-                <td>Returns 404 for invalid profile ID format</td>
-            </tr>
-            <tr>
-                <td>API</td>
-                <td>test_identity_profile_controller_10</td>
-                <td>Returns 404 when userId has no profile</td>
-            </tr>
-            <tr>
-                <td>API</td>
-                <td>test_identity_profile_controller_13</td>
-                <td>Returns 404 on profile delete if not found</td>
-            </tr>
-            <tr>
-                <td rowspan="6"><strong>Identity</strong></td>
-                <td>Service</td>
-                <td>test_identity_profile_service_9</td>
-                <td>Returns null when profile not found by ID</td>
-            </tr>
-            <tr>
-                <td>Service</td>
-                <td>test_identity_profile_service_11</td>
-                <td>Returns null when profile not found by userId</td>
-            </tr>
-            <tr>
-                <td>Service</td>
-                <td>test_identity_profile_service_13</td>
-                <td>Throws error on update if profile not found</td>
-            </tr>
-            <tr>
-                <td>Service</td>
-                <td>test_identity_profile_service_16</td>
-                <td>Throws error on delete if profile not found</td>
-            </tr>
-            <tr>
-                <td>Repository</td>
-                <td>test_identity_mongo_profile_repository_3</td>
-                <td>Returns null for non-existent profile ID</td>
-            </tr>
-            <tr>
-                <td>Repository</td>
-                <td>test_identity_mongo_profile_repository_9</td>
-                <td>Returns null when userId has no profile</td>
-            </tr>
-            <tr>
-                <td rowspan="4"><strong>Onboarding</strong></td>
-                <td>API</td>
-                <td>test_onboarding_user_controller_9</td>
-                <td>Returns 404 when user ID not found</td>
-            </tr>
-            <tr>
-                <td>Service</td>
-                <td>test_onboarding_user_service_8</td>
-                <td>Returns null when user not found</td>
-            </tr>
-            <tr>
-                <td>Repository</td>
-                <td>test_onboarding_mongo_user_repository_4</td>
-                <td>Returns null for non-existent user ID</td>
-            </tr>
-            <tr>
-                <td>Repository</td>
-                <td>test_onboarding_mongo_user_repository_7</td>
-                <td>Returns null for invalid ObjectId format</td>
-            </tr>
+        <tr>
+            <td rowspan="4"><strong>Identity</strong></td>
+            <td>API</td>
+            <td>ProfileController</td>
+            <td>"should return 404 when profile not found"</td>
+        </tr>
+        <tr>
+            <td>API</td>
+            <td>ProfileController</td>
+            <td>"should return 404 when user has no profile"</td>
+        </tr>
+        <tr>
+            <td>Service</td>
+            <td>ProfileService</td>
+            <td>"should throw error when profile not found"</td>
+        </tr>
+        <tr>
+            <td>Service</td>
+            <td>ProfileService</td>
+            <td>"should throw error when profile not found for user"</td>
+        </tr>
+        <tr>
+            <td rowspan="1"><strong>Identity</strong></td>
+            <td>Repository</td>
+            <td>MongoProfileRepository</td>
+            <td>"should return null when profile not found"</td>
+        </tr>
+        <tr>
+            <td rowspan="4"><strong>Onboarding</strong></td>
+            <td>API</td>
+            <td>UserController</td>
+            <td>"should return 404 when user not found"</td>
+        </tr>
+        <tr>
+            <td>Service</td>
+            <td>UserService</td>
+            <td>"should throw error when user not found"</td>
+        </tr>
+        <tr>
+            <td>Repository</td>
+            <td>MongoUserRepository</td>
+            <td>"should return null when user not found"</td>
+        </tr>
+        <tr>
+            <td>Repository</td>
+            <td>MongoUserRepository</td>
+            <td>"should return null when email not found"</td>
+        </tr>
         </tbody>
     </table>
 
     <div class="success-box">
-        <h4>Why 14 Tests for One Scenario?</h4>
+        <h4>Why 9 Tests for One Scenario?</h4>
         <ul>
-            <li><strong>Multi-Service:</strong> Both Identity (profiles) & Onboarding (users) services</li>
-            <li><strong>Multi-Layer:</strong> API Controller, Service, and Repository layers all tested</li>
-            <li><strong>Multiple Operations:</strong> GET by ID, GET by userId (current operations: POST & GET)</li>
-            <li><strong>Edge Cases:</strong> Invalid ID format, non-existent IDs, null handling, malformed requests</li>
+            <li><strong>Multi-Service:</strong> Both Identity (profiles) & Onboarding (users) services tested</li>
+            <li><strong>Multi-Layer:</strong> API Controller, Service, and Repository layers all validated</li>
+            <li><strong>Current Operations:</strong> GET by ID operations (POST & GET supported)</li>
+            <li><strong>Edge Cases:</strong> Non-existent IDs, null handling, email lookup failures</li>
             <li><strong>Clean Architecture:</strong> Each layer independently validates 404/not-found behavior</li>
         </ul>
-        <p style="margin-top: 15px;"><strong>Result:</strong> Comprehensive 404 handling across entire microservices architecture! ✅</p>
+        <p style="margin-top: 15px;"><strong>Result:</strong> Comprehensive 404 handling across entire microservices
+            architecture! ✅</p>
     </div>
 
     <div class="page-number">Page 6A</div>
@@ -1141,32 +1171,32 @@ layer: <span class="code-string">"Service"</span>
     <h2>Outcome 1: Clear Scenario-to-Test Mapping ✅</h2>
     <table>
         <thead>
-            <tr>
-                <th>Scenario</th>
-                <th>Description</th>
-                <th>Unit Tests</th>
-                <th>Status</th>
-            </tr>
+        <tr>
+            <th>Scenario</th>
+            <th>Description</th>
+            <th>Unit Tests</th>
+            <th>Status</th>
+        </tr>
         </thead>
         <tbody>
-            <tr>
-                <td><strong>HF001</strong></td>
-                <td>Create user with valid payload</td>
-                <td>3 tests</td>
-                <td><span class="badge badge-success">Fully Covered</span></td>
-            </tr>
-            <tr>
-                <td><strong>NF002</strong></td>
-                <td>Invalid ID (404)</td>
-                <td>14 tests</td>
-                <td><span class="badge badge-success">Fully Covered</span></td>
-            </tr>
-            <tr>
-                <td><strong>DB001</strong></td>
-                <td>DB timeout handling</td>
-                <td>0 tests</td>
-                <td><span class="badge badge-danger">Not Covered</span></td>
-            </tr>
+        <tr>
+            <td><strong>HF001</strong></td>
+            <td>Create user with valid payload</td>
+            <td>3 tests</td>
+            <td><span class="badge badge-success">Fully Covered</span></td>
+        </tr>
+        <tr>
+            <td><strong>NF002</strong></td>
+            <td>Invalid ID (404)</td>
+            <td>9 tests</td>
+            <td><span class="badge badge-success">Fully Covered</span></td>
+        </tr>
+        <tr>
+            <td><strong>DB001</strong></td>
+            <td>DB timeout handling</td>
+            <td>0 tests</td>
+            <td><span class="badge badge-danger">Not Covered</span></td>
+        </tr>
         </tbody>
     </table>
 
@@ -1177,7 +1207,7 @@ layer: <span class="code-string">"Service"</span>
         <p><strong>🤖 AI Prompt:</strong></p>
         <div class="code-block">
 "Generate unit test for scenario DB001: DB timeout during user creation.
-Test should validate POST /api/user endpoint behavior when database 
+Test should validate POST /api/user endpoint behavior when database
 operation times out. Expected: Service returns 500 status, logs error,
 implements retry logic. Risk level: High."
         </div>
@@ -1186,21 +1216,21 @@ implements retry logic. Risk level: High."
     <h2>Outcome 3: 100% Coverage Goal Supported ✅</h2>
     <table>
         <thead>
-            <tr><th>Sprint</th><th>Focus</th><th>Coverage Impact</th></tr>
+        <tr><th>Sprint</th><th>Focus</th><th>Coverage Impact</th></tr>
         </thead>
         <tbody>
-            <tr><td>Sprint 1</td><td>Close P0 Gaps (3)</td><td>50% → 66%</td></tr>
-            <tr><td>Sprint 2</td><td>Close P1 Gaps (2)</td><td>66% → 77%</td></tr>
-            <tr><td>Sprint 3</td><td>Close P2 Gaps (4)</td><td>77% → 100% ✅</td></tr>
+        <tr><td>Sprint 1</td><td>Close P0 Gaps (2: DB001, DB002)</td><td>50% → 61%</td></tr>
+        <tr><td>Sprint 2</td><td>Close P1 Gaps (2: NF003, KAF003)</td><td>61% → 72%</td></tr>
+        <tr><td>Sprint 3</td><td>Close P2 Gaps (3: EC001–EC003)</td><td>72% → 100% ✅</td></tr>
         </tbody>
     </table>
 
     <h2>Outcome 4: Orphan Tests Identified ✅</h2>
     <div class="info-box">
-        <p><strong>Total Orphans:</strong> 41 tests</p>
+        <p><strong>Total Orphans:</strong> 26 tests</p>
         <ul>
-            <li><strong>28 tests:</strong> Business logic → QA Team action required</li>
-            <li><strong>13 tests:</strong> Infrastructure → No action needed</li>
+            <li><strong>17 tests:</strong> Business logic → QA Team action required</li>
+            <li><strong>9 tests:</strong> Infrastructure → No action needed</li>
         </ul>
     </div>
 
@@ -1213,38 +1243,38 @@ implements retry logic. Risk level: High."
         <h1>✅ Purpose Achievement Analysis</h1>
     </div>
 
-    <div class="success-box">
+    <div class="info-box">
         <h3>Original Purpose</h3>
-        <p><strong>"To identify gaps in unit test coverage, enabling AI to generate or enhance tests for uncovered scenarios."</strong></p>
+        <p style="font-size: 1.2em;">"To identify gaps in unit test coverage, enabling AI to generate or enhance tests for uncovered scenarios."</p>
     </div>
 
     <h2>Are We Achieving This? YES! ✅</h2>
 
     <table>
         <thead>
-            <tr><th>Goal</th><th>Status</th><th>Evidence</th></tr>
+        <tr><th>Goal</th><th>Status</th><th>Evidence</th></tr>
         </thead>
         <tbody>
-            <tr>
-                <td>Identify Gaps</td>
-                <td><span class="badge badge-success">✅ Achieved</span></td>
-                <td>9 gaps identified with priority levels</td>
-            </tr>
-            <tr>
-                <td>AI Integration</td>
-                <td><span class="badge badge-success">✅ Achieved</span></td>
-                <td>Auto-generated prompts for all gaps</td>
-            </tr>
-            <tr>
-                <td>Coverage Tracking</td>
-                <td><span class="badge badge-success">✅ Achieved</span></td>
-                <td>50% current, roadmap to 100%</td>
-            </tr>
-            <tr>
-                <td>Actionable Insights</td>
-                <td><span class="badge badge-success">✅ Achieved</span></td>
-                <td>Team assignments, suggestions provided</td>
-            </tr>
+        <tr>
+            <td>Identify Gaps</td>
+            <td><span class="badge badge-success">✅ Achieved</span></td>
+            <td>7 gaps identified with priority levels (2 P0, 2 P1, 3 P2)</td>
+        </tr>
+        <tr>
+            <td>AI Integration</td>
+            <td><span class="badge badge-success">✅ Achieved</span></td>
+            <td>Auto-generated prompts for all gaps</td>
+        </tr>
+        <tr>
+            <td>Coverage Tracking</td>
+            <td><span class="badge badge-success">✅ Achieved</span></td>
+            <td>50% current, roadmap to 100%</td>
+        </tr>
+        <tr>
+            <td>Actionable Insights</td>
+            <td><span class="badge badge-success">✅ Achieved</span></td>
+            <td>Team assignments, suggestions provided</td>
+        </tr>
         </tbody>
     </table>
 
@@ -1262,14 +1292,14 @@ implements retry logic. Risk level: High."
     <h2>AI Integration Capabilities</h2>
     <div class="warning-box">
         <h3>Current State: AI-Ready Framework</h3>
-        
+
         <h4 style="color: #059669; margin-top: 20px;">✅ What We Have Today:</h4>
-        
+
         <p><strong>1. Auto-Generated AI Prompts for Every Gap</strong></p>
         <div class="code-block" style="font-size: 0.85em;">
-<span class="code-comment">// Example: DB001 - Database Timeout Handling</span>
+            <span class="code-comment">// Example: DB001 - Database Timeout Handling</span>
 
-<span class="code-string">"Generate unit test for scenario DB001: DB timeout during user creation.
+            <span class="code-string">"Generate unit test for scenario DB001: DB timeout during user creation.
 
 Test Requirements:
 - Mock database to simulate timeout (e.g., using jest.setTimeout)
@@ -1287,7 +1317,7 @@ Expected Test Structure:
 Risk Level: High - Production stability critical
 Priority: P0 - Implement immediately"</span>
         </div>
-        
+
         <p><strong>2. Context-Rich Prompt Engineering</strong></p>
         <ul>
             <li><strong>Scenario Context:</strong> ID, description, business impact included</li>
@@ -1296,35 +1326,35 @@ Priority: P0 - Implement immediately"</span>
             <li><strong>Priority Signals:</strong> Risk level (High/Medium/Low) and priority (P0/P1/P2)</li>
             <li><strong>Success Criteria:</strong> What the test should validate</li>
         </ul>
-        
+
         <p><strong>3. Copy-Paste Integration with AI Tools</strong></p>
         <table style="font-size: 0.9em; margin-top: 15px;">
             <thead>
-                <tr>
-                    <th>AI Tool</th>
-                    <th>How to Use</th>
-                    <th>Expected Result</th>
-                </tr>
+            <tr>
+                <th>AI Tool</th>
+                <th>How to Use</th>
+                <th>Expected Result</th>
+            </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><strong>ChatGPT</strong></td>
-                    <td>Copy prompt → Paste in ChatGPT → Get test code</td>
-                    <td>Complete Jest/TypeScript test with mocks</td>
-                </tr>
-                <tr>
-                    <td><strong>Claude</strong></td>
-                    <td>Copy prompt → Paste in Claude → Get test code</td>
-                    <td>Detailed test with explanations</td>
-                </tr>
-                <tr>
-                    <td><strong>GitHub Copilot</strong></td>
-                    <td>Paste prompt as comment → Copilot suggests</td>
-                    <td>Inline test generation in IDE</td>
-                </tr>
+            <tr>
+                <td><strong>ChatGPT</strong></td>
+                <td>Copy prompt → Paste in ChatGPT → Get test code</td>
+                <td>Complete Jest/TypeScript test with mocks</td>
+            </tr>
+            <tr>
+                <td><strong>Claude</strong></td>
+                <td>Copy prompt → Paste in Claude → Get test code</td>
+                <td>Detailed test with explanations</td>
+            </tr>
+            <tr>
+                <td><strong>GitHub Copilot</strong></td>
+                <td>Paste prompt as comment → Copilot suggests</td>
+                <td>Inline test generation in IDE</td>
+            </tr>
             </tbody>
         </table>
-        
+
         <h4 style="color: #6366f1; margin-top: 25px;">🔮 What's Possible Next:</h4>
         <ul>
             <li><strong>Direct API Integration:</strong> Auto-call OpenAI/Claude API to generate tests</li>
@@ -1376,33 +1406,38 @@ Priority: P0 - Implement immediately"</span>
     <h2>ROI (Return on Investment)</h2>
     <table>
         <thead>
-            <tr><th>Metric</th><th>Before TM</th><th>After TM</th><th>Impact</th></tr>
+        <tr>
+            <th>Metric</th>
+            <th>Before TM</th>
+            <th>After TM</th>
+            <th>Impact</th>
+        </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>Test Coverage Visibility</td>
-                <td>Unknown</td>
-                <td>50% measured</td>
-                <td><span class="badge badge-success">100% improvement</span></td>
-            </tr>
-            <tr>
-                <td>Time to Identify Gaps</td>
-                <td>Manual review (days)</td>
-                <td>Automated (seconds)</td>
-                <td><span class="badge badge-success">99% faster</span></td>
-            </tr>
-            <tr>
-                <td>Orphan Test Discovery</td>
-                <td>Never found</td>
-                <td>41 identified</td>
-                <td><span class="badge badge-success">Actionable insights</span></td>
-            </tr>
-            <tr>
-                <td>AI Test Generation</td>
-                <td>Not possible</td>
-                <td>Enabled</td>
-                <td><span class="badge badge-success">Future-ready</span></td>
-            </tr>
+        <tr>
+            <td>Test Coverage Visibility</td>
+            <td>Unknown</td>
+            <td>50% measured</td>
+            <td><span class="badge badge-success">100% improvement</span></td>
+        </tr>
+        <tr>
+            <td>Time to Identify Gaps</td>
+            <td>Manual review (days)</td>
+            <td>Automated (seconds)</td>
+            <td><span class="badge badge-success">99% faster</span></td>
+        </tr>
+        <tr>
+            <td>Orphan Test Discovery</td>
+            <td>Never found</td>
+            <td>41 identified</td>
+            <td><span class="badge badge-success">Actionable insights</span></td>
+        </tr>
+        <tr>
+            <td>AI Test Generation</td>
+            <td>Not possible</td>
+            <td>Enabled</td>
+            <td><span class="badge badge-success">Future-ready</span></td>
+        </tr>
         </tbody>
     </table>
 

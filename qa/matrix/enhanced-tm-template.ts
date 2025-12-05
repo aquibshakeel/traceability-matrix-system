@@ -154,7 +154,7 @@ export function generateEnhancedHTML(data: {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 25px;
-            padding: 40px;
+            padding: 60px 40px;
             background: linear-gradient(to bottom, #f9fafb, #ffffff);
         }
 

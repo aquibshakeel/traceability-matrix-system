@@ -369,26 +369,32 @@
         <div class="stat-card" style="border-left-color: #10b981;">
             <div class="stat-value">50%</div>
             <div class="stat-label">Coverage</div>
+            <div style="font-size: 0.9em; color: #9ca3af; margin-top: 6px;">9/18 scenarios covered</div>
         </div>
         <div class="stat-card" style="border-left-color: #ef4444;">
             <div class="stat-value">3</div>
             <div class="stat-label">P0 Critical Gaps</div>
+            <div style="font-size: 0.9em; color: #9ca3af; margin-top: 6px;">DB001, DB002, KAF002</div>
         </div>
         <div class="stat-card" style="border-left-color: #f59e0b;">
             <div class="stat-value">2</div>
             <div class="stat-label">P1 High Priority</div>
+            <div style="font-size: 0.9em; color: #9ca3af; margin-top: 6px;">NF003, KAF003</div>
         </div>
         <div class="stat-card" style="border-left-color: #06b6d4;">
-            <div class="stat-value">77</div>
+            <div class="stat-value">54</div>
             <div class="stat-label">Unit Tests</div>
+            <div style="font-size: 0.9em; color: #9ca3af; margin-top: 6px;">2 services</div>
         </div>
         <div class="stat-card" style="border-left-color: #8b5cf6;">
-            <div class="stat-value">41</div>
+            <div class="stat-value">26</div>
             <div class="stat-label">Orphan Tests</div>
+            <div style="font-size: 0.9em; color: #9ca3af; margin-top: 6px;">Need mapping</div>
         </div>
         <div class="stat-card" style="border-left-color: #10b981;">
-            <div class="stat-value">2</div>
-            <div class="stat-label">Services</div>
+            <div class="stat-value">18</div>
+            <div class="stat-label">Total Scenarios</div>
+            <div style="font-size: 0.9em; color: #9ca3af; margin-top: 6px;">HF, NF, EC, DB, KAF</div>
         </div>
     </div>
 
@@ -864,37 +870,43 @@ layer: <span class="code-string">"Service"</span>
 
     <h3>Feature 3: Action Assignment</h3>
     <div class="success-box">
-        <p><strong>System automatically assigns actions based on classification:</strong></p>
-        
+        <p><strong>System automatically assigns actions based on classification and coverage gaps:</strong></p>
+
         <table style="margin-top: 15px;">
             <thead>
                 <tr>
-                    <th>Test Type</th>
+                    <th>Situation</th>
+                    <th>What It Means</th>
                     <th>Action</th>
-                    <th>Assigned To</th>
-                    <th>Priority</th>
+                    <th>Owner</th>
                 </tr>
             </thead>
             <tbody>
                 <tr style="background: #fef2f2;">
-                    <td><strong>Business Logic Orphan</strong><br/>(e.g., "should validate age limit")</td>
+                    <td><strong>Unit test exists, but scenario does NOT exist</strong></td>
+                    <td>Business behaviour is tested in code, but not documented in TM scenarios ("orphan" business test)</td>
                     <td>
-                        1. Create scenario definition<br/>
-                        2. Add patterns to map test<br/>
-                        3. Update TM report
+                        1. Create / update scenario definition<br/>
+                        2. Add / refine regex patterns<br/>
+                        3. Re-run TM to map test  → scenario
                     </td>
-                    <td><strong>QA Team</strong></td>
-                    <td><span class="badge badge-danger">HIGH</span></td>
+                    <td><span class="badge badge-danger">QA Team</span></td>
+                </tr>
+                <tr style="background: #fef2f2;">
+                    <td><strong>Scenario exists, but unit test does NOT exist</strong></td>
+                    <td>Business requirement is defined, but there is no unit test coverage</td>
+                    <td>
+                        1. Implement missing unit tests
+                        <br/>2. Follow TM hints / AI prompts
+                        <br/>3. Ensure tests match scenario patterns
+                    </td>
+                    <td><span class="badge badge-danger">Dev Team</span></td>
                 </tr>
                 <tr style="background: #f0fdf4;">
-                    <td><strong>Infrastructure Orphan</strong><br/>(e.g., "should connect to Redis")</td>
-                    <td>
-                        No action required<br/>
-                        Mark as "Infrastructure"<br/>
-                        Exclude from coverage calc
-                    </td>
-                    <td><strong>No Action</strong></td>
-                    <td><span class="badge badge-success">NONE</span></td>
+                    <td><strong>Infrastructure-only orphan tests</strong></td>
+                    <td>Technical concerns (DB connections, health checks, config) not tied to business scenarios</td>
+                    <td>Mark as "Infrastructure" and exclude from business coverage calculation</td>
+                    <td><span class="badge badge-success">No Action</span></td>
                 </tr>
             </tbody>
         </table>
@@ -938,6 +950,98 @@ layer: <span class="code-string">"Service"</span>
         </ul>
     </div>
 
+    <h2>6. How QA Adds a New Scenario (Incremental Approach)</h2>
+    <div class="info-box">
+        <h3>Step 1: Start From a Real QA Scenario</h3>
+        <p>Example new scenario: <strong>NF008 - "Invalid age field (400)"</strong></p>
+        <ul>
+            <li>Business requirement: <strong>API should reject invalid age values</strong> (negative, non-numeric, too large)</li>
+            <li>Risk level: <strong>Medium</strong> (data quality) → <strong>P2</strong></li>
+            <li>Owner: <strong>QA Team</strong> (scenario definition and mapping)</li>
+        </ul>
+    </div>
+
+    <div class="success-box">
+        <h3>Step 2: Add Unit Test(s) in the Right Service / Layer</h3>
+        <p><strong>Where should tests go?</strong></p>
+        <ul>
+            <li><strong>Service:</strong> <code>onboarding-service</code></li>
+            <li><strong>API Layer:</strong> <code>onboarding-service/test/unit/api/controllers/UserController.test.ts</code></li>
+            <li><strong>Service Layer (optional for deeper coverage):</strong> <code>onboarding-service/test/unit/application/services/UserService.test.ts</code></li>
+        </ul>
+        <p><strong>API Unit Test Example (conceptual):</strong></p>
+        <ul>
+            <li><code>"should return 400 for negative age"</code></li>
+            <li><code>"should return 400 for non-numeric age"</code></li>
+        </ul>
+        <p>Once these unit tests exist, they will initially appear as <strong>Business Logic orphans</strong> until QA adds the scenario definition.</p>
+    </div>
+
+    <div class="warning-box">
+        <h3>Step 3: Define Scenario in <code>qa/matrix/scenario-definitions.ts</code></h3>
+        <p>QA adds a new entry in the scenario definitions file:</p>
+        <div class="code-block" style="font-size: 0.9em;">
+<span class="code-comment">// New Negative Flow scenario for age validation</span>
+{
+  id: <span class="code-string">"NF008"</span>,
+  description: <span class="code-string">"Invalid age field (400)"</span>,
+  category: <span class="code-string">"NF"</span>, <span class="code-comment">// Negative Flow</span>
+  priority: <span class="code-string">"P2"</span>,
+  expectedCoverage: <span class="code-string">"full"</span>,
+  unitTestPatterns: [
+    <span class="code-string">"invalid.*age"</span>,
+    <span class="code-string">"should.*400.*age"</span>,
+    <span class="code-string">"negative.*age"</span>
+  ]
+}
+        </div>
+        <ul>
+            <li><strong>Patterns</strong> should match the <code>it("...")</code> descriptions from the new tests.</li>
+            <li><strong>Category/Priority</strong> must align with project conventions (HF, NF, EC, DB, KAF + P0–P3).</li>
+            <li><strong>expectedCoverage</strong> drives how TM judges the number of tests ("partial" vs "full").</li>
+        </ul>
+    </div>
+
+    <div class="info-box">
+        <h3>Step 4: Re-Run TM & Validate Mapping</h3>
+        <ul>
+            <li>Run the QA test/TM pipeline (e.g., <code>npm run docker:all</code> in <code>qa</code> workspace).</li>
+            <li>Open the latest TM HTML in <code>qa/reports/html/traceability-matrix-*.html</code>.</li>
+            <li>Verify that <strong>NF008</strong> appears with the new unit tests listed and status <strong>Fully Covered</strong> (or <strong>Partially Covered</strong> if only some layers are tested).</li>
+        </ul>
+        <p>If unit tests exist but <strong>NF008</strong> is still not shown, they will stay as <strong>Business Logic orphans</strong> → <strong>QA Team must refine patterns or scenario definition</strong>.</p>
+    </div>
+
+    <div class="danger-box">
+        <h3>Step 5: Use AI Prompt for Incremental Automation</h3>
+        <p>When a scenario exists but unit tests are missing or incomplete, TM generates an AI prompt similar to:</p>
+        <div class="code-block" style="font-size: 0.85em;">
+<span class="code-comment">// Example prompt for NF008 - Invalid age field (400)</span>
+<span class="code-string">"Generate unit tests for scenario NF008: Invalid age field (400).
+
+Test Requirements:
+- Service: onboarding-service
+- Layer: API (UserController.test.ts) and optionally Service (UserService.test.ts)
+- Endpoint: POST /api/user
+- Validate that negative age, non-numeric age, and age above max limit return HTTP 400.
+- Ensure error messages are meaningful and consistent.
+
+Project Conventions:
+- Use existing test structure from other NF scenarios (e.g., NF005 for email).
+- Follow current assertion style and helper utilities.
+
+Risk Level: Medium (data quality) | Priority: P2.
+
+Goal: Produce 2–3 unit tests that will automatically map to NF008 via patterns like 'invalid.*age' and 'should.*400.*age'."</span>
+        </div>
+        <p>QA can copy this prompt into ChatGPT / Copilot to get test code, then:</p>
+        <ul>
+            <li>Place tests in the correct <strong>service + layer</strong> files.</li>
+            <li>Confirm test descriptions match the <strong>unitTestPatterns</strong> in the scenario definition.</li>
+            <li>Re-run TM to see NF008 automatically mapped and coverage updated.</li>
+        </ul>
+    </div>
+
     <div class="page-number">Page 5</div>
 </div>
 
@@ -975,28 +1079,6 @@ layer: <span class="code-string">"Service"</span>
             <li>🚨 Classified as <strong>GAP</strong></li>
             <li>🤖 AI Prompt generated automatically</li>
             <li>📊 Shown in Critical Gaps section</li>
-        </ul>
-    </div>
-
-    <h2>Scenario 3: Partial Coverage Behavior</h2>
-    <div class="flow-step">
-        <p><strong>Scenario NF006:</strong> Missing name field (expected coverage: 'partial')</p>
-        <p><strong>Unit Tests Found:</strong> 1 test matched</p>
-    </div>
-    <div class="arrow">↓</div>
-    <div class="warning-box">
-        <h4>System Behavior:</h4>
-        <ul>
-            <li>✅ Found: test_user_controller_3: "should return 400 for missing name"</li>
-            <li>⚠️ Status: <strong>PARTIALLY COVERED</strong></li>
-            <li>📝 Explanation: "Some aspects covered, but incomplete validation"</li>
-            <li>💡 Recommendation: Add service-level and repository-level tests</li>
-        </ul>
-        <p style="margin-top: 15px;"><strong>Coverage Logic:</strong></p>
-        <ul>
-            <li>Expected: 'partial' → Need 2+ tests for "Fully Covered"</li>
-            <li>Found: 1 test → Status: "Partially Covered"</li>
-            <li>If 2+ tests found → Would be "Fully Covered"</li>
         </ul>
     </div>
 
