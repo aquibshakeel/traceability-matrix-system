@@ -34,30 +34,16 @@ export class UnitTestParser {
   discoverServices(): string[] {
     const services: string[] = [];
     
-    // Check for root-level test/unit (main service or monorepo root)
-    const rootTestPath = path.join(this.rootDir, 'test/unit');
-    if (fs.existsSync(rootTestPath)) {
-      // Determine service name from package.json or use a default
-      const packageJsonPath = path.join(this.rootDir, 'package.json');
-      let serviceName = 'onboarding-service'; // default
-      
-      if (fs.existsSync(packageJsonPath)) {
-        try {
-          const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
-          serviceName = pkg.name || 'onboarding-service';
-        } catch (e) {
-          // Use default
-        }
-      }
-      
-      services.push(serviceName);
-    }
-    
-    // Check for subdirectory services (e.g., identity-service/)
+    // Check for service directories (e.g., onboarding-service/, identity-service/)
     const entries = fs.readdirSync(this.rootDir, { withFileTypes: true });
 
     for (const entry of entries) {
-      if (entry.isDirectory() && entry.name !== 'node_modules' && entry.name !== 'coverage' && entry.name !== 'dist' && entry.name !== 'qa') {
+      if (entry.isDirectory() && 
+          entry.name.endsWith('-service') && 
+          entry.name !== 'node_modules' && 
+          entry.name !== 'coverage' && 
+          entry.name !== 'dist' && 
+          entry.name !== 'qa') {
         const servicePath = path.join(this.rootDir, entry.name);
         
         // Check if directory has test/unit structure
@@ -92,13 +78,8 @@ export class UnitTestParser {
    * Parse tests for a specific service
    */
   async parseServiceTests(serviceName: string): Promise<UnitTest[]> {
-    // Handle root-level service (onboarding-service)
-    let testDir: string;
-    if (serviceName === 'onboarding-service') {
-      testDir = path.join(this.rootDir, 'test/unit');
-    } else {
-      testDir = path.join(this.rootDir, serviceName, 'test/unit');
-    }
+    // All services are now in service-name/ folders
+    const testDir = path.join(this.rootDir, serviceName, 'test/unit');
     
     const serviceTests: UnitTest[] = [];
 

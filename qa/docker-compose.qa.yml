@@ -23,7 +23,7 @@ services:
 
   # Use the existing service from main docker-compose
   service:
-    image: ai-dummy-service-service:latest
+    image: ai-dummy-service-onboarding-service:latest
     container_name: onboarding-service-qa
     environment:
       PORT: 3000

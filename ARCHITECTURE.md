@@ -1,506 +1,552 @@
-# Onboarding Service Architecture
+# Architecture Documentation
 
 ## Overview
 
-This is a clean, minimal API-only onboarding service built with TypeScript, following Clean Architecture principles. The service provides two endpoints for user onboarding with MongoDB persistence and Kafka event publishing.
+This project implements a microservices architecture following Clean Architecture principles, with a comprehensive QA framework for automated testing and traceability.
 
-## Design Principles
-
-### SOLID Principles
-
-1. **Single Responsibility Principle (SRP)**
-   - Each class has one reason to change
-   - UserService handles business logic only
-   - Controllers handle HTTP concerns only
-   - Repositories handle data persistence only
-
-2. **Open/Closed Principle (OCP)**
-   - System is open for extension via interfaces
-   - Closed for modification via dependency injection
-
-3. **Liskov Substitution Principle (LSP)**
-   - Implementations are interchangeable via interfaces
-   - MongoDB/Kafka can be swapped with other implementations
-
-4. **Interface Segregation Principle (ISP)**
-   - Interfaces are minimal and focused
-   - IUserRepository, IEventPublisher are lean contracts
-
-5. **Dependency Inversion Principle (DIP)**
-   - High-level modules depend on abstractions
-   - Low-level modules implement abstractions
-
-### DRY (Don't Repeat Yourself)
-
-- Centralized configuration in `config.ts`
-- Reusable interfaces in domain layer
-- Single source of truth for entities
-
-### Clean Code
-
-- Descriptive naming conventions
-- Small, focused functions
-- Clear separation of concerns
-- Comprehensive documentation
-
-## Architecture Layers
+## System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        API Layer                             │
-│  (Controllers, Routes, HTTP Concerns)                        │
-│  - UserController                                            │
-│  - userRoutes                                                │
-└─────────────────────────────────────────────────────────────┘
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   Application Layer                          │
-│  (Use Cases, Business Logic)                                 │
-│  - UserService                                               │
-└─────────────────────────────────────────────────────────────┘
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│                     Domain Layer                             │
-│  (Entities, Interfaces, Business Rules)                      │
-│  - User, CreateUserRequest, OnboardingEvent                  │
-│  - IUserRepository, IEventPublisher                          │
-└─────────────────────────────────────────────────────────────┘
-                            ▲
-┌─────────────────────────────────────────────────────────────┐
-│                 Infrastructure Layer                         │
-│  (External Concerns, Adapters)                               │
-│  - MongoUserRepository                                       │
-│  - KafkaEventPublisher                                       │
-└─────────────────────────────────────────────────────────────┘
+│                     API Gateway (Future)                     │
+└────────────┬────────────────────────────────┬────────────────┘
+             │                                │
+      ┌──────▼──────┐                 ┌──────▼──────┐
+      │ Onboarding  │                 │  Identity   │
+      │   Service   │                 │   Service   │
+      │  (Port 3000)│                 │  (Port 4000)│
+      └──────┬──────┘                 └──────┬──────┘
+             │                                │
+        ┌────▼────┐                     ┌────▼────┐
+        │ MongoDB │                     │ MongoDB │
+        └─────────┘                     └─────────┘
+             │
+        ┌────▼────┐
+        │  Kafka  │
+        └─────────┘
 ```
 
-## Folder Structure
+## Clean Architecture Layers
 
-```
-src/
-├── domain/                      # Core business logic (no dependencies)
-│   ├── entities/               # Business entities and DTOs
-│   │   └── User.ts            # User entity and contracts
-│   ├── repositories/          # Repository interfaces (ports)
-│   │   └── IUserRepository.ts
-│   └── events/                # Event publisher interfaces (ports)
-│       └── IEventPublisher.ts
-│
-├── application/                # Use cases and business orchestration
-│   └── services/
-│       └── UserService.ts     # User onboarding business logic
-│
-├── infrastructure/             # External systems (adapters)
-│   ├── database/
-│   │   └── MongoUserRepository.ts  # MongoDB implementation
-│   └── messaging/
-│       └── KafkaEventPublisher.ts  # Kafka implementation
-│
-├── api/                        # HTTP interface
-│   ├── controllers/
-│   │   └── UserController.ts  # HTTP request handlers
-│   └── routes/
-│       └── userRoutes.ts      # Route definitions
-│
-├── config/                     # Configuration
-│   └── config.ts              # Environment-based config
-│
-├── app.ts                      # Application bootstrap
-└── server.ts                   # Entry point
+### 1. Domain Layer (Innermost)
+**Location:** `src/domain/`
 
-test/
-├── unit/                       # Unit tests (run inside container)
-│   ├── application/
-│   ├── domain/
-│   └── infrastructure/
-└── integration/                # Integration tests (run outside container)
-    ├── api/
-    └── events/
-```
+**Responsibilities:**
+- Business entities (User, Profile)
+- Repository interfaces (ports)
+- Event publisher interfaces
+- Pure business logic with no dependencies
 
-## API Endpoints
+**Example:**
+```typescript
+// domain/entities/User.ts
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-### POST /api/user
-
-Creates and onboards a new user.
-
-**Request:**
-```json
-{
-  "email": "user@example.com",
-  "name": "John Doe"
+// domain/repositories/IUserRepository.ts
+export interface IUserRepository {
+  create(user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User>;
+  findById(id: string): Promise<User | null>;
+  findByEmail(email: string): Promise<User | null>;
 }
 ```
 
-**Success Response (201):**
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "email": "user@example.com",
-  "name": "John Doe",
-  "createdAt": "2025-12-04T12:00:00.000Z",
-  "updatedAt": "2025-12-04T12:00:00.000Z"
+**Key Principle:** Domain layer has ZERO dependencies on other layers.
+
+### 2. Application Layer
+**Location:** `src/application/`
+
+**Responsibilities:**
+- Use cases and business orchestration
+- Service classes that implement business flows
+- Depends only on domain interfaces
+
+**Example:**
+```typescript
+// application/services/UserService.ts
+export class UserService {
+  constructor(
+    private userRepository: IUserRepository,  // Interface, not implementation
+    private eventPublisher: IEventPublisher   // Interface, not implementation
+  ) {}
+
+  async createUser(dto: CreateUserDTO): Promise<User> {
+    // Business logic
+    // Validation
+    // Orchestration
+  }
 }
 ```
 
-**Error Responses:**
-- 400: Invalid email format or missing fields
-- 409: User with email already exists
-- 500: Internal server error
+**Key Principle:** Application layer orchestrates domain entities using interfaces.
 
-### GET /api/user/:id
+### 3. Infrastructure Layer
+**Location:** `src/infrastructure/`
 
-Retrieves user onboarding data.
+**Responsibilities:**
+- Adapters for external systems
+- Database implementations (MongoDB)
+- Messaging implementations (Kafka)
+- Implements domain interfaces
 
-**Success Response (200):**
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "email": "user@example.com",
-  "name": "John Doe",
-  "createdAt": "2025-12-04T12:00:00.000Z",
-  "updatedAt": "2025-12-04T12:00:00.000Z"
+**Example:**
+```typescript
+// infrastructure/database/MongoUserRepository.ts
+export class MongoUserRepository implements IUserRepository {
+  // Implements the domain interface
+  async create(user: Omit<User, 'id'>): Promise<User> {
+    // MongoDB-specific implementation
+  }
+}
+
+// infrastructure/messaging/KafkaEventPublisher.ts
+export class KafkaEventPublisher implements IEventPublisher {
+  // Kafka-specific implementation
 }
 ```
 
-**Error Responses:**
-- 400: Invalid user ID
-- 404: User not found
-- 500: Internal server error
+**Key Principle:** Infrastructure layer depends on domain interfaces but domain doesn't depend on infrastructure.
 
-## Kafka Event
+### 4. API Layer (Outermost)
+**Location:** `src/api/`
 
-When a user is created, an onboarding event is published to Kafka:
+**Responsibilities:**
+- HTTP controllers
+- Route definitions
+- Request/response handling
+- Depends on application services
 
-**Topic:** `user-onboarding`
+**Example:**
+```typescript
+// api/controllers/UserController.ts
+export class UserController {
+  constructor(private userService: UserService) {}
 
-**Event Payload:**
-```json
-{
-  "userId": "507f1f77bcf86cd799439011",
-  "email": "user@example.com",
-  "name": "John Doe",
-  "status": "onboarded",
-  "timestamp": "2025-12-04T12:00:00.000Z"
+  async createUser(req: Request, res: Response) {
+    try {
+      const user = await this.userService.createUser(req.body);
+      res.status(201).json(user);
+    } catch (error) {
+      // Error handling
+    }
+  }
 }
 ```
+
+**Key Principle:** API layer is a thin adapter that translates HTTP to business operations.
 
 ## Dependency Injection
 
-The application uses constructor-based dependency injection for loose coupling:
+All dependencies are injected through constructors:
 
 ```typescript
-// Domain Layer defines interfaces
-interface IUserRepository { ... }
-interface IEventPublisher { ... }
-
-// Infrastructure Layer implements interfaces
-class MongoUserRepository implements IUserRepository { ... }
-class KafkaEventPublisher implements IEventPublisher { ... }
-
-// Application Layer depends on interfaces
-class UserService {
-  constructor(
-    private readonly userRepository: IUserRepository,
-    private readonly eventPublisher: IEventPublisher
-  ) {}
-}
-
-// API Layer depends on application layer
-class UserController {
-  constructor(private readonly userService: UserService) {}
-}
-
-// Bootstrap wires everything together
-const userRepository = new MongoUserRepository(db);
-const eventPublisher = new KafkaEventPublisher(kafka);
+// app.ts - Dependency wiring
+const userRepository = new MongoUserRepository(mongoClient);
+const eventPublisher = new KafkaEventPublisher(kafkaProducer);
 const userService = new UserService(userRepository, eventPublisher);
 const userController = new UserController(userService);
 ```
 
+**Benefits:**
+- Easy to test (mock dependencies)
+- Easy to swap implementations
+- Clear dependency graph
+- No hidden dependencies
+
+## Service Communication
+
+### 1. Onboarding Service → Kafka
+When a user is created:
+```
+POST /api/user
+  ↓
+UserController
+  ↓
+UserService.createUser()
+  ↓
+├─→ MongoUserRepository.create()  (save to DB)
+└─→ KafkaEventPublisher.publish() (publish event)
+```
+
+### 2. Event Structure
+```json
+{
+  "eventType": "user.onboarded",
+  "userId": "507f1f77bcf86cd799439011",
+  "timestamp": "2025-12-05T06:00:00.000Z",
+  "status": "onboarded"
+}
+```
+
+### 3. Identity Service (Future)
+Will consume Kafka events to create/update profiles.
+
+## Data Flow
+
+### Create User Flow
+```
+1. Client → POST /api/user
+2. Express → UserController.createUser()
+3. UserController → UserService.createUser()
+4. UserService:
+   a. Validate input
+   b. Check for duplicate email (via repository)
+   c. Create user (via repository)
+   d. Publish event (via event publisher)
+5. Return user to client
+```
+
+### Error Flow
+```
+1. Validation Error → 400 Bad Request
+2. Duplicate Email → 409 Conflict
+3. DB Error → 500 Internal Server Error
+4. Kafka Error → Log & continue (user still created)
+```
+
+## Database Design
+
+### MongoDB Collections
+
+#### Users Collection (Onboarding Service)
+```javascript
+{
+  _id: ObjectId("..."),
+  email: "user@example.com",
+  name: "John Doe",
+  createdAt: ISODate("2025-12-05T06:00:00.000Z"),
+  updatedAt: ISODate("2025-12-05T06:00:00.000Z")
+}
+
+// Indexes
+db.users.createIndex({ email: 1 }, { unique: true })
+```
+
+#### Profiles Collection (Identity Service)
+```javascript
+{
+  _id: ObjectId("..."),
+  userId: "507f1f77bcf86cd799439011",
+  email: "user@example.com",
+  name: "John Doe",
+  metadata: {},
+  createdAt: ISODate("..."),
+  updatedAt: ISODate("...")
+}
+
+// Indexes
+db.profiles.createIndex({ userId: 1 }, { unique: true })
+db.profiles.createIndex({ email: 1 })
+```
+
 ## Testing Strategy
 
-### Unit Tests (Inside Container)
+### 1. Unit Tests
+**Location:** `<service>/test/unit/`
 
-- **Location:** `test/unit/`
-- **Run:** `npm test` inside container
-- **Purpose:** Test individual components in isolation
-- **Characteristics:**
-  - Use mocks/stubs for dependencies
-  - Fast execution (< 1s per test)
-  - No external services required
-  - High code coverage target (>80%)
+**Coverage:**
+- All business logic in application layer
+- Repository implementations
+- Controllers
+- Event publishers
 
 **Example:**
 ```typescript
-// test/unit/application/services/UserService.test.ts
 describe('UserService', () => {
-  let userService: UserService;
-  let mockRepository: jest.Mocked<IUserRepository>;
-  let mockPublisher: jest.Mocked<IEventPublisher>;
-
-  beforeEach(() => {
-    mockRepository = createMockRepository();
-    mockPublisher = createMockPublisher();
-    userService = new UserService(mockRepository, mockPublisher);
-  });
-
-  it('should create user and publish event', async () => {
-    // Test implementation
-  });
-});
-```
-
-### Integration Tests (Outside Container)
-
-- **Location:** `test/integration/`
-- **Run:** External test runner or CI/CD pipeline
-- **Purpose:** Test component interactions with real services
-- **Characteristics:**
-  - Use real MongoDB and Kafka
-  - Slower execution (seconds per test)
-  - Verify API contracts
-  - Test complete user flows
-
-**Example:**
-```typescript
-// test/integration/api/user-creation.test.ts
-describe('POST /api/user', () => {
-  beforeAll(async () => {
-    await connectToTestDatabase();
-    await connectToTestKafka();
-  });
-
-  afterEach(async () => {
-    await cleanupTestData();
-  });
-
-  it('should create user and publish to Kafka', async () => {
-    const response = await request(app)
-      .post('/api/user')
-      .send({ email: 'test@example.com', name: 'Test User' });
+  it('should create user with valid data', async () => {
+    const mockRepo = createMockRepository();
+    const mockPublisher = createMockPublisher();
+    const service = new UserService(mockRepo, mockPublisher);
     
-    expect(response.status).toBe(201);
-    // Verify in database
-    // Verify Kafka message
+    const result = await service.createUser({
+      email: 'test@example.com',
+      name: 'Test User'
+    });
+    
+    expect(result).toBeDefined();
+    expect(mockRepo.create).toHaveBeenCalled();
+    expect(mockPublisher.publish).toHaveBeenCalled();
   });
 });
 ```
 
-## Why This Architecture?
+### 2. E2E Tests
+**Location:** `qa/tests/e2e/`
 
-### 1. Testability
+**Coverage:**
+- Full request/response cycles
+- Integration between layers
+- Database persistence
+- Event publishing
+- Error scenarios
 
-- **Interfaces allow mocking:** Business logic can be tested without MongoDB/Kafka
-- **Dependency injection:** Easy to swap implementations for testing
-- **Clear boundaries:** Each layer can be tested independently
+**Test Structure:**
+```
+TS001 - Happy Path Tests
+TS002 - Negative Flow Tests
+TS003 - Get User Tests
+TS004 - Edge Case Tests
+TS005 - Identity Service Tests
+```
 
-### 2. Maintainability
+### 3. Traceability Matrix
+**Location:** `qa/matrix/`
 
-- **Separation of concerns:** Changes in one layer don't affect others
-- **Single Responsibility:** Each class has one job
-- **Clear structure:** New developers can navigate easily
+Automatically maps:
+- Business scenarios → E2E tests
+- Business scenarios → Unit tests
+- Identifies gaps in coverage
+- Generates priority-based recommendations
 
-### 3. Extensibility
+## Configuration Management
 
-- **Open/Closed:** Add new features without modifying existing code
-- **Interface-based:** Swap MongoDB for PostgreSQL without changing business logic
-- **Kafka independence:** Can add other event publishers (RabbitMQ, SNS) easily
+### Environment Variables
 
-### 4. Production Readiness
+**Onboarding Service:**
+```bash
+PORT=3000
+MONGODB_URI=mongodb://localhost:27017
+MONGODB_DATABASE=onboarding-service
+KAFKA_BROKERS=localhost:9092
+KAFKA_CLIENT_ID=onboarding-service
+KAFKA_TOPIC=user-onboarding
+```
 
-- **Health checks:** `/health` endpoint for monitoring
-- **Graceful shutdown:** Properly closes DB and Kafka connections
-- **Error handling:** Comprehensive error responses
-- **Type safety:** TypeScript ensures correctness
+**Identity Service:**
+```bash
+PORT=4000
+MONGODB_URI=mongodb://localhost:27017
+MONGODB_DATABASE=identity-service
+```
+
+### Configuration Loading
+```typescript
+// config/config.ts
+export const config = {
+  port: parseInt(process.env.PORT || '3000'),
+  mongodb: {
+    uri: process.env.MONGODB_URI || 'mongodb://localhost:27017',
+    database: process.env.MONGODB_DATABASE || 'onboarding-service'
+  },
+  kafka: {
+    brokers: (process.env.KAFKA_BROKERS || 'localhost:9092').split(','),
+    clientId: process.env.KAFKA_CLIENT_ID || 'onboarding-service',
+    topic: process.env.KAFKA_TOPIC || 'user-onboarding'
+  }
+};
+```
 
 ## Docker Architecture
 
-### Single Container Design
-
-The service runs in one container with:
-- Compiled TypeScript (Node.js)
-- MongoDB client connection
-- Kafka producer connection
-- Express HTTP server
-
-**Benefits:**
-- Simple deployment
-- Easy scaling (horizontal)
-- Clear resource boundaries
-- Independent test execution
-
 ### Multi-Stage Build
-
 ```dockerfile
 # Stage 1: Build
 FROM node:18-alpine AS builder
-# Compile TypeScript to JavaScript
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
 
 # Stage 2: Production
 FROM node:18-alpine
-# Copy only compiled code and production dependencies
-# Smaller final image
-# Security: runs as non-root user
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY package*.json ./
+CMD ["node", "dist/server.js"]
 ```
 
-### Docker Compose Services
-
-1. **MongoDB:** User data persistence
-2. **Zookeeper:** Kafka coordination
-3. **Kafka:** Event streaming
-4. **Service:** Onboarding API
-
-All services connected via `onboarding-network` with health checks.
-
-## Configuration
-
-Environment-based configuration for different deployment scenarios:
-
-```typescript
-// Development
-MONGODB_URI=mongodb://localhost:27017
-KAFKA_BROKERS=localhost:9092
-
-// Docker Compose
-MONGODB_URI=mongodb://mongodb:27017
-KAFKA_BROKERS=kafka:29092
-
-// Production (K8s/Cloud)
-MONGODB_URI=mongodb://prod-cluster:27017
-KAFKA_BROKERS=kafka-1:9092,kafka-2:9092,kafka-3:9092
+### Service Dependencies
+```yaml
+services:
+  mongodb:
+    healthcheck: mongosh ping
+  
+  kafka:
+    depends_on: [zookeeper]
+    healthcheck: kafka-broker-api-versions
+  
+  onboarding-service:
+    depends_on:
+      mongodb: { condition: service_healthy }
+      kafka: { condition: service_healthy }
 ```
 
-## Design Decisions
+## Scalability Considerations
 
-### 1. Why Clean Architecture?
-
-**Decision:** Implement Clean Architecture (Hexagonal/Ports & Adapters)
-
-**Rationale:**
-- Business logic isolated from frameworks
-- Easy to test without external dependencies
-- Can swap infrastructure without changing business logic
-- Clear separation of concerns
-
-### 2. Why MongoDB?
-
-**Decision:** Use MongoDB for persistence
-
-**Rationale:**
-- Document model fits user entity naturally
-- Easy to scale horizontally
-- No schema migrations needed for simple model
-- Fast development iteration
-
-**Trade-off:** If complex queries or transactions are needed later, might need to reconsider
-
-### 3. Why Kafka?
-
-**Decision:** Use Kafka for event publishing
-
-**Rationale:**
-- Reliable message delivery
-- Event sourcing capability
-- Scalable consumer groups
-- Industry standard for event streaming
-
-**Trade-off:** Heavier infrastructure than simple queues, but worth it for reliability
-
-### 4. Why TypeScript?
-
-**Decision:** Use TypeScript instead of JavaScript
-
-**Rationale:**
-- Type safety catches errors at compile time
-- Better IDE support and refactoring
-- Self-documenting code through types
-- Industry best practice for backend services
-
-### 5. Why Express?
-
-**Decision:** Use Express for HTTP layer
-
-**Rationale:**
-- Minimal and unopinionated
-- Large ecosystem
-- Well-understood by most developers
-- Easy to test
-
-**Alternative considered:** Fastify (faster but less familiar)
-
-### 6. Why Constructor Injection?
-
-**Decision:** Use constructor-based dependency injection
-
-**Rationale:**
-- Dependencies are explicit and required
-- Easier to test (pass mocks in constructor)
-- No need for DI framework
-- TypeScript enforces at compile time
-
-## Running the Service
-
-### Development
-
-```bash
-# Install dependencies
-npm install
-
-# Start dependencies (MongoDB, Kafka)
-docker-compose up -d mongodb kafka
-
-# Run in dev mode
-npm run dev
+### Horizontal Scaling
+```
+┌─────────┐
+│ Load    │
+│ Balancer│
+└────┬────┘
+     │
+     ├─→ Service Instance 1
+     ├─→ Service Instance 2
+     └─→ Service Instance 3
 ```
 
-### Production (Docker)
+Each service can be scaled independently.
 
-```bash
-# Build and start all services
-docker-compose up -d
+### Database Scaling
+- MongoDB replica sets for read scalability
+- Sharding for write scalability
+- Indexes for query performance
 
-# View logs
-docker-compose logs -f service
+### Kafka Scaling
+- Multiple partitions for parallel processing
+- Consumer groups for load distribution
+- Message durability with replication
 
-# Health check
-curl http://localhost:3000/health
+## Security Considerations
+
+### Current Implementation
+- Input validation in application layer
+- Email format validation
+- Duplicate email prevention
+- Health check endpoints (no auth required)
+
+### Future Enhancements
+- JWT authentication
+- Rate limiting
+- API key management
+- Request signing
+- HTTPS enforcement
+
+## Error Handling
+
+### Error Hierarchy
+```
+ApplicationError (base)
+├── ValidationError (400)
+├── NotFoundError (404)
+├── ConflictError (409)
+└── InternalError (500)
 ```
 
-### Testing
-
-```bash
-# Unit tests (inside container)
-docker-compose run --rm service npm test
-
-# Integration tests (requires services running)
-docker-compose up -d
-npm run test:integration
+### Error Response Format
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Email is required",
+    "details": {
+      "field": "email"
+    }
+  }
+}
 ```
+
+## Monitoring & Observability
+
+### Health Checks
+```
+GET /health
+Response: { "status": "healthy" }
+```
+
+### Logging Strategy
+- Structured logging (JSON format)
+- Log levels: DEBUG, INFO, WARN, ERROR
+- Request/response logging
+- Error stack traces
+- Performance metrics
+
+### Future Additions
+- OpenTelemetry integration
+- Distributed tracing
+- Metrics collection (Prometheus)
+- Alerting (PagerDuty)
+
+## CI/CD Pipeline (Future)
+
+```
+Code Push
+  ↓
+Lint & Format Check
+  ↓
+Unit Tests
+  ↓
+Build Docker Images
+  ↓
+E2E Tests
+  ↓
+Traceability Matrix Validation
+  ↓
+Deploy to Staging
+  ↓
+Smoke Tests
+  ↓
+Deploy to Production
+```
+
+## Design Patterns Used
+
+1. **Dependency Injection**: Constructor injection throughout
+2. **Repository Pattern**: Data access abstraction
+3. **Adapter Pattern**: Infrastructure implementations
+4. **Factory Pattern**: Entity creation
+5. **Strategy Pattern**: Different event publishers
+6. **Observer Pattern**: Event publishing/consuming
+
+## Best Practices
+
+1. **SOLID Principles**
+   - Single Responsibility: Each class has one reason to change
+   - Open/Closed: Open for extension, closed for modification
+   - Liskov Substitution: Interfaces are substitutable
+   - Interface Segregation: Small, focused interfaces
+   - Dependency Inversion: Depend on abstractions, not concretions
+
+2. **DRY (Don't Repeat Yourself)**
+   - Shared configuration
+   - Reusable interfaces
+   - Common error handling
+
+3. **KISS (Keep It Simple, Stupid)**
+   - Simple, focused classes
+   - Clear naming
+   - Minimal complexity
+
+4. **Testing**
+   - Unit tests for business logic
+   - E2E tests for user scenarios
+   - Mocking for isolation
+   - Coverage tracking
 
 ## Future Enhancements
 
-While keeping the service minimal, here are potential enhancements:
+1. **API Gateway**
+   - Centralized authentication
+   - Rate limiting
+   - Request routing
 
-1. **Authentication/Authorization:** Add JWT or API key validation
-2. **Rate Limiting:** Prevent abuse
-3. **Metrics:** Add Prometheus metrics
-4. **Logging:** Structured logging with correlation IDs
-5. **Caching:** Redis for frequent reads
-6. **Validation:** More comprehensive input validation
-7. **API Versioning:** Support v1, v2 endpoints
-8. **Documentation:** OpenAPI/Swagger spec
+2. **Event Sourcing**
+   - Complete event history
+   - Event replay capability
+   - Audit trail
 
-These should only be added when requirements demand them (YAGNI principle).
+3. **CQRS**
+   - Separate read/write models
+   - Optimized queries
+   - Event-driven updates
+
+4. **Service Mesh**
+   - Istio/Linkerd integration
+   - Service-to-service auth
+   - Traffic management
 
 ## Conclusion
 
 This architecture provides:
-- ✅ Minimal scope (only 2 endpoints as requested)
-- ✅ Clean code following SOLID principles
-- ✅ Testable design with clear boundaries
-- ✅ Production-ready Docker setup
-- ✅ Easy to extend without modification
-- ✅ No unnecessary features or complexity
-
-The service is ready for unit tests to be added in the `test/unit/` directory and integration tests in `test/integration/`.
+- ✅ Clean separation of concerns
+- ✅ Testable codebase
+- ✅ Scalable design
+- ✅ Maintainable structure
+- ✅ Production-ready setup

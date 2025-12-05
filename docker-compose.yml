@@ -52,7 +52,7 @@ services:
   # Onboarding Service
   service:
     build:
-      context: .
+      context: ./onboarding-service
       dockerfile: Dockerfile
     container_name: onboarding-service
     depends_on:

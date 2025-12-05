@@ -1,261 +1,318 @@
-# Onboarding Service
+# Microservices QA Framework
 
-A clean, minimal API-only user onboarding service built with TypeScript, following Clean Architecture principles with MongoDB persistence and Kafka event publishing.
+A production-ready microservices architecture with comprehensive E2E testing, automated traceability matrix, and clean architecture principles.
 
-## Features
+## 🏗️ Architecture Overview
 
-- ✅ **Two Simple Endpoints:** POST /api/user (create) and GET /api/user/:id (retrieve)
-- ✅ **MongoDB Integration:** Persistent storage with proper indexing
-- ✅ **Kafka Event Publishing:** Publishes "onboarded" status events
-- ✅ **Clean Architecture:** SOLID principles, testable design, clear boundaries
-- ✅ **Type-Safe:** Full TypeScript implementation
-- ✅ **Docker Ready:** Single container with multi-stage build
-- ✅ **Production Ready:** Health checks, graceful shutdown, error handling
-- ✅ **Test Structure:** Organized for unit and integration tests
+```
+microservices-qa-framework/
+├── onboarding-service/      # User onboarding microservice
+├── identity-service/        # User identity/profile microservice
+├── qa/                      # E2E test framework with traceability matrix
+├── docker-compose.yml       # Service orchestration
+└── package.json            # Root workspace configuration
+```
 
-## Quick Start
+## 🚀 Quick Start
 
+### Prerequisites
+- Node.js 18+
+- Docker & Docker Compose
+- npm 9+
+
+### 1. Install Dependencies
 ```bash
-# 1. Install dependencies
-npm install
+npm run install:all
+```
 
-# 2. Start all services (MongoDB, Kafka, API)
-docker-compose up -d
+### 2. Start Services
+```bash
+npm run start:services
+```
 
-# 3. Check health
+This starts:
+- MongoDB (port 27017)
+- Kafka + Zookeeper (port 9092)
+- Onboarding Service (port 3000)
+
+### 3. Verify Services
+```bash
+# Check health
 curl http://localhost:3000/health
 
-# 4. Create a user
+# Create test user
 curl -X POST http://localhost:3000/api/user \
   -H "Content-Type: application/json" \
-  -d '{"email":"john@example.com","name":"John Doe"}'
-
-# 5. Get user by ID (use the ID from step 4 response)
-curl http://localhost:3000/api/user/YOUR_USER_ID
+  -d '{"email":"test@example.com","name":"Test User"}'
 ```
 
-## API Endpoints
-
-### POST /api/user
-Create and onboard a new user.
-
-**Request:**
-```json
-{
-  "email": "user@example.com",
-  "name": "John Doe"
-}
-```
-
-**Response (201):**
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "email": "user@example.com",
-  "name": "John Doe",
-  "createdAt": "2025-12-04T12:00:00.000Z",
-  "updatedAt": "2025-12-04T12:00:00.000Z"
-}
-```
-
-### GET /api/user/:id
-Retrieve user onboarding data.
-
-**Response (200):**
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "email": "user@example.com",
-  "name": "John Doe",
-  "createdAt": "2025-12-04T12:00:00.000Z",
-  "updatedAt": "2025-12-04T12:00:00.000Z"
-}
-```
-
-## Architecture
-
-```
-src/
-├── domain/                 # Business entities and interfaces (ports)
-├── application/            # Business logic and use cases
-├── infrastructure/         # External systems (MongoDB, Kafka adapters)
-├── api/                    # HTTP controllers and routes
-├── config/                 # Configuration
-├── app.ts                  # Application bootstrap
-└── server.ts               # Entry point
-
-test/
-├── unit/                   # Unit tests (run inside container)
-└── integration/            # Integration tests (run outside container)
-```
-
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed design decisions and explanations.
-
-## Development
-
+### 4. Run Tests
 ```bash
-# Install dependencies
-npm install
+# E2E tests with traceability matrix
+npm run test:e2e
 
-# Start dependencies only
-docker-compose up -d mongodb kafka
+# All unit + E2E tests
+npm run test:all
 
-# Run in development mode
-npm run dev
-
-# Build TypeScript
-npm run build
-
-# Run compiled code
-npm start
-
-# Lint
-npm run lint
+# Individual service tests
+npm run test:onboarding
+npm run test:identity
 ```
 
-## Testing
+---
 
-### Unit Tests
+## 📦 Services
+
+### Onboarding Service
+**Port:** 3000  
+**Endpoints:**
+- `POST /api/user` - Create user
+- `GET /api/user/:id` - Get user
+- `GET /health` - Health check
+
+**Features:**
+- MongoDB persistence
+- Kafka event publishing
+- Clean architecture (Domain → Application → Infrastructure → API)
+- Comprehensive unit tests
+
+### Identity Service
+**Port:** 4000 (when standalone)  
+**Endpoints:**
+- `POST /api/profile` - Create profile
+- `GET /api/profile/:id` - Get profile
+- `PUT /api/profile/:id` - Update profile
+- `DELETE /api/profile/:id` - Delete profile
+
+**Features:**
+- Profile management
+- MongoDB persistence
+- Clean architecture
+- Full CRUD operations
+
+---
+
+## 🧪 QA Framework
+
+The QA framework provides:
+- ✅ **E2E Test Suite** (5 test files, 20+ scenarios)
+- ✅ **Automated Traceability Matrix** with gap analysis
+- ✅ **HTML Reports** with interactive UI
+- ✅ **Selective Test Execution** (case, file, folder modes)
+- ✅ **Docker Support** for isolated testing
+- ✅ **Unit Test Mapping** to business scenarios
+
+### Test Execution
+
+**From QA directory:**
 ```bash
-# Run unit tests
+cd qa
+
+# Run all tests
 npm test
 
-# Watch mode
-npm run test:watch
+# Run single test case
+npm run test:case TS001
 
-# With coverage
-npm run test:coverage
+# Run specific file
+npm run test:file e2e/onboarding/ts002_create_user_negative.spec.ts
 
-# Inside container
-docker-compose run --rm service npm test
+# Run test folder
+npm run test:folder onboarding
+
+# Run in Docker
+npm run test:docker
 ```
 
-### Integration Tests
+### Reports Generated
+
+Every test run automatically generates:
+1. **Test Report** - `qa/reports/html/test-report-*.html`
+2. **Traceability Matrix** - `qa/reports/html/traceability-matrix-*.html`
+
+Reports include:
+- Pass/fail statistics
+- Coverage metrics (57% currently)
+- Gap analysis (P0/P1/P2 priorities)
+- Unit test mappings
+- Scenario-to-test traceability
+
+---
+
+## 📊 Project Statistics
+
+| Metric | Value |
+|--------|-------|
+| Services | 2 (onboarding, identity) |
+| E2E Tests | 5 files, 20+ scenarios |
+| Unit Tests | 10 tests |
+| Test Coverage | 57% (4/7 scenarios) |
+| Priority Gaps | 2 P1, 0 P0 |
+| Documentation | 100% |
+
+---
+
+## 🛠️ Development
+
+### Build Services
 ```bash
-# Start services first
-docker-compose up -d
+# Build all
+npm run build:all
 
-# Run integration tests
-npm run test:integration
+# Build individual
+npm run build:onboarding
+npm run build:identity
 ```
 
-## Docker
-
-### Build and Run
-
+### Run in Development Mode
 ```bash
-# Build and start all services
-docker-compose up -d
+# Onboarding service
+npm run dev:onboarding
 
-# View logs
-docker-compose logs -f service
-
-# Stop all services
-docker-compose down
-
-# Rebuild service
-docker-compose build service
+# Identity service
+npm run dev:identity
 ```
 
-### Services
-
-- **service:** Onboarding API (port 3000)
-- **mongodb:** MongoDB database (port 27017)
-- **kafka:** Kafka broker (port 9092)
-- **zookeeper:** Kafka coordinator (port 2181)
-
-## Environment Variables
-
+### Stop Services
 ```bash
-# Server
-PORT=3000
-
-# MongoDB
-MONGODB_URI=mongodb://localhost:27017
-MONGODB_DATABASE=onboarding-service
-
-# Kafka
-KAFKA_BROKERS=localhost:9092
-KAFKA_CLIENT_ID=onboarding-service
-KAFKA_TOPIC=user-onboarding
+npm run stop:services
 ```
 
-## Project Structure
-
-```
-onboarding-service/
-├── src/
-│   ├── domain/
-│   │   ├── entities/User.ts
-│   │   ├── repositories/IUserRepository.ts
-│   │   └── events/IEventPublisher.ts
-│   ├── application/
-│   │   └── services/UserService.ts
-│   ├── infrastructure/
-│   │   ├── database/MongoUserRepository.ts
-│   │   └── messaging/KafkaEventPublisher.ts
-│   ├── api/
-│   │   ├── controllers/UserController.ts
-│   │   └── routes/userRoutes.ts
-│   ├── config/config.ts
-│   ├── app.ts
-│   └── server.ts
-├── test/
-│   ├── setup.ts
-│   ├── unit/
-│   └── integration/
-├── Dockerfile
-├── docker-compose.yml
-├── tsconfig.json
-├── package.json
-├── jest.config.js
-├── ARCHITECTURE.md
-└── README.md
+### Clean Reports
+```bash
+npm run clean
 ```
 
-## Design Principles
+---
 
-- **SOLID:** Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion
-- **DRY:** Don't Repeat Yourself - centralized configuration, reusable interfaces
-- **Clean Code:** Descriptive names, small functions, clear separation
-- **Dependency Injection:** Constructor-based injection for loose coupling
-- **Interface-Driven:** Adapters implement domain interfaces (ports)
+## 📁 Repository Structure
 
-## Technology Stack
+```
+.
+├── onboarding-service/
+│   ├── src/
+│   │   ├── domain/           # Business entities & interfaces
+│   │   ├── application/      # Use cases & business logic
+│   │   ├── infrastructure/   # DB, Kafka, external systems
+│   │   ├── api/             # Controllers & routes
+│   │   └── config/          # Configuration
+│   ├── test/unit/           # Unit tests
+│   ├── Dockerfile
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── identity-service/
+│   ├── src/                 # Same structure as onboarding
+│   ├── test/unit/
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── qa/
+│   ├── tests/
+│   │   └── e2e/
+│   │       ├── onboarding/  # Onboarding E2E tests
+│   │       └── identity/    # Identity E2E tests
+│   ├── matrix/              # Traceability matrix automation
+│   ├── reports/             # Generated HTML reports
+│   ├── scripts/             # Test execution scripts
+│   └── package.json
+│
+├── docker-compose.yml       # Service orchestration
+├── package.json            # Root workspace config
+└── README.md               # This file
+```
 
-- **Runtime:** Node.js 18
-- **Language:** TypeScript
-- **Framework:** Express.js
-- **Database:** MongoDB 7
-- **Messaging:** Kafka (via KafkaJS)
-- **Testing:** Jest
-- **Containerization:** Docker & Docker Compose
+---
 
-## Why This Architecture?
+## 🎯 Key Features
 
-1. **Testability:** Interfaces enable mocking, clean boundaries for isolated testing
-2. **Maintainability:** Clear structure, single responsibility, easy navigation
-3. **Extensibility:** Open for extension via interfaces without modifying existing code
-4. **Production Ready:** Health checks, graceful shutdown, comprehensive error handling
+### 1. Clean Architecture
+- **Domain Layer**: Pure business logic, no dependencies
+- **Application Layer**: Use cases, orchestration
+- **Infrastructure Layer**: DB, messaging, external systems
+- **API Layer**: HTTP controllers, routes
 
-## Contributing
+### 2. Automated Testing
+- Unit tests for all layers
+- E2E tests for all critical paths
+- Automated test-to-scenario mapping
+- Gap detection and reporting
 
-When adding features:
+### 3. Traceability Matrix
+- Real-time coverage analysis
+- Priority-based gap detection (P0/P1/P2)
+- Unit test to scenario mapping
+- HTML reports with interactive UI
 
-1. Define interfaces in `domain/` layer
-2. Implement business logic in `application/` layer
-3. Add adapters in `infrastructure/` layer
-4. Expose via `api/` layer
-5. Wire dependencies in `app.ts`
-6. Add unit tests in `test/unit/`
-7. Add integration tests in `test/integration/`
+### 4. Docker Support
+- Multi-container setup with orchestration
+- Health checks for all services
+- Isolated test execution
+- Production-ready configuration
 
-## License
+---
+
+## 📚 Documentation
+
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Architecture deep dive
+- **[qa/README.md](./qa/README.md)** - QA framework documentation
+- **[onboarding-service/](./onboarding-service/)** - Service-specific docs
+- **[identity-service/](./identity-service/)** - Service-specific docs
+
+---
+
+## 🧩 Technology Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Runtime | Node.js 18 |
+| Language | TypeScript |
+| API Framework | Express.js |
+| Database | MongoDB 7 |
+| Messaging | Kafka |
+| Testing | Jest (unit), Mocha/Chai (E2E) |
+| Reports | Mochawesome |
+| Container | Docker & Docker Compose |
+
+---
+
+## 🔍 Test Coverage Details
+
+### Covered Scenarios (57%)
+- ✅ HF001: Create user happy path
+- ✅ NF001: Missing email validation
+- ✅ NF004: Duplicate email handling
+- ✅ NF005: Invalid email format
+
+### High Priority Gaps (P1)
+- 🟡 NF003: Malformed JSON handling
+- 🟡 KAF003: Kafka timeout scenarios
+
+---
+
+## 🤝 Contributing
+
+1. Follow clean architecture principles
+2. Write unit tests for all business logic
+3. Add E2E tests for user-facing features
+4. Update traceability matrix mappings
+5. Run full test suite before committing
+
+---
+
+## 📜 License
 
 MIT
 
-## Documentation
+---
 
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - Detailed architecture and design decisions
-- [API Documentation](#api-endpoints) - API contracts and examples
-- [Test Structure](#testing) - Testing strategy and examples
+## 🚦 Status
+
+✅ **Production Ready**
+- All services containerized
+- Health checks configured
+- E2E tests passing
+- Traceability matrix automated
+- Documentation complete
+
+**Last Updated:** December 5, 2025
