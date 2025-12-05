@@ -410,7 +410,7 @@
             <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
             <h1>🎯 Traceability Matrix</h1>
             <div class="header-meta">
-                <p>Generated: December 5, 2025 at 08:26 AM</p>
+                <p>Generated: December 5, 2025 at 08:30 AM</p>
                 <p>Mode: Full Suite | Coverage: 0%</p>
             </div>
         </div>
@@ -867,10 +867,10 @@
             }
         });
 
-        // Filter functionality
-        document.querySelectorAll('.filter-btn').forEach(btn => {
+        // Filter functionality for main traceability table
+        document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 
                 const filter = this.dataset.filter;
@@ -889,6 +889,44 @@
                         row.style.display = row.dataset.priority === 'P0' ? '' : 'none';
                     }
                 });
+            });
+        });
+
+        // Orphan tests filter functionality
+        let currentServiceFilter = 'all';
+        let currentActionFilter = 'all';
+
+        function applyOrphanFilters() {
+            const orphanSection = document.querySelector('.section:has(table:not(#traceabilityTable))');
+            if (!orphanSection) return;
+            
+            const rows = orphanSection.querySelectorAll('table tbody tr');
+            rows.forEach(row => {
+                const service = row.dataset.service;
+                const action = row.dataset.action;
+                
+                const serviceMatch = currentServiceFilter === 'all' || service === currentServiceFilter;
+                const actionMatch = currentActionFilter === 'all' || action === currentActionFilter;
+                
+                row.style.display = serviceMatch && actionMatch ? '' : 'none';
+            });
+        }
+
+        document.querySelectorAll('.filter-btn[data-orphan-filter="service"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn[data-orphan-filter="service"]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentServiceFilter = this.dataset.value;
+                applyOrphanFilters();
+            });
+        });
+
+        document.querySelectorAll('.filter-btn[data-orphan-filter="action"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn[data-orphan-filter="action"]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentActionFilter = this.dataset.value;
+                applyOrphanFilters();
             });
         });
 

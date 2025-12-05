@@ -608,6 +608,21 @@ export function generateEnhancedHTML(data: {
                     This may indicate undocumented scenarios or tests that need review.
                 </p>
             </div>
+
+            <div class="filter-section">
+                <span class="filter-label">Filter by Service:</span>
+                <button class="filter-btn active" data-orphan-filter="service" data-value="all">All Services</button>
+                ${[...new Set(orphanTests.map((t: any) => t.service))].map((service: string) => `
+                <button class="filter-btn" data-orphan-filter="service" data-value="${service}">${service}</button>
+                `).join('')}
+            </div>
+
+            <div class="filter-section" style="margin-top: 15px;">
+                <span class="filter-label">Filter by Action:</span>
+                <button class="filter-btn active" data-orphan-filter="action" data-value="all">All Actions</button>
+                <button class="filter-btn" data-orphan-filter="action" data-value="no-action">🟢 No Action</button>
+                <button class="filter-btn" data-orphan-filter="action" data-value="qa-team">🟣 QA Team</button>
+            </div>
             
             <div class="table-container">
                 <table>
@@ -723,8 +738,10 @@ export function generateEnhancedHTML(data: {
                             ? '<span class="badge badge-success">No Action</span>'
                             : '<span class="badge" style="background: #9b59b6; color: white;">QA Team</span>';
                           
+                          const actionValue = actionTeam === 'No Action' ? 'no-action' : 'qa-team';
+                          
                           return `
-                        <tr>
+                        <tr data-service="${test.service}" data-action="${actionValue}">
                             <td><strong>${test.id}</strong></td>
                             <td><span class="badge badge-info">${test.service}</span></td>
                             <td style="font-size: 0.9em;">${test.description}</td>
@@ -913,10 +930,10 @@ export function generateEnhancedHTML(data: {
             }
         });
 
-        // Filter functionality
-        document.querySelectorAll('.filter-btn').forEach(btn => {
+        // Filter functionality for main traceability table
+        document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 
                 const filter = this.dataset.filter;
@@ -935,6 +952,44 @@ export function generateEnhancedHTML(data: {
                         row.style.display = row.dataset.priority === 'P0' ? '' : 'none';
                     }
                 });
+            });
+        });
+
+        // Orphan tests filter functionality
+        let currentServiceFilter = 'all';
+        let currentActionFilter = 'all';
+
+        function applyOrphanFilters() {
+            const orphanSection = document.querySelector('.section:has(table:not(#traceabilityTable))');
+            if (!orphanSection) return;
+            
+            const rows = orphanSection.querySelectorAll('table tbody tr');
+            rows.forEach(row => {
+                const service = row.dataset.service;
+                const action = row.dataset.action;
+                
+                const serviceMatch = currentServiceFilter === 'all' || service === currentServiceFilter;
+                const actionMatch = currentActionFilter === 'all' || action === currentActionFilter;
+                
+                row.style.display = serviceMatch && actionMatch ? '' : 'none';
+            });
+        }
+
+        document.querySelectorAll('.filter-btn[data-orphan-filter="service"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn[data-orphan-filter="service"]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentServiceFilter = this.dataset.value;
+                applyOrphanFilters();
+            });
+        });
+
+        document.querySelectorAll('.filter-btn[data-orphan-filter="action"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn[data-orphan-filter="action"]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentActionFilter = this.dataset.value;
+                applyOrphanFilters();
             });
         });
 
