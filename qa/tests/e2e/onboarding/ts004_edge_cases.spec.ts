@@ -5,9 +5,9 @@
  */
 
 import { expect } from 'chai';
-import { allure } from 'allure-mocha/runtime';
 import { apiClient } from '../../utils/apiClient';
 import { TestFixtures } from '../../utils/fixtures';
+import { setTestMetadata } from '../../utils/allureHelper';
 
 describe('[TS004] Edge Cases and Boundary Tests', () => {
   // Track created users for cleanup
@@ -23,39 +23,25 @@ describe('[TS004] Edge Cases and Boundary Tests', () => {
   
   describe('Boundary-Condition Input (EC001)', () => {
     it('should accept maximum valid name length (255 chars) (EC001)', async function() {
-      allure.epic('Data Quality');
-      allure.feature('Boundary Validation');
-      allure.story('EC001 - Name Length Boundaries');
-      allure.severity('normal');
-      allure.tag('edge-case');
-      allure.tag('boundary');
-      allure.tag('validation');
-      allure.owner('QA Team');
-      allure.description(`
-        **Test Case ID:** TS004-01
-        **Scenario:** EC001 - Maximum valid name length
-        
-        **Objective:** Verify system accepts names at maximum valid length (255 characters)
-        
-        **Business Impact:** Ensures users can use reasonably long names
-        
-        **Expected Result:**
-        - HTTP 201 Created
-        - Full 255-character name preserved
-      `);
-      // Arrange
-      const payload = TestFixtures.boundaries.maxValidNameLength;
+      setTestMetadata({
+        testId: 'TS004-01',
+        scenarioId: 'EC001',
+        epic: 'Data Quality',
+        feature: 'Boundary Validation',
+        story: 'EC001 - Name Length Boundaries',
+        severity: 'normal',
+        tags: ['edge-case', 'boundary', 'validation'],
+        owner: 'QA Team'
+      });
       
-      // Act
+      const payload = TestFixtures.boundaries.maxValidNameLength;
       const response = await apiClient.createUser(payload);
       
-      // Assert
       expect(response.status).to.equal(201, 'Should accept 255 char name');
       expect(response.data).to.exist;
       expect(response.data!.name).to.have.lengthOf(255);
       expect(response.data!.email).to.equal(payload.email);
       
-      // Track for cleanup
       if (response.data?.id) {
         createdUserIds.push(response.data.id);
       }
@@ -64,44 +50,25 @@ describe('[TS004] Edge Cases and Boundary Tests', () => {
     });
 
     it('should accept minimum valid name length (1 char) (EC001)', async function() {
-      allure.epic('Data Quality');
-      allure.feature('Boundary Validation');
-      allure.story('EC001 - Name Length Boundaries');
-      allure.severity('normal');
-      allure.tag('edge-case');
-      allure.tag('boundary');
-      allure.tag('validation');
-      allure.owner('QA Team');
-      allure.description(`
-        **Test Case ID:** TS004-02
-        **Scenario:** EC001 - Minimum valid name length
-        
-        **Objective:** Verify system accepts single-character names
-        
-        **Expected Result:**
-        - HTTP 201 Created
-        - Single character name preserved
-      `);
+      setTestMetadata({
+        testId: 'TS004-02',
+        scenarioId: 'EC001',
+        epic: 'Data Quality',
+        feature: 'Boundary Validation',
+        story: 'EC001 - Name Length Boundaries',
+        severity: 'normal',
+        tags: ['edge-case', 'boundary', 'validation'],
+        owner: 'QA Team'
+      });
       
       const payload = TestFixtures.boundaries.minValidName;
+      const response = await apiClient.createUser(payload);
       
-      await allure.step('Arrange: Prepare single-character name payload', async () => {
-        allure.attachment('Test Payload', JSON.stringify(payload, null, 2), 'application/json');
-      });
-      
-      let response: any;
-      await allure.step('Act: Create user with 1-char name', async () => {
-        response = await apiClient.createUser(payload);
-        allure.attachment('API Response', JSON.stringify(response, null, 2), 'application/json');
-      });
-      
-      await allure.step('Assert: Verify acceptance and data preservation', () => {
-        expect(response.status).to.equal(201, 'Should accept 1 char name');
-        expect(response.data).to.exist;
-        expect(response.data!.name).to.have.lengthOf(1);
-        expect(response.data!.name).to.equal(payload.name);
-        expect(response.data!.email).to.equal(payload.email);
-      });
+      expect(response.status).to.equal(201, 'Should accept 1 char name');
+      expect(response.data).to.exist;
+      expect(response.data!.name).to.have.lengthOf(1);
+      expect(response.data!.name).to.equal(payload.name);
+      expect(response.data!.email).to.equal(payload.email);
       
       if (response.data?.id) {
         createdUserIds.push(response.data.id);
@@ -111,25 +78,30 @@ describe('[TS004] Edge Cases and Boundary Tests', () => {
     });
 
     it('should reject very long name (1000 chars) (EC001)', async function() {
-      // Arrange
-      const payload = TestFixtures.edgeCases.veryLongName;
+      setTestMetadata({
+        testId: 'TS004-03',
+        scenarioId: 'EC001',
+        epic: 'Data Quality',
+        feature: 'Boundary Validation',
+        story: 'EC001 - Name Length Boundaries',
+        severity: 'normal',
+        tags: ['edge-case', 'boundary', 'validation', 'gap'],
+        owner: 'QA Team',
+        description: '⚠️ GAP: No unit test validation for extremely long names'
+      });
       
-      // Act
+      const payload = TestFixtures.edgeCases.veryLongName;
       const response = await apiClient.createUser(payload);
       
-      // Assert - Document gap: no unit test for very long names
-      // Expected: Should reject with 400, but service behavior is undocumented
       console.log(`⚠️  EC001: Very long name (1000 chars) - Status: ${response.status}`);
       console.log('⚠️  GAP: No unit test validation for extremely long names');
       
       expect(response.status).to.be.oneOf([201, 400, 500], 'Should handle very long names (gap documented)');
       
       if (response.status === 400) {
-        // Validate error response structure
         expect(response.error).to.exist;
         console.log('✅ Correctly rejected with 400');
       } else if (response.status === 201) {
-        // Track if accepted (might truncate)
         if (response.data?.id) {
           createdUserIds.push(response.data.id);
         }
@@ -140,20 +112,27 @@ describe('[TS004] Edge Cases and Boundary Tests', () => {
 
   describe('Very Long Email (EC002)', () => {
     it('should handle very long email (over RFC limit) (EC002)', async function() {
-      // Arrange
-      const payload = TestFixtures.edgeCases.veryLongEmail;
+      setTestMetadata({
+        testId: 'TS004-04',
+        scenarioId: 'EC002',
+        epic: 'Data Quality',
+        feature: 'Boundary Validation',
+        story: 'EC002 - Email Length Boundaries',
+        severity: 'critical',
+        tags: ['edge-case', 'boundary', 'email', 'P1-gap'],
+        owner: 'QA Team',
+        description: '⚠️ CRITICAL GAP: No RFC 5321 email length validation in unit tests'
+      });
       
-      // Act
+      const payload = TestFixtures.edgeCases.veryLongEmail;
       const response = await apiClient.createUser(payload);
       
-      // Assert - Document gap: RFC 5321 max email length is 254 characters
       console.log(`⚠️  EC002: Very long email (${payload.email.length} chars) - Status: ${response.status}`);
       console.log('⚠️  CRITICAL GAP: No RFC 5321 email length validation in unit tests');
       
       expect(response.status).to.be.oneOf([400, 201], 'Should handle RFC limit violation (gap documented)');
       
       if (response.status === 400) {
-        // Validate error response structure
         expect(response.error).to.exist;
         console.log('✅ Correctly rejected RFC-violating email with 400');
       } else if (response.status === 201) {
@@ -165,19 +144,25 @@ describe('[TS004] Edge Cases and Boundary Tests', () => {
     });
 
     it('should accept email at RFC limit (254 chars) (EC002)', async function() {
-      // Arrange
-      const payload = TestFixtures.boundaries.maxValidEmailLength;
+      setTestMetadata({
+        testId: 'TS004-05',
+        scenarioId: 'EC002',
+        epic: 'Data Quality',
+        feature: 'Boundary Validation',
+        story: 'EC002 - Email Length Boundaries',
+        severity: 'normal',
+        tags: ['edge-case', 'boundary', 'email'],
+        owner: 'QA Team'
+      });
       
-      // Act
+      const payload = TestFixtures.boundaries.maxValidEmailLength;
       const response = await apiClient.createUser(payload);
       
-      // Assert
       expect(response.status).to.equal(201, 'Should accept 254 char email per RFC 5321');
       expect(response.data).to.exist;
       expect(response.data!.email).to.equal(payload.email);
       expect(response.data!.email).to.have.lengthOf(254);
       
-      // Track for cleanup
       if (response.data?.id) {
         createdUserIds.push(response.data.id);
       }
@@ -188,13 +173,21 @@ describe('[TS004] Edge Cases and Boundary Tests', () => {
 
   describe('Special Characters in Name (EC003)', () => {
     it('should handle special characters in name (EC003)', async function() {
-      // Arrange
-      const payload = TestFixtures.edgeCases.specialCharactersName;
+      setTestMetadata({
+        testId: 'TS004-06',
+        scenarioId: 'EC003',
+        epic: 'Data Quality',
+        feature: 'Input Validation',
+        story: 'EC003 - Special Characters Handling',
+        severity: 'normal',
+        tags: ['edge-case', 'special-characters', 'gap'],
+        owner: 'QA Team',
+        description: '⚠️ GAP: No unit test for special character validation'
+      });
       
-      // Act
+      const payload = TestFixtures.edgeCases.specialCharactersName;
       const response = await apiClient.createUser(payload);
       
-      // Assert - Document gap: no unit test for special characters
       console.log(`⚠️  EC003: Special characters in name - Status: ${response.status}`);
       console.log(`⚠️  GAP: No unit test for special character validation`);
       
@@ -214,13 +207,21 @@ describe('[TS004] Edge Cases and Boundary Tests', () => {
     });
 
     it('should handle unicode characters in name (EC003)', async function() {
-      // Arrange
-      const payload = TestFixtures.edgeCases.unicodeName;
+      setTestMetadata({
+        testId: 'TS004-07',
+        scenarioId: 'EC003',
+        epic: 'Data Quality',
+        feature: 'Input Validation',
+        story: 'EC003 - Special Characters Handling',
+        severity: 'normal',
+        tags: ['edge-case', 'unicode', 'gap'],
+        owner: 'QA Team',
+        description: '⚠️ GAP: No unit test for unicode character validation'
+      });
       
-      // Act
+      const payload = TestFixtures.edgeCases.unicodeName;
       const response = await apiClient.createUser(payload);
       
-      // Assert - Document gap: no unit test for unicode validation
       console.log(`⚠️  EC003: Unicode characters - Status: ${response.status}`);
       console.log('⚠️  GAP: No unit test for unicode character validation');
       
@@ -240,13 +241,21 @@ describe('[TS004] Edge Cases and Boundary Tests', () => {
     });
 
     it('should handle emoji characters in name (EC003)', async function() {
-      // Arrange
-      const payload = TestFixtures.edgeCases.emojiName;
+      setTestMetadata({
+        testId: 'TS004-08',
+        scenarioId: 'EC003',
+        epic: 'Data Quality',
+        feature: 'Input Validation',
+        story: 'EC003 - Special Characters Handling',
+        severity: 'normal',
+        tags: ['edge-case', 'emoji', 'gap'],
+        owner: 'QA Team',
+        description: '⚠️ GAP: No unit test for emoji character validation'
+      });
       
-      // Act
+      const payload = TestFixtures.edgeCases.emojiName;
       const response = await apiClient.createUser(payload);
       
-      // Assert - Document gap: no unit test for emoji validation
       console.log(`⚠️  EC003: Emoji characters - Status: ${response.status}`);
       console.log('⚠️  GAP: No unit test for emoji character validation');
       
@@ -266,24 +275,30 @@ describe('[TS004] Edge Cases and Boundary Tests', () => {
     });
 
     it('should handle null character in name (EC003)', async function() {
-      // Arrange
-      const payload = TestFixtures.edgeCases.nullCharacterName;
+      setTestMetadata({
+        testId: 'TS004-09',
+        scenarioId: 'EC003',
+        epic: 'Data Quality',
+        feature: 'Input Validation',
+        story: 'EC003 - Special Characters Handling',
+        severity: 'critical',
+        tags: ['edge-case', 'security', 'null-character', 'P1-gap'],
+        owner: 'QA Team',
+        description: '⚠️ SECURITY GAP: Null character handling not validated in unit tests'
+      });
       
-      // Act
+      const payload = TestFixtures.edgeCases.nullCharacterName;
       const response = await apiClient.createUser(payload);
       
-      // Assert - Security concern: null characters can cause issues
       console.log(`⚠️  EC003: Null character - Status: ${response.status}`);
       console.log('⚠️  SECURITY GAP: Null character handling not validated in unit tests');
       
       expect(response.status).to.be.oneOf([201, 400], 'Should handle null chars (security gap documented)');
       
       if (response.status === 400) {
-        // Expected: should reject for security
         expect(response.error).to.exist;
         console.log('✅ Correctly rejected null character with 400 (secure)');
       } else if (response.status === 201) {
-        // Warning: accepting null characters is a security risk
         if (response.data?.id) {
           createdUserIds.push(response.data.id);
         }
