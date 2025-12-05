@@ -228,21 +228,24 @@ db.users.createIndex({ email: 1 }, { unique: true })
 ```
 
 #### Profiles Collection (Identity Service)
+**Read-Only Access** - Identity service queries profiles but doesn't create/modify them
+
 ```javascript
 {
   _id: ObjectId("..."),
   userId: "507f1f77bcf86cd799439011",
-  email: "user@example.com",
-  name: "John Doe",
-  metadata: {},
+  age: 25,
+  location: "NYC",
+  attributes: {},
   createdAt: ISODate("..."),
   updatedAt: ISODate("...")
 }
 
 // Indexes
 db.profiles.createIndex({ userId: 1 }, { unique: true })
-db.profiles.createIndex({ email: 1 })
 ```
+
+**Note:** Profile creation/updates happen in other services. Identity service provides read-only query access.
 
 ## Testing Strategy
 

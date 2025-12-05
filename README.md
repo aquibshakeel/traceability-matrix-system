@@ -79,16 +79,15 @@ npm run test:identity
 ### Identity Service
 **Port:** 4000 (when standalone)  
 **Endpoints:**
-- `POST /api/profile` - Create profile
-- `GET /api/profile/:id` - Get profile
-- `PUT /api/profile/:id` - Update profile
-- `DELETE /api/profile/:id` - Delete profile
+- `GET /api/profile/:id` - Get profile by ID
+- `GET /api/profile/user/:userId` - Get profile by user ID
+- `GET /health` - Health check
 
 **Features:**
-- Profile management
+- Read-only profile access
 - MongoDB persistence
 - Clean architecture
-- Full CRUD operations
+- Serves as query service for user profiles
 
 ---
 
