@@ -25,3 +25,4 @@ public class IdentityServiceApplication {
 // Trigger validation
 // Test alignment fix
 // Test improved matching
+// Test partial coverage
