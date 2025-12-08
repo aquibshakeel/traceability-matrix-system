@@ -1,0 +1,265 @@
+# Customer Service - Business Scenarios
+# Plain English format for QA team
+# Service: customer-service
+# Last Updated: 2025-12-08
+
+================================================================================
+API: GET /api/customer/:id - Get Customer Details
+================================================================================
+
+Scenario ID: CUST-001
+Priority: P1
+Category: Happy Path
+
+When user hits the GET /api/customer/:id endpoint with a valid customer ID
+Then the system should return the customer details with status code 200
+And the response should include customer name, email, phone, and address
+And the response time should be less than 500ms
+
+
+Scenario ID: CUST-002
+Priority: P2
+Category: Negative Case
+
+When user hits the GET /api/customer/:id endpoint with an invalid customer ID
+Then the system should return error status code 404
+And the error message should say "Customer not found"
+And the response should not expose any internal system details
+
+
+Scenario ID: CUST-003
+Priority: P2
+Category: Negative Case
+
+When user hits the GET /api/customer/:id endpoint with a malformed ID
+Then the system should return error status code 400
+And the error message should say "Invalid customer ID format"
+
+
+Scenario ID: CUST-004
+Priority: P3
+Category: Edge Case
+
+When user hits the GET /api/customer/:id endpoint with a very long ID (>100 characters)
+Then the system should return error status code 400
+And the system should not crash or hang
+
+
+Scenario ID: CUST-005
+Priority: P0
+Category: Security
+
+When user hits the GET /api/customer/:id endpoint without authentication token
+Then the system should return error status code 401
+And the error message should say "Authentication required"
+And no customer data should be leaked
+
+
+================================================================================
+API: POST /api/customer - Create New Customer
+================================================================================
+
+Scenario ID: CUST-006
+Priority: P1
+Category: Happy Path
+
+When user hits the POST /api/customer endpoint with valid customer data
+Then the system should create a new customer
+And return status code 201
+And the response should include the newly created customer ID
+And the customer should be saved in the database
+
+
+Scenario ID: CUST-007
+Priority: P2
+Category: Negative Case
+
+When user hits the POST /api/customer endpoint with missing required fields
+Then the system should return error status code 400
+And the error message should clearly state which fields are missing
+
+
+Scenario ID: CUST-008
+Priority: P2
+Category: Negative Case
+
+When user hits the POST /api/customer endpoint with duplicate email
+Then the system should return error status code 409
+And the error message should say "Customer with this email already exists"
+
+
+Scenario ID: CUST-009
+Priority: P2
+Category: Validation
+
+When user hits the POST /api/customer endpoint with invalid email format
+Then the system should return error status code 400
+And the error message should say "Invalid email format"
+
+
+================================================================================
+API: PUT /api/customer/:id - Update Customer
+================================================================================
+
+Scenario ID: CUST-010
+Priority: P1
+Category: Happy Path
+
+When user hits the PUT /api/customer/:id endpoint with valid update data
+Then the system should update the customer details
+And return status code 200
+And the response should include the updated customer data
+
+
+Scenario ID: CUST-011
+Priority: P2
+Category: Negative Case
+
+When user hits the PUT /api/customer/:id endpoint for non-existent customer
+Then the system should return error status code 404
+And the error message should say "Customer not found"
+
+
+================================================================================
+API: DELETE /api/customer/:id - Delete Customer
+================================================================================
+
+Scenario ID: CUST-012
+Priority: P1
+Category: Happy Path
+
+When user hits the DELETE /api/customer/:id endpoint with valid customer ID
+Then the system should soft-delete the customer
+And return status code 200
+And the customer should be marked as deleted in database
+And the customer data should not be permanently removed (GDPR compliance)
+
+
+Scenario ID: CUST-013
+Priority: P0
+Category: Critical
+
+When user hits the DELETE /api/customer/:id endpoint for already deleted customer
+Then the system should return error status code 410
+And the error message should say "Customer already deleted"
+
+
+================================================================================
+API: GET /api/customer/search - Search Customers
+================================================================================
+
+Scenario ID: CUST-014
+Priority: P2
+Category: Happy Path
+
+When user hits the GET /api/customer/search endpoint with search query
+Then the system should return matching customers
+And return status code 200
+And the results should be paginated (max 50 per page)
+And the response time should be less than 2 seconds
+
+
+Scenario ID: CUST-015
+Priority: P3
+Category: Edge Case
+
+When user hits the GET /api/customer/search endpoint with empty search query
+Then the system should return first 50 customers
+And return status code 200
+And include pagination metadata
+
+
+Scenario ID: CUST-016
+Priority: P2
+Category: Edge Case
+
+When user hits the GET /api/customer/search endpoint with no matching results
+Then the system should return empty array
+And return status code 200
+And not return error
+
+
+================================================================================
+Database Resilience Scenarios
+================================================================================
+
+Scenario ID: CUST-017
+Priority: P0
+Category: Resilience
+
+When database connection fails while fetching customer
+Then the system should return error status code 503
+And the error message should say "Service temporarily unavailable"
+And the system should log the error for monitoring
+And the system should attempt retry with exponential backoff
+
+
+Scenario ID: CUST-018
+Priority: P0
+Category: Resilience
+
+When database query times out (>5 seconds)
+Then the system should cancel the query
+And return error status code 504
+And the error message should say "Request timeout"
+And not leave hanging connections
+
+
+================================================================================
+Integration Scenarios
+================================================================================
+
+Scenario ID: CUST-019
+Priority: P1
+Category: Integration
+
+When customer is created successfully
+Then the system should publish "CustomerCreated" event to message queue
+And downstream services should receive the event
+And event should include customer ID and basic details
+
+
+Scenario ID: CUST-020
+Priority: P0
+Category: Integration
+
+When message queue is unavailable during customer creation
+Then the system should still create the customer in database
+And log the message queue failure
+And retry publishing the event later
+And return status code 201 to user (creation succeeded)
+
+
+================================================================================
+NOTES FOR DEVELOPERS
+================================================================================
+
+1. All customer data operations must be logged for audit trail
+2. Personal data access must be logged for GDPR compliance
+3. Rate limiting: Max 100 requests per minute per user
+4. All responses must include request ID for tracing
+5. Error responses must never expose stack traces to clients
+6. Customer emails must be stored in lowercase
+7. Phone numbers must be stored in E.164 format
+8. All timestamps must be in UTC
+
+================================================================================
+NOTES FOR QA
+================================================================================
+
+1. Each scenario maps to at least one unit test
+2. If unit test is missing, mark as "DEV ACTION REQUIRED"
+3. If scenario has no corresponding API, mark as "OUTDATED - REMOVE"
+4. Priority P0 gaps will BLOCK commits
+5. Priority P1-P3 gaps will show warnings
+6. Update this file when new APIs are added or removed
+7. Run validation manually: ./scripts/pre-commit.sh --service customer-service
+
+================================================================================
+END OF SCENARIOS
+================================================================================
+Total Scenarios: 20
+P0 Critical: 4
+P1 High: 7
+P2 Medium: 7
+P3 Low: 2

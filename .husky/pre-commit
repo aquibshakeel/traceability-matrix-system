@@ -1,11 +1,65 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-echo "🔍 Running pre-commit checks..."
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔍 Running Pre-Commit Validation Pipeline"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# Run linting
-echo "📝 Running ESLint..."
+# ============================================================================
+# STEP 1: Gitleaks (Secrets Scanning)
+# ============================================================================
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔐 STEP 1: Secrets Scanning (Gitleaks)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+if command -v gitleaks &> /dev/null; then
+    if gitleaks protect --verbose --redact --staged; then
+        echo "✅ No secrets detected"
+    else
+        echo ""
+        echo "❌ Gitleaks found potential secrets!"
+        echo "Please remove sensitive data before committing"
+        exit 1
+    fi
+else
+    echo "⚠️  Gitleaks not installed - skipping secrets scan"
+    echo "Install with: brew install gitleaks"
+fi
+echo ""
+
+# ============================================================================
+# STEP 2: Unit-Test Traceability Validator
+# ============================================================================
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔍 STEP 2: Unit-Test Traceability Validation"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+if [ -f "./scripts/pre-commit.sh" ]; then
+    ./scripts/pre-commit.sh
+    UTT_EXIT_CODE=$?
+    
+    if [ $UTT_EXIT_CODE -ne 0 ]; then
+        echo ""
+        echo "❌ Unit-Test Traceability validation failed!"
+        exit $UTT_EXIT_CODE
+    fi
+else
+    echo "⚠️  UTT validator script not found: ./scripts/pre-commit.sh"
+fi
+echo ""
+
+# ============================================================================
+# STEP 3: ESLint (Code Quality)
+# ============================================================================
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📝 STEP 3: Code Linting (ESLint)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
 npm run lint
 LINT_EXIT_CODE=$?
 
@@ -17,8 +71,14 @@ fi
 echo "✅ Linting passed"
 echo ""
 
-# Run tests
-echo "🧪 Running tests..."
+# ============================================================================
+# STEP 4: Unit Tests
+# ============================================================================
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🧪 STEP 4: Running Unit Tests"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
 npm run test:run
 TEST_EXIT_CODE=$?
 
@@ -35,8 +95,13 @@ echo ""
 echo "✅ All tests passed"
 echo ""
 
-# Check for breaking changes
-echo "🔎 Checking for breaking changes..."
+# ============================================================================
+# STEP 5: Breaking Change Detection
+# ============================================================================
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔎 STEP 5: Breaking Change Detection"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
 
 # Parse test results to check if breaking change tests passed
 if grep -q "Breaking Change Detection" test-reports/test-report.json 2>/dev/null; then
@@ -52,6 +117,10 @@ else
 fi
 
 echo ""
-echo "✅ All pre-commit checks passed!"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ ALL PRE-COMMIT CHECKS PASSED!"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
 echo "📊 Test report: test-reports/test-report.html"
+echo "📊 Traceability report: .traceability/reports/traceability-report.html"
 echo ""

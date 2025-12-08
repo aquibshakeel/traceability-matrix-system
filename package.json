@@ -1,40 +1,78 @@
 {
-  "name": "microservices-qa-framework",
-  "version": "1.0.0",
-  "description": "Multi-service architecture with comprehensive E2E testing and traceability matrix",
-  "private": true,
-  "workspaces": [
-    "onboarding-service",
-    "identity-service",
-    "qa"
-  ],
+  "name": "@universal/unit-test-traceability-validator",
+  "version": "2.0.0",
+  "description": "Universal Unit Test Traceability Validator - Language-agnostic system for mapping business scenarios to unit tests with comprehensive gap analysis and automated pre-commit validation",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "bin": {
+    "utt-validate": "./bin/utt-validate",
+    "utt": "./bin/utt-validate"
+  },
   "scripts": {
-    "install:all": "npm install && cd onboarding-service && npm install && cd ../identity-service && npm install && cd ../qa && npm install",
-    "test:onboarding": "cd onboarding-service && npm test",
-    "test:identity": "cd identity-service && npm test",
-    "test:e2e": "cd qa && npm test",
-    "test:all": "npm run test:onboarding && npm run test:identity && npm run test:e2e",
-    "build:onboarding": "cd onboarding-service && npm run build",
-    "build:identity": "cd identity-service && npm run build",
-    "build:all": "npm run build:onboarding && npm run build:identity",
-    "dev:onboarding": "cd onboarding-service && npm run dev",
-    "dev:identity": "cd identity-service && npm run dev",
+    "build": "tsc && mkdir -p dist/lib/templates && cp -r lib/templates/* dist/lib/templates/",
+    "validate": "node bin/utt-validate --all",
+    "validate:all": "node bin/utt-validate --all --verbose",
+    "validate:identity": "node bin/utt-validate --service identity-service",
+    "validate:customer": "node bin/utt-validate --service customer-service",
+    "validate:changed": "node bin/utt-validate --changed",
+    "install:hooks": "bash scripts/install-hooks.sh",
+    "test:identity": "cd services/identity-service && npm test",
+    "test:customer": "cd customer-service && ./gradlew test",
     "start:services": "docker-compose up -d",
     "stop:services": "docker-compose down",
-    "clean": "cd qa && npm run clean"
+    "report:html": "node bin/utt-validate --all --format html",
+    "report:json": "node bin/utt-validate --all --format json",
+    "report:markdown": "node bin/utt-validate --all --format markdown",
+    "clean": "rm -rf .traceability/reports/*"
   },
   "keywords": [
+    "unit-testing",
+    "traceability",
+    "test-coverage",
+    "scenario-mapping",
+    "universal-validator",
     "microservices",
-    "typescript",
-    "clean-architecture",
-    "e2e-testing",
-    "traceability-matrix",
-    "qa-automation"
+    "quality-assurance",
+    "language-agnostic",
+    "gap-analysis",
+    "pre-commit",
+    "ci-cd",
+    "test-automation",
+    "semantic-matching",
+    "fuzzy-matching",
+    "junit",
+    "jest",
+    "pytest",
+    "testng"
   ],
-  "author": "",
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "glob": "^10.3.10",
+    "commander": "^11.1.0",
+    "chalk": "^4.1.2",
+    "ora": "^5.4.1",
+    "cli-table3": "^0.6.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/js-yaml": "^4.0.9",
+    "typescript": "^5.3.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aquibshakeel/ai-testing-framework.git"
+  },
+  "author": "Universal Validator Team",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
-  }
+  },
+  "files": [
+    "lib/",
+    "bin/",
+    "scripts/",
+    "README.md",
+    "LICENSE"
+  ]
 }
