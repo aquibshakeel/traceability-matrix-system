@@ -27,41 +27,39 @@ public class IdentityControllerTest {
     @MockBean
     private IdentityService identityService;
 
-    // COMMENTED OUT FOR TESTING - Verify orphan API detection
-    
-    // @Test
-    // public void testRegisterUser_Success() throws Exception {
-    //     // Arrange
-    //     AuthResponse mockResponse = new AuthResponse();
-    //     mockResponse.setToken("mock-jwt-token");
-    //     mockResponse.setMessage("User registered successfully");
-    //     
-    //     when(identityService.register(any(RegisterRequest.class))).thenReturn(mockResponse);
-    //
-    //     // Act & Assert
-    //     mockMvc.perform(post("/api/identity/register")
-    //             .contentType(MediaType.APPLICATION_JSON)
-    //             .content("{\"email\":\"test@example.com\",\"password\":\"Test123!\",\"fullName\":\"Test User\"}"))
-    //             .andExpect(status().isOk())
-    //             .andExpect(jsonPath("$.token").value("mock-jwt-token"))
-    //             .andExpect(jsonPath("$.message").value("User registered successfully"));
-    // }
-    //
-    // @Test
-    // public void testRegisterUser_InvalidEmail() throws Exception {
-    //     // Act & Assert - Test with invalid email
-    //     mockMvc.perform(post("/api/identity/register")
-    //             .contentType(MediaType.APPLICATION_JSON)
-    //             .content("{\"email\":\"invalid-email\",\"password\":\"Test123!\",\"fullName\":\"Test User\"}"))
-    //             .andExpect(status().isBadRequest());
-    // }
-    //
-    // @Test
-    // public void testRegisterUser_MissingFields() throws Exception {
-    //     // Act & Assert - Test with missing required fields
-    //     mockMvc.perform(post("/api/identity/register")
-    //             .contentType(MediaType.APPLICATION_JSON)
-    //             .content("{\"email\":\"test@example.com\"}"))
-    //             .andExpect(status().isBadRequest());
-    // }
+    @Test
+    public void testRegisterUser_Success() throws Exception {
+        // Arrange
+        AuthResponse mockResponse = new AuthResponse();
+        mockResponse.setToken("mock-jwt-token");
+        mockResponse.setMessage("User registered successfully");
+        
+        when(identityService.register(any(RegisterRequest.class))).thenReturn(mockResponse);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/identity/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"test@example.com\",\"password\":\"Test123!\",\"fullName\":\"Test User\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("mock-jwt-token"))
+                .andExpect(jsonPath("$.message").value("User registered successfully"));
+    }
+
+    @Test
+    public void testRegisterUser_InvalidEmail() throws Exception {
+        // Act & Assert - Test with invalid email
+        mockMvc.perform(post("/api/identity/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"invalid-email\",\"password\":\"Test123!\",\"fullName\":\"Test User\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testRegisterUser_MissingFields() throws Exception {
+        // Act & Assert - Test with missing required fields
+        mockMvc.perform(post("/api/identity/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"test@example.com\"}"))
+                .andExpect(status().isBadRequest());
+    }
 }
