@@ -32,3 +32,42 @@ scenarios:
       invalidUser:
         email: "invalid@example.com"
         password: "wrong"
+
+  - id: IDENTITY-002
+    manualTestId: MT-IDENTITY-002
+    module: Authentication
+    description: OTP verification for user authentication
+    apiEndpoint: /identity/verify-otp
+    httpMethod: POST
+    category: Security
+    priority: P1
+    riskLevel: High
+    matchingRules:
+      - type: exact
+        pattern: "verifyotp"
+      - type: keyword
+        keywords: ["verify", "otp", "two factor", "2fa"]
+    estimatedEffort: Medium
+    manualTestingRequired: false
+    businessImpact: Users must verify OTP for secure authentication
+    tags:
+      - authentication
+      - security
+      - otp
+      - 2fa
+    acceptanceCriteria:
+      - Valid OTP code is accepted and user is authenticated
+      - Invalid OTP code is rejected with error message
+      - Expired OTP code is rejected
+      - OTP can only be used once
+      - Maximum 3 attempts allowed before OTP expires
+    testData:
+      validOtp:
+        email: "test@example.com"
+        otp: "123456"
+      invalidOtp:
+        email: "test@example.com"
+        otp: "000000"
+      expiredOtp:
+        email: "test@example.com"
+        otp: "999999"

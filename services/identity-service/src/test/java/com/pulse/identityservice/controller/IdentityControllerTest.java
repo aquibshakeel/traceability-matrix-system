@@ -2,6 +2,8 @@ package com.pulse.identityservice.controller;
 
 import com.pulse.identityservice.dto.AuthResponse;
 import com.pulse.identityservice.dto.RegisterRequest;
+import com.pulse.identityservice.dto.VerifyOtpRequest;
+import com.pulse.identityservice.exception.InvalidCredentialsException;
 import com.pulse.identityservice.service.IdentityService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,5 +63,40 @@ public class IdentityControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"email\":\"test@example.com\"}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    // Partial tests for verify-otp API
+    // Note: Only 2 out of 5 acceptance criteria are tested (Partially Covered scenario)
+    // Missing: expired OTP test, one-time use test, max attempts test
+
+    @Test
+    public void testVerifyOtp_Success() throws Exception {
+        // Arrange - Valid OTP scenario
+        AuthResponse mockResponse = new AuthResponse();
+        mockResponse.setToken("mock-jwt-token-with-otp");
+        mockResponse.setMessage("OTP verified successfully");
+        
+        when(identityService.verifyOtp(any(VerifyOtpRequest.class))).thenReturn(mockResponse);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/identity/verify-otp")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"test@example.com\",\"otp\":\"123456\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("mock-jwt-token-with-otp"))
+                .andExpect(jsonPath("$.message").value("OTP verified successfully"));
+    }
+
+    @Test
+    public void testVerifyOtp_InvalidCode() throws Exception {
+        // Arrange - Invalid OTP
+        when(identityService.verifyOtp(any(VerifyOtpRequest.class)))
+                .thenThrow(new InvalidCredentialsException("Invalid OTP code"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/identity/verify-otp")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"test@example.com\",\"otp\":\"000000\"}"))
+                .andExpect(status().isUnauthorized());
     }
 }
