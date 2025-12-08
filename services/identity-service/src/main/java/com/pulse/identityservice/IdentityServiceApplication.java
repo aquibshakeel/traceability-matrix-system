@@ -23,3 +23,4 @@ public class IdentityServiceApplication {
 // Verify orphan detection
 // Test orphan fix
 // Trigger validation
+// Test alignment fix
