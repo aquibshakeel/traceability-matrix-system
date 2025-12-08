@@ -392,7 +392,9 @@ export type APIChangeType =
   | 'API Added'
   | 'API Removed'
   | 'API Modified'
-  | 'Endpoint Changed';
+  | 'Endpoint Changed'
+  | 'API Added Without Test'
+  | 'API and Test Deleted Together';
 
 // ============================================================================
 // ERROR & WARNING TYPES
@@ -424,13 +426,14 @@ export interface ValidationWarning {
   message: string;
   service?: string;
   file?: string;
-  severity: 'Low' | 'Medium' | 'High';
+  severity: 'Critical' | 'High' | 'Medium' | 'Low';
   recommendations?: string[];
 }
 
 export type WarningType =
   | 'orphan_test'
   | 'orphan_scenario'
+  | 'orphan_api'
   | 'low_match_score'
   | 'partial_coverage'
   | 'deprecated_scenario'

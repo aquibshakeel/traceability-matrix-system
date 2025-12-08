@@ -25,6 +25,7 @@ import { SemanticMatcher } from './SemanticMatcher';
 import { ReportGenerator } from './ReportGenerator';
 import { OrphanTestCategorizer } from './OrphanTestCategorizer';
 import { GitAPIChangeDetector } from './GitAPIChangeDetector';
+import { APIScanner, DiscoveredAPI } from './APIScanner';
 
 export class UniversalValidator {
   private config: ValidationConfig;
@@ -33,6 +34,7 @@ export class UniversalValidator {
   private semanticMatcher: SemanticMatcher;
   private reportGenerator: ReportGenerator;
   private gitDetector: GitAPIChangeDetector;
+  private apiScanner: APIScanner;
 
   constructor(config: ValidationConfig) {
     this.config = config;
@@ -41,6 +43,7 @@ export class UniversalValidator {
     this.semanticMatcher = new SemanticMatcher(config.matching);
     this.reportGenerator = new ReportGenerator(config.reporting);
     this.gitDetector = new GitAPIChangeDetector(config.projectRoot);
+    this.apiScanner = new APIScanner();
   }
 
   /**
@@ -100,11 +103,16 @@ export class UniversalValidator {
     const allScenarios: Scenario[] = [];
     const allTests: UnitTest[] = [];
     const allMappings: ScenarioMapping[] = [];
+    const allDiscoveredAPIs: DiscoveredAPI[] = [];
 
     // Process each service
     for (const service of services) {
       try {
         console.log(`\n📋 Processing service: ${service.name}`);
+        
+        // Scan for APIs (NEW: Automatic API Discovery)
+        const discoveredAPIs = await this.apiScanner.scanAPIs(service);
+        allDiscoveredAPIs.push(...discoveredAPIs);
         
         // Load scenarios
         console.log(`  Loading scenarios from: ${service.scenarioFile}`);
@@ -118,6 +126,18 @@ export class UniversalValidator {
         const tests = await parser.parseTests(service);
         console.log(`  ✓ Found ${tests.length} unit tests`);
         allTests.push(...tests);
+
+        // Mark which APIs have scenarios/tests
+        for (const scenario of scenarios) {
+          if (scenario.apiEndpoint) {
+            this.apiScanner.markAPIWithScenario(discoveredAPIs, scenario.apiEndpoint);
+          }
+        }
+        for (const test of tests) {
+          if (test.description) {
+            this.apiScanner.markAPIWithTest(discoveredAPIs, test.description);
+          }
+        }
 
         // Map scenarios to tests
         console.log(`  Mapping scenarios to tests...`);
@@ -162,8 +182,11 @@ export class UniversalValidator {
     // Update summary with API changes count
     summary.apiChangesDetected = apiChanges.length;
 
-    // Generate warnings
-    warnings.push(...this.generateWarnings(allMappings, orphanTests, orphanScenarios));
+    // Get orphan APIs
+    const orphanAPIs = this.apiScanner.getOrphanAPIs(allDiscoveredAPIs);
+    
+    // Generate warnings (including orphan APIs)
+    warnings.push(...this.generateWarnings(allMappings, orphanTests, orphanScenarios, orphanAPIs));
 
     // Generate recommendations
     const recommendations = this.generateRecommendations(gaps, orphanTests, orphanScenarios);
@@ -432,9 +455,31 @@ export class UniversalValidator {
   private generateWarnings(
     mappings: ScenarioMapping[],
     orphanTests: UnitTest[],
-    orphanScenarios: Scenario[]
+    orphanScenarios: Scenario[],
+    orphanAPIs: DiscoveredAPI[]
   ): ValidationWarning[] {
     const warnings: ValidationWarning[] = [];
+
+    // Warn about orphan APIs (NEW: Critical Warning)
+    if (orphanAPIs.length > 0) {
+      const apiList = orphanAPIs.map(api => `${api.method} ${api.endpoint}`).join(', ');
+      warnings.push({
+        type: 'orphan_api',
+        message: `🚨 Found ${orphanAPIs.length} API(s) without scenarios or tests: ${apiList}`,
+        severity: 'Critical',
+        recommendations: [
+          'Create scenarios for discovered APIs',
+          'Add unit tests to cover API functionality',
+          'APIs without coverage are untracked and risky',
+          'Developer action required: Add tests before merging'
+        ]
+      });
+      
+      console.log(`\n  🚨 ORPHAN APIs DETECTED: ${orphanAPIs.length}`);
+      for (const api of orphanAPIs) {
+        console.log(`     - ${api.method} ${api.endpoint} (${api.controller}:${api.lineNumber})`);
+      }
+    }
 
     // Warn about orphan tests
     if (orphanTests.length > 0) {

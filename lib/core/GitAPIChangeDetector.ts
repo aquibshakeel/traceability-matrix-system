@@ -71,8 +71,9 @@ export class GitAPIChangeDetector {
             affectedScenarios: [],
             affectedTests: testsAlsoRemoved.map(t => ({
               id: t.name,
-              name: t.name,
+              service: service.name,
               file: t.file,
+              filePath: t.file,
               description: `Test for ${removedAPI.path}`,
               framework: service.testFramework,
               language: service.language
