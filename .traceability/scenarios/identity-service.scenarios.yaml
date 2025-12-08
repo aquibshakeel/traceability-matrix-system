@@ -1,5 +1,34 @@
-# Identity Service Scenarios
-# Empty file to demonstrate orphan API detection
-# APIs exist but no scenarios defined yet
-
-scenarios: []
+scenarios:
+  - id: IDENTITY-001
+    manualTestId: MT-IDENTITY-001
+    module: Authentication
+    description: User login with valid credentials
+    apiEndpoint: /identity/login
+    httpMethod: POST
+    category: Authentication
+    priority: P0
+    riskLevel: Critical
+    matchingRules:
+      - type: exact
+        pattern: "login"
+      - type: keyword
+        keywords: ["login", "authenticate", "sign in"]
+    estimatedEffort: Medium
+    manualTestingRequired: false
+    businessImpact: Users must be able to log in to access the system
+    tags:
+      - authentication
+      - login
+      - critical
+    acceptanceCriteria:
+      - User can log in with valid email and password
+      - System returns JWT token upon successful login
+      - Invalid credentials are rejected with appropriate error
+      - Account locked after multiple failed attempts
+    testData:
+      validUser:
+        email: "test@example.com"
+        password: "Test123!"
+      invalidUser:
+        email: "invalid@example.com"
+        password: "wrong"
