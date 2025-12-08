@@ -43,10 +43,10 @@ scenarios:
     priority: P1
     riskLevel: High
     matchingRules:
-      - type: exact
-        pattern: "verifyotp"
+      - type: regex
+        pattern: "verify.*otp|otp.*verif"
       - type: keyword
-        keywords: ["verify", "otp", "two factor", "2fa"]
+        keywords: ["VerifyOtp", "verify_otp", "verifyotp", "testVerifyOtp"]
     estimatedEffort: Medium
     manualTestingRequired: false
     businessImpact: Users must verify OTP for secure authentication
