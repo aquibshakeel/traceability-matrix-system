@@ -206,6 +206,7 @@ export class UniversalValidator {
       gaps,
       orphanTests,
       orphanScenarios,
+      orphanAPIs,
       orphanAnalysis,
       apiChanges,
       errors,

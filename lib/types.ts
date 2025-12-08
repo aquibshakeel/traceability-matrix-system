@@ -270,12 +270,23 @@ export interface ValidationResult {
   gaps: Gap[];
   orphanTests: UnitTest[];
   orphanScenarios: Scenario[];
+  orphanAPIs?: DiscoveredAPI[];
   orphanAnalysis: OrphanTestAnalysis;
   apiChanges: APIChange[];
   errors: ValidationError[];
   warnings: ValidationWarning[];
   recommendations: Recommendation[];
   traceabilityMatrix: TraceabilityMatrix;
+}
+
+export interface DiscoveredAPI {
+  endpoint: string;
+  method: string;
+  controller: string;
+  lineNumber: number;
+  serviceName: string;
+  hasScenario: boolean;
+  hasTest: boolean;
 }
 
 export interface OrphanTestAnalysis {
