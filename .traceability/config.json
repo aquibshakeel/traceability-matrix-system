@@ -17,12 +17,12 @@
       "name": "identity-service",
       "enabled": true,
       "path": "services/identity-service",
-      "language": "typescript",
-      "testFramework": "jest",
-      "testDirectory": "test/unit",
-      "testPattern": "*.test.ts",
-      "scenarioFile": ".traceability/scenarios/identity-service.scenarios.json",
-      "scenarioFormat": "json",
+      "language": "java",
+      "testFramework": "junit",
+      "testDirectory": "src/test/java",
+      "testPattern": "*Test.java",
+      "scenarioFile": ".traceability/scenarios/identity-service.scenarios.yaml",
+      "scenarioFormat": "yaml",
       "requiresServiceRunning": false
     }
   ],

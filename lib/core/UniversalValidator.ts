@@ -24,6 +24,7 @@ import { TestParserFactory } from './TestParserFactory';
 import { SemanticMatcher } from './SemanticMatcher';
 import { ReportGenerator } from './ReportGenerator';
 import { OrphanTestCategorizer } from './OrphanTestCategorizer';
+import { GitAPIChangeDetector } from './GitAPIChangeDetector';
 
 export class UniversalValidator {
   private config: ValidationConfig;
@@ -31,6 +32,7 @@ export class UniversalValidator {
   private testParserFactory: TestParserFactory;
   private semanticMatcher: SemanticMatcher;
   private reportGenerator: ReportGenerator;
+  private gitDetector: GitAPIChangeDetector;
 
   constructor(config: ValidationConfig) {
     this.config = config;
@@ -38,6 +40,7 @@ export class UniversalValidator {
     this.testParserFactory = new TestParserFactory();
     this.semanticMatcher = new SemanticMatcher(config.matching);
     this.reportGenerator = new ReportGenerator(config.reporting);
+    this.gitDetector = new GitAPIChangeDetector(config.projectRoot);
   }
 
   /**
@@ -149,8 +152,15 @@ export class UniversalValidator {
     // Identify orphan scenarios
     const orphanScenarios = this.identifyOrphanScenarios(allScenarios, allMappings);
 
-    // Detect API changes
+    // Detect API changes (standard detection)
     const apiChanges = this.detectAPIChanges(allScenarios, allTests, allMappings);
+
+    // Detect API changes using Git comparison (HEAD vs HEAD-1)
+    const gitAPIChanges = await this.detectGitAPIChanges(services);
+    apiChanges.push(...gitAPIChanges);
+
+    // Update summary with API changes count
+    summary.apiChangesDetected = apiChanges.length;
 
     // Generate warnings
     warnings.push(...this.generateWarnings(allMappings, orphanTests, orphanScenarios));
@@ -354,7 +364,27 @@ export class UniversalValidator {
   }
 
   /**
+   * Detect API changes using Git comparison (HEAD vs HEAD-1)
+   * This catches API+Test deletions that bypass normal detection
+   */
+  private async detectGitAPIChanges(services: ServiceConfig[]): Promise<APIChange[]> {
+    const allChanges: APIChange[] = [];
+
+    for (const service of services) {
+      try {
+        const changes = await this.gitDetector.detectChanges(service);
+        allChanges.push(...changes);
+      } catch (error) {
+        console.warn(`Git detection skipped for ${service.name}: ${error}`);
+      }
+    }
+
+    return allChanges;
+  }
+
+  /**
    * Detect API changes (additions, removals, modifications)
+   * Standard detection based on current state
    */
   private detectAPIChanges(
     scenarios: Scenario[],
