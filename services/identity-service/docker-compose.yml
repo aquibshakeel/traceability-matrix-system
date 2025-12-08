@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: identity-mongodb
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=identitydb
+    volumes:
+      - identity-mongo-data:/data/db
+    networks:
+      - identity-network
+
+  identity-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: identity-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/identitydb
+      - SPRING_PROFILES_ACTIVE=dev
+    depends_on:
+      - mongodb
+    networks:
+      - identity-network
+
+volumes:
+  identity-mongo-data:
+
+networks:
+  identity-network:
+    driver: bridge

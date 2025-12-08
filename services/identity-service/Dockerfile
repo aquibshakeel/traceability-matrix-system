@@ -1,28 +1,18 @@
-# Identity Service Dockerfile
-FROM node:18-alpine
+FROM gradle:8.5-jdk19 AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-COPY tsconfig.json ./
-
-# Install dependencies
-RUN npm ci --only=production
-
-# Copy source code
+COPY build.gradle settings.gradle ./
 COPY src ./src
 
-# Build TypeScript
-RUN npm run build
+RUN gradle build -x test --no-daemon
 
-# Expose port
-EXPOSE 4000
+FROM eclipse-temurin:19-jre-alpine
 
-# Health check
-HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:4000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+WORKDIR /app
 
-# Start service
-CMD ["node", "dist/server.js"]
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+EXPOSE 8081
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
