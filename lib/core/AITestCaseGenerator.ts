@@ -16,6 +16,7 @@ import { SwaggerParser } from './SwaggerParser';
 import { APIScanner } from './APIScanner';
 import { ServiceManager } from './ServiceManager';
 import { GitChangeDetector } from './GitChangeDetector';
+import { ModelDetector } from './ModelDetector';
 import { ServiceConfig } from '../types';
 
 export interface SimpleScenarios {
@@ -29,7 +30,8 @@ export interface SimpleScenarios {
 
 export class AITestCaseGenerator {
   private client: Anthropic;
-  private model: string;
+  private model: string | null = null;
+  private modelDetector: ModelDetector;
   private baselineDir: string;
   private aiCasesDir: string;
   private serviceManager: ServiceManager;
@@ -38,15 +40,7 @@ export class AITestCaseGenerator {
   constructor(apiKey: string, projectRoot: string) {
     this.client = new Anthropic({ apiKey });
     this.projectRoot = projectRoot;
-    
-    // Load model from config
-    const configPath = path.join(projectRoot, '.traceability/config.json');
-    if (fs.existsSync(configPath)) {
-      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-      this.model = config.ai?.model || 'claude-3-5-sonnet-20240620';
-    } else {
-      this.model = 'claude-3-5-sonnet-20240620';
-    }
+    this.modelDetector = new ModelDetector(apiKey);
     
     this.baselineDir = path.join(projectRoot, '.traceability/test-cases/baseline');
     this.aiCasesDir = path.join(projectRoot, '.traceability/test-cases/ai_cases');
@@ -55,6 +49,16 @@ export class AITestCaseGenerator {
     if (!fs.existsSync(this.aiCasesDir)) {
       fs.mkdirSync(this.aiCasesDir, { recursive: true });
     }
+  }
+
+  /**
+   * Get the best available model for this user
+   */
+  private async getModel(): Promise<string> {
+    if (!this.model) {
+      this.model = await this.modelDetector.detectBestModel();
+    }
+    return this.model;
   }
 
   /**
@@ -200,8 +204,9 @@ Respond in JSON:
 }`;
 
     try {
+      const model = await this.getModel();
       const response = await this.client.messages.create({
-        model: this.model,
+        model: model,
         max_tokens: 2000,
         temperature: 0.3,
         messages: [{ role: 'user', content: prompt }]
