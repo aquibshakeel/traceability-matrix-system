@@ -165,6 +165,10 @@ async function main() {
       console.log('✅ VALIDATION PASSED');
       console.log('='.repeat(70));
       console.log('\n✨ All critical scenarios are covered by unit tests!');
+      
+      // Auto-open HTML report
+      openHTMLReport(config.reporting.outputDirectory);
+      
       process.exit(0);
     } else {
       console.log('❌ VALIDATION FAILED');
@@ -181,6 +185,10 @@ async function main() {
       }
       
       console.log(`\n📋 View detailed report at: ${config.reporting.outputDirectory}/`);
+      
+      // Auto-open HTML report
+      openHTMLReport(config.reporting.outputDirectory);
+      
       process.exit(1);
     }
   } catch (error) {
@@ -189,6 +197,42 @@ async function main() {
       console.error('\nStack trace:', error.stack);
     }
     process.exit(1);
+  }
+}
+
+/**
+ * Open HTML report in default browser
+ */
+function openHTMLReport(reportDir) {
+  const { execSync } = require('child_process');
+  const htmlPath = path.join(reportDir, 'traceability-report.html');
+  
+  if (!fs.existsSync(htmlPath)) {
+    console.log('\n⚠️  HTML report not found, skipping auto-open');
+    return;
+  }
+  
+  console.log(`\n📊 Opening enhanced HTML report...`);
+  
+  try {
+    const platform = process.platform;
+    let command;
+    
+    if (platform === 'darwin') {
+      // macOS
+      command = `open "${htmlPath}"`;
+    } else if (platform === 'win32') {
+      // Windows
+      command = `start "" "${htmlPath}"`;
+    } else {
+      // Linux and others
+      command = `xdg-open "${htmlPath}"`;
+    }
+    
+    execSync(command, { stdio: 'ignore' });
+  } catch (error) {
+    console.log(`⚠️  Could not auto-open report: ${error instanceof Error ? error.message : String(error)}`);
+    console.log(`   Open manually: ${htmlPath}`);
   }
 }
 

@@ -1,29 +1,3 @@
 Scenario ID,Description,Priority,Risk Level,API Endpoint,Coverage Status,Match Score,Gap Reason,Action Required
-CUST-001,"When user requests customer details with a valid customer ID, then the system should return complete customer information including name, email, phone, and address with HTTP 200 status
-",P1,High,/api/customer/:id,Partially Covered,1.00,,
-CUST-002,"When user requests customer details with an invalid customer ID, then the system should return 404 error with message ""Customer not found""
-",P2,Medium,/api/customer/:id,Partially Covered,1.00,,
-CUST-003,"When user requests customer with malformed ID format, then the system should return 400 bad request error
-",P2,Medium,/api/customer/:id,Fully Covered,1.00,,
-CUST-004,"When user requests customer without authentication token, then the system should return 401 unauthorized error
-",P0,Critical,/api/customer/:id,Not Covered,0.00,No unit test found,Developer - Create Test
-CUST-005,"When user creates a new customer with valid data, then the system should create the customer, return 201 status, include the new customer ID, and save to database
-",P1,High,/api/customer,Partially Covered,1.00,,
-CUST-006,"When user tries to create customer with missing required fields, then the system should return 400 error with clear validation message
-",P2,Medium,/api/customer,Fully Covered,1.00,,
-CUST-007,"When user tries to create customer with duplicate email, then the system should return 409 conflict error
-",P2,Medium,/api/customer,Fully Covered,1.00,,
-CUST-008,"When user creates customer with invalid email format, then the system should return 400 with validation error
-",P2,Low,/api/customer,Fully Covered,1.00,,
-CUST-009,"When user updates customer with valid data, then the system should update customer and return updated data
-",P1,Medium,/api/customer/:id,Fully Covered,1.00,,
-CUST-010,"When user tries to update non-existent customer, then the system should return 404 not found error
-",P2,Medium,/api/customer/:id,Fully Covered,1.00,,
-CUST-011,"When user deletes a customer, then the system should soft-delete the customer (GDPR compliance), return 200 status, and mark as deleted in database
-",P1,High,/api/customer/:id,Partially Covered,1.00,,
-CUST-012,"When user tries to delete already deleted customer, then the system should return 410 gone error
-",P0,Critical,/api/customer/:id,Not Covered,0.00,No unit test found,Developer - Create Test
-CUST-013,"When database connection fails during customer fetch, then the system should return 503 service unavailable, log the error, and attempt retry with exponential backoff
-",P0,Critical,N/A,Not Covered,0.00,No unit test found,Developer - Create Test
-CUST-014,"When database query times out after 5 seconds, then the system should cancel query and return 504 timeout error
-",P0,Critical,N/A,Not Covered,0.00,No unit test found,Developer - Create Test
+IDENTITY-001,"User login with valid credentials",P0,Critical,/identity/login,Not Covered,0.00,No unit test found,Developer - Create Test
+IDENTITY-002,"OTP verification for user authentication",P1,High,/identity/verify-otp,Partially Covered,1.00,,
