@@ -1,0 +1,242 @@
+# Customer Service - Business Scenarios (YAML Format)
+# This file contains all business scenarios for the customer-service microservice
+# Each scenario should have a corresponding unit test
+
+service: customer-service
+version: 1.0.0
+lastUpdated: 2025-12-08
+maintainer: QA Team
+
+scenarios:
+  # ========================================
+  # GET Customer By ID
+  # ========================================
+  
+  - id: CUST-001
+    description: >
+      When user requests customer details with a valid customer ID,
+      then the system should return complete customer information
+      including name, email, phone, and address with HTTP 200 status
+    apiEndpoint: /api/customer/:id
+    httpMethod: GET
+    category: Happy Path
+    priority: P1
+    riskLevel: High
+    tags: [api, get, customer, happy-path]
+    matchingRules:
+      - type: regex
+        pattern: "getCustomerById.*WhenCustomerExists"
+        threshold: 0.9
+    acceptanceCriteria:
+      - Response status code is 200
+      - Response includes customer name
+      - Response includes email and phone
+      - Response time is less than 500ms
+    testData:
+      validCustomerId: "12345"
+      expectedStatus: 200
+
+  - id: CUST-002
+    description: >
+      When user requests customer details with an invalid customer ID,
+      then the system should return 404 error with message "Customer not found"
+    apiEndpoint: /api/customer/:id
+    httpMethod: GET
+    category: Negative Case
+    priority: P2
+    riskLevel: Medium
+    tags: [api, get, customer, error-handling]
+    matchingRules:
+      - type: regex
+        pattern: "getCustomerById.*NotFound.*DoesNotExist"
+        threshold: 0.9
+    acceptanceCriteria:
+      - Response status code is 404
+      - Error message says "Customer not found"
+      - No internal system details exposed
+
+  - id: CUST-003
+    description: >
+      When user requests customer with malformed ID format,
+      then the system should return 400 bad request error
+    apiEndpoint: /api/customer/:id
+    httpMethod: GET
+    category: Validation
+    priority: P2
+    riskLevel: Medium
+    tags: [api, get, customer, validation]
+    # Removed incorrect regex pattern - using semantic matching
+
+  - id: CUST-004
+    description: >
+      When user requests customer without authentication token,
+      then the system should return 401 unauthorized error
+    apiEndpoint: /api/customer/:id
+    httpMethod: GET
+    category: Security
+    priority: P0
+    riskLevel: Critical
+    tags: [api, get, customer, security, auth]
+
+  # ========================================
+  # POST Create Customer
+  # ========================================
+  
+  - id: CUST-005
+    description: >
+      When user creates a new customer with valid data,
+      then the system should create the customer, return 201 status,
+      include the new customer ID, and save to database
+    apiEndpoint: /api/customer
+    httpMethod: POST
+    category: Happy Path
+    priority: P1
+    riskLevel: High
+    tags: [api, post, customer, create]
+    matchingRules:
+      - type: regex
+        pattern: "createCustomer.*ReturnCreated.*ValidRequest"
+        threshold: 0.9
+    acceptanceCriteria:
+      - Response status code is 201
+      - Response includes newly created customer ID
+      - Customer is saved in database
+      - All required fields are persisted
+    estimatedEffort: Medium
+
+  - id: CUST-006
+    description: >
+      When user tries to create customer with missing required fields,
+      then the system should return 400 error with clear validation message
+    apiEndpoint: /api/customer
+    httpMethod: POST
+    category: Validation
+    priority: P2
+    riskLevel: Medium
+    tags: [api, post, customer, validation]
+    matchingRules:
+      - type: regex
+        pattern: "createCustomer.*BadRequest.*Blank|Null"
+        threshold: 0.8
+
+  - id: CUST-007
+    description: >
+      When user tries to create customer with duplicate email,
+      then the system should return 409 conflict error
+    apiEndpoint: /api/customer
+    httpMethod: POST
+    category: Business Logic
+    priority: P2
+    riskLevel: Medium
+    tags: [api, post, customer, duplicate]
+    # Removed incorrect regex pattern - using semantic matching
+
+  - id: CUST-008
+    description: >
+      When user creates customer with invalid email format,
+      then the system should return 400 with validation error
+    apiEndpoint: /api/customer
+    httpMethod: POST
+    category: Validation
+    priority: P2
+    riskLevel: Low
+    tags: [api, post, customer, validation, email]
+    # Removed incorrect regex pattern - using semantic matching
+
+  # ========================================
+  # PUT Update Customer
+  # ========================================
+  
+  - id: CUST-009
+    description: >
+      When user updates customer with valid data,
+      then the system should update customer and return updated data
+    apiEndpoint: /api/customer/:id
+    httpMethod: PUT
+    category: Happy Path
+    priority: P1
+    riskLevel: Medium
+    tags: [api, put, customer, update]
+    matchingRules:
+      - type: regex
+        pattern: "updateCustomer.*UpdatedCustomer.*ValidRequest"
+        threshold: 0.9
+
+  - id: CUST-010
+    description: >
+      When user tries to update non-existent customer,
+      then the system should return 404 not found error
+    apiEndpoint: /api/customer/:id
+    httpMethod: PUT
+    category: Error Handling
+    priority: P2
+    riskLevel: Medium
+    tags: [api, put, customer, not-found]
+    matchingRules:
+      - type: regex
+        pattern: "updateCustomer.*NotFound.*DoesNotExist"
+        threshold: 0.9
+
+  # ========================================
+  # DELETE Customer
+  # ========================================
+  
+  - id: CUST-011
+    description: >
+      When user deletes a customer,
+      then the system should soft-delete the customer (GDPR compliance),
+      return 200 status, and mark as deleted in database
+    apiEndpoint: /api/customer/:id
+    httpMethod: DELETE
+    category: Happy Path
+    priority: P1
+    riskLevel: High
+    tags: [api, delete, customer, gdpr]
+    matchingRules:
+      - type: regex
+        pattern: "deleteCustomer.*NoContent.*Exists"
+        threshold: 0.9
+    acceptanceCriteria:
+      - Response status code is 200
+      - Customer is marked as deleted (soft delete)
+      - Data is not permanently removed
+      - GDPR compliance maintained
+
+  - id: CUST-012
+    description: >
+      When user tries to delete already deleted customer,
+      then the system should return 410 gone error
+    apiEndpoint: /api/customer/:id
+    httpMethod: DELETE
+    category: Error Handling
+    priority: P0
+    riskLevel: Critical
+    tags: [api, delete, customer, already-deleted]
+
+  # ========================================
+  # Database Resilience
+  # ========================================
+  
+  - id: CUST-013
+    description: >
+      When database connection fails during customer fetch,
+      then the system should return 503 service unavailable,
+      log the error, and attempt retry with exponential backoff
+    category: Resilience
+    priority: P0
+    riskLevel: Critical
+    tags: [database, resilience, error-handling]
+    acceptanceCriteria:
+      - Response status code is 503
+      - Error is logged for monitoring
+      - Retry mechanism is triggered
+      - No hanging connections
+
+  - id: CUST-014
+    description: >
+      When database query times out after 5 seconds,
+      then the system should cancel query and return 504 timeout error
+    category: Resilience
+    priority: P0
+    riskLevel: Critical
+    tags: [database, timeout, resilience]

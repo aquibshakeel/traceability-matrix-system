@@ -42,8 +42,9 @@ qa/reports/allure-report/
 allure-results/
 allure-report/
 
-# Traceability reports
-.traceability/
+# Traceability reports (but keep scenarios)
+.traceability/reports/
+.traceability/config.json
 
 # Docker volumes
 mongodb_data/

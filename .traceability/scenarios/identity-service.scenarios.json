@@ -1,0 +1,51 @@
+{
+  "service": "identity-service",
+  "version": "1.0.0",
+  "lastUpdated": "2025-12-08",
+  "maintainer": "QA Team",
+  "scenarios": [
+    {
+      "id": "PROFILE-001",
+      "description": "When user creates profile with valid data, system returns 201",
+      "apiEndpoint": "/api/profile",
+      "httpMethod": "POST",
+      "category": "Happy Path",
+      "priority": "P1",
+      "riskLevel": "High",
+      "tags": ["api", "profile", "create"],
+      "matchingRules": [
+        {
+          "type": "fuzzy",
+          "pattern": "create profile",
+          "threshold": 0.7
+        }
+      ],
+      "acceptanceCriteria": [
+        "Response status code is 201",
+        "Profile ID is returned",
+        "Profile is saved in database"
+      ]
+    },
+    {
+      "id": "PROFILE-002",
+      "description": "When user retrieves profile by ID, system returns profile data",
+      "apiEndpoint": "/api/profile/:id",
+      "httpMethod": "GET",
+      "category": "Happy Path",
+      "priority": "P1",
+      "riskLevel": "High",
+      "tags": ["api", "profile", "get"],
+      "matchingRules": [
+        {
+          "type": "fuzzy",
+          "pattern": "get profile",
+          "threshold": 0.7
+        }
+      ],
+      "acceptanceCriteria": [
+        "Response status code is 200",
+        "Profile data is returned"
+      ]
+    }
+  ]
+}
