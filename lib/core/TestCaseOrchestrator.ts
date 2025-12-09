@@ -55,16 +55,18 @@ export class TestCaseOrchestrator {
     let testCasesGenerated = 0;
 
     try {
-      // Step 1: Try to find and parse Swagger file
+      // Step 1: Find and parse Swagger file (REQUIRED)
       const swaggerAPIs = await this.discoverSwaggerAPIs(service);
       
-      // Step 2: Discover APIs from code
-      const discoveredAPIs = await this.discoverCodeAPIs(service);
+      // Swagger is mandatory - fail if not found
+      if (swaggerAPIs.length === 0) {
+        const errorMsg = `❌ No Swagger/OpenAPI specification found! This system requires Swagger files.`;
+        console.error(`   ${errorMsg}`);
+        throw new Error(errorMsg);
+      }
 
-      // Combine APIs (prefer Swagger as it has more metadata)
-      const allAPIs = this.mergeAPIs(swaggerAPIs, discoveredAPIs);
-
-      console.log(`   ✓ Found ${allAPIs.length} API(s)`);
+      console.log(`   ✓ Found ${swaggerAPIs.length} API(s) from Swagger`);
+      const allAPIs = swaggerAPIs;
 
       // Step 3: Generate test cases for each API
       for (const api of allAPIs) {
