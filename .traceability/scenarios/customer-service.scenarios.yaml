@@ -11,7 +11,7 @@ scenarios:
   # ========================================
   # GET Customer By ID
   # ========================================
-  
+
   - id: CUST-001
     description: >
       When user requests customer details with a valid customer ID,
@@ -78,10 +78,19 @@ scenarios:
     riskLevel: Critical
     tags: [api, get, customer, security, auth]
 
+  - id: CUST-015
+    description: >
+      When user tries to get customer with incorrect id,
+            then the system should return 409 conflict error
+    category: Negative Case
+    priority: P0
+    riskLevel: Critical
+    tags: [api, get, customer, negative-path]
+
   # ========================================
   # POST Create Customer
   # ========================================
-  
+
   - id: CUST-005
     description: >
       When user creates a new customer with valid data,
@@ -146,7 +155,7 @@ scenarios:
   # ========================================
   # PUT Update Customer
   # ========================================
-  
+
   - id: CUST-009
     description: >
       When user updates customer with valid data,
@@ -180,7 +189,7 @@ scenarios:
   # ========================================
   # DELETE Customer
   # ========================================
-  
+
   - id: CUST-011
     description: >
       When user deletes a customer,
@@ -216,7 +225,7 @@ scenarios:
   # ========================================
   # Database Resilience
   # ========================================
-  
+
   - id: CUST-013
     description: >
       When database connection fails during customer fetch,
