@@ -140,6 +140,10 @@ export class UniversalValidator {
         console.log(`  Mapping scenarios to tests...`);
         const mappings = this.semanticMatcher.mapScenarios(scenarios, tests);
         console.log(`  ✓ Completed mapping analysis`);
+        
+        // Display fully covered scenarios with their matched tests
+        this.displayFullyCoveredMappings(service.name, mappings);
+        
         allMappings.push(...mappings);
 
       } catch (error) {
@@ -211,6 +215,37 @@ export class UniversalValidator {
       recommendations,
       traceabilityMatrix
     };
+  }
+
+  /**
+   * Display fully covered scenarios with their matched unit tests for verification
+   */
+  private displayFullyCoveredMappings(serviceName: string, mappings: ScenarioMapping[]): void {
+    const fullyCovered = mappings.filter(m => m.coverageStatus === 'Fully Covered');
+    
+    if (fullyCovered.length === 0) {
+      console.log(`\n  ℹ️  No fully covered scenarios found for ${serviceName}`);
+      return;
+    }
+
+    console.log(`\n  ✅ FULLY COVERED SCENARIOS (${fullyCovered.length}):`);
+    console.log(`  ${'='.repeat(80)}`);
+    
+    for (const mapping of fullyCovered) {
+      console.log(`\n  📋 Scenario: ${mapping.scenario.id}`);
+      console.log(`     Description: ${mapping.scenario.description}`);
+      console.log(`     Priority: ${mapping.scenario.priority} | Risk: ${mapping.scenario.riskLevel}`);
+      console.log(`     Match Score: ${(mapping.matchScore * 100).toFixed(1)}%`);
+      console.log(`     Matched Unit Tests (${mapping.matchedTests.length}):`);
+      
+      for (const test of mapping.matchedTests) {
+        console.log(`       ✓ ${test.id}`);
+        console.log(`         Description: ${test.description}`);
+        console.log(`         File: ${test.file}`);
+      }
+    }
+    
+    console.log(`\n  ${'='.repeat(80)}`);
   }
 
   /**
