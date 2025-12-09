@@ -58,4 +58,4 @@ DELETE /api/customers/{id}:
     # - When deleting non-existent customer, return 404
     # - When deleting without authentication, return 401
 
-#dummy text
+#dummy text,
