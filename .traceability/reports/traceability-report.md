@@ -1,7 +1,7 @@
 # Unit Test Traceability Report
 
-**Generated:** 12/9/2025, 3:39:33 AM  
-**Duration:** 78ms  
+**Generated:** 12/9/2025, 5:43:36 AM  
+**Duration:** 133ms  
 **Status:** ❌ FAILED
 
 ---
@@ -11,8 +11,8 @@
 | Metric | Value |
 |--------|-------|
 | **Total Scenarios** | 14 |
-| **Fully Covered** | 10 (71%) |
-| **Partially Covered** | 0 |
+| **Fully Covered** | 6 (71%) |
+| **Partially Covered** | 4 |
 | **Not Covered** | 4 |
 | **Total Tests** | 58 |
 | **Orphan Tests** | 41 |
@@ -111,13 +111,13 @@
 
 Tests without corresponding business scenarios:
 
-- **CustomerMapperTest.toEntity_ShouldMapRequestToEntity**: To Entity  Should Map Request To Entity (CustomerMapperTest.java)
-- **CustomerMapperTest.toResponse_ShouldMapEntityToResponse**: To Response  Should Map Entity To Response (CustomerMapperTest.java)
-- **CustomerMapperTest.updateEntity_ShouldUpdateExistingEntity**: Update Entity  Should Update Existing Entity (CustomerMapperTest.java)
 - **CustomerTest.builder_ShouldCreateCustomerWithAllFields**: Builder  Should Create Customer With All Fields (CustomerTest.java)
 - **CustomerTest.settersAndGetters_ShouldWorkCorrectly**: Setters And Getters  Should Work Correctly (CustomerTest.java)
 - **CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual**: Equals  Should Return True  When Customers Are Equal (CustomerTest.java)
 - **CustomerTest.toString_ShouldReturnStringRepresentation**: To String  Should Return String Representation (CustomerTest.java)
+- **CustomerMapperTest.toEntity_ShouldMapRequestToEntity**: To Entity  Should Map Request To Entity (CustomerMapperTest.java)
+- **CustomerMapperTest.toResponse_ShouldMapEntityToResponse**: To Response  Should Map Entity To Response (CustomerMapperTest.java)
+- **CustomerMapperTest.updateEntity_ShouldUpdateExistingEntity**: Update Entity  Should Update Existing Entity (CustomerMapperTest.java)
 - **GlobalExceptionHandlerTest.handleCustomerNotFoundException_ShouldReturnNotFoundResponse**: Handle Customer Not Found Exception  Should Return Not Found Response (GlobalExceptionHandlerTest.java)
 - **GlobalExceptionHandlerTest.handleValidationExceptions_ShouldReturnBadRequestWithValidationErrors**: Handle Validation Exceptions  Should Return Bad Request With Validation Errors (GlobalExceptionHandlerTest.java)
 - **GlobalExceptionHandlerTest.handleGenericException_ShouldReturnInternalServerErrorResponse**: Handle Generic Exception  Should Return Internal Server Error Response (GlobalExceptionHandlerTest.java)

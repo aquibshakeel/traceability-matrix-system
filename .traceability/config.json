@@ -77,7 +77,7 @@
     "requireTestForNewAPI": true,
     "allowOrphanTests": true,
     "maxOrphanTestsWarning": 100,
-    "blockOnOrphanAPI": false,
+    "blockOnOrphanAPI": true,
     "strictMode": false,
     "minimumCoveragePercent": 0,
     "blockOnCriticalGaps": true,

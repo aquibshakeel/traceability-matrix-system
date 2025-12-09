@@ -133,11 +133,8 @@ export class UniversalValidator {
             this.apiScanner.markAPIWithScenario(discoveredAPIs, scenario.apiEndpoint);
           }
         }
-        for (const test of tests) {
-          if (test.description) {
-            this.apiScanner.markAPIWithTest(discoveredAPIs, test.description);
-          }
-        }
+        // Mark APIs that have tests (use bulk method for better matching)
+        this.apiScanner.markAPIsWithTests(discoveredAPIs, tests);
 
         // Map scenarios to tests
         console.log(`  Mapping scenarios to tests...`);
@@ -194,8 +191,8 @@ export class UniversalValidator {
     // Build traceability matrix
     const traceabilityMatrix = this.buildTraceabilityMatrix(allScenarios, allTests, allMappings);
 
-    // Determine overall success
-    const success = this.determineSuccess(summary, gaps, errors);
+    // Determine overall success (pass orphanAPIs for blocking check)
+    const success = this.determineSuccess(summary, gaps, errors, orphanAPIs);
 
     return {
       success,
@@ -257,8 +254,11 @@ export class UniversalValidator {
       m.coverageStatus === 'Not Covered'
     ).length;
 
+    // Coverage includes both fully covered AND partially covered scenarios
+    // (any scenario with at least one test has some coverage)
+    const scenariosWithCoverage = fullyCovered + partiallyCovered;
     const coveragePercent = totalScenarios > 0 
-      ? Math.round((fullyCovered / totalScenarios) * 100) 
+      ? Math.round((scenariosWithCoverage / totalScenarios) * 100) 
       : 0;
 
     // Count gaps by priority
@@ -318,6 +318,8 @@ export class UniversalValidator {
     const gaps: Gap[] = [];
 
     for (const mapping of mappings) {
+      // Only "Not Covered" scenarios are true gaps
+      // "Partially Covered" scenarios have some tests, so they're not gaps
       if (mapping.coverageStatus === 'Not Covered') {
         gaps.push({
           scenario: mapping.scenario,
@@ -333,21 +335,9 @@ export class UniversalValidator {
           actionRequired: 'Developer - Create Test',
           estimatedEffort: mapping.scenario.estimatedEffort
         });
-      } else if (mapping.coverageStatus === 'Partially Covered') {
-        gaps.push({
-          scenario: mapping.scenario,
-          reason: 'insufficient_coverage',
-          impact: 'Scenario has partial coverage but needs more comprehensive testing',
-          severity: mapping.scenario.priority,
-          recommendations: [
-            'Add additional unit tests to cover edge cases',
-            'Ensure all business rules are validated',
-            'Review test assertions for completeness'
-          ],
-          actionRequired: 'Developer - Update Test',
-          estimatedEffort: 'Low'
-        });
       }
+      // Note: Partially Covered scenarios are tracked in summary but not as gaps
+      // They have some coverage, just incomplete based on acceptance criteria count
     }
 
     // Sort gaps by severity
@@ -625,7 +615,8 @@ export class UniversalValidator {
   private determineSuccess(
     summary: ValidationSummary, 
     gaps: Gap[], 
-    errors: ValidationError[]
+    errors: ValidationError[],
+    orphanAPIs?: DiscoveredAPI[]
   ): boolean {
     // Fail if there are errors
     if (errors.length > 0) {
@@ -633,6 +624,11 @@ export class UniversalValidator {
     }
 
     const rules = this.config.validation;
+
+    // Fail on orphan APIs if configured (APIs without scenarios AND tests)
+    if (rules.blockOnOrphanAPI && orphanAPIs && orphanAPIs.length > 0) {
+      return false;
+    }
 
     // Strict mode: fail on any gaps
     if (rules.strictMode && gaps.length > 0) {

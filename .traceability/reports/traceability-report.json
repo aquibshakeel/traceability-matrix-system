@@ -1,11 +1,11 @@
 {
   "success": false,
-  "timestamp": "2025-12-08T22:09:33.540Z",
-  "duration": 78,
+  "timestamp": "2025-12-09T00:13:36.482Z",
+  "duration": 133,
   "summary": {
     "totalScenarios": 14,
-    "fullyCovered": 10,
-    "partiallyCovered": 0,
+    "fullyCovered": 6,
+    "partiallyCovered": 4,
     "notCovered": 4,
     "totalTests": 58,
     "orphanTests": 41,
@@ -20,7 +20,7 @@
     "mediumRiskGaps": 0,
     "lowRiskGaps": 0,
     "servicesAnalyzed": 1,
-    "apiChangesDetected": 0
+    "apiChangesDetected": 2
   },
   "mappings": [
     {
@@ -101,7 +101,7 @@
           "framework": "junit"
         }
       ],
-      "coverageStatus": "Fully Covered",
+      "coverageStatus": "Partially Covered",
       "matchScore": 1,
       "matchDetails": [
         {
@@ -155,8 +155,12 @@
           "explanation": "Matched keywords: customer, get, custom"
         }
       ],
-      "gapExplanation": "Scenario is fully covered by unit tests",
-      "recommendations": []
+      "gapExplanation": "Scenario is partially covered (2 test(s) found with medium confidence)",
+      "recommendations": [
+        "Enhance existing tests to improve coverage",
+        "Consider adding edge case tests",
+        "Review test assertions for completeness"
+      ]
     },
     {
       "scenario": {
@@ -210,7 +214,7 @@
           "framework": "junit"
         }
       ],
-      "coverageStatus": "Fully Covered",
+      "coverageStatus": "Partially Covered",
       "matchScore": 1,
       "matchDetails": [
         {
@@ -237,8 +241,12 @@
           "explanation": "Matched keywords: customer, get, custom"
         }
       ],
-      "gapExplanation": "Scenario is fully covered by unit tests",
-      "recommendations": []
+      "gapExplanation": "Scenario is partially covered (1 test(s) found with medium confidence)",
+      "recommendations": [
+        "Enhance existing tests to improve coverage",
+        "Consider adding edge case tests",
+        "Review test assertions for completeness"
+      ]
     },
     {
       "scenario": {
@@ -426,7 +434,7 @@
           "framework": "junit"
         }
       ],
-      "coverageStatus": "Fully Covered",
+      "coverageStatus": "Partially Covered",
       "matchScore": 1,
       "matchDetails": [
         {
@@ -453,8 +461,12 @@
           "explanation": "Matched keywords: customer, create, custom"
         }
       ],
-      "gapExplanation": "Scenario is fully covered by unit tests",
-      "recommendations": []
+      "gapExplanation": "Scenario is partially covered (1 test(s) found with medium confidence)",
+      "recommendations": [
+        "Enhance existing tests to improve coverage",
+        "Consider adding edge case tests",
+        "Review test assertions for completeness"
+      ]
     },
     {
       "scenario": {
@@ -1188,7 +1200,7 @@
           "framework": "junit"
         }
       ],
-      "coverageStatus": "Fully Covered",
+      "coverageStatus": "Partially Covered",
       "matchScore": 1,
       "matchDetails": [
         {
@@ -1215,8 +1227,12 @@
           "explanation": "Matched keywords: customer, delete, custom"
         }
       ],
-      "gapExplanation": "Scenario is fully covered by unit tests",
-      "recommendations": []
+      "gapExplanation": "Scenario is partially covered (1 test(s) found with medium confidence)",
+      "recommendations": [
+        "Enhance existing tests to improve coverage",
+        "Consider adding edge case tests",
+        "Review test assertions for completeness"
+      ]
     },
     {
       "scenario": {
@@ -1573,98 +1589,6 @@
   ],
   "orphanTests": [
     {
-      "file": "CustomerMapperTest.java",
-      "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/mapper/CustomerMapperTest.java",
-      "suite": "CustomerMapperTest",
-      "lineNumber": 23,
-      "tags": [],
-      "assertions": [
-        "assertThat(customer)",
-        "assertThat(customer.getFirstName()",
-        "assertThat(customer.getLastName()",
-        "assertThat(customer.getAge()",
-        "assertThat(customer.getAddress()",
-        "assertThat(customer.getId()",
-        "assertThat(customer.getCreatedAt()",
-        "assertThat(customer.getUpdatedAt()"
-      ],
-      "testMethod": "toEntity_ShouldMapRequestToEntity",
-      "id": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
-      "description": "To Entity  Should Map Request To Entity",
-      "mocksDependencies": false,
-      "service": "customer-service",
-      "language": "java",
-      "framework": "junit",
-      "orphanCategory": {
-        "type": "technical",
-        "subtype": "Mapper Test",
-        "priority": "P3",
-        "actionRequired": "none",
-        "reason": "Data mapping/transformation logic - technical layer"
-      }
-    },
-    {
-      "file": "CustomerMapperTest.java",
-      "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/mapper/CustomerMapperTest.java",
-      "suite": "CustomerMapperTest",
-      "lineNumber": 47,
-      "tags": [],
-      "assertions": [
-        "assertThat(response)",
-        "assertThat(response.getId()",
-        "assertThat(response.getFirstName()",
-        "assertThat(response.getLastName()",
-        "assertThat(response.getAge()",
-        "assertThat(response.getAddress()",
-        "assertThat(response.getCreatedAt()",
-        "assertThat(response.getUpdatedAt()"
-      ],
-      "testMethod": "toResponse_ShouldMapEntityToResponse",
-      "id": "CustomerMapperTest.toResponse_ShouldMapEntityToResponse",
-      "description": "To Response  Should Map Entity To Response",
-      "mocksDependencies": false,
-      "service": "customer-service",
-      "language": "java",
-      "framework": "junit",
-      "orphanCategory": {
-        "type": "technical",
-        "subtype": "Mapper Test",
-        "priority": "P3",
-        "actionRequired": "none",
-        "reason": "Data mapping/transformation logic - technical layer"
-      }
-    },
-    {
-      "file": "CustomerMapperTest.java",
-      "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/mapper/CustomerMapperTest.java",
-      "suite": "CustomerMapperTest",
-      "lineNumber": 75,
-      "tags": [],
-      "assertions": [
-        "assertThat(existingCustomer.getId()",
-        "assertThat(existingCustomer.getFirstName()",
-        "assertThat(existingCustomer.getLastName()",
-        "assertThat(existingCustomer.getAge()",
-        "assertThat(existingCustomer.getAddress()",
-        "assertThat(existingCustomer.getCreatedAt()",
-        "assertThat(existingCustomer.getUpdatedAt()"
-      ],
-      "testMethod": "updateEntity_ShouldUpdateExistingEntity",
-      "id": "CustomerMapperTest.updateEntity_ShouldUpdateExistingEntity",
-      "description": "Update Entity  Should Update Existing Entity",
-      "mocksDependencies": false,
-      "service": "customer-service",
-      "language": "java",
-      "framework": "junit",
-      "orphanCategory": {
-        "type": "technical",
-        "subtype": "Mapper Test",
-        "priority": "P3",
-        "actionRequired": "none",
-        "reason": "Data mapping/transformation logic - technical layer"
-      }
-    },
-    {
       "file": "CustomerTest.java",
       "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/model/CustomerTest.java",
       "suite": "CustomerTest",
@@ -1773,6 +1697,98 @@
         "priority": "P3",
         "actionRequired": "none",
         "reason": "POJO/Entity infrastructure test - no scenario needed"
+      }
+    },
+    {
+      "file": "CustomerMapperTest.java",
+      "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/mapper/CustomerMapperTest.java",
+      "suite": "CustomerMapperTest",
+      "lineNumber": 23,
+      "tags": [],
+      "assertions": [
+        "assertThat(customer)",
+        "assertThat(customer.getFirstName()",
+        "assertThat(customer.getLastName()",
+        "assertThat(customer.getAge()",
+        "assertThat(customer.getAddress()",
+        "assertThat(customer.getId()",
+        "assertThat(customer.getCreatedAt()",
+        "assertThat(customer.getUpdatedAt()"
+      ],
+      "testMethod": "toEntity_ShouldMapRequestToEntity",
+      "id": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
+      "description": "To Entity  Should Map Request To Entity",
+      "mocksDependencies": false,
+      "service": "customer-service",
+      "language": "java",
+      "framework": "junit",
+      "orphanCategory": {
+        "type": "technical",
+        "subtype": "Mapper Test",
+        "priority": "P3",
+        "actionRequired": "none",
+        "reason": "Data mapping/transformation logic - technical layer"
+      }
+    },
+    {
+      "file": "CustomerMapperTest.java",
+      "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/mapper/CustomerMapperTest.java",
+      "suite": "CustomerMapperTest",
+      "lineNumber": 47,
+      "tags": [],
+      "assertions": [
+        "assertThat(response)",
+        "assertThat(response.getId()",
+        "assertThat(response.getFirstName()",
+        "assertThat(response.getLastName()",
+        "assertThat(response.getAge()",
+        "assertThat(response.getAddress()",
+        "assertThat(response.getCreatedAt()",
+        "assertThat(response.getUpdatedAt()"
+      ],
+      "testMethod": "toResponse_ShouldMapEntityToResponse",
+      "id": "CustomerMapperTest.toResponse_ShouldMapEntityToResponse",
+      "description": "To Response  Should Map Entity To Response",
+      "mocksDependencies": false,
+      "service": "customer-service",
+      "language": "java",
+      "framework": "junit",
+      "orphanCategory": {
+        "type": "technical",
+        "subtype": "Mapper Test",
+        "priority": "P3",
+        "actionRequired": "none",
+        "reason": "Data mapping/transformation logic - technical layer"
+      }
+    },
+    {
+      "file": "CustomerMapperTest.java",
+      "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/mapper/CustomerMapperTest.java",
+      "suite": "CustomerMapperTest",
+      "lineNumber": 75,
+      "tags": [],
+      "assertions": [
+        "assertThat(existingCustomer.getId()",
+        "assertThat(existingCustomer.getFirstName()",
+        "assertThat(existingCustomer.getLastName()",
+        "assertThat(existingCustomer.getAge()",
+        "assertThat(existingCustomer.getAddress()",
+        "assertThat(existingCustomer.getCreatedAt()",
+        "assertThat(existingCustomer.getUpdatedAt()"
+      ],
+      "testMethod": "updateEntity_ShouldUpdateExistingEntity",
+      "id": "CustomerMapperTest.updateEntity_ShouldUpdateExistingEntity",
+      "description": "Update Entity  Should Update Existing Entity",
+      "mocksDependencies": false,
+      "service": "customer-service",
+      "language": "java",
+      "framework": "junit",
+      "orphanCategory": {
+        "type": "technical",
+        "subtype": "Mapper Test",
+        "priority": "P3",
+        "actionRequired": "none",
+        "reason": "Data mapping/transformation logic - technical layer"
       }
     },
     {
@@ -2833,101 +2849,38 @@
       "status": "Active"
     }
   ],
+  "orphanAPIs": [
+    {
+      "endpoint": "/v1/customers/{id}",
+      "method": "GET",
+      "controller": "CustomerController.java",
+      "lineNumber": 87,
+      "serviceName": "customer-service",
+      "hasScenario": false,
+      "hasTest": false
+    },
+    {
+      "endpoint": "/v1/customers/{id}",
+      "method": "PUT",
+      "controller": "CustomerController.java",
+      "lineNumber": 112,
+      "serviceName": "customer-service",
+      "hasScenario": false,
+      "hasTest": false
+    },
+    {
+      "endpoint": "/v1/customers/{id}",
+      "method": "DELETE",
+      "controller": "CustomerController.java",
+      "lineNumber": 142,
+      "serviceName": "customer-service",
+      "hasScenario": false,
+      "hasTest": false
+    }
+  ],
   "orphanAnalysis": {
     "totalOrphans": 41,
     "technicalTests": [
-      {
-        "file": "CustomerMapperTest.java",
-        "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/mapper/CustomerMapperTest.java",
-        "suite": "CustomerMapperTest",
-        "lineNumber": 23,
-        "tags": [],
-        "assertions": [
-          "assertThat(customer)",
-          "assertThat(customer.getFirstName()",
-          "assertThat(customer.getLastName()",
-          "assertThat(customer.getAge()",
-          "assertThat(customer.getAddress()",
-          "assertThat(customer.getId()",
-          "assertThat(customer.getCreatedAt()",
-          "assertThat(customer.getUpdatedAt()"
-        ],
-        "testMethod": "toEntity_ShouldMapRequestToEntity",
-        "id": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
-        "description": "To Entity  Should Map Request To Entity",
-        "mocksDependencies": false,
-        "service": "customer-service",
-        "language": "java",
-        "framework": "junit",
-        "orphanCategory": {
-          "type": "technical",
-          "subtype": "Mapper Test",
-          "priority": "P3",
-          "actionRequired": "none",
-          "reason": "Data mapping/transformation logic - technical layer"
-        }
-      },
-      {
-        "file": "CustomerMapperTest.java",
-        "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/mapper/CustomerMapperTest.java",
-        "suite": "CustomerMapperTest",
-        "lineNumber": 47,
-        "tags": [],
-        "assertions": [
-          "assertThat(response)",
-          "assertThat(response.getId()",
-          "assertThat(response.getFirstName()",
-          "assertThat(response.getLastName()",
-          "assertThat(response.getAge()",
-          "assertThat(response.getAddress()",
-          "assertThat(response.getCreatedAt()",
-          "assertThat(response.getUpdatedAt()"
-        ],
-        "testMethod": "toResponse_ShouldMapEntityToResponse",
-        "id": "CustomerMapperTest.toResponse_ShouldMapEntityToResponse",
-        "description": "To Response  Should Map Entity To Response",
-        "mocksDependencies": false,
-        "service": "customer-service",
-        "language": "java",
-        "framework": "junit",
-        "orphanCategory": {
-          "type": "technical",
-          "subtype": "Mapper Test",
-          "priority": "P3",
-          "actionRequired": "none",
-          "reason": "Data mapping/transformation logic - technical layer"
-        }
-      },
-      {
-        "file": "CustomerMapperTest.java",
-        "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/mapper/CustomerMapperTest.java",
-        "suite": "CustomerMapperTest",
-        "lineNumber": 75,
-        "tags": [],
-        "assertions": [
-          "assertThat(existingCustomer.getId()",
-          "assertThat(existingCustomer.getFirstName()",
-          "assertThat(existingCustomer.getLastName()",
-          "assertThat(existingCustomer.getAge()",
-          "assertThat(existingCustomer.getAddress()",
-          "assertThat(existingCustomer.getCreatedAt()",
-          "assertThat(existingCustomer.getUpdatedAt()"
-        ],
-        "testMethod": "updateEntity_ShouldUpdateExistingEntity",
-        "id": "CustomerMapperTest.updateEntity_ShouldUpdateExistingEntity",
-        "description": "Update Entity  Should Update Existing Entity",
-        "mocksDependencies": false,
-        "service": "customer-service",
-        "language": "java",
-        "framework": "junit",
-        "orphanCategory": {
-          "type": "technical",
-          "subtype": "Mapper Test",
-          "priority": "P3",
-          "actionRequired": "none",
-          "reason": "Data mapping/transformation logic - technical layer"
-        }
-      },
       {
         "file": "CustomerTest.java",
         "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/model/CustomerTest.java",
@@ -3037,6 +2990,98 @@
           "priority": "P3",
           "actionRequired": "none",
           "reason": "POJO/Entity infrastructure test - no scenario needed"
+        }
+      },
+      {
+        "file": "CustomerMapperTest.java",
+        "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/mapper/CustomerMapperTest.java",
+        "suite": "CustomerMapperTest",
+        "lineNumber": 23,
+        "tags": [],
+        "assertions": [
+          "assertThat(customer)",
+          "assertThat(customer.getFirstName()",
+          "assertThat(customer.getLastName()",
+          "assertThat(customer.getAge()",
+          "assertThat(customer.getAddress()",
+          "assertThat(customer.getId()",
+          "assertThat(customer.getCreatedAt()",
+          "assertThat(customer.getUpdatedAt()"
+        ],
+        "testMethod": "toEntity_ShouldMapRequestToEntity",
+        "id": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
+        "description": "To Entity  Should Map Request To Entity",
+        "mocksDependencies": false,
+        "service": "customer-service",
+        "language": "java",
+        "framework": "junit",
+        "orphanCategory": {
+          "type": "technical",
+          "subtype": "Mapper Test",
+          "priority": "P3",
+          "actionRequired": "none",
+          "reason": "Data mapping/transformation logic - technical layer"
+        }
+      },
+      {
+        "file": "CustomerMapperTest.java",
+        "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/mapper/CustomerMapperTest.java",
+        "suite": "CustomerMapperTest",
+        "lineNumber": 47,
+        "tags": [],
+        "assertions": [
+          "assertThat(response)",
+          "assertThat(response.getId()",
+          "assertThat(response.getFirstName()",
+          "assertThat(response.getLastName()",
+          "assertThat(response.getAge()",
+          "assertThat(response.getAddress()",
+          "assertThat(response.getCreatedAt()",
+          "assertThat(response.getUpdatedAt()"
+        ],
+        "testMethod": "toResponse_ShouldMapEntityToResponse",
+        "id": "CustomerMapperTest.toResponse_ShouldMapEntityToResponse",
+        "description": "To Response  Should Map Entity To Response",
+        "mocksDependencies": false,
+        "service": "customer-service",
+        "language": "java",
+        "framework": "junit",
+        "orphanCategory": {
+          "type": "technical",
+          "subtype": "Mapper Test",
+          "priority": "P3",
+          "actionRequired": "none",
+          "reason": "Data mapping/transformation logic - technical layer"
+        }
+      },
+      {
+        "file": "CustomerMapperTest.java",
+        "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/mapper/CustomerMapperTest.java",
+        "suite": "CustomerMapperTest",
+        "lineNumber": 75,
+        "tags": [],
+        "assertions": [
+          "assertThat(existingCustomer.getId()",
+          "assertThat(existingCustomer.getFirstName()",
+          "assertThat(existingCustomer.getLastName()",
+          "assertThat(existingCustomer.getAge()",
+          "assertThat(existingCustomer.getAddress()",
+          "assertThat(existingCustomer.getCreatedAt()",
+          "assertThat(existingCustomer.getUpdatedAt()"
+        ],
+        "testMethod": "updateEntity_ShouldUpdateExistingEntity",
+        "id": "CustomerMapperTest.updateEntity_ShouldUpdateExistingEntity",
+        "description": "Update Entity  Should Update Existing Entity",
+        "mocksDependencies": false,
+        "service": "customer-service",
+        "language": "java",
+        "framework": "junit",
+        "orphanCategory": {
+          "type": "technical",
+          "subtype": "Mapper Test",
+          "priority": "P3",
+          "actionRequired": "none",
+          "reason": "Data mapping/transformation logic - technical layer"
         }
       },
       {
@@ -5145,7 +5190,7 @@
         }
       ],
       "affectedTests": [],
-      "detectedAt": "2025-12-08T22:09:33.540Z",
+      "detectedAt": "2025-12-09T00:13:36.442Z",
       "impact": "Scenario exists but no tests or API implementation found - May indicate removed feature",
       "recommendations": [
         "Verify if API was intentionally removed",
@@ -5201,7 +5246,7 @@
         }
       ],
       "affectedTests": [],
-      "detectedAt": "2025-12-08T22:09:33.540Z",
+      "detectedAt": "2025-12-09T00:13:36.442Z",
       "impact": "Scenario exists but no tests or API implementation found - May indicate removed feature",
       "recommendations": [
         "Verify if API was intentionally removed",
@@ -5212,6 +5257,17 @@
   ],
   "errors": [],
   "warnings": [
+    {
+      "type": "orphan_api",
+      "message": "🚨 Found 3 API(s) without scenarios or tests: GET /v1/customers/{id}, PUT /v1/customers/{id}, DELETE /v1/customers/{id}",
+      "severity": "Critical",
+      "recommendations": [
+        "Create scenarios for discovered APIs",
+        "Add unit tests to cover API functionality",
+        "APIs without coverage are untracked and risky",
+        "Developer action required: Add tests before merging"
+      ]
+    },
     {
       "type": "orphan_test",
       "message": "Found 41 test(s) not mapped to any scenario",
@@ -5713,6 +5769,117 @@
     ],
     "tests": [
       {
+        "file": "CustomerTest.java",
+        "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/model/CustomerTest.java",
+        "suite": "CustomerTest",
+        "lineNumber": 11,
+        "tags": [],
+        "assertions": [
+          "assertThat(customer.getId()",
+          "assertThat(customer.getFirstName()",
+          "assertThat(customer.getLastName()",
+          "assertThat(customer.getAge()",
+          "assertThat(customer.getAddress()",
+          "assertThat(customer.getCreatedAt()",
+          "assertThat(customer.getUpdatedAt()"
+        ],
+        "testMethod": "builder_ShouldCreateCustomerWithAllFields",
+        "id": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
+        "description": "Builder  Should Create Customer With All Fields",
+        "mocksDependencies": false,
+        "service": "customer-service",
+        "language": "java",
+        "framework": "junit",
+        "orphanCategory": {
+          "type": "technical",
+          "subtype": "Entity/Model Test",
+          "priority": "P3",
+          "actionRequired": "none",
+          "reason": "POJO/Entity infrastructure test - no scenario needed"
+        }
+      },
+      {
+        "file": "CustomerTest.java",
+        "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/model/CustomerTest.java",
+        "suite": "CustomerTest",
+        "lineNumber": 37,
+        "tags": [],
+        "assertions": [
+          "assertThat(customer.getId()",
+          "assertThat(customer.getFirstName()",
+          "assertThat(customer.getLastName()",
+          "assertThat(customer.getAge()",
+          "assertThat(customer.getAddress()",
+          "assertThat(customer.getCreatedAt()",
+          "assertThat(customer.getUpdatedAt()"
+        ],
+        "testMethod": "settersAndGetters_ShouldWorkCorrectly",
+        "id": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
+        "description": "Setters And Getters  Should Work Correctly",
+        "mocksDependencies": false,
+        "service": "customer-service",
+        "language": "java",
+        "framework": "junit",
+        "orphanCategory": {
+          "type": "technical",
+          "subtype": "Entity/Model Test",
+          "priority": "P3",
+          "actionRequired": "none",
+          "reason": "POJO/Entity infrastructure test - no scenario needed"
+        }
+      },
+      {
+        "file": "CustomerTest.java",
+        "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/model/CustomerTest.java",
+        "suite": "CustomerTest",
+        "lineNumber": 62,
+        "tags": [],
+        "assertions": [
+          "assertThat(customer1)",
+          "assertThat(customer1.hashCode()"
+        ],
+        "testMethod": "equals_ShouldReturnTrue_WhenCustomersAreEqual",
+        "id": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
+        "description": "Equals  Should Return True  When Customers Are Equal",
+        "mocksDependencies": false,
+        "service": "customer-service",
+        "language": "java",
+        "framework": "junit",
+        "orphanCategory": {
+          "type": "technical",
+          "subtype": "Entity/Model Test",
+          "priority": "P3",
+          "actionRequired": "none",
+          "reason": "POJO/Entity infrastructure test - no scenario needed"
+        }
+      },
+      {
+        "file": "CustomerTest.java",
+        "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/model/CustomerTest.java",
+        "suite": "CustomerTest",
+        "lineNumber": 91,
+        "tags": [],
+        "assertions": [
+          "assertThat(result)",
+          "assertThat(result)",
+          "assertThat(result)"
+        ],
+        "testMethod": "toString_ShouldReturnStringRepresentation",
+        "id": "CustomerTest.toString_ShouldReturnStringRepresentation",
+        "description": "To String  Should Return String Representation",
+        "mocksDependencies": false,
+        "service": "customer-service",
+        "language": "java",
+        "framework": "junit",
+        "orphanCategory": {
+          "type": "technical",
+          "subtype": "Entity/Model Test",
+          "priority": "P3",
+          "actionRequired": "none",
+          "reason": "POJO/Entity infrastructure test - no scenario needed"
+        }
+      },
+      {
         "file": "CustomerMapperTest.java",
         "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/mapper/CustomerMapperTest.java",
         "suite": "CustomerMapperTest",
@@ -5857,117 +6024,6 @@
         "service": "customer-service",
         "language": "java",
         "framework": "junit"
-      },
-      {
-        "file": "CustomerTest.java",
-        "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/model/CustomerTest.java",
-        "suite": "CustomerTest",
-        "lineNumber": 11,
-        "tags": [],
-        "assertions": [
-          "assertThat(customer.getId()",
-          "assertThat(customer.getFirstName()",
-          "assertThat(customer.getLastName()",
-          "assertThat(customer.getAge()",
-          "assertThat(customer.getAddress()",
-          "assertThat(customer.getCreatedAt()",
-          "assertThat(customer.getUpdatedAt()"
-        ],
-        "testMethod": "builder_ShouldCreateCustomerWithAllFields",
-        "id": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
-        "description": "Builder  Should Create Customer With All Fields",
-        "mocksDependencies": false,
-        "service": "customer-service",
-        "language": "java",
-        "framework": "junit",
-        "orphanCategory": {
-          "type": "technical",
-          "subtype": "Entity/Model Test",
-          "priority": "P3",
-          "actionRequired": "none",
-          "reason": "POJO/Entity infrastructure test - no scenario needed"
-        }
-      },
-      {
-        "file": "CustomerTest.java",
-        "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/model/CustomerTest.java",
-        "suite": "CustomerTest",
-        "lineNumber": 37,
-        "tags": [],
-        "assertions": [
-          "assertThat(customer.getId()",
-          "assertThat(customer.getFirstName()",
-          "assertThat(customer.getLastName()",
-          "assertThat(customer.getAge()",
-          "assertThat(customer.getAddress()",
-          "assertThat(customer.getCreatedAt()",
-          "assertThat(customer.getUpdatedAt()"
-        ],
-        "testMethod": "settersAndGetters_ShouldWorkCorrectly",
-        "id": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
-        "description": "Setters And Getters  Should Work Correctly",
-        "mocksDependencies": false,
-        "service": "customer-service",
-        "language": "java",
-        "framework": "junit",
-        "orphanCategory": {
-          "type": "technical",
-          "subtype": "Entity/Model Test",
-          "priority": "P3",
-          "actionRequired": "none",
-          "reason": "POJO/Entity infrastructure test - no scenario needed"
-        }
-      },
-      {
-        "file": "CustomerTest.java",
-        "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/model/CustomerTest.java",
-        "suite": "CustomerTest",
-        "lineNumber": 62,
-        "tags": [],
-        "assertions": [
-          "assertThat(customer1)",
-          "assertThat(customer1.hashCode()"
-        ],
-        "testMethod": "equals_ShouldReturnTrue_WhenCustomersAreEqual",
-        "id": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
-        "description": "Equals  Should Return True  When Customers Are Equal",
-        "mocksDependencies": false,
-        "service": "customer-service",
-        "language": "java",
-        "framework": "junit",
-        "orphanCategory": {
-          "type": "technical",
-          "subtype": "Entity/Model Test",
-          "priority": "P3",
-          "actionRequired": "none",
-          "reason": "POJO/Entity infrastructure test - no scenario needed"
-        }
-      },
-      {
-        "file": "CustomerTest.java",
-        "filePath": "services/customer-service/src/test/java/com/pulse/customerservice/model/CustomerTest.java",
-        "suite": "CustomerTest",
-        "lineNumber": 91,
-        "tags": [],
-        "assertions": [
-          "assertThat(result)",
-          "assertThat(result)",
-          "assertThat(result)"
-        ],
-        "testMethod": "toString_ShouldReturnStringRepresentation",
-        "id": "CustomerTest.toString_ShouldReturnStringRepresentation",
-        "description": "To String  Should Return String Representation",
-        "mocksDependencies": false,
-        "service": "customer-service",
-        "language": "java",
-        "framework": "junit",
-        "orphanCategory": {
-          "type": "technical",
-          "subtype": "Entity/Model Test",
-          "priority": "P3",
-          "actionRequired": "none",
-          "reason": "POJO/Entity infrastructure test - no scenario needed"
-        }
       },
       {
         "file": "GlobalExceptionHandlerTest.java",
@@ -7119,822 +7175,850 @@
         "CUST-001",
         {
           "scenarioId": "CUST-001",
-          "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-001",
-          "testId": "CustomerMapperTest.toResponse_ShouldMapEntityToResponse",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-001",
-          "testId": "CustomerMapperTest.updateEntity_ShouldUpdateExistingEntity",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-001",
-          "testId": "CustomerMapperTest.toEntity_ShouldHandleNullRequest",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-001",
-          "testId": "CustomerMapperTest.toResponse_ShouldHandleNullEntity",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-001",
-          "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-001",
           "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-001",
+          "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-001",
+          "testId": "CustomerMapperTest.toResponse_ShouldMapEntityToResponse",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-001",
+          "testId": "CustomerMapperTest.updateEntity_ShouldUpdateExistingEntity",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-001",
+          "testId": "CustomerMapperTest.toEntity_ShouldHandleNullRequest",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-001",
+          "testId": "CustomerMapperTest.toResponse_ShouldHandleNullEntity",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-001",
+          "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "GlobalExceptionHandlerTest.handleCustomerNotFoundException_ShouldReturnNotFoundResponse",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "GlobalExceptionHandlerTest.handleValidationExceptions_ShouldReturnBadRequestWithValidationErrors",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "GlobalExceptionHandlerTest.handleGenericException_ShouldReturnInternalServerErrorResponse",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "GlobalExceptionHandlerTest.errorResponse_ShouldBuildCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "GlobalExceptionHandlerTest.errorResponse_SettersAndGetters_ShouldWork",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "GlobalExceptionHandlerTest.errorResponse_ToString_ShouldContainFields",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "GlobalExceptionHandlerTest.errorResponse_Equals_ShouldWork",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "GlobalExceptionHandlerTest.errorResponse_AllArgsConstructor_ShouldWork",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerNotFoundExceptionTest.constructor_ShouldCreateExceptionWithMessage",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerNotFoundExceptionTest.constructor_ShouldCreateExceptionWithNullMessage",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerNotFoundExceptionTest.constructor_ShouldCreateExceptionWithEmptyMessage",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerResponseTest.builder_ShouldCreateValidCustomerResponse",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerResponseTest.settersAndGetters_ShouldWorkCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerResponseTest.equals_ShouldReturnTrue_WhenResponsesAreEqual",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerResponseTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerRequestTest.builder_ShouldCreateValidCustomerRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerRequestTest.validation_ShouldPass_WhenAllFieldsAreValid",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenFirstNameIsBlank",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenFirstNameIsTooShort",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAgeIsNull",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAgeTooYoung",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAgeTooOld",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAddressIsTooShort",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerRequestTest.settersAndGetters_ShouldWorkCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnCreated_WhenValidRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnBadRequest_WhenFirstNameIsBlank",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnBadRequest_WhenAgeIsNull",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnBadRequest_WhenAgeTooYoung",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerControllerTest.getCustomers_ShouldReturnAllCustomers_WhenNoAgeFilterProvided",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerControllerTest.getCustomers_ShouldReturnFilteredCustomers_WhenAgeFilterProvided",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerControllerTest.getCustomerById_ShouldReturnCustomer_WhenCustomerExists",
           "mapped": true,
           "matchScore": 1,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerControllerTest.getCustomerById_ShouldReturnNotFound_WhenCustomerDoesNotExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerControllerTest.updateCustomer_ShouldReturnUpdatedCustomer_WhenValidRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerControllerTest.updateCustomer_ShouldReturnNotFound_WhenCustomerDoesNotExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerControllerTest.updateCustomer_ShouldReturnBadRequest_WhenInvalidData",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerControllerTest.deleteCustomer_ShouldReturnNoContent_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerControllerTest.deleteCustomer_ShouldReturnNotFound_WhenCustomerDoesNotExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerServiceImplTest.createCustomer_ShouldReturnCustomerResponse_WhenValidRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerServiceImplTest.getAllCustomers_ShouldReturnListOfCustomers_WhenCustomersExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerServiceImplTest.getAllCustomers_ShouldReturnEmptyList_WhenNoCustomersExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerServiceImplTest.getCustomerById_ShouldReturnCustomerResponse_WhenCustomerExists",
           "mapped": true,
           "matchScore": 1,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerServiceImplTest.getCustomerById_ShouldThrowException_WhenCustomerNotFound",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerServiceImplTest.getCustomersByAge_ShouldReturnListOfCustomers_WhenCustomersWithAgeExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerServiceImplTest.getCustomersByAge_ShouldReturnEmptyList_WhenNoCustomersWithAgeExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerServiceImplTest.updateCustomer_ShouldReturnUpdatedCustomerResponse_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerServiceImplTest.updateCustomer_ShouldThrowException_WhenCustomerNotFound",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerServiceImplTest.deleteCustomer_ShouldDeleteCustomer_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-001",
           "testId": "CustomerServiceImplTest.deleteCustomer_ShouldThrowException_WhenCustomerNotFound",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         }
       ],
       [
         "CUST-002",
         {
           "scenarioId": "CUST-002",
-          "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-002",
-          "testId": "CustomerMapperTest.toResponse_ShouldMapEntityToResponse",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-002",
-          "testId": "CustomerMapperTest.updateEntity_ShouldUpdateExistingEntity",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-002",
-          "testId": "CustomerMapperTest.toEntity_ShouldHandleNullRequest",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-002",
-          "testId": "CustomerMapperTest.toResponse_ShouldHandleNullEntity",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-002",
-          "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-002",
           "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-002",
+          "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-002",
+          "testId": "CustomerMapperTest.toResponse_ShouldMapEntityToResponse",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-002",
+          "testId": "CustomerMapperTest.updateEntity_ShouldUpdateExistingEntity",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-002",
+          "testId": "CustomerMapperTest.toEntity_ShouldHandleNullRequest",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-002",
+          "testId": "CustomerMapperTest.toResponse_ShouldHandleNullEntity",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-002",
+          "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "GlobalExceptionHandlerTest.handleCustomerNotFoundException_ShouldReturnNotFoundResponse",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "GlobalExceptionHandlerTest.handleValidationExceptions_ShouldReturnBadRequestWithValidationErrors",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "GlobalExceptionHandlerTest.handleGenericException_ShouldReturnInternalServerErrorResponse",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "GlobalExceptionHandlerTest.errorResponse_ShouldBuildCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "GlobalExceptionHandlerTest.errorResponse_SettersAndGetters_ShouldWork",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "GlobalExceptionHandlerTest.errorResponse_ToString_ShouldContainFields",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "GlobalExceptionHandlerTest.errorResponse_Equals_ShouldWork",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "GlobalExceptionHandlerTest.errorResponse_AllArgsConstructor_ShouldWork",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerNotFoundExceptionTest.constructor_ShouldCreateExceptionWithMessage",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerNotFoundExceptionTest.constructor_ShouldCreateExceptionWithNullMessage",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerNotFoundExceptionTest.constructor_ShouldCreateExceptionWithEmptyMessage",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerResponseTest.builder_ShouldCreateValidCustomerResponse",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerResponseTest.settersAndGetters_ShouldWorkCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerResponseTest.equals_ShouldReturnTrue_WhenResponsesAreEqual",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerResponseTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerRequestTest.builder_ShouldCreateValidCustomerRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerRequestTest.validation_ShouldPass_WhenAllFieldsAreValid",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenFirstNameIsBlank",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenFirstNameIsTooShort",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAgeIsNull",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAgeTooYoung",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAgeTooOld",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAddressIsTooShort",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerRequestTest.settersAndGetters_ShouldWorkCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnCreated_WhenValidRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnBadRequest_WhenFirstNameIsBlank",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnBadRequest_WhenAgeIsNull",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnBadRequest_WhenAgeTooYoung",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerControllerTest.getCustomers_ShouldReturnAllCustomers_WhenNoAgeFilterProvided",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerControllerTest.getCustomers_ShouldReturnFilteredCustomers_WhenAgeFilterProvided",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerControllerTest.getCustomerById_ShouldReturnCustomer_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerControllerTest.getCustomerById_ShouldReturnNotFound_WhenCustomerDoesNotExist",
           "mapped": true,
           "matchScore": 1,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerControllerTest.updateCustomer_ShouldReturnUpdatedCustomer_WhenValidRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerControllerTest.updateCustomer_ShouldReturnNotFound_WhenCustomerDoesNotExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerControllerTest.updateCustomer_ShouldReturnBadRequest_WhenInvalidData",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerControllerTest.deleteCustomer_ShouldReturnNoContent_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerControllerTest.deleteCustomer_ShouldReturnNotFound_WhenCustomerDoesNotExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerServiceImplTest.createCustomer_ShouldReturnCustomerResponse_WhenValidRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerServiceImplTest.getAllCustomers_ShouldReturnListOfCustomers_WhenCustomersExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerServiceImplTest.getAllCustomers_ShouldReturnEmptyList_WhenNoCustomersExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerServiceImplTest.getCustomerById_ShouldReturnCustomerResponse_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerServiceImplTest.getCustomerById_ShouldThrowException_WhenCustomerNotFound",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerServiceImplTest.getCustomersByAge_ShouldReturnListOfCustomers_WhenCustomersWithAgeExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerServiceImplTest.getCustomersByAge_ShouldReturnEmptyList_WhenNoCustomersWithAgeExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerServiceImplTest.updateCustomer_ShouldReturnUpdatedCustomerResponse_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerServiceImplTest.updateCustomer_ShouldThrowException_WhenCustomerNotFound",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerServiceImplTest.deleteCustomer_ShouldDeleteCustomer_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-002",
           "testId": "CustomerServiceImplTest.deleteCustomer_ShouldThrowException_WhenCustomerNotFound",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         }
       ],
       [
         "CUST-003",
+        {
+          "scenarioId": "CUST-003",
+          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-003",
+          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-003",
+          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-003",
+          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
         {
           "scenarioId": "CUST-003",
           "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
@@ -7973,34 +8057,6 @@
         {
           "scenarioId": "CUST-003",
           "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-003",
-          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-003",
-          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-003",
-          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-003",
-          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
           "status": "Fully Covered"
@@ -8346,6 +8402,34 @@
         "CUST-004",
         {
           "scenarioId": "CUST-004",
+          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-004",
+          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-004",
+          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-004",
+          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-004",
           "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
           "mapped": false,
           "matchScore": 0,
@@ -8382,34 +8466,6 @@
         {
           "scenarioId": "CUST-004",
           "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-004",
-          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-004",
-          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-004",
-          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-004",
-          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
           "status": "Not Covered"
@@ -8755,413 +8811,441 @@
         "CUST-005",
         {
           "scenarioId": "CUST-005",
-          "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-005",
-          "testId": "CustomerMapperTest.toResponse_ShouldMapEntityToResponse",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-005",
-          "testId": "CustomerMapperTest.updateEntity_ShouldUpdateExistingEntity",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-005",
-          "testId": "CustomerMapperTest.toEntity_ShouldHandleNullRequest",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-005",
-          "testId": "CustomerMapperTest.toResponse_ShouldHandleNullEntity",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-005",
-          "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-005",
           "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-005",
+          "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-005",
+          "testId": "CustomerMapperTest.toResponse_ShouldMapEntityToResponse",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-005",
+          "testId": "CustomerMapperTest.updateEntity_ShouldUpdateExistingEntity",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-005",
+          "testId": "CustomerMapperTest.toEntity_ShouldHandleNullRequest",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-005",
+          "testId": "CustomerMapperTest.toResponse_ShouldHandleNullEntity",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-005",
+          "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "GlobalExceptionHandlerTest.handleCustomerNotFoundException_ShouldReturnNotFoundResponse",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "GlobalExceptionHandlerTest.handleValidationExceptions_ShouldReturnBadRequestWithValidationErrors",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "GlobalExceptionHandlerTest.handleGenericException_ShouldReturnInternalServerErrorResponse",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "GlobalExceptionHandlerTest.errorResponse_ShouldBuildCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "GlobalExceptionHandlerTest.errorResponse_SettersAndGetters_ShouldWork",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "GlobalExceptionHandlerTest.errorResponse_ToString_ShouldContainFields",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "GlobalExceptionHandlerTest.errorResponse_Equals_ShouldWork",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "GlobalExceptionHandlerTest.errorResponse_AllArgsConstructor_ShouldWork",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerNotFoundExceptionTest.constructor_ShouldCreateExceptionWithMessage",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerNotFoundExceptionTest.constructor_ShouldCreateExceptionWithNullMessage",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerNotFoundExceptionTest.constructor_ShouldCreateExceptionWithEmptyMessage",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerResponseTest.builder_ShouldCreateValidCustomerResponse",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerResponseTest.settersAndGetters_ShouldWorkCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerResponseTest.equals_ShouldReturnTrue_WhenResponsesAreEqual",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerResponseTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerRequestTest.builder_ShouldCreateValidCustomerRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerRequestTest.validation_ShouldPass_WhenAllFieldsAreValid",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenFirstNameIsBlank",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenFirstNameIsTooShort",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAgeIsNull",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAgeTooYoung",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAgeTooOld",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAddressIsTooShort",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerRequestTest.settersAndGetters_ShouldWorkCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnCreated_WhenValidRequest",
           "mapped": true,
           "matchScore": 1,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnBadRequest_WhenFirstNameIsBlank",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnBadRequest_WhenAgeIsNull",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnBadRequest_WhenAgeTooYoung",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerControllerTest.getCustomers_ShouldReturnAllCustomers_WhenNoAgeFilterProvided",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerControllerTest.getCustomers_ShouldReturnFilteredCustomers_WhenAgeFilterProvided",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerControllerTest.getCustomerById_ShouldReturnCustomer_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerControllerTest.getCustomerById_ShouldReturnNotFound_WhenCustomerDoesNotExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerControllerTest.updateCustomer_ShouldReturnUpdatedCustomer_WhenValidRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerControllerTest.updateCustomer_ShouldReturnNotFound_WhenCustomerDoesNotExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerControllerTest.updateCustomer_ShouldReturnBadRequest_WhenInvalidData",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerControllerTest.deleteCustomer_ShouldReturnNoContent_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerControllerTest.deleteCustomer_ShouldReturnNotFound_WhenCustomerDoesNotExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerServiceImplTest.createCustomer_ShouldReturnCustomerResponse_WhenValidRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerServiceImplTest.getAllCustomers_ShouldReturnListOfCustomers_WhenCustomersExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerServiceImplTest.getAllCustomers_ShouldReturnEmptyList_WhenNoCustomersExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerServiceImplTest.getCustomerById_ShouldReturnCustomerResponse_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerServiceImplTest.getCustomerById_ShouldThrowException_WhenCustomerNotFound",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerServiceImplTest.getCustomersByAge_ShouldReturnListOfCustomers_WhenCustomersWithAgeExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerServiceImplTest.getCustomersByAge_ShouldReturnEmptyList_WhenNoCustomersWithAgeExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerServiceImplTest.updateCustomer_ShouldReturnUpdatedCustomerResponse_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerServiceImplTest.updateCustomer_ShouldThrowException_WhenCustomerNotFound",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerServiceImplTest.deleteCustomer_ShouldDeleteCustomer_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-005",
           "testId": "CustomerServiceImplTest.deleteCustomer_ShouldThrowException_WhenCustomerNotFound",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         }
       ],
       [
         "CUST-006",
+        {
+          "scenarioId": "CUST-006",
+          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-006",
+          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-006",
+          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-006",
+          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
         {
           "scenarioId": "CUST-006",
           "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
@@ -9202,34 +9286,6 @@
           "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
           "mapped": true,
           "matchScore": 1,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-006",
-          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-006",
-          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-006",
-          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-006",
-          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
-          "mapped": false,
-          "matchScore": 0,
           "status": "Fully Covered"
         },
         {
@@ -9573,6 +9629,34 @@
         "CUST-007",
         {
           "scenarioId": "CUST-007",
+          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-007",
+          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-007",
+          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-007",
+          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-007",
           "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
           "mapped": false,
           "matchScore": 0,
@@ -9609,34 +9693,6 @@
         {
           "scenarioId": "CUST-007",
           "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-007",
-          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-007",
-          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-007",
-          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-007",
-          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
           "status": "Fully Covered"
@@ -9982,6 +10038,34 @@
         "CUST-008",
         {
           "scenarioId": "CUST-008",
+          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-008",
+          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-008",
+          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-008",
+          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-008",
           "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
           "mapped": false,
           "matchScore": 0,
@@ -10018,34 +10102,6 @@
         {
           "scenarioId": "CUST-008",
           "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-008",
-          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-008",
-          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-008",
-          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-008",
-          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
           "status": "Fully Covered"
@@ -10391,6 +10447,34 @@
         "CUST-009",
         {
           "scenarioId": "CUST-009",
+          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-009",
+          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-009",
+          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-009",
+          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-009",
           "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
           "mapped": false,
           "matchScore": 0,
@@ -10427,34 +10511,6 @@
         {
           "scenarioId": "CUST-009",
           "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-009",
-          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-009",
-          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-009",
-          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-009",
-          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
           "status": "Fully Covered"
@@ -10800,6 +10856,34 @@
         "CUST-010",
         {
           "scenarioId": "CUST-010",
+          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-010",
+          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-010",
+          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-010",
+          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Fully Covered"
+        },
+        {
+          "scenarioId": "CUST-010",
           "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
           "mapped": false,
           "matchScore": 0,
@@ -10836,34 +10920,6 @@
         {
           "scenarioId": "CUST-010",
           "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-010",
-          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-010",
-          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-010",
-          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-010",
-          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
           "status": "Fully Covered"
@@ -11209,413 +11265,441 @@
         "CUST-011",
         {
           "scenarioId": "CUST-011",
-          "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-011",
-          "testId": "CustomerMapperTest.toResponse_ShouldMapEntityToResponse",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-011",
-          "testId": "CustomerMapperTest.updateEntity_ShouldUpdateExistingEntity",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-011",
-          "testId": "CustomerMapperTest.toEntity_ShouldHandleNullRequest",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-011",
-          "testId": "CustomerMapperTest.toResponse_ShouldHandleNullEntity",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-011",
-          "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Fully Covered"
-        },
-        {
-          "scenarioId": "CUST-011",
           "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-011",
+          "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-011",
+          "testId": "CustomerMapperTest.toResponse_ShouldMapEntityToResponse",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-011",
+          "testId": "CustomerMapperTest.updateEntity_ShouldUpdateExistingEntity",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-011",
+          "testId": "CustomerMapperTest.toEntity_ShouldHandleNullRequest",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-011",
+          "testId": "CustomerMapperTest.toResponse_ShouldHandleNullEntity",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
+        },
+        {
+          "scenarioId": "CUST-011",
+          "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "GlobalExceptionHandlerTest.handleCustomerNotFoundException_ShouldReturnNotFoundResponse",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "GlobalExceptionHandlerTest.handleValidationExceptions_ShouldReturnBadRequestWithValidationErrors",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "GlobalExceptionHandlerTest.handleGenericException_ShouldReturnInternalServerErrorResponse",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "GlobalExceptionHandlerTest.errorResponse_ShouldBuildCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "GlobalExceptionHandlerTest.errorResponse_SettersAndGetters_ShouldWork",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "GlobalExceptionHandlerTest.errorResponse_ToString_ShouldContainFields",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "GlobalExceptionHandlerTest.errorResponse_Equals_ShouldWork",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "GlobalExceptionHandlerTest.errorResponse_AllArgsConstructor_ShouldWork",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerNotFoundExceptionTest.constructor_ShouldCreateExceptionWithMessage",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerNotFoundExceptionTest.constructor_ShouldCreateExceptionWithNullMessage",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerNotFoundExceptionTest.constructor_ShouldCreateExceptionWithEmptyMessage",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerResponseTest.builder_ShouldCreateValidCustomerResponse",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerResponseTest.settersAndGetters_ShouldWorkCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerResponseTest.equals_ShouldReturnTrue_WhenResponsesAreEqual",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerResponseTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerRequestTest.builder_ShouldCreateValidCustomerRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerRequestTest.validation_ShouldPass_WhenAllFieldsAreValid",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenFirstNameIsBlank",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenFirstNameIsTooShort",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAgeIsNull",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAgeTooYoung",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAgeTooOld",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerRequestTest.validation_ShouldFail_WhenAddressIsTooShort",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerRequestTest.settersAndGetters_ShouldWorkCorrectly",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnCreated_WhenValidRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnBadRequest_WhenFirstNameIsBlank",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnBadRequest_WhenAgeIsNull",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerControllerTest.createCustomer_ShouldReturnBadRequest_WhenAgeTooYoung",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerControllerTest.getCustomers_ShouldReturnAllCustomers_WhenNoAgeFilterProvided",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerControllerTest.getCustomers_ShouldReturnFilteredCustomers_WhenAgeFilterProvided",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerControllerTest.getCustomerById_ShouldReturnCustomer_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerControllerTest.getCustomerById_ShouldReturnNotFound_WhenCustomerDoesNotExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerControllerTest.updateCustomer_ShouldReturnUpdatedCustomer_WhenValidRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerControllerTest.updateCustomer_ShouldReturnNotFound_WhenCustomerDoesNotExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerControllerTest.updateCustomer_ShouldReturnBadRequest_WhenInvalidData",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerControllerTest.deleteCustomer_ShouldReturnNoContent_WhenCustomerExists",
           "mapped": true,
           "matchScore": 1,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerControllerTest.deleteCustomer_ShouldReturnNotFound_WhenCustomerDoesNotExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerServiceImplTest.createCustomer_ShouldReturnCustomerResponse_WhenValidRequest",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerServiceImplTest.getAllCustomers_ShouldReturnListOfCustomers_WhenCustomersExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerServiceImplTest.getAllCustomers_ShouldReturnEmptyList_WhenNoCustomersExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerServiceImplTest.getCustomerById_ShouldReturnCustomerResponse_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerServiceImplTest.getCustomerById_ShouldThrowException_WhenCustomerNotFound",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerServiceImplTest.getCustomersByAge_ShouldReturnListOfCustomers_WhenCustomersWithAgeExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerServiceImplTest.getCustomersByAge_ShouldReturnEmptyList_WhenNoCustomersWithAgeExist",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerServiceImplTest.updateCustomer_ShouldReturnUpdatedCustomerResponse_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerServiceImplTest.updateCustomer_ShouldThrowException_WhenCustomerNotFound",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerServiceImplTest.deleteCustomer_ShouldDeleteCustomer_WhenCustomerExists",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         },
         {
           "scenarioId": "CUST-011",
           "testId": "CustomerServiceImplTest.deleteCustomer_ShouldThrowException_WhenCustomerNotFound",
           "mapped": false,
           "matchScore": 0,
-          "status": "Fully Covered"
+          "status": "Partially Covered"
         }
       ],
       [
         "CUST-012",
+        {
+          "scenarioId": "CUST-012",
+          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-012",
+          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-012",
+          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-012",
+          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
         {
           "scenarioId": "CUST-012",
           "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
@@ -11654,34 +11738,6 @@
         {
           "scenarioId": "CUST-012",
           "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-012",
-          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-012",
-          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-012",
-          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-012",
-          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
           "status": "Not Covered"
@@ -12027,6 +12083,34 @@
         "CUST-013",
         {
           "scenarioId": "CUST-013",
+          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-013",
+          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-013",
+          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-013",
+          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-013",
           "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
           "mapped": false,
           "matchScore": 0,
@@ -12063,34 +12147,6 @@
         {
           "scenarioId": "CUST-013",
           "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-013",
-          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-013",
-          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-013",
-          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-013",
-          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
           "status": "Not Covered"
@@ -12436,6 +12492,34 @@
         "CUST-014",
         {
           "scenarioId": "CUST-014",
+          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-014",
+          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-014",
+          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-014",
+          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
+          "mapped": false,
+          "matchScore": 0,
+          "status": "Not Covered"
+        },
+        {
+          "scenarioId": "CUST-014",
           "testId": "CustomerMapperTest.toEntity_ShouldMapRequestToEntity",
           "mapped": false,
           "matchScore": 0,
@@ -12472,34 +12556,6 @@
         {
           "scenarioId": "CUST-014",
           "testId": "CustomerMapperTest.updateEntity_ShouldIgnoreNullValues",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-014",
-          "testId": "CustomerTest.builder_ShouldCreateCustomerWithAllFields",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-014",
-          "testId": "CustomerTest.settersAndGetters_ShouldWorkCorrectly",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-014",
-          "testId": "CustomerTest.equals_ShouldReturnTrue_WhenCustomersAreEqual",
-          "mapped": false,
-          "matchScore": 0,
-          "status": "Not Covered"
-        },
-        {
-          "scenarioId": "CUST-014",
-          "testId": "CustomerTest.toString_ShouldReturnStringRepresentation",
           "mapped": false,
           "matchScore": 0,
           "status": "Not Covered"
@@ -12844,16 +12900,16 @@
     ],
     "headers": [
       "Scenario ID",
-      "CustomerMapperTest.t",
-      "CustomerMapperTest.t",
-      "CustomerMapperTest.u",
-      "CustomerMapperTest.t",
-      "CustomerMapperTest.t",
-      "CustomerMapperTest.u",
       "CustomerTest.builder",
       "CustomerTest.setters",
       "CustomerTest.equals_",
       "CustomerTest.toStrin",
+      "CustomerMapperTest.t",
+      "CustomerMapperTest.t",
+      "CustomerMapperTest.u",
+      "CustomerMapperTest.t",
+      "CustomerMapperTest.t",
+      "CustomerMapperTest.u",
       "GlobalExceptionHandl",
       "GlobalExceptionHandl",
       "GlobalExceptionHandl",
@@ -12923,9 +12979,9 @@
       "totalCells": 812,
       "mappedCells": 18,
       "unmappedCells": 808,
-      "coveragePercent": 71,
-      "fullyCoveredScenarios": 10,
-      "partiallyCoveredScenarios": 0,
+      "coveragePercent": 43,
+      "fullyCoveredScenarios": 6,
+      "partiallyCoveredScenarios": 4,
       "uncoveredScenarios": 4
     }
   }

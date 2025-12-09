@@ -56,8 +56,12 @@ export class APIScanner {
   private findControllerFiles(dir: string): string[] {
     const files: string[] = [];
 
+    if (!fs.existsSync(dir)) {
+      return files;
+    }
+
     const entries = fs.readdirSync(dir, { withFileTypes: true });
-    
+
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
       
@@ -119,8 +123,8 @@ export class APIScanner {
             controller: path.basename(file),
             lineNumber: i + 1,
             serviceName,
-            hasScenario: false, // Will be updated during validation
-            hasTest: false      // Will be updated during validation
+            hasScenario: false,
+            hasTest: false
           });
         }
       }
@@ -130,7 +134,7 @@ export class APIScanner {
   }
 
   /**
-   * Check if an API has a corresponding scenario
+   * Mark an API as having a scenario
    */
   markAPIWithScenario(apis: DiscoveredAPI[], scenarioEndpoint: string): void {
     for (const api of apis) {
@@ -142,21 +146,33 @@ export class APIScanner {
   }
 
   /**
-   * Check if an API has a corresponding test
+   * Mark APIs as having tests by checking all test descriptions
    */
-  markAPIWithTest(apis: DiscoveredAPI[], testDescription: string): void {
+  markAPIsWithTests(apis: DiscoveredAPI[], tests: any[]): void {
     for (const api of apis) {
-      const endpoint = api.endpoint.toLowerCase().replace(/\//g, '').replace(/-/g, '');
-      const testDesc = testDescription.toLowerCase().replace(/\s/g, '').replace(/-/g, '');
+      const endpoint = api.endpoint.toLowerCase();
       
-      if (testDesc.includes(endpoint) || endpoint.includes(testDesc)) {
-        api.hasTest = true;
-      }
+      // Extract the last part of the endpoint (e.g., "register" from "/identity/register")
+      const endpointParts = endpoint.split('/').filter(p => p);
+      const endpointName = endpointParts[endpointParts.length - 1] || '';
+      
+      // Check if any test tests this specific API endpoint
+      const hasTest = tests.some(test => {
+        const testDesc = (test.description || '').toLowerCase();
+        const testFile = (test.file || '').toLowerCase();
+        
+        // Match by endpoint name in test description or file
+        // e.g., "testRegister" matches "register"
+        // or "testRegisterUser" matches "register"
+        return testDesc.includes(endpointName) || testFile.includes(endpointName);
+      });
+      
+      api.hasTest = hasTest;
     }
   }
 
   /**
-   * Get orphan APIs (APIs without scenarios or tests)
+   * Get orphan APIs (APIs without scenarios AND without tests)
    */
   getOrphanAPIs(apis: DiscoveredAPI[]): DiscoveredAPI[] {
     return apis.filter(api => !api.hasScenario && !api.hasTest);

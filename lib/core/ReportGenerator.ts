@@ -182,6 +182,68 @@ export class ReportGenerator {
 </div>
     ` : '';
 
+    // Generate orphan APIs section
+    const orphanAPIsSection = result.orphanAPIs && result.orphanAPIs.length > 0 ? `
+<div class="section">
+    <h2>
+        🚨 Orphan APIs (${result.orphanAPIs.length})
+        <span class="section-toggle" onclick="toggleSection('orphan-apis')">▼</span>
+    </h2>
+    <div class="section-content" id="orphan-apis-content">
+        <p style="margin-bottom: 15px; color: var(--text-secondary); background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444;">
+            <strong>⚠️ Critical:</strong> These APIs were discovered in controller files but have NO scenarios or tests. 
+            They are completely untracked and represent gaps in test coverage.
+        </p>
+        <table style="table-layout: fixed;">
+            <thead>
+                <tr>
+                    <th style="width: 12%; text-align: left;">Method</th>
+                    <th style="width: 35%; text-align: left;">Endpoint</th>
+                    <th style="width: 25%; text-align: left;">Controller</th>
+                    <th style="width: 8%; text-align: center;">Line</th>
+                    <th style="width: 10%; text-align: center;">Scenario</th>
+                    <th style="width: 10%; text-align: center;">Test</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${result.orphanAPIs.map(api => `
+                <tr style="background: rgba(239, 68, 68, 0.05);">
+                    <td style="vertical-align: middle;">
+                        <span style="padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; display: inline-block; white-space: nowrap;
+                                     ${api.method === 'POST' ? 'background: #10b981; color: white;' : 
+                                       api.method === 'GET' ? 'background: #3b82f6; color: white;' :
+                                       api.method === 'PUT' ? 'background: #f59e0b; color: white;' :
+                                       api.method === 'DELETE' ? 'background: #ef4444; color: white;' :
+                                       'background: #6b7280; color: white;'}">
+                            ${api.method}
+                        </span>
+                    </td>
+                    <td style="vertical-align: middle; word-break: break-all;"><code style="font-size: 0.9em;">${api.endpoint}</code></td>
+                    <td style="vertical-align: middle; word-break: break-word; font-size: 0.9em;">${api.controller}</td>
+                    <td style="text-align: center; vertical-align: middle;">${api.lineNumber}</td>
+                    <td style="text-align: center; vertical-align: middle;">
+                        <span style="font-size: 1.2em;">${api.hasScenario ? '✅' : '❌'}</span>
+                    </td>
+                    <td style="text-align: center; vertical-align: middle;">
+                        <span style="font-size: 1.2em;">${api.hasTest ? '✅' : '❌'}</span>
+                    </td>
+                </tr>
+                `).join('')}
+            </tbody>
+        </table>
+        <div style="margin-top: 20px; padding: 15px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; border-left: 4px solid #3b82f6;">
+            <h4 style="margin-bottom: 10px; color: var(--text-primary);">💡 Recommended Actions:</h4>
+            <ul style="margin-left: 20px; color: var(--text-secondary);">
+                <li>Create scenarios to document expected behavior for each API</li>
+                <li>Add unit tests to verify API functionality</li>
+                <li>If APIs are deprecated, remove them from code</li>
+                <li>Ensure all new APIs are created with tests</li>
+            </ul>
+        </div>
+    </div>
+</div>
+    ` : '';
+
     // Generate orphan tests section
     const orphanTestsSection = result.orphanTests.length > 0 ? `
 <div class="section">
@@ -299,6 +361,7 @@ export class ReportGenerator {
     // Replace section placeholders
     html = html
       .replace(/\{\{GAPS_SECTION\}\}/g, gapsSection)
+      .replace(/\{\{ORPHAN_APIS_SECTION\}\}/g, orphanAPIsSection)
       .replace(/\{\{ORPHAN_TESTS_SECTION\}\}/g, orphanTestsSection)
       .replace(/\{\{RECOMMENDATIONS_SECTION\}\}/g, recommendationsSection)
       .replace(/\{\{ERRORS_SECTION\}\}/g, errorsSection);

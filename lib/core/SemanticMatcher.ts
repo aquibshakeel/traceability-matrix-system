@@ -442,6 +442,23 @@ export class SemanticMatcher {
       return 'Not Covered';
     }
 
+    // NEW: Check against acceptance criteria count if available
+    if (scenario.acceptanceCriteria && scenario.acceptanceCriteria.length > 0) {
+      const criteriaCount = scenario.acceptanceCriteria.length;
+      const testCount = matchedTests.length;
+      
+      // Fully covered if we have at least as many tests as acceptance criteria
+      if (testCount >= criteriaCount) {
+        return 'Fully Covered';
+      }
+      
+      // Partially covered if we have some tests but not enough
+      if (testCount > 0 && testCount < criteriaCount) {
+        return 'Partially Covered';
+      }
+    }
+
+    // Fallback to confidence-based logic if no acceptance criteria
     // Fully covered if high confidence match exists
     if (matchedTests.some(m => m.confidence >= 0.9)) {
       return 'Fully Covered';
