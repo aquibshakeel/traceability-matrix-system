@@ -124,7 +124,35 @@ async function main() {
       console.log('📦 Detecting changed services...\n');
       const changedFiles = await getChangedFiles();
       console.log(`   Found ${changedFiles.length} changed file(s)\n`);
-      result = await validator.validateChangedServices(changedFiles);
+      
+      // Check if any scenario files changed
+      const changedScenarioFiles = changedFiles.filter(f => 
+        f.includes('.traceability/scenarios/')
+      );
+      
+      if (changedScenarioFiles.length > 0) {
+        console.log(`   ℹ️  Scenario file changes detected: ${changedScenarioFiles.length}`);
+        
+        // Extract service names from scenario filenames
+        const affectedServices = new Set();
+        changedScenarioFiles.forEach(file => {
+          // Extract service name from filename (e.g., customer-service.scenarios.yaml)
+          const filename = path.basename(file);
+          const match = filename.match(/^(.+?)\.scenarios\.(yaml|json|txt)$/);
+          if (match) {
+            affectedServices.add(match[1]);
+          }
+        });
+        
+        if (affectedServices.size > 0) {
+          console.log(`   🔄 Re-validating services due to scenario changes: ${Array.from(affectedServices).join(', ')}\n`);
+          result = await validator.validateByServiceNames(Array.from(affectedServices));
+        } else {
+          result = await validator.validateChangedServices(changedFiles);
+        }
+      } else {
+        result = await validator.validateChangedServices(changedFiles);
+      }
     } else {
       console.log('📦 Validating all enabled services\n');
       result = await validator.validateAll();

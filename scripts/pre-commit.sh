@@ -142,10 +142,25 @@ else
       exit 0
     fi
     
+    # Check for scenario file changes
+    SCENARIO_CHANGES=$(echo "$CHANGED_FILES" | grep ".traceability/scenarios/" || true)
+    SERVICE_CHANGES=$(echo "$CHANGED_FILES" | grep -v ".traceability/scenarios/" || true)
+    
     echo -e "${BLUE}📝 Changed files detected:${NC}"
-    echo "$CHANGED_FILES" | head -5
-    if [ $(echo "$CHANGED_FILES" | wc -l) -gt 5 ]; then
-      echo "   ... and $(( $(echo "$CHANGED_FILES" | wc -l) - 5 )) more"
+    if [ -n "$SCENARIO_CHANGES" ]; then
+      echo -e "${YELLOW}   Scenario files:${NC}"
+      echo "$SCENARIO_CHANGES" | while read file; do
+        echo "     - $file"
+      done
+    fi
+    if [ -n "$SERVICE_CHANGES" ]; then
+      if [ -n "$SCENARIO_CHANGES" ]; then
+        echo -e "${YELLOW}   Service files:${NC}"
+      fi
+      echo "$SERVICE_CHANGES" | head -3
+      if [ $(echo "$SERVICE_CHANGES" | wc -l) -gt 3 ]; then
+        echo "     ... and $(( $(echo "$SERVICE_CHANGES" | wc -l) - 3 )) more"
+      fi
     fi
     echo ""
     
