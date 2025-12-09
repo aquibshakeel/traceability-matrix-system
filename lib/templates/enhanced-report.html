@@ -931,10 +931,39 @@
                 if (window.trendChart && typeof window.trendChart.destroy === 'function') {
                     window.trendChart.destroy();
                 }
+                
+                // Smart date formatting based on time range
+                function formatTrendLabel(timestamp) {
+                    const date = new Date(timestamp);
+                    const now = new Date();
+                    const diffMs = now - date;
+                    const diffHours = diffMs / (1000 * 60 * 60);
+                    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+                    
+                    // If all snapshots are within 24 hours, show time only
+                    const oldestSnapshot = new Date(trendData.snapshots[0].timestamp);
+                    const newestSnapshot = new Date(trendData.snapshots[trendData.snapshots.length - 1].timestamp);
+                    const rangeHours = (newestSnapshot - oldestSnapshot) / (1000 * 60 * 60);
+                    const rangeDays = (newestSnapshot - oldestSnapshot) / (1000 * 60 * 60 * 24);
+                    
+                    if (rangeHours < 24) {
+                        // Same day - show time only
+                        return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                    } else if (rangeDays < 7) {
+                        // Within a week - show day + time
+                        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+                        const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                        return `${dayName} ${time}`;
+                    } else {
+                        // Beyond a week - show date only
+                        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    }
+                }
+                
                 window.trendChart = new Chart(trendCtx, {
                     type: 'line',
                     data: {
-                        labels: trendData.snapshots.map(s => new Date(s.timestamp).toLocaleDateString()),
+                        labels: trendData.snapshots.map(s => formatTrendLabel(s.timestamp)),
                         datasets: [{
                             label: 'Coverage %',
                             data: trendData.snapshots.map(s => s.coveragePercent),
@@ -951,6 +980,23 @@
                             legend: {
                                 display: true,
                                 labels: { color: textColor, font: { size: 12 } }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        const index = context[0].dataIndex;
+                                        const timestamp = trendData.snapshots[index].timestamp;
+                                        const date = new Date(timestamp);
+                                        return date.toLocaleString('en-US', { 
+                                            month: 'short', 
+                                            day: 'numeric', 
+                                            year: 'numeric',
+                                            hour: 'numeric', 
+                                            minute: '2-digit',
+                                            hour12: true 
+                                        });
+                                    }
+                                }
                             }
                         },
                         scales: {
