@@ -95,13 +95,13 @@
                         <th>When QA Uses It</th>
                     </tr>
                     <tr>
-                        <td><span class="badge badge-ai">Phase 1</span></td>
+                        <td><span class="badge badge-ai">Phase&nbsp;1</span></td>
                         <td><code>npm run generate</code></td>
                         <td>Generate AI test scenarios from APIs</td>
                         <td><strong>QA runs this separately</strong> to get AI suggestions for baseline</td>
                     </tr>
                     <tr>
-                        <td><span class="badge badge-success">Phase 2</span></td>
+                        <td><span class="badge badge-success">Phase&nbsp;2</span></td>
                         <td><code>npm run continue</code></td>
                         <td>Analyze test coverage against baseline</td>
                         <td>After developers write tests</td>
@@ -118,6 +118,62 @@
                 
                 <div class="success-box">
                     <strong>Pre-Commit Integration:</strong> Pre-commit automatically runs both phases together, but QA can still run Phase 1 separately whenever needed. This separation gives QA full control over baseline management!
+                </div>
+
+                <h3>How to Use Phase 1 (QA Independent Generation)</h3>
+                
+                <h4>Running Phase 1 Separately</h4>
+                <div class="code-block">
+# Set Claude API key (one time setup)
+export CLAUDE_API_KEY="sk-ant-your-key"
+
+# Run Phase 1 - Generate AI test scenarios
+npm run generate
+
+# Output location
+.traceability/test-cases/ai_cases/{service}-ai.yml
+                </div>
+
+                <h4>When QA Should Run Phase 1</h4>
+                <table>
+                    <tr>
+                        <th>Situation</th>
+                        <th>Action</th>
+                        <th>Benefit</th>
+                    </tr>
+                    <tr>
+                        <td>New APIs added</td>
+                        <td>Run <code>npm run generate</code></td>
+                        <td>Get AI suggestions for new endpoints</td>
+                    </tr>
+                    <tr>
+                        <td>Swagger updated</td>
+                        <td>Run <code>npm run generate</code></td>
+                        <td>Refresh scenarios based on latest API specs</td>
+                    </tr>
+                    <tr>
+                        <td>Sprint planning</td>
+                        <td>Run <code>npm run generate</code></td>
+                        <td>Use AI suggestions for test planning</td>
+                    </tr>
+                    <tr>
+                        <td>Baseline refresh needed</td>
+                        <td>Run <code>npm run generate</code></td>
+                        <td>Get new scenario ideas from AI</td>
+                    </tr>
+                </table>
+
+                <h4>Phase 1 QA Workflow</h4>
+                <ol>
+                    <li><strong>Run Generation:</strong> Execute <code>npm run generate</code></li>
+                    <li><strong>Review AI Output:</strong> Check <code>.traceability/test-cases/ai_cases/</code></li>
+                    <li><strong>Evaluate Scenarios:</strong> Decide which AI suggestions are valuable</li>
+                    <li><strong>Update Baseline:</strong> Add/modify scenarios in <code>baseline/{service}.yml</code></li>
+                    <li><strong>Commit Changes:</strong> Push updated baseline to git</li>
+                </ol>
+
+                <div class="info-box">
+                    <strong>💡 Key Point:</strong> Phase 1 is <strong>QA-driven</strong>. You control what goes into the baseline. AI provides suggestions, but you make the final decisions based on your domain knowledge and testing strategy!
                 </div>
             </section>
 
