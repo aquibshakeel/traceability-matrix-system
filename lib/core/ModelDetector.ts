@@ -80,13 +80,9 @@ export class ModelDetector {
       });
       return true;
     } catch (error: any) {
-      // If error is "not_found_error", model doesn't exist for this user
-      if (error?.error?.type === 'not_found_error') {
-        return false;
-      }
-      // Other errors (rate limit, etc.) mean model exists but call failed
-      // We'll assume it's available
-      return true;
+      // ANY error means model not available for this user
+      // Including 404, auth errors, rate limits, etc.
+      return false;
     }
   }
 

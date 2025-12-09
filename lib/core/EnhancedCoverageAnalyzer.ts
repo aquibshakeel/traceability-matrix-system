@@ -9,6 +9,7 @@ import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { TestParserFactory } from './TestParserFactory';
 import { ServiceConfig, UnitTest, OrphanTestCategory, Priority } from '../types';
+import { ModelDetector } from './ModelDetector';
 
 export interface APIScenario {
   api: string;
@@ -80,14 +81,23 @@ export interface AnalysisSummary {
 
 export class EnhancedCoverageAnalyzer {
   private client: Anthropic;
-  private model = 'claude-3-5-sonnet-20241022';
+  private model: string | null = null;
+  private modelDetector: ModelDetector;
   private testParser: TestParserFactory;
   private projectRoot: string;
 
   constructor(apiKey: string, projectRoot: string) {
     this.client = new Anthropic({ apiKey });
+    this.modelDetector = new ModelDetector(apiKey);
     this.testParser = new TestParserFactory();
     this.projectRoot = projectRoot;
+  }
+
+  private async getModel(): Promise<string> {
+    if (!this.model) {
+      this.model = await this.modelDetector.detectBestModel();
+    }
+    return this.model;
   }
 
   async analyze(service: ServiceConfig): Promise<CoverageAnalysis> {
@@ -260,8 +270,9 @@ Respond in JSON format:
 }`;
 
     try {
+      const model = await this.getModel();
       const response = await this.client.messages.create({
-        model: this.model,
+        model: model,
         max_tokens: 2000,
         temperature: 0.2,
         messages: [{ role: 'user', content: prompt }]
@@ -391,8 +402,9 @@ Respond in JSON:
 }`;
 
     try {
+      const model = await this.getModel();
       const response = await this.client.messages.create({
-        model: this.model,
+        model: model,
         max_tokens: 3000,
         temperature: 0.2,
         messages: [{ role: 'user', content: prompt }]
