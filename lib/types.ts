@@ -24,7 +24,7 @@ export interface ServiceConfig {
   testFramework: SupportedFramework;
   testDirectory: string;
   testPattern: string;
-  scenarioFile: string;
+  scenarioFile?: string;  // Optional - new system generates files dynamically
   scenarioFormat?: ScenarioFormat;
   requiresServiceRunning?: boolean;
   startCommand?: string;

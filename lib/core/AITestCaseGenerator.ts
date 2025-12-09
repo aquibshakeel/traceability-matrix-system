@@ -1,53 +1,29 @@
 /**
- * AI Test Case Generator
+ * AI Test Case Generator - Simple One-Liner Format
  * 
- * Uses Claude AI to generate comprehensive test cases from:
- * - Swagger/OpenAPI specifications
- * - Discovered APIs from code
- * - Service logic analysis
- * 
- * Manages two-folder architecture:
- * - baseline/ (QA-managed, ground truth)
- * - ai_cases/ (AI-generated, always regenerated)
+ * Generates test scenarios in simple format:
+ * - One-liner descriptions
+ * - Grouped by API
+ * - Categorized (happy_case, edge_case, error_case, security)
+ * - Marks which are in baseline (✅) vs new (🆕)
  */
 
 import Anthropic from '@anthropic-ai/sdk';
 import * as fs from 'fs';
 import * as path from 'path';
-import { SwaggerAPI } from './SwaggerParser';
-import { DiscoveredAPI } from './APIScanner';
+import * as yaml from 'js-yaml';
+import { SwaggerParser } from './SwaggerParser';
+import { APIScanner } from './APIScanner';
+import { ServiceManager } from './ServiceManager';
+import { ServiceConfig } from '../types';
 
-export interface GeneratedTestCase {
-  id: string;
-  description: string;
-  type: 'positive' | 'negative' | 'edge-case' | 'security' | 'performance';
-  priority: 'P0' | 'P1' | 'P2' | 'P3';
-  category: string;
-  steps: string[];
-  expectedResult: string;
-  testData?: any;
-  validations: string[];
-  tags: string[];
-}
-
-export interface TestCaseGenerationResult {
-  api: string;
-  method: string;
-  testCases: GeneratedTestCase[];
-  reasoning: string;
-  coverageAreas: string[];
-  suggestedNegativeCases: string[];
-}
-
-export interface DeltaAnalysis {
-  api: string;
-  method: string;
-  added: GeneratedTestCase[];
-  removed: GeneratedTestCase[];
-  modified: GeneratedTestCase[];
-  common: GeneratedTestCase[];
-  summary: string;
-  qaActions: string[];
+export interface SimpleScenarios {
+  [api: string]: {
+    happy_case?: string[];
+    edge_case?: string[];
+    error_case?: string[];
+    security?: string[];
+  };
 }
 
 export class AITestCaseGenerator {
@@ -55,530 +31,274 @@ export class AITestCaseGenerator {
   private model: string = 'claude-3-5-sonnet-20241022';
   private baselineDir: string;
   private aiCasesDir: string;
+  private serviceManager: ServiceManager;
 
   constructor(apiKey: string, projectRoot: string) {
     this.client = new Anthropic({ apiKey });
-    this.baselineDir = path.join(projectRoot, '.traceability', 'test-cases', 'baseline');
-    this.aiCasesDir = path.join(projectRoot, '.traceability', 'test-cases', 'ai_cases');
-
-    // Ensure directories exist
-    this.ensureDirectories();
-  }
-
-  /**
-   * Get API path (handles both SwaggerAPI and DiscoveredAPI)
-   */
-  private getAPIPath(api: SwaggerAPI | DiscoveredAPI): string {
-    return 'path' in api ? api.path : api.endpoint;
-  }
-
-  /**
-   * Ensure baseline and AI directories exist
-   */
-  private ensureDirectories(): void {
-    if (!fs.existsSync(this.baselineDir)) {
-      fs.mkdirSync(this.baselineDir, { recursive: true });
-    }
+    this.baselineDir = path.join(projectRoot, '.traceability/test-cases/baseline');
+    this.aiCasesDir = path.join(projectRoot, '.traceability/test-cases/ai_cases');
+    this.serviceManager = new ServiceManager();
+    
     if (!fs.existsSync(this.aiCasesDir)) {
       fs.mkdirSync(this.aiCasesDir, { recursive: true });
     }
   }
 
   /**
-   * Generate test cases for an API using AI
+   * Generate AI test cases for a service
    */
-  async generateTestCases(
-    api: SwaggerAPI | DiscoveredAPI,
-    serviceCode?: string
-  ): Promise<TestCaseGenerationResult> {
-    const prompt = this.buildGenerationPrompt(api, serviceCode);
-
-    const message = await this.client.messages.create({
-      model: this.model,
-      max_tokens: 4000,
-      temperature: 0.4,
-      messages: [{
-        role: 'user',
-        content: prompt
-      }]
+  async generate(service: ServiceConfig): Promise<void> {
+    console.log(`\n🤖 Generating AI test cases: ${service.name}`);
+    console.log('='.repeat(70));
+    
+    // 1. Spin service
+    await this.serviceManager.ensureServiceRunning({
+      name: service.name,
+      startCommand: service.startCommand,
+      stopCommand: service.stopCommand,
+      healthCheckUrl: service.healthCheckUrl,
+      healthCheckTimeout: service.healthCheckTimeout
     });
-
-    const responseText = message.content[0].type === 'text' 
-      ? message.content[0].text 
-      : '';
-
-    return this.parseGenerationResponse(responseText, api);
-  }
-
-  /**
-   * Build prompt for test case generation
-   */
-  private buildGenerationPrompt(
-    api: SwaggerAPI | DiscoveredAPI,
-    serviceCode?: string
-  ): string {
-    const isSwagger = 'operationId' in api;
-    const apiPath = this.getAPIPath(api);
-    const method = api.method;
-
-    return `You are an expert QA engineer specializing in comprehensive test case generation. Generate a complete set of test cases for the following API.
-
-**API DETAILS:**
-Method: ${method}
-Path: ${apiPath}
-${isSwagger ? `Operation ID: ${(api as SwaggerAPI).operationId || 'N/A'}` : ''}
-${isSwagger ? `Summary: ${(api as SwaggerAPI).summary || 'N/A'}` : ''}
-${isSwagger ? `Description: ${(api as SwaggerAPI).description || 'N/A'}` : ''}
-
-${isSwagger && (api as SwaggerAPI).parameters ? `
-**PARAMETERS:**
-${JSON.stringify((api as SwaggerAPI).parameters, null, 2)}
-` : ''}
-
-${isSwagger && (api as SwaggerAPI).requestBody ? `
-**REQUEST BODY:**
-${JSON.stringify((api as SwaggerAPI).requestBody, null, 2)}
-` : ''}
-
-${isSwagger && (api as SwaggerAPI).responses ? `
-**RESPONSES:**
-${JSON.stringify((api as SwaggerAPI).responses, null, 2)}
-` : ''}
-
-${serviceCode ? `
-**SERVICE CODE CONTEXT:**
-\`\`\`
-${serviceCode.substring(0, 2000)}
-\`\`\`
-` : ''}
-
-**TASK:**
-Generate a comprehensive set of test cases covering:
-
-1. **Positive Test Cases** (Happy Path)
-   - Valid inputs
-   - Successful operations
-   - Expected responses
-
-2. **Negative Test Cases** (Error Handling)
-   - Invalid inputs
-   - Missing required fields
-   - Invalid data types
-   - Boundary violations
-   - Authorization failures
-   - Business rule violations
-
-3. **Edge Cases**
-   - Boundary values
-   - Empty/null values
-   - Special characters
-   - Large datasets
-   - Concurrent requests
-
-4. **Security Test Cases**
-   - Authentication/Authorization
-   - Input validation
-   - SQL injection
-   - XSS attacks
-   - CSRF protection
-
-5. **Performance Test Cases** (if applicable)
-   - Response time
-   - Load handling
-   - Rate limiting
-
-Respond in the following JSON format:
-{
-  "testCases": [
-    {
-      "id": "TEST-001",
-      "description": "Clear description of what is being tested",
-      "type": "positive|negative|edge-case|security|performance",
-      "priority": "P0|P1|P2|P3",
-      "category": "validation|authentication|business-logic|etc",
-      "steps": ["Step 1", "Step 2", "Step 3"],
-      "expectedResult": "What should happen",
-      "testData": { "sample": "data" },
-      "validations": ["Check 1", "Check 2"],
-      "tags": ["tag1", "tag2"]
+    
+    // 2. Discover APIs
+    console.log(`\n📡 Discovering APIs...`);
+    const apis = await this.discoverAPIs(service);
+    console.log(`   ✓ Found ${apis.length} APIs`);
+    
+    // 3. Load baseline (read-only!)
+    const baseline = this.loadBaseline(service);
+    console.log(`   ✓ Baseline has ${this.countScenarios(baseline)} scenarios`);
+    
+    // 4. Generate AI scenarios
+    console.log(`\n🤖 AI generating scenarios...`);
+    const aiScenarios: SimpleScenarios = {};
+    
+    for (const api of apis) {
+      const apiKey = `${api.method} ${api.endpoint}`;
+      console.log(`   Processing: ${apiKey}`);
+      aiScenarios[apiKey] = await this.generateForAPI(api);
     }
-  ],
-  "reasoning": "Explanation of test case generation strategy",
-  "coverageAreas": ["Area 1", "Area 2"],
-  "suggestedNegativeCases": ["Additional negative case ideas"]
-}
-
-**IMPORTANT:**
-- Be comprehensive - generate AT LEAST 10-15 test cases
-- Include both positive and negative scenarios
-- Think about real-world usage patterns
-- Consider security implications
-- Include boundary value analysis
-- Think about error conditions
-
-Provide valid JSON only, no additional text.`;
+    
+    // 5. Mark which are in baseline
+    const marked = this.markBaseline(aiScenarios, baseline);
+    
+    // 6. Save
+    this.save(service, marked);
+    
+    console.log(`\n✅ Generation complete!`);
+    console.log('='.repeat(70));
   }
 
   /**
-   * Parse AI response into test cases
+   * Discover APIs
    */
-  private parseGenerationResponse(
-    responseText: string,
-    api: SwaggerAPI | DiscoveredAPI
-  ): TestCaseGenerationResult {
+  private async discoverAPIs(service: ServiceConfig): Promise<any[]> {
+    const apis: any[] = [];
+    
+    // Swagger
     try {
-      let jsonText = responseText.trim();
-      
-      // Remove markdown code blocks
-      if (jsonText.startsWith('```')) {
-        jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const swaggerFiles = SwaggerParser.findSwaggerFiles(service.path);
+      if (swaggerFiles.length > 0) {
+        const spec = SwaggerParser.parseFile(swaggerFiles[0]);
+        const swaggerAPIs = SwaggerParser.extractAPIs(spec);
+        apis.push(...swaggerAPIs.map(api => ({
+          method: api.method,
+          endpoint: api.path,
+          description: api.summary || api.description,
+          parameters: api.parameters,
+          requestBody: api.requestBody,
+          responses: api.responses
+        })));
       }
-
-      const parsed = JSON.parse(jsonText);
-
-      const apiPath = this.getAPIPath(api);
-      
-      return {
-        api: apiPath,
-        method: api.method,
-        testCases: parsed.testCases || [],
-        reasoning: parsed.reasoning || 'No reasoning provided',
-        coverageAreas: parsed.coverageAreas || [],
-        suggestedNegativeCases: parsed.suggestedNegativeCases || []
-      };
     } catch (error) {
-      console.error('Failed to parse AI response:', error);
-      return {
-        api: this.getAPIPath(api),
-        method: api.method,
-        testCases: [],
-        reasoning: 'Failed to generate test cases',
-        coverageAreas: [],
-        suggestedNegativeCases: []
-      };
+      console.warn(`   ⚠️  Swagger failed: ${error}`);
     }
-  }
-
-  /**
-   * Save AI-generated test cases to file
-   */
-  saveAIGeneratedCases(result: TestCaseGenerationResult): void {
-    const filename = this.generateFilename(result.api, result.method);
-    const filePath = path.join(this.aiCasesDir, filename);
-
-    const content = {
-      api: result.api,
-      method: result.method,
-      generatedAt: new Date().toISOString(),
-      testCases: result.testCases,
-      reasoning: result.reasoning,
-      coverageAreas: result.coverageAreas,
-      suggestedNegativeCases: result.suggestedNegativeCases,
-      metadata: {
-        totalCases: result.testCases.length,
-        positiveCases: result.testCases.filter(tc => tc.type === 'positive').length,
-        negativeCases: result.testCases.filter(tc => tc.type === 'negative').length,
-        edgeCases: result.testCases.filter(tc => tc.type === 'edge-case').length,
-        securityCases: result.testCases.filter(tc => tc.type === 'security').length
-      }
-    };
-
-    fs.writeFileSync(filePath, JSON.stringify(content, null, 2));
-    console.log(`  ✓ Saved AI cases: ${filename}`);
-  }
-
-  /**
-   * Load baseline test cases
-   */
-  loadBaselineCases(api: string, method: string): GeneratedTestCase[] {
-    const filename = this.generateFilename(api, method);
-    const filePath = path.join(this.baselineDir, filename);
-
-    if (!fs.existsSync(filePath)) {
-      return [];
-    }
-
+    
+    // Code scan
     try {
-      const content = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-      return content.testCases || [];
-    } catch (error) {
-      console.warn(`Failed to load baseline cases: ${error}`);
-      return [];
-    }
-  }
-
-  /**
-   * Perform delta analysis between baseline and AI-generated cases
-   */
-  performDeltaAnalysis(result: TestCaseGenerationResult): DeltaAnalysis {
-    const baselineCases = this.loadBaselineCases(result.api, result.method);
-    const aiCases = result.testCases;
-
-    const added: GeneratedTestCase[] = [];
-    const removed: GeneratedTestCase[] = [];
-    const modified: GeneratedTestCase[] = [];
-    const common: GeneratedTestCase[] = [];
-
-    // Find common and modified cases
-    for (const aiCase of aiCases) {
-      const baselineCase = baselineCases.find(bc => 
-        this.areSimilarTestCases(bc, aiCase)
-      );
-
-      if (baselineCase) {
-        if (this.areIdenticalTestCases(baselineCase, aiCase)) {
-          common.push(aiCase);
-        } else {
-          modified.push(aiCase);
+      const scanner = new APIScanner();
+      const scanned = await scanner.scanAPIs(service);
+      scanned.forEach(api => {
+        if (!apis.find(a => a.method === api.method && a.endpoint === api.endpoint)) {
+          apis.push(api);
         }
-      } else {
-        added.push(aiCase);
-      }
+      });
+    } catch (error) {
+      console.warn(`   ⚠️  Code scan failed: ${error}`);
     }
-
-    // Find removed cases
-    for (const baselineCase of baselineCases) {
-      const exists = aiCases.some(ac => 
-        this.areSimilarTestCases(ac, baselineCase)
-      );
-      if (!exists) {
-        removed.push(baselineCase);
-      }
-    }
-
-    // Generate QA actions
-    const qaActions = this.generateQAActions(added, removed, modified, common);
-
-    // Generate summary
-    const summary = this.generateDeltaSummary(added, removed, modified, common);
-
-    return {
-      api: result.api,
-      method: result.method,
-      added,
-      removed,
-      modified,
-      common,
-      summary,
-      qaActions
-    };
+    
+    return apis;
   }
 
   /**
-   * Check if two test cases are similar (same intent)
+   * Generate scenarios for one API
    */
-  private areSimilarTestCases(tc1: GeneratedTestCase, tc2: GeneratedTestCase): boolean {
-    // Compare descriptions (fuzzy match)
-    const desc1 = tc1.description.toLowerCase();
-    const desc2 = tc2.description.toLowerCase();
+  private async generateForAPI(api: any): Promise<any> {
+    const prompt = `Generate test scenarios for this API in simple one-liner format.
+
+**API:** ${api.method} ${api.endpoint}
+**Description:** ${api.description || 'N/A'}
+**Parameters:** ${JSON.stringify(api.parameters || [])}
+**Request Body:** ${JSON.stringify(api.requestBody || {})}
+**Responses:** ${JSON.stringify(api.responses || {})}
+
+Generate simple one-liner test scenarios:
+
+1. **happy_case** - Valid inputs, success responses
+2. **edge_case** - Boundaries, special chars, empty/null, long inputs  
+3. **error_case** - 400, 401, 403, 404, 409, 422, 500 errors
+4. **security** - SQL injection, XSS, auth bypass
+
+Format: "When [condition], [expected result]"
+
+Examples:
+- When customer created with valid data, return 201
+- When name has special characters, accept and store
+- When created with missing required fields, return 400
+- When name contains SQL injection, reject with 400
+
+Respond in JSON:
+{
+  "happy_case": ["one-liner 1", "one-liner 2"],
+  "edge_case": ["one-liner 1", "one-liner 2"],
+  "error_case": ["one-liner 1", "one-liner 2"],
+  "security": ["one-liner 1", "one-liner 2"]
+}`;
+
+    try {
+      const response = await this.client.messages.create({
+        model: this.model,
+        max_tokens: 2000,
+        temperature: 0.3,
+        messages: [{ role: 'user', content: prompt }]
+      });
+
+      const content = response.content[0].type === 'text' ? response.content[0].text : '';
+      return this.parseJSON(content);
+    } catch (error) {
+      console.error(`     ⚠️  Failed: ${error}`);
+      return {};
+    }
+  }
+
+  /**
+   * Mark which scenarios are in baseline
+   */
+  private markBaseline(aiScenarios: SimpleScenarios, baseline: any): any {
+    const marked: any = {};
     
-    if (desc1 === desc2) return true;
-    
-    // Check if one contains the other
-    if (desc1.includes(desc2) || desc2.includes(desc1)) return true;
-    
-    // Check category and type match
-    if (tc1.category === tc2.category && tc1.type === tc2.type) {
-      // Compare key words
-      const words1 = desc1.split(/\s+/);
-      const words2 = desc2.split(/\s+/);
-      const commonWords = words1.filter(w => words2.includes(w) && w.length > 3);
+    for (const [apiKey, categories] of Object.entries(aiScenarios)) {
+      marked[apiKey] = {};
       
-      if (commonWords.length >= 3) return true;
+      for (const [category, scenarios] of Object.entries(categories as any)) {
+        if (!scenarios || !Array.isArray(scenarios)) continue;
+        
+        marked[apiKey][category] = scenarios.map((scenario: string) => {
+          const inBaseline = this.isInBaseline(apiKey, scenario, baseline);
+          return inBaseline ? `${scenario}  ✅` : `${scenario}  🆕`;
+        });
+      }
+    }
+    
+    return marked;
+  }
+
+  /**
+   * Check if scenario is in baseline
+   */
+  private isInBaseline(apiKey: string, scenario: string, baseline: any): boolean {
+    if (!baseline || !baseline[apiKey]) return false;
+    
+    const baselineApi = baseline[apiKey];
+    for (const category of ['happy_case', 'edge_case', 'error_case', 'security']) {
+      const scenarios = baselineApi[category] || [];
+      for (const baselineScenario of scenarios) {
+        if (this.similar(scenario, baselineScenario)) {
+          return true;
+        }
+      }
     }
     
     return false;
   }
 
   /**
-   * Check if two test cases are identical
+   * Simple similarity check
    */
-  private areIdenticalTestCases(tc1: GeneratedTestCase, tc2: GeneratedTestCase): boolean {
-    return tc1.description === tc2.description &&
-           tc1.type === tc2.type &&
-           tc1.priority === tc2.priority &&
-           tc1.expectedResult === tc2.expectedResult;
+  private similar(a: string, b: string): boolean {
+    const wordsA = a.toLowerCase().split(/\s+/);
+    const wordsB = b.toLowerCase().split(/\s+/);
+    const common = wordsA.filter(w => wordsB.includes(w)).length;
+    return common >= 4; // At least 4 common words
   }
 
   /**
-   * Generate QA action items
+   * Load baseline (read-only)
    */
-  private generateQAActions(
-    added: GeneratedTestCase[],
-    removed: GeneratedTestCase[],
-    modified: GeneratedTestCase[],
-    common: GeneratedTestCase[]
-  ): string[] {
-    const actions: string[] = [];
+  private loadBaseline(service: ServiceConfig): any {
+    const filePath = path.join(this.baselineDir, `${service.name}-baseline.yml`);
+    
+    if (!fs.existsSync(filePath)) {
+      return null;
+    }
+    
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const data = yaml.load(content) as any;
+    
+    // Extract just the scenarios part (skip service metadata)
+    const { service: _, ...scenarios } = data;
+    return scenarios;
+  }
 
-    if (added.length > 0) {
-      actions.push(`🆕 Review ${added.length} NEW test case(s) - Add to baseline if relevant`);
-      const p0Added = added.filter(tc => tc.priority === 'P0');
-      if (p0Added.length > 0) {
-        actions.push(`   ⚠️  ${p0Added.length} P0 critical case(s) - HIGH PRIORITY REVIEW`);
+  /**
+   * Count total scenarios
+   */
+  private countScenarios(baseline: any): number {
+    if (!baseline) return 0;
+    
+    let count = 0;
+    for (const apiKey of Object.keys(baseline)) {
+      const api = baseline[apiKey];
+      for (const category of ['happy_case', 'edge_case', 'error_case', 'security']) {
+        count += (api[category] || []).length;
       }
     }
-
-    if (removed.length > 0) {
-      actions.push(`🗑️  ${removed.length} test case(s) no longer generated - Review if still needed`);
-    }
-
-    if (modified.length > 0) {
-      actions.push(`✏️  ${modified.length} test case(s) modified - Review changes and update baseline`);
-    }
-
-    if (common.length > 0) {
-      actions.push(`✅ ${common.length} test case(s) unchanged - No action needed`);
-    }
-
-    if (added.length === 0 && removed.length === 0 && modified.length === 0) {
-      actions.push(`✨ No changes detected - Baseline is up to date`);
-    }
-
-    return actions;
+    return count;
   }
 
   /**
-   * Generate delta summary
+   * Save AI cases
    */
-  private generateDeltaSummary(
-    added: GeneratedTestCase[],
-    removed: GeneratedTestCase[],
-    modified: GeneratedTestCase[],
-    common: GeneratedTestCase[]
-  ): string {
-    const total = added.length + removed.length + modified.length + common.length;
+  private save(service: ServiceConfig, scenarios: any): void {
+    const filePath = path.join(this.aiCasesDir, `${service.name}-ai.yml`);
     
-    return `Total: ${total} | Added: ${added.length} | Removed: ${removed.length} | Modified: ${modified.length} | Common: ${common.length}`;
-  }
-
-  /**
-   * Generate filename for test cases
-   */
-  private generateFilename(api: string, method: string): string {
-    const sanitized = api
-      .replace(/^\/+/, '')
-      .replace(/\/+$/, '')
-      .replace(/\//g, '_')
-      .replace(/[{}]/g, '')
-      .replace(/:/g, '-');
-    
-    return `${method.toLowerCase()}_${sanitized}.json`;
-  }
-
-  /**
-   * Generate delta report
-   */
-  generateDeltaReport(delta: DeltaAnalysis): string {
-    let report = `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 TEST CASE DELTA ANALYSIS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-API: ${delta.method} ${delta.api}
-
-${delta.summary}
-
-`;
-
-    if (delta.added.length > 0) {
-      report += `\n🆕 ADDED TEST CASES (${delta.added.length}):\n`;
-      delta.added.forEach((tc, i) => {
-        report += `\n${i + 1}. ${tc.id} - ${tc.description}\n`;
-        report += `   Type: ${tc.type} | Priority: ${tc.priority} | Category: ${tc.category}\n`;
-      });
-    }
-
-    if (delta.removed.length > 0) {
-      report += `\n🗑️  REMOVED TEST CASES (${delta.removed.length}):\n`;
-      delta.removed.forEach((tc, i) => {
-        report += `\n${i + 1}. ${tc.id} - ${tc.description}\n`;
-      });
-    }
-
-    if (delta.modified.length > 0) {
-      report += `\n✏️  MODIFIED TEST CASES (${delta.modified.length}):\n`;
-      delta.modified.forEach((tc, i) => {
-        report += `\n${i + 1}. ${tc.id} - ${tc.description}\n`;
-      });
-    }
-
-    if (delta.common.length > 0) {
-      report += `\n✅ COMMON TEST CASES (${delta.common.length}):\n`;
-      report += `   No changes - these test cases are up to date\n`;
-    }
-
-    report += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-    report += `🎯 QA ACTION ITEMS:\n`;
-    report += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-    
-    delta.qaActions.forEach(action => {
-      report += `${action}\n`;
-    });
-
-    report += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-
-    return report;
-  }
-
-  /**
-   * Initialize baseline with starter cases
-   */
-  async initializeBaseline(api: string, method: string): Promise<void> {
-    const filename = this.generateFilename(api, method);
-    const filePath = path.join(this.baselineDir, filename);
-
-    if (fs.existsSync(filePath)) {
-      console.log(`  ℹ️  Baseline already exists for ${method} ${api}`);
-      return;
-    }
-
-    // Create starter cases
-    const starterCases: GeneratedTestCase[] = [
-      {
-        id: 'BASE-001',
-        description: `When user hits ${method} ${api}, the status should be success`,
-        type: 'positive',
-        priority: 'P0',
-        category: 'basic-validation',
-        steps: [
-          'Send request to API',
-          'Verify response status'
-        ],
-        expectedResult: 'API returns successful response',
-        validations: ['Status code should be 200 or 201', 'Response should contain success indicator'],
-        tags: ['basic', 'positive', 'status-check']
-      },
-      {
-        id: 'BASE-002',
-        description: `When user hits ${method} ${api}, the status code should be 200`,
-        type: 'positive',
-        priority: 'P0',
-        category: 'status-code-validation',
-        steps: [
-          'Send request to API',
-          'Check HTTP status code'
-        ],
-        expectedResult: 'HTTP status code is 200',
-        validations: ['Status code === 200'],
-        tags: ['basic', 'positive', 'http-status']
-      }
-    ];
-
-    const content = {
-      api,
-      method,
-      createdAt: new Date().toISOString(),
-      testCases: starterCases,
-      note: 'QA-managed baseline. Edit this file to maintain test cases.',
-      metadata: {
-        totalCases: starterCases.length,
-        positiveCases: 2,
-        negativeCases: 0
-      }
+    const data = {
+      service: service.name,
+      generated: new Date().toISOString(),
+      notes: [
+        'AI-generated scenarios (✅ = in baseline, 🆕 = new suggestion)',
+        'DO NOT EDIT - regenerated automatically',
+        'Copy relevant 🆕 scenarios to baseline/{service}-baseline.yml'
+      ],
+      ...scenarios
     };
+    
+    fs.writeFileSync(filePath, yaml.dump(data, { indent: 2, lineWidth: -1 }));
+    console.log(`   ✓ Saved: ${filePath}`);
+  }
 
-    fs.writeFileSync(filePath, JSON.stringify(content, null, 2));
-    console.log(`  ✓ Initialized baseline: ${filename}`);
+  /**
+   * Parse JSON
+   */
+  private parseJSON(content: string): any {
+    try {
+      let json = content.trim();
+      if (json.startsWith('```')) {
+        json = json.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      }
+      return JSON.parse(json);
+    } catch (error) {
+      return {};
+    }
   }
 }

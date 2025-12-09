@@ -1,659 +1,420 @@
-# Universal Unit-Test Traceability Validator
+# AI-Driven Test Coverage System v4.0.0
 
-**Version 2.0.0** | **Language-Agnostic** | **Production-Ready**
+Complete AI-powered test coverage analysis with orphan categorization, Git change detection, and multi-format reporting.
 
-A comprehensive, adoptable library that validates business scenarios against microservice unit tests and generates traceability reports during pre-commit.
+## 🎯 What It Does
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
+### Core Features
 
----
+1. **AI Test Case Generation** - Generates comprehensive test scenarios from API specs
+2. **AI Coverage Analysis** - Intelligent scenario-to-test matching with gap detection
+3. **Orphan Test Categorization** - AI categorizes orphans as Technical vs Business
+4. **Git Change Detection** - Automatically detects API changes and missing tests
+5. **Multi-Format Reports** - HTML, JSON, CSV, and Markdown reports
+6. **Pre-Commit Validation** - Comprehensive two-phase validation on every commit
 
-## ✨ Features
-
-### 🎯 Core Capabilities
-- ✅ **Universal Language Support** - Java, TypeScript, Python, Go, Ruby, C#, Kotlin, PHP, Rust
-- ✅ **Multi-Format Scenarios** - YAML, JSON, Markdown, Plain Text
-- ✅ **Semantic Matching** - Fuzzy, exact, keyword, Levenshtein, Jaccard, Regex
-- ✅ **Pre-Commit Integration** - Automatic validation on every commit
-- ✅ **Gap Detection** - Identifies missing tests, orphan scenarios, API changes
-- ✅ **Intelligent Orphan Categorization** - Technical vs Business test detection
-- ✅ **Rich Reports** - HTML, JSON, Markdown, CSV formats
-- ✅ **Traceability Matrix** - Complete scenario-to-test mapping
-- ✅ **Zero Hardcoding** - Fully configurable, adoptable to any project
-
-### 🚀 What Makes It Universal?
-
-| Feature | Description |
-|---------|-------------|
-| **Language Agnostic** | Supports any programming language with pluggable parsers |
-| **Framework Agnostic** | JUnit, Jest, Pytest, TestNG, Go-Test, RSpec, and more |
-| **Scenario Formats** | YAML, JSON, Markdown, or plain text - your choice |
-| **Matching Strategies** | 7 different AI/semantic matching algorithms |
-| **Reporting Formats** | HTML, JSON, Markdown, CSV - for any audience |
-| **Configuration Driven** | No code changes needed to adopt in new projects |
-
----
-
-## 📊 What Problems Does It Solve?
-
-### Before
-❌ Business scenarios in documents, no link to tests  
-❌ Developers add features without unit tests  
-❌ No way to verify scenario coverage  
-❌ Manual tracking is error-prone  
-❌ Regressions when APIs are removed  
-
-### After
-✅ Automated scenario → test validation  
-✅ Pre-commit blocks when critical scenarios lack tests  
-✅ Beautiful reports showing full traceability  
-✅ P0 gaps prevent commits automatically  
-✅ API changes detected immediately  
-
----
-
-## 🎬 Quick Start
+## 🚀 Quick Start
 
 ### Installation
 
 ```bash
-# Install in your project root
-npm install --save-dev @universal/unit-test-traceability-validator
-
-# Or clone for development
-git clone https://github.com/aquibshakeel/ai-testing-framework.git
-cd ai-testing-framework
 npm install
+npm run build
 ```
 
-### Setup (2 minutes)
+### Setup Claude API Key
 
 ```bash
-# 1. Install git hooks
-npm run install:hooks
-
-# 2. Configure your service (.traceability/config.json created automatically)
-
-# 3. Create scenario file
-# .traceability/scenarios/your-service.scenarios.yaml
-
-# 4. Run validation
-npm run validate
+export CLAUDE_API_KEY="sk-ant-..."
 ```
 
-### Example Scenario File (YAML)
+### Configure Services
 
-```yaml
-scenarios:
-  - id: API-001
-    description: When user creates order with valid data, system returns 201
-    apiEndpoint: /api/orders
-    httpMethod: POST
-    priority: P1
-    riskLevel: High
-    category: Happy Path
-    tags: [api, orders, create]
-    acceptanceCriteria:
-      - Response status is 201
-      - Order ID is returned
-      - Order is saved in database
-```
-
-### Example Unit Test (Java)
-
-```java
-@Test
-@DisplayName("When user creates order with valid data, system returns 201")
-public void testCreateOrderWithValidData() {
-    // Arrange
-    OrderRequest request = new OrderRequest("item123", 5);
-    
-    // Act
-    OrderResponse response = orderService.createOrder(request);
-    
-    // Assert
-    assertEquals(201, response.getStatusCode());
-    assertNotNull(response.getOrderId());
-}
-```
-
-**System automatically maps them together!** ✨
-
----
-
-## 🏗 Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Git Pre-Commit Hook                       │
-│  Triggers on every commit, validates changed services        │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  Universal Validator Core                    │
-│                                                               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │   Scenario   │  │     Test     │  │   Semantic   │      │
-│  │    Loader    │  │    Parser    │  │    Matcher   │      │
-│  │              │  │              │  │              │      │
-│  │ • YAML       │  │ • Java       │  │ • Fuzzy      │      │
-│  │ • JSON       │  │ • TypeScript │  │ • Exact      │      │
-│  │ • Markdown   │  │ • Python     │  │ • Keyword    │      │
-│  │ • Plain Text │  │ • Go         │  │ • Semantic   │      │
-│  └──────────────┘  └──────────────┘  └──────────────┘      │
-│                                                               │
-│  Loads scenarios → Parses tests → Maps with AI → Analyzes   │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Report Generator                          │
-│  • HTML (visual dashboard)                                   │
-│  • JSON (machine-readable)                                   │
-│  • Markdown (documentation)                                  │
-│  • CSV (spreadsheet import)                                  │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Key Components
-
-| Component | Purpose | Extensible |
-|-----------|---------|------------|
-| **ScenarioLoader** | Loads scenarios from multiple formats | ✅ Add new formats |
-| **TestParserFactory** | Creates language-specific parsers | ✅ Add new languages |
-| **SemanticMatcher** | Maps scenarios to tests with AI | ✅ Add new strategies |
-| **UniversalValidator** | Orchestrates validation logic | ✅ Add new rules |
-| **ReportGenerator** | Produces multi-format reports | ✅ Add new formats |
-| **Pre-Commit Hook** | Git integration | ✅ Customize behavior |
-
----
-
-## 📚 Complete Documentation
-
-### For Developers
-📖 **[Developer Implementation Guide](docs/DEV-IMPLEMENTATION-GUIDE.md)**
-- How to integrate into your service
-- Writing unit tests that map correctly
-- Configuration options
-- Pre-commit workflow
-- Troubleshooting
-- Best practices
-
-### For QA Engineers
-📖 **[QA User Guide](docs/QA-USER-GUIDE.md)**
-- What is the system and how it works
-- Matching techniques explained
-- Writing business scenarios
-- Managing scenarios (add/update/delete)
-- Understanding reports
-- Manual validation workflow
-- E2E workflow examples
-
-### Architecture & Technical
-📖 **[Architecture Documentation](docs/ARCHITECTURE.md)** *(See system design above)*
-
----
-
-## 🎯 Usage Examples
-
-### Command Line
-
-```bash
-# Validate all services
-npm run validate
-# or
-utt-validate --all
-
-# Validate specific service
-utt-validate --service customer-service
-
-# Validate only changed services (git diff)
-utt-validate --changed
-
-# Generate specific report format
-utt-validate --all --format html
-
-# Verbose output
-utt-validate --all --verbose
-
-# Dry run (don't fail, just report)
-utt-validate --all --dry-run
-```
-
-### Manual Execution (QA)
-
-```bash
-# QA can run validation anytime without committing
-./scripts/pre-commit.sh --all
-
-# Validate specific service
-./scripts/pre-commit.sh --service customer-service
-
-# Force bypass (emergency only)
-./scripts/pre-commit.sh --force
-```
-
-### Programmatic API
-
-```typescript
-import { UniversalValidator } from '@universal/unit-test-traceability-validator';
-
-// Load configuration
-const config = loadConfig('.traceability/config.json');
-
-// Create validator
-const validator = new UniversalValidator(config);
-
-// Run validation
-const result = await validator.validateAll();
-
-// Check success
-if (result.success) {
-  console.log(`✓ Coverage: ${result.summary.coveragePercent}%`);
-} else {
-  console.log(`✗ P0 Gaps: ${result.summary.p0Gaps}`);
-}
-
-// Generate reports
-await validator.generateReports(result);
-```
-
----
-
-## ⚙️ Configuration
-
-### Complete Example
+Edit `.traceability/config.json`:
 
 ```json
 {
-  "projectRoot": ".",
   "services": [
     {
       "name": "customer-service",
       "enabled": true,
-      "path": "customer-service",
+      "path": "./services/customer-service",
       "language": "java",
       "testFramework": "junit",
       "testDirectory": "src/test/java",
-      "testPattern": "*Test.java",
-      "scenarioFile": ".traceability/scenarios/customer-service.scenarios.yaml"
+      "testPattern": "*Test.java"
     }
-  ],
-  "matching": {
-    "strategies": ["exact", "fuzzy", "semantic", "keyword", "levenshtein"],
-    "defaultThreshold": 0.65,
-    "weights": {
-      "exact": 2.0,
-      "fuzzy": 1.5,
-      "semantic": 1.2,
-      "keyword": 1.0
-    },
-    "normalization": {
-      "lowercase": true,
-      "removePunctuation": true,
-      "synonymExpansion": true,
-      "stemming": true,
-      "removeStopWords": true
-    },
-    "synonyms": {
-      "create": ["add", "insert", "new", "post"],
-      "read": ["get", "fetch", "retrieve", "find"],
-      "update": ["modify", "edit", "change", "put"],
-      "delete": ["remove", "destroy", "drop"]
+  ]
+}
+```
+
+### Generate AI Test Cases
+
+```bash
+npm run generate
+```
+
+Creates baseline scenarios in `.traceability/test-cases/baseline/{service}-baseline.yml`
+
+### Analyze Coverage (Full System)
+
+```bash
+npm run continue
+```
+
+This comprehensive command:
+- ✅ Analyzes coverage using AI
+- ✅ Categorizes orphan tests (Technical vs Business)
+- ✅ Detects Git API changes
+- ✅ Generates 4 report formats (HTML, JSON, CSV, MD)
+- ✅ Auto-opens HTML report in browser
+- ✅ Shows detailed console output
+
+**Output:**
+- Console: Real-time analysis progress
+- HTML: `.traceability/reports/{service}-report.html` (auto-opens)
+- JSON: `.traceability/reports/{service}-report.json`
+- CSV: `.traceability/reports/{service}-report.csv`
+- Markdown: `.traceability/reports/{service}-report.md`
+
+### Enable Pre-Commit Hook
+
+```bash
+npm run install:hooks
+```
+
+Now every commit triggers:
+1. **Phase 1:** AI test case generation
+2. **Phase 2:** Complete coverage analysis with all features
+3. **Blocking:** Commits blocked if P0 gaps detected
+
+## 🧠 AI Intelligence Features
+
+### 1. Coverage Analysis
+- Maps scenarios to unit tests using natural language understanding
+- Identifies FULLY_COVERED, PARTIALLY_COVERED, NOT_COVERED
+- Priority-based gap detection (P0/P1/P2/P3)
+
+### 2. Orphan Test Categorization (NEW!)
+AI automatically categorizes orphan tests:
+
+**Technical Tests** (No action needed)
+- Entity tests
+- DTO tests  
+- Mapper tests
+- Validation tests
+- Infrastructure tests
+
+**Business Tests** (QA must add scenarios)
+- Controller tests
+- Service tests
+- API integration tests
+
+### 3. Git Change Detection (NEW!)
+Automatically detects:
+- **APIs Added** - New endpoints without tests
+- **APIs Modified** - Parameter/response changes
+- **APIs Removed** - Deleted endpoints
+
+### 4. Multi-Format Reporting (NEW!)
+
+**HTML Report** (Interactive Dashboard)
+- Summary cards with coverage %
+- Git changes section
+- API coverage breakdown
+- Gaps table with priorities
+- Orphan test categorization
+- Modern responsive design
+
+**JSON Report** (CI/CD Integration)
+- Complete analysis data
+- Machine-readable format
+- Easy integration with tools
+
+**CSV Report** (Spreadsheet Analysis)
+- Import into Excel/Google Sheets
+- Data analysis and pivot tables
+
+**Markdown Report** (Documentation)
+- Git-friendly format
+- Easy to share and review
+
+## 📊 Example Output
+
+### Console Output
+```
+📊 Analyzing: customer-service
+======================================================================
+✓ Baseline: 25 scenarios
+✓ Unit tests: 42 found
+
+🤖 AI analyzing coverage...
+
+POST /api/customers:
+  ✅ Covered: 8/10
+  ⚠️  Gaps: 2 not covered, 0 partial
+
+🔍 Categorizing orphan tests...
+  Found 12 orphan tests, categorizing...
+  ✅ Technical: 10, Business: 2
+
+======================================================================
+📈 Coverage: 82.5%
+✅ Covered: 20/25
+⚠️  Gaps: P0=0, P1=2, P2=3
+🔍 Orphans: 12 tests (2 need scenarios)
+
+📄 Generating reports...
+  ✅ HTML: .traceability/reports/customer-service-report.html (45.2 KB)
+  ✅ JSON: .traceability/reports/customer-service-report.json (12.3 KB)
+  ✅ CSV: .traceability/reports/customer-service-report.csv (3.1 KB)
+  ✅ MARKDOWN: .traceability/reports/customer-service-report.md (5.4 KB)
+
+🌐 Opening HTML report...
+```
+
+### Git Change Detection
+```
+🔍 Detecting Git changes...
+  Found 5 changed files
+  3 service files changed
+  API Changes: +2 ~1 -0
+  ⚠️  2 new APIs without tests!
+```
+
+## 📂 File Structure
+
+```
+.traceability/
+├── config.json                    # Service configuration
+├── reports/                       # Generated reports (NEW!)
+│   ├── {service}-report.html      # Interactive dashboard
+│   ├── {service}-report.json      # CI/CD integration
+│   ├── {service}-report.csv       # Spreadsheet analysis
+│   └── {service}-report.md        # Documentation
+└── test-cases/
+    ├── baseline/                  # QA-managed (version controlled)
+    │   └── {service}-baseline.yml
+    └── ai_cases/                  # AI-generated (fresh every run)
+        └── {service}-ai.yml
+```
+
+## 🔧 Commands
+
+```bash
+# Generate AI test cases
+npm run generate
+
+# Full analysis with all features
+npm run continue
+
+# Build TypeScript
+npm run build
+
+# Install pre-commit hook
+npm run install:hooks
+
+# Clean generated files
+npm run clean
+```
+
+## 📋 Baseline File Format
+
+Example `.traceability/test-cases/baseline/customer-service-baseline.yml`:
+
+```yaml
+service: customer-service
+
+POST /api/customers:
+  happy_case:
+    - Create customer with valid data returns 201
+    - Customer ID is generated and returned
+  edge_case:
+    - Create customer with minimal required fields
+    - Create customer with maximum field lengths
+  error_case:
+    - Create customer with missing required field returns 400
+    - Create customer with invalid email format returns 400
+  security:
+    - Create customer requires authentication
+    - Create customer validates authorization
+
+GET /api/customers/{id}:
+  happy_case:
+    - Get existing customer returns 200 with data
+  error_case:
+    - Get non-existent customer returns 404
+```
+
+See `.traceability/test-cases/baseline/example-baseline.yml` for complete example.
+
+## 🎯 Key Features
+
+### Analysis
+- ✅ AI-powered scenario-to-test matching
+- ✅ Coverage depth analysis (not just counting)
+- ✅ P0/P1/P2/P3 gap prioritization
+- ✅ Orphan test categorization (Technical vs Business)
+- ✅ Git API change detection
+- ✅ Real-time console output
+
+### Reporting
+- ✅ HTML interactive dashboard (auto-opens)
+- ✅ JSON for CI/CD integration
+- ✅ CSV for spreadsheet analysis
+- ✅ Markdown for documentation
+- ✅ Summary cards with metrics
+- ✅ Git changes section
+- ✅ Detailed gap analysis
+- ✅ Orphan categorization breakdown
+
+### Workflow
+- ✅ Pre-commit validation
+- ✅ Two-phase process (generation + analysis)
+- ✅ P0 gap blocking
+- ✅ Comprehensive progress output
+- ✅ Independent service analysis
+
+## 🚀 Advanced Usage
+
+### Run on Specific Service
+
+Configure only the service you want in `config.json`:
+
+```json
+{
+  "services": [
+    {
+      "name": "your-service",
+      "enabled": true,
+      "path": "path/to/service",
+      "language": "java",
+      "testFramework": "junit",
+      "testDirectory": "src/test/java",
+      "testPattern": "*Test.java"
     }
-  },
-  "reporting": {
-    "formats": ["html", "json", "markdown", "csv"],
-    "outputDirectory": ".traceability/reports",
-    "includeOrphans": true,
-    "includeGaps": true,
-    "includeStatistics": true
-  },
-  "validation": {
-    "blockOnCriticalGaps": true,
-    "minimumCoveragePercent": 70,
-    "allowOrphanTests": true,
-    "maxOrphanTestsWarning": 10
-  },
+  ]
+}
+```
+
+Then run:
+```bash
+npm run continue
+```
+
+The system analyzes each service independently.
+
+### CI/CD Integration
+
+Use JSON reports for automation:
+
+```bash
+npm run continue
+# Generates: .traceability/reports/*.json
+
+# Parse JSON in your CI pipeline
+jq '.summary.coveragePercent' .traceability/reports/customer-service-report.json
+```
+
+### Pre-Commit Configuration
+
+Configure blocking rules in `.traceability/config.json`:
+
+```json
+{
   "preCommit": {
     "enabled": true,
     "blockOnP0Gaps": true,
-    "blockOnP1Gaps": false,
-    "validateChangedServicesOnly": true
+    "blockOnP1Gaps": false
   }
 }
 ```
 
----
+## 🛠 Troubleshooting
 
-## 🎨 Report Examples
-
-### HTML Report
-Beautiful, interactive dashboard with:
-- **Coverage Statistics** - Real-time metrics with trend indicators
-- **Visual Analytics** - Interactive Chart.js visualizations:
-  - Coverage distribution pie chart
-  - Gap priority breakdown bar chart
-  - Orphan test priority breakdown chart (NEW!)
-  - Coverage trend over time line chart
-- **Smart Filters**:
-  - Priority filters (P0/P1/P2/P3) - Toggle to show/hide by priority
-  - Status filters (All/Covered/Partial/Not Covered)
-  - Smart search (3+ characters) - Auto-scrolls and highlights matches
-- **Gap Analysis** - Priority-coded badges with recommendations
-- **Orphan Test Table** - Sortable, filterable with:
-  - Business tests shown first
-  - Priority column with color coding
-  - Category badges (Business vs Technical)
-  - Search and filter capabilities
-- **Dark Mode** - Toggle between light and dark themes
-- **Export Options** - Print to PDF
-- **Actionable recommendations** with clear ownership
-
-**Preview:** Open `.traceability/reports/traceability-report.html` in browser
-
-### JSON Report
-Machine-readable format for:
-- CI/CD integration
-- Custom tooling
-- Data analysis
-- Trend tracking
-
-### Markdown Report
-Documentation-friendly format for:
-- README inclusion
-- Wiki pages
-- Sprint reports
-- Stakeholder communication
-
-### CSV Report
-Spreadsheet format for:
-- Excel/Google Sheets import
-- Pivot tables
-- Data analysis
-- Metric tracking
-
----
-
-## 🔧 Supported Languages & Frameworks
-
-| Language | Frameworks | Status |
-|----------|-----------|--------|
-| **Java** | JUnit 4, JUnit 5, TestNG | ✅ Full Support |
-| **TypeScript** | Jest, Mocha, Jasmine | ✅ Full Support |
-| **JavaScript** | Jest, Mocha, Jasmine | ✅ Full Support |
-| **Python** | Pytest, Unittest | ✅ Full Support |
-| **Go** | Go Test | ✅ Full Support |
-| **Ruby** | RSpec | ✅ Full Support |
-| **C#** | NUnit, xUnit | ✅ Full Support |
-| **Kotlin** | JUnit | ✅ Full Support |
-| **PHP** | PHPUnit | ✅ Full Support |
-| **Rust** | Cargo Test | ✅ Full Support |
-
-**Add Your Own:** Implement `TestParser` interface for any language!
-
----
-
-## 🎯 Scenarios Detected
-
-The system automatically detects and reports:
-
-### ✅ Coverage Validation
-- Scenarios with full test coverage
-- Scenarios with partial coverage
-- Scenarios without any tests (gaps)
-
-### 🚨 Gap Detection
-- **P0 Gaps** → Blocks commits (critical scenarios without tests)
-- **P1 Gaps** → Warnings (high priority scenarios)
-- **P2/P3 Gaps** → Informational
-
-### 🔍 Intelligent Orphan Analysis
-- **Orphan Tests** - Automatically categorized as:
-  - **Technical Tests** (No action needed) - Entity, DTO, Mapper, Validation, Infrastructure, Database tests
-  - **Business Tests** (QA action required) - Controller, Service, API tests needing scenarios
-- **Smart Priority Assignment**:
-  - **P0 (Critical)** - Controller/API tests without scenarios
-  - **P1 (High)** - Business logic tests without scenarios
-  - **P2 (Medium)** - Service layer tests without scenarios
-  - **P3 (Low)** - Technical/infrastructure tests
-- **Orphan Scenarios** - Scenarios without any tests
-- **Actionable Recommendations** - Clear QA vs Dev actions
-
-### 📡 API Change Detection
-- **API Removed** - Endpoint deleted but scenario still exists
-- **API Modified** - Endpoint changed, tests need update
-- **New API** - Endpoint added without tests
-
-### ⚠️ Risk Analysis
-- Critical risk scenarios
-- High risk scenarios
-- Business impact assessment
-
----
-
-## 💡 Best Practices
-
-### For Developers
-
-1. **Write Descriptive Test Names**
-   ```java
-   // ✅ GOOD
-   testGetCustomerWithValidIdReturns200()
-   
-   // ❌ BAD
-   test1()
-   ```
-
-2. **Use @DisplayName (JUnit 5)**
-   ```java
-   @Test
-   @DisplayName("When customer is created, system returns 201")
-   public void testCustomerCreation() { }
-   ```
-
-3. **Reference Scenario IDs**
-   ```java
-   /** Tests scenario CUST-001 */
-   @Test
-   public void testGetCustomer() { }
-   ```
-
-### For QA
-
-1. **Write Clear Scenarios**
-   ```yaml
-   # ✅ GOOD - Specific and testable
-   description: When user creates customer with valid email, system returns 201
-   
-   # ❌ BAD - Vague
-   description: Customer stuff works
-   ```
-
-2. **Use Priority Levels Correctly**
-   - **P0** - Critical, blocks commits
-   - **P1** - High priority, warnings
-   - **P2** - Medium priority, informational
-   - **P3** - Low priority, nice to have
-
-3. **Include Acceptance Criteria**
-   ```yaml
-   acceptanceCriteria:
-     - Response status is 201
-     - Customer ID is returned
-     - Data is saved in database
-   ```
-
----
-
-## 🚀 CI/CD Integration
-
-### GitHub Actions
-
-```yaml
-name: Traceability Validation
-on: [push, pull_request]
-
-jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - run: npm install
-      - run: npm run validate
-      - name: Upload Reports
-        uses: actions/upload-artifact@v3
-        with:
-          name: traceability-reports
-          path: .traceability/reports/
+### Build Fails
+```bash
+npm run build
+# Check for TypeScript errors
+# Ensure all dependencies installed: npm install
 ```
 
-### Jenkins
+### No Coverage Analysis
+```bash
+# Ensure baseline file exists
+ls .traceability/test-cases/baseline/
 
-```groovy
-pipeline {
-    agent any
-    stages {
-        stage('Validate Traceability') {
-            steps {
-                sh 'npm install'
-                sh 'npm run validate'
-            }
-        }
-        stage('Archive Reports') {
-            steps {
-                publishHTML([
-                    reportDir: '.traceability/reports',
-                    reportFiles: 'traceability-report.html',
-                    reportName: 'Traceability Report'
-                ])
-            }
-        }
-    }
-}
+# Generate baseline if missing
+npm run generate
 ```
 
----
+### Reports Not Generated
+```bash
+# Check Claude API key
+echo $CLAUDE_API_KEY
 
-## 📈 Metrics & KPIs
+# Ensure output directory exists
+mkdir -p .traceability/reports
+```
 
-The system tracks:
+### HTML Report Doesn't Open
+- Report is still generated at `.traceability/reports/*.html`
+- Open manually in browser
+- Check console for file path
 
-- **Coverage Percentage** - % of scenarios with tests (with trend indicators)
-- **Gap Count** - Total gaps by priority (P0/P1/P2/P3)
-- **Orphan Count** - Tests and scenarios without mapping
-  - Technical Tests (no action needed)
-  - Business Tests (QA action required)
-  - **Priority Distribution** - P0/P1/P2/P3 breakdown of orphan tests
-- **Match Confidence** - Average match score across mappings
-- **API Changes** - Detected additions/removals
-- **Trend Analysis** - Coverage over time (with history snapshots)
-- **Visual Analytics** - Interactive charts showing:
-  - Coverage distribution
-  - Gap priority breakdown
-  - Orphan test priorities
-  - Historical trends
+## 📚 Documentation
 
----
+- `FEATURES.md` - Complete feature documentation
+- `PROJECT-AUDIT.md` - System consistency audit
+- `.traceability/test-cases/baseline/example-baseline.yml` - Example baseline
+- `scripts/pre-commit.sh` - Pre-commit hook implementation
 
-## 🤝 Contributing
+## 🌟 What's New in v4.0.0
 
-We welcome contributions! Areas for enhancement:
+### Major Features Added
+1. **Orphan Test Categorization with AI**
+   - Automatic classification: Technical vs Business
+   - Priority assignment (P0-P3)
+   - Action recommendations
 
-- 🌐 Additional language parsers
-- 🎨 New report formats
-- 🧠 Advanced matching algorithms
-- 🔌 Third-party integrations (JIRA, TestRail, etc.)
-- 📊 Metrics dashboards
-- 🌍 Internationalization
+2. **Git API Change Detection**
+   - Detects added/modified/removed APIs
+   - Identifies APIs without tests
+   - Actionable recommendations
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+3. **Multi-Format Reporting**
+   - HTML (interactive dashboard with auto-open)
+   - JSON (CI/CD integration)
+   - CSV (spreadsheet analysis)
+   - Markdown (documentation)
 
----
+4. **Enhanced Pre-Commit Hook**
+   - Comprehensive two-phase workflow
+   - All features run automatically
+   - Better progress output
+   - Multi-format report generation
 
-## 📝 License
+### Improvements
+- Better console output with progress indicators
+- Cleaner code structure
+- Removed redundant modules
+- Updated all documentation
+- TypeScript compilation optimized
 
-MIT License - see [LICENSE](LICENSE) file
+## 📄 License
 
----
+MIT
 
-## 🎯 Requirements Coverage - 100% Complete ✅
+## 🤝 Support
 
-### Core Requirements (✅ All Implemented)
-- [x] Universal validation system (language-agnostic)
-- [x] Pre-commit workflow with single script
-- [x] Mapping rules & validations (all 3 scenarios)
-- [x] Business scenario management (folder structure, formats)
-- [x] QA + Dev system isolation
-- [x] Complete project refactor
-- [x] Zero hardcoding (fully configurable)
-- [x] Comprehensive documentation
-- [x] Pre-commit master script
-- [x] Multiple rich scenario formats (YAML, JSON, Markdown, TXT)
-
-### Scenario Detection (✅ All Implemented)
-- [x] **Scenario 1:** New service validation
-- [x] **Scenario 2:** New API without test detection
-- [x] **Scenario 3:** Removed API detection with orphan scenario analysis
-- [x] QA manual execution support
-
-### Features (✅ All Implemented)
-- [x] Multiple scenario formats (YAML, JSON, Markdown, TXT)
-- [x] Semantic matching with fuzzy logic
-- [x] 7 matching strategies (exact, fuzzy, semantic, keyword, levenshtein, jaccard, regex)
-- [x] Synonym expansion & stop word removal
-- [x] Comprehensive gap analysis
-- [x] Orphan test detection
-- [x] Orphan scenario detection
-- [x] API change detection
-- [x] Multi-format reports (HTML, JSON, Markdown, CSV)
-- [x] Traceability matrix generation
-- [x] Priority-based blocking (P0/P1)
-- [x] Risk level assessment
-
-### Documentation (✅ All Completed)
-- [x] DEV implementation guide (comprehensive)
-- [x] QA user guide (comprehensive with E2E workflow)
-- [x] Architecture documentation
-- [x] Scenario format examples
-- [x] Best practices
-- [x] Troubleshooting guides
-- [x] FAQ sections
+For issues or questions:
+1. Check `FEATURES.md` for detailed feature documentation
+2. Review `PROJECT-AUDIT.md` for system overview
+3. Check generated reports for specific issues
 
 ---
 
-## 📞 Support & Contact
-
-- **Documentation:** See `docs/` folder
-- **Issues:** [GitHub Issues](https://github.com/aquibshakeel/ai-testing-framework/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/aquibshakeel/ai-testing-framework/discussions)
-
----
-
-## 🙏 Acknowledgments
-
-Built with ❤️ for QA teams and developers who value quality and traceability.
-
-**Technologies Used:**
-- TypeScript
-- Node.js
-- Semantic Matching Algorithms
-- YAML/JSON parsing
-- Git hooks
-- Multi-format report generation
-
----
-
-<div align="center">
-
-**⭐ Star this repo if you find it useful!**
-
-Made with ❤️ by the Universal Validator Team
-
-</div>
+**Version:** 4.0.0  
+**Status:** Production Ready  
+**Build:** ✅ Passing  
+**Features:** Complete

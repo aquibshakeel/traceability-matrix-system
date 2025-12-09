@@ -1,262 +1,114 @@
 #!/bin/bash
 
-###############################################################################
-# Universal Unit-Test Traceability Validator - Pre-Commit Hook
-# 
-# This script runs automatically before each git commit to validate that
-# business scenarios have corresponding unit test coverage.
-#
-# Features:
-# - Validates changed services only (configurable)
-# - Blocks commits on critical (P0) gaps
-# - Generates comprehensive traceability reports
-# - Supports manual execution for QA validation
-#
-# Usage:
-#   Automatic: Runs on git commit (after installing hooks)
-#   Manual: ./scripts/pre-commit.sh [--service <name>] [--all] [--force]
-###############################################################################
+# Pre-Commit Hook - Complete AI-Driven Coverage System
+# Runs comprehensive validation with all features:
+# - AI test case generation
+# - Coverage analysis with orphan categorization
+# - Git API change detection
+# - Multi-format reporting (HTML/JSON/CSV/MD)
+# - Auto-opens HTML report
+# Blocks commit on P0 gaps
 
-set -e  # Exit on error
+set -e
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Script directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-
-# Configuration
-CONFIG_FILE="$PROJECT_ROOT/.traceability/config.json"
-REPORTS_DIR="$PROJECT_ROOT/.traceability/reports"
-
-# Parse command line arguments
-FORCE_MODE=false
-VALIDATE_ALL=false
-SERVICE_NAME=""
-VERBOSE=false
-
-while [[ $# -gt 0 ]]; do
-  case $1 in
-    --force)
-      FORCE_MODE=true
-      shift
-      ;;
-    --all)
-      VALIDATE_ALL=true
-      shift
-      ;;
-    --service)
-      SERVICE_NAME="$2"
-      shift 2
-      ;;
-    --verbose)
-      VERBOSE=true
-      shift
-      ;;
-    --help)
-      echo "Usage: $0 [OPTIONS]"
-      echo ""
-      echo "Options:"
-      echo "  --force        Skip validation and allow commit"
-      echo "  --all          Validate all services (not just changed)"
-      echo "  --service NAME Validate specific service"
-      echo "  --verbose      Show detailed output"
-      echo "  --help         Show this help message"
-      exit 0
-      ;;
-    *)
-      echo "Unknown option: $1"
-      echo "Use --help for usage information"
-      exit 1
-      ;;
-  esac
-done
-
-# Print banner
 echo ""
-echo -e "${BLUE}╔════════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║  Universal Unit-Test Traceability Validator - Pre-Commit Hook  ║${NC}"
-echo -e "${BLUE}╚════════════════════════════════════════════════════════════════╝${NC}"
+echo "╔══════════════════════════════════════════════════════════════════════╗"
+echo "║         🤖 AI-Driven Pre-Commit Validation System                    ║"
+echo "║  Phase 1: Test Generation | Phase 2: Coverage Analysis & Reporting  ║"
+echo "╚══════════════════════════════════════════════════════════════════════╝"
 echo ""
 
-# Check if force mode
-if [ "$FORCE_MODE" = true ]; then
-  echo -e "${YELLOW}⚠️  Force mode enabled - skipping validation${NC}"
+# Check for Claude API key
+if [ -z "$CLAUDE_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
+  echo "❌ ERROR: Claude API key not found!"
   echo ""
-  exit 0
-fi
-
-# Check if config file exists
-if [ ! -f "$CONFIG_FILE" ]; then
-  echo -e "${RED}✗ Configuration file not found: $CONFIG_FILE${NC}"
-  echo -e "${YELLOW}Run: npm install to set up the project${NC}"
+  echo "Set environment variable:"
+  echo "  export CLAUDE_API_KEY=\"sk-ant-...\""
+  echo "  or"
+  echo "  export ANTHROPIC_API_KEY=\"sk-ant-...\""
+  echo ""
   exit 1
 fi
 
-# Check if Node.js is installed
-if ! command -v node &> /dev/null; then
-  echo -e "${RED}✗ Node.js is not installed${NC}"
-  echo -e "${YELLOW}Please install Node.js >= 18.0.0${NC}"
-  exit 1
-fi
-
-# Check Node.js version
-NODE_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
-if [ "$NODE_VERSION" -lt 18 ]; then
-  echo -e "${RED}✗ Node.js version must be >= 18.0.0 (current: $(node -v))${NC}"
-  exit 1
-fi
-
-# Install dependencies if needed
-if [ ! -d "$PROJECT_ROOT/node_modules" ]; then
-  echo -e "${YELLOW}📦 Installing dependencies...${NC}"
-  cd "$PROJECT_ROOT"
-  npm install --silent
-  echo -e "${GREEN}✓ Dependencies installed${NC}"
+# Check if config exists
+if [ ! -f ".traceability/config.json" ]; then
+  echo "❌ ERROR: Configuration not found!"
+  echo "Expected: .traceability/config.json"
   echo ""
+  exit 1
 fi
 
-# Create reports directory if it doesn't exist
-mkdir -p "$REPORTS_DIR"
+# Phase 1: Generate AI test cases (baselines)
+echo "🔄 Phase 1: AI Test Case Generation"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "Generating comprehensive test scenarios from APIs..."
+echo ""
+npm run generate
+GENERATE_EXIT=$?
 
-# Build validation command
-VALIDATION_CMD="node $PROJECT_ROOT/bin/utt-validate"
-
-if [ "$VALIDATE_ALL" = true ]; then
-  VALIDATION_CMD="$VALIDATION_CMD --all"
-elif [ -n "$SERVICE_NAME" ]; then
-  VALIDATION_CMD="$VALIDATION_CMD --service $SERVICE_NAME"
-else
-  # Check if we're in a git repository and get changed files
-  if git rev-parse --git-dir > /dev/null 2>&1; then
-    CHANGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
-    
-    if [ -z "$CHANGED_FILES" ]; then
-      echo -e "${GREEN}✓ No files changed - skipping validation${NC}"
-      echo ""
-      exit 0
-    fi
-    
-    # Check for scenario file changes
-    SCENARIO_CHANGES=$(echo "$CHANGED_FILES" | grep ".traceability/scenarios/" || true)
-    SERVICE_CHANGES=$(echo "$CHANGED_FILES" | grep -v ".traceability/scenarios/" || true)
-    
-    echo -e "${BLUE}📝 Changed files detected:${NC}"
-    if [ -n "$SCENARIO_CHANGES" ]; then
-      echo -e "${YELLOW}   Scenario files:${NC}"
-      echo "$SCENARIO_CHANGES" | while read file; do
-        echo "     - $file"
-      done
-    fi
-    if [ -n "$SERVICE_CHANGES" ]; then
-      if [ -n "$SCENARIO_CHANGES" ]; then
-        echo -e "${YELLOW}   Service files:${NC}"
-      fi
-      echo "$SERVICE_CHANGES" | head -3
-      if [ $(echo "$SERVICE_CHANGES" | wc -l) -gt 3 ]; then
-        echo "     ... and $(( $(echo "$SERVICE_CHANGES" | wc -l) - 3 )) more"
-      fi
-    fi
-    echo ""
-    
-    VALIDATION_CMD="$VALIDATION_CMD --changed"
-  else
-    VALIDATION_CMD="$VALIDATION_CMD --all"
-  fi
+if [ $GENERATE_EXIT -ne 0 ]; then
+  echo ""
+  echo "❌ Phase 1 FAILED!"
+  echo "Fix generation errors before committing."
+  exit 1
 fi
 
-if [ "$VERBOSE" = true ]; then
-  VALIDATION_CMD="$VALIDATION_CMD --verbose"
-fi
-
-# Run validation
-echo -e "${BLUE}🔍 Running validation...${NC}"
+echo ""
+echo "✅ Phase 1 Complete - Test scenarios generated"
 echo ""
 
-if $VALIDATION_CMD; then
+# Phase 2: Complete Coverage Analysis with Reporting
+echo "📊 Phase 2: Coverage Analysis, Git Changes & Report Generation"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "Running comprehensive analysis:"
+echo "  • AI-powered coverage analysis"
+echo "  • Orphan test categorization (Technical vs Business)"
+echo "  • Git API change detection"
+echo "  • Multi-format report generation (HTML, JSON, CSV, MD)"
+echo "  • Auto-opening HTML report"
+echo ""
+npm run continue
+CONTINUE_EXIT=$?
+
+if [ $CONTINUE_EXIT -ne 0 ]; then
   echo ""
-  echo -e "${GREEN}╔════════════════════════════════════════════════════════════════╗${NC}"
-  echo -e "${GREEN}║                    ✓ VALIDATION PASSED                         ║${NC}"
-  echo -e "${GREEN}╚════════════════════════════════════════════════════════════════╝${NC}"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "❌ Phase 2 FAILED - COMMIT BLOCKED"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo ""
-  echo -e "${GREEN}✓ All business scenarios have adequate unit test coverage${NC}"
-  echo -e "${BLUE}📊 Reports generated in: $REPORTS_DIR${NC}"
+  echo "⛔ Critical gaps detected. Required actions:"
   echo ""
-  
-  # Show quick summary
-  if [ -f "$REPORTS_DIR/traceability-report.json" ]; then
-    COVERAGE=$(node -e "const data = require('$REPORTS_DIR/traceability-report.json'); console.log(data.summary.coveragePercent);")
-    TOTAL_SCENARIOS=$(node -e "const data = require('$REPORTS_DIR/traceability-report.json'); console.log(data.summary.totalScenarios);")
-    GAPS=$(node -e "const data = require('$REPORTS_DIR/traceability-report.json'); console.log(data.gaps.length);")
-    
-    echo -e "${BLUE}Quick Summary:${NC}"
-    echo -e "  Coverage: ${GREEN}${COVERAGE}%${NC}"
-    echo -e "  Total Scenarios: $TOTAL_SCENARIOS"
-    echo -e "  Gaps: $GAPS"
-    echo ""
-  fi
-  
-  # Auto-open HTML report
-  if [ -f "$REPORTS_DIR/traceability-report.html" ]; then
-    echo -e "${BLUE}📊 Opening enhanced HTML report...${NC}"
-    if command -v open &> /dev/null; then
-      open "$REPORTS_DIR/traceability-report.html"
-    elif command -v xdg-open &> /dev/null; then
-      xdg-open "$REPORTS_DIR/traceability-report.html"
-    fi
-    echo ""
-  fi
-  
-  exit 0
-else
-  EXIT_CODE=$?
+  echo "1. 🔴 P0 Gaps: Implement missing unit tests for critical scenarios"
+  echo "2. 🔍 Orphan Tests: Review business tests that need scenarios"
+  echo "3. 🆕 New APIs: Add tests for newly detected API endpoints"
   echo ""
-  echo -e "${RED}╔════════════════════════════════════════════════════════════════╗${NC}"
-  echo -e "${RED}║                    ✗ VALIDATION FAILED                         ║${NC}"
-  echo -e "${RED}╚════════════════════════════════════════════════════════════════╝${NC}"
+  echo "📋 Reports available at:"
+  echo "   • HTML:     .traceability/reports/*-report.html"
+  echo "   • JSON:     .traceability/reports/*-report.json"
+  echo "   • CSV:      .traceability/reports/*-report.csv"
+  echo "   • Markdown: .traceability/reports/*-report.md"
   echo ""
-  echo -e "${RED}✗ Critical gaps found in test coverage${NC}"
-  echo -e "${BLUE}📊 Detailed reports: $REPORTS_DIR${NC}"
+  echo "💡 Tip: Review the HTML report (auto-opened) for detailed analysis"
   echo ""
-  
-  # Show critical gaps
-  if [ -f "$REPORTS_DIR/traceability-report.json" ]; then
-    P0_GAPS=$(node -e "const data = require('$REPORTS_DIR/traceability-report.json'); console.log(data.summary.p0Gaps);")
-    P1_GAPS=$(node -e "const data = require('$REPORTS_DIR/traceability-report.json'); console.log(data.summary.p1Gaps);")
-    
-    if [ "$P0_GAPS" -gt 0 ]; then
-      echo -e "${RED}❌ Critical (P0) Gaps: $P0_GAPS${NC}"
-      echo -e "${YELLOW}   Action Required: Create unit tests for P0 scenarios${NC}"
-      echo ""
-    fi
-    
-    if [ "$P1_GAPS" -gt 0 ]; then
-      echo -e "${YELLOW}⚠️  High Priority (P1) Gaps: $P1_GAPS${NC}"
-      echo ""
-    fi
-    
-    # Auto-open HTML report on failure too
-    if [ -f "$REPORTS_DIR/traceability-report.html" ]; then
-      echo -e "${BLUE}📊 Opening enhanced HTML report...${NC}"
-      if command -v open &> /dev/null; then
-        open "$REPORTS_DIR/traceability-report.html"
-      elif command -v xdg-open &> /dev/null; then
-        xdg-open "$REPORTS_DIR/traceability-report.html"
-      fi
-      echo ""
-    fi
-  fi
-  
-  echo -e "${YELLOW}💡 To bypass this check (not recommended):${NC}"
-  echo -e "   git commit --no-verify"
-  echo -e "   or"
-  echo -e "   ./scripts/pre-commit.sh --force && git commit"
-  echo ""
-  
-  exit $EXIT_CODE
+  exit 1
 fi
+
+echo ""
+echo "✅ Phase 2 Complete - All analysis passed"
+echo ""
+echo "╔══════════════════════════════════════════════════════════════════════╗"
+echo "║                   ✅ VALIDATION SUCCESSFUL                            ║"
+echo "║                                                                      ║"
+echo "║  All checks passed:                                                  ║"
+echo "║  ✓ Test scenarios generated                                         ║"
+echo "║  ✓ Coverage analysis complete                                       ║"
+echo "║  ✓ Git changes detected and analyzed                                ║"
+echo "║  ✓ Orphan tests categorized                                         ║"
+echo "║  ✓ Reports generated (HTML, JSON, CSV, MD)                          ║"
+echo "║  ✓ No P0/P1 gaps blocking commit                                    ║"
+echo "║                                                                      ║"
+echo "║                 🚀 Proceeding with commit...                         ║"
+echo "╚══════════════════════════════════════════════════════════════════════╝"
+echo ""
+
+exit 0

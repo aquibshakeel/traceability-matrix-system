@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Developer Guide - Universal Unit-Test Traceability Validator</title>
+    <title>Developer Guide - AI Test Coverage Analyzer</title>
     <style>
         * {
             margin: 0;
@@ -120,10 +120,10 @@
             margin: 5px 5px 5px 0;
         }
 
-        .badge-p0 { background: #dc2626; color: white; }
-        .badge-p1 { background: #f59e0b; color: white; }
+        .badge-ai { background: #667eea; color: white; }
         .badge-success { background: #10b981; color: white; }
         .badge-info { background: #3b82f6; color: white; }
+        .badge-warning { background: #f59e0b; color: white; }
 
         .code-block {
             background: #1a202c;
@@ -200,13 +200,6 @@
             color: #d63384;
         }
 
-        .toc {
-            background: #f7fafc;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
         @media print {
             .sidebar { display: none; }
             .content { max-width: 100%; padding: 20px; }
@@ -223,7 +216,7 @@
 <body>
     <div class="header">
         <h1>🛠️ Developer Guide</h1>
-        <p>Universal Unit-Test Traceability Validator v2.0.0</p>
+        <p>AI Test Coverage Analyzer v3.0.0</p>
     </div>
 
     <div class="container">
@@ -234,13 +227,10 @@
                 <li><a href="#quick-start">2. Quick Start</a></li>
                 <li><a href="#integration">3. Integration Guide</a></li>
                 <li><a href="#how-it-works">4. How It Works</a></li>
-                <li><a href="#running">5. Running the Validator</a></li>
-                <li><a href="#pre-commit">6. Pre-Commit Hook</a></li>
-                <li><a href="#reports">7. Reading Reports</a></li>
-                <li><a href="#fixing-orphans">8. Fixing Orphan Tests</a></li>
-                <li><a href="#writing-tests">9. Writing Unit Tests</a></li>
-                <li><a href="#troubleshooting">10. Troubleshooting</a></li>
-                <li><a href="#acceptance">11. Acceptance Checklist</a></li>
+                <li><a href="#commands">5. CLI Commands</a></li>
+                <li><a href="#baseline">6. Managing Baselines</a></li>
+                <li><a href="#architecture">7. System Architecture</a></li>
+                <li><a href="#troubleshooting">8. Troubleshooting</a></li>
             </ul>
         </nav>
 
@@ -249,59 +239,45 @@
                 <h2>1. System Overview 🎯</h2>
                 
                 <h3>What is it?</h3>
-                <p>The <strong>Universal Unit-Test Traceability Validator</strong> is an intelligent framework that creates bidirectional mapping between business test scenarios and unit test implementations across multiple microservices.</p>
+                <p>The <strong>AI Test Coverage Analyzer</strong> is a pure AI-driven system that uses Claude AI to analyze test coverage by comparing baseline test scenarios against actual unit tests in your codebase.</p>
 
                 <div class="info-box">
-                    <strong>💡 Key Benefit:</strong> Know exactly which business requirements are covered by unit tests and which aren't.
+                    <strong>💡 Key Innovation:</strong> 100% AI-powered analysis - no complex rules, no regex patterns, just intelligent AI understanding of your tests.
                 </div>
-
-                <h3>Purpose</h3>
-                <ul>
-                    <li><strong>Visibility:</strong> Track test coverage for business scenarios</li>
-                    <li><strong>Quality:</strong> Ensure critical features have test coverage</li>
-                    <li><strong>Automation:</strong> Automatic validation on every commit</li>
-                    <li><strong>Risk Management:</strong> Identify gaps in test coverage early</li>
-                </ul>
 
                 <h3>Core Capabilities</h3>
                 <table>
                     <tr>
-                        <th>Capability</th>
+                        <th>Feature</th>
                         <th>Description</th>
                     </tr>
                     <tr>
-                        <td>🔍 Service Discovery</td>
-                        <td>Automatically detects all microservices</td>
+                        <td>🤖 AI Analysis</td>
+                        <td>Claude AI analyzes coverage with human-like understanding</td>
                     </tr>
                     <tr>
-                        <td>📊 Dynamic Test Parsing</td>
-                        <td>Supports Java, TypeScript, Python, Go</td>
+                        <td>📊 Coverage Reports</td>
+                        <td>Detailed analysis of what's covered and what's missing</td>
                     </tr>
                     <tr>
-                        <td>🧠 Smart Matching</td>
-                        <td>7 advanced strategies (Exact, Fuzzy, Semantic, etc.)</td>
+                        <td>🔍 Test Discovery</td>
+                        <td>Automatically finds unit tests (Java, TypeScript, Python, Go)</td>
                     </tr>
                     <tr>
-                        <td>📈 Gap Analysis</td>
-                        <td>P0/P1/P2/P3 priority-based gap identification</td>
+                        <td>📝 Baseline Management</td>
+                        <td>Simple YAML format for expected test scenarios</td>
                     </tr>
                     <tr>
-                        <td>🔧 Orphan Detection</td>
-                        <td>Finds tests without scenarios (with suggested fixes)</td>
-                    </tr>
-                    <tr>
-                        <td>🚨 API Discovery</td>
-                        <td>Detects orphan APIs (no scenarios AND no tests)</td>
-                    </tr>
-                    <tr>
-                        <td>🎨 Rich Reports</td>
-                        <td>HTML/JSON/Markdown/CSV formats</td>
-                    </tr>
-                    <tr>
-                        <td>🔄 Pre-Commit</td>
-                        <td>Automatic validation on every commit</td>
+                        <td>🎨 Swagger Integration</td>
+                        <td>Generates test cases from OpenAPI/Swagger specs</td>
                     </tr>
                 </table>
+
+                <h3>Two-Phase System</h3>
+                <ol>
+                    <li><strong>Phase 1 (ai-generate):</strong> AI generates comprehensive test cases from Swagger specs</li>
+                    <li><strong>Phase 2 (ai-continue):</strong> AI analyzes coverage by comparing baseline vs actual unit tests</li>
+                </ol>
             </section>
 
             <section id="quick-start">
@@ -309,9 +285,9 @@
 
                 <h3>Prerequisites</h3>
                 <ul>
-                    <li>Node.js >= 14.x</li>
-                    <li>npm or yarn</li>
-                    <li>Git</li>
+                    <li>Node.js >= 18.x</li>
+                    <li>npm >= 9.x</li>
+                    <li>Claude API key (from Anthropic)</li>
                 </ul>
 
                 <h3>Installation</h3>
@@ -322,24 +298,28 @@ cd /path/to/your/project
 # Install dependencies
 npm install
 
-# Install pre-commit hooks
-npm run install-hooks
+# Set up Claude API key
+export CLAUDE_API_KEY="sk-ant-your-key-here"
                 </div>
 
-                <h3>First Run</h3>
+                <h3>First Run - Generate Test Cases</h3>
                 <div class="code-block">
-# Validate all services
-npm run validate
+# Generate test cases from Swagger/OpenAPI specs
+npm run generate
 
-# Validate specific service
-npm run validate -- --service customer-service
+# Output: .traceability/test-cases/ai_cases/
+                </div>
 
-# Open the HTML report (auto-opens after validation)
-# Report location: .traceability/reports/traceability-report.html
+                <h3>Second Run - Analyze Coverage</h3>
+                <div class="code-block">
+# Analyze coverage against baseline
+npm run continue
+
+# AI will analyze each API and provide detailed feedback
                 </div>
 
                 <div class="success-box">
-                    <strong>✅ Success!</strong> The HTML report will automatically open in your browser showing coverage, gaps, and orphan tests.
+                    <strong>✅ Success!</strong> The AI will provide detailed console output showing coverage analysis for each API endpoint.
                 </div>
             </section>
 
@@ -359,431 +339,446 @@ npm run validate -- --service customer-service
       "testFramework": "junit",
       "testDirectory": "src/test/java",
       "testPattern": "**/*Test.java",
-      "scenarioFile": ".traceability/scenarios/your-service.scenarios.yaml"
+      "swaggerFile": "path/to/swagger.json"
     }
-  ]
+  ],
+  "ai": {
+    "model": "claude-3-5-sonnet-20241022",
+    "temperature": 0.2,
+    "maxTokens": 2000
+  }
 }
                 </div>
 
-                <h3>Step 2: Create Scenario File</h3>
-                <p>Create <code>.traceability/scenarios/your-service.scenarios.yaml</code>:</p>
+                <h3>Step 2: Create Baseline File</h3>
+                <p>Create <code>.traceability/test-cases/baseline/your-service-baseline.yml</code>:</p>
                 <div class="code-block">
-scenarios:
-  - id: YOUR-001
-    description: User can create new order
-    priority: P0
-    riskLevel: Critical
-    apiEndpoint: /api/orders
-    httpMethod: POST
-    acceptanceCriteria:
-      - Valid order payload creates order
-      - Returns 201 status code
-      - Returns order ID in response
+service: your-service
+
+POST /api/orders:
+  happy_case:
+    - "Create order with valid payload returns 201"
+    - "Order ID is returned in response"
+  edge_case:
+    - "Create order with minimal required fields"
+    - "Create order with maximum allowed items"
+  error_case:
+    - "Invalid payload returns 400"
+    - "Missing required fields returns 400"
+  security:
+    - "Unauthenticated request returns 401"
+    - "Insufficient permissions returns 403"
+
+GET /api/orders/{id}:
+  happy_case:
+    - "Retrieve existing order returns 200"
+    - "Order details are complete and correct"
+  error_case:
+    - "Non-existent order returns 404"
+    - "Invalid order ID format returns 400"
                 </div>
 
-                <h3>Step 3: Run Validation</h3>
+                <h3>Step 3: Run Analysis</h3>
                 <div class="code-block">
-npm run validate -- --service your-service
+# Generate test cases (optional, if you have Swagger)
+npm run generate
+
+# Analyze coverage
+npm run continue
                 </div>
 
                 <div class="warning-box">
-                    <strong>⚠️ Important:</strong> No code changes required! The validator reads your existing tests.
+                    <strong>⚠️ Important:</strong> The AI reads your existing tests - no code changes required!
                 </div>
             </section>
 
             <section id="how-it-works">
-                <h2>4. How the Validator Works 🧠</h2>
+                <h2>4. How the AI System Works 🧠</h2>
 
-                <h3>6-Phase Process</h3>
+                <h3>Phase 1: Test Case Generation (ai-generate)</h3>
                 <ol>
-                    <li><strong>Service Discovery:</strong> Scans filesystem for services</li>
-                    <li><strong>Test Parsing:</strong> Extracts unit tests from code</li>
-                    <li><strong>Scenario Loading:</strong> Loads business scenarios from YAML/JSON</li>
-                    <li><strong>Semantic Matching:</strong> Maps scenarios to tests using 7 strategies</li>
-                    <li><strong>Gap Analysis:</strong> Identifies coverage gaps and orphans</li>
-                    <li><strong>Report Generation:</strong> Creates HTML/JSON/Markdown/CSV reports</li>
+                    <li><strong>Swagger Parsing:</strong> Reads OpenAPI/Swagger specifications</li>
+                    <li><strong>AI Generation:</strong> Claude generates comprehensive test scenarios</li>
+                    <li><strong>Categorization:</strong> Organizes into happy_case, edge_case, error_case, security</li>
+                    <li><strong>Output:</strong> Saves to <code>.traceability/test-cases/ai_cases/</code></li>
                 </ol>
 
-                <h3>7 Matching Strategies</h3>
-                <table>
-                    <tr>
-                        <th>Strategy</th>
-                        <th>Weight</th>
-                        <th>Example</th>
-                    </tr>
-                    <tr>
-                        <td>Exact Matching</td>
-                        <td>2.0</td>
-                        <td><code>/api/users</code> = <code>/api/users</code></td>
-                    </tr>
-                    <tr>
-                        <td>Fuzzy Matching</td>
-                        <td>1.5</td>
-                        <td>"create user" ≈ "creating users"</td>
-                    </tr>
-                    <tr>
-                        <td>Semantic</td>
-                        <td>1.2</td>
-                        <td>"create" = "add" = "insert"</td>
-                    </tr>
-                    <tr>
-                        <td>Keyword</td>
-                        <td>1.0</td>
-                        <td>POST, 404, customer, etc.</td>
-                    </tr>
-                    <tr>
-                        <td>Levenshtein</td>
-                        <td>-</td>
-                        <td>Edit distance for typos</td>
-                    </tr>
-                    <tr>
-                        <td>Jaccard</td>
-                        <td>-</td>
-                        <td>Set-based word similarity</td>
-                    </tr>
-                    <tr>
-                        <td>Regex</td>
-                        <td>-</td>
-                        <td>Pattern matching</td>
-                    </tr>
-                </table>
+                <h3>Phase 2: Coverage Analysis (ai-continue)</h3>
+                <ol>
+                    <li><strong>Load Baseline:</strong> Reads QA-defined expected scenarios</li>
+                    <li><strong>Parse Tests:</strong> Discovers all unit tests in codebase</li>
+                    <li><strong>AI Analysis:</strong> Claude analyzes which tests cover which scenarios</li>
+                    <li><strong>Report:</strong> Provides detailed coverage feedback per API</li>
+                </ol>
 
-                <h3>Coverage Calculation</h3>
+                <h3>AI Analysis Example</h3>
                 <div class="code-block">
-finalScore = (exact × 2.0) + (fuzzy × 1.5) + (semantic × 1.2) + (keyword × 1.0)
-confidence = (finalScore / maxPossibleScore) × 100
+📊 Analyzing: customer-service
 
-if confidence >= 75% → "Fully Covered" ✅
-if confidence >= 60% → "Partially Covered" ⚠️
-if confidence < 60%  → "Not Covered" ❌
-                </div>
-            </section>
+✓ Baseline: 24 scenarios
+✓ Unit tests: 58 found
 
-            <section id="running">
-                <h2>5. Running the Validator 🚀</h2>
+🤖 AI analyzing coverage...
 
-                <h3>Normal Run</h3>
-                <div class="code-block">
-# Validate all services
-npm run validate
+POST /api/customers:
 
-# Validate specific service
-npm run validate -- --service customer-service
+Scenario 1: "Create customer with valid data returns 201"
+  ✅ COVERED by: CustomerControllerTest.createCustomer_Success
+  Coverage: COMPLETE - Tests valid creation, status code, response
 
-# Validate only changed services (based on git diff)
-npm run validate -- --changed
+Scenario 2: "Invalid email format returns 400"
+  ⚠️ PARTIAL - Found validation test but doesn't check error message
+  Missing: Verify error message contains "invalid email format"
+
+Scenario 3: "Duplicate email returns 409"
+  ❌ NOT COVERED - No test found for duplicate email scenario
+  Action: Add test for duplicate email conflict
                 </div>
 
-                <h3>Dry Run (No Pre-Commit Enforcement)</h3>
-                <div class="code-block">
-# Run without blocking commits
-npm run validate -- --dry-run
-                </div>
-
-                <h3>Output</h3>
+                <h3>Key Advantages</h3>
                 <ul>
-                    <li><strong>HTML Report:</strong> <code>.traceability/reports/traceability-report.html</code> (auto-opens)</li>
-                    <li><strong>JSON Report:</strong> <code>.traceability/reports/traceability-report.json</code></li>
-                    <li><strong>Markdown:</strong> <code>.traceability/reports/traceability-report.md</code></li>
-                    <li><strong>CSV:</strong> <code>.traceability/reports/traceability-report.csv</code></li>
+                    <li><strong>No Rules:</strong> AI understands context naturally</li>
+                    <li><strong>Smart Analysis:</strong> Identifies partial coverage and gaps</li>
+                    <li><strong>Actionable Feedback:</strong> Tells you exactly what's missing</li>
+                    <li><strong>Language Agnostic:</strong> Works with any test framework</li>
                 </ul>
             </section>
 
-            <section id="pre-commit">
-                <h2>6. Pre-Commit Hook Integration 🔄</h2>
+            <section id="commands">
+                <h2>5. CLI Commands 🚀</h2>
 
-                <h3>How It Works</h3>
-                <p>The pre-commit hook automatically runs on every <code>git commit</code> and:</p>
-                <ol>
-                    <li>Runs secrets scanning (Gitleaks)</li>
-                    <li>Runs traceability validation</li>
-                    <li>Blocks commit if P0 gaps exist</li>
-                    <li>Allows commit if only P1/P2/P3 gaps</li>
-                </ol>
-
-                <h3>Opt-In (Default)</h3>
-                <div class="code-block">
-# Install hooks
-npm run install-hooks
-
-# Now every commit runs validation
-git commit -m "Add feature"
-                </div>
-
-                <h3>Opt-Out (For Local Development)</h3>
-                <div class="code-block">
-# Skip validation for this commit
-git commit --no-verify -m "WIP: Feature in progress"
-
-# Or uninstall hooks
-rm .git/hooks/pre-commit
-                </div>
-
-                <div class="info-box">
-                    <strong>💡 Best Practice:</strong> Use <code>--no-verify</code> for WIP commits, but ensure validation passes before pushing.
-                </div>
-
-                <h3>Blocking Behavior</h3>
+                <h3>Available Commands</h3>
                 <table>
                     <tr>
-                        <th>Priority</th>
-                        <th>Behavior</th>
-                        <th>Config Key</th>
+                        <th>Command</th>
+                        <th>Description</th>
+                        <th>Use Case</th>
                     </tr>
                     <tr>
-                        <td><span class="badge badge-p0">P0</span></td>
-                        <td>BLOCKS commits</td>
-                        <td><code>blockOnP0Gaps: true</code></td>
+                        <td><code>npm run generate</code></td>
+                        <td>Generate test cases from Swagger</td>
+                        <td>When you have new/updated APIs</td>
                     </tr>
                     <tr>
-                        <td><span class="badge badge-p1">P1</span></td>
-                        <td>Warning only</td>
-                        <td><code>blockOnP1Gaps: false</code></td>
+                        <td><code>npm run continue</code></td>
+                        <td>Analyze coverage vs baseline</td>
+                        <td>After writing unit tests</td>
                     </tr>
                     <tr>
-                        <td><span class="badge badge-info">P2/P3</span></td>
-                        <td>Informational</td>
-                        <td>N/A</td>
+                        <td><code>npm run clean</code></td>
+                        <td>Remove generated files</td>
+                        <td>Fresh start, clean slate</td>
+                    </tr>
+                    <tr>
+                        <td><code>npm run build</code></td>
+                        <td>Compile TypeScript</td>
+                        <td>After making code changes</td>
                     </tr>
                 </table>
+
+                <h3>Environment Variables</h3>
+                <div class="code-block">
+# Required: Claude API key
+export CLAUDE_API_KEY="sk-ant-your-key-here"
+# or
+export ANTHROPIC_API_KEY="sk-ant-your-key-here"
+
+# Optional: Configure AI model
+# (set in .traceability/config.json instead)
+                </div>
+
+                <h3>Command Examples</h3>
+                <div class="code-block">
+# Full workflow
+npm run clean          # Start fresh
+npm run generate       # Generate from Swagger
+npm run continue       # Analyze coverage
+
+# Just analyze (if baseline already exists)
+npm run continue
+
+# Verbose output (debug mode)
+DEBUG=* npm run continue
+                </div>
             </section>
 
-            <section id="reports">
-                <h2>7. Interpreting Reports 📊</h2>
+            <section id="baseline">
+                <h2>6. Managing Baselines 📝</h2>
 
-                <h3>Report Sections</h3>
+                <h3>Baseline File Structure</h3>
+                <p>Location: <code>.traceability/test-cases/baseline/{service}-baseline.yml</code></p>
+
+                <h4>Format Specification</h4>
+                <div class="code-block">
+service: service-name
+
+{HTTP_METHOD} {API_PATH}:
+  happy_case:
+    - "Scenario description 1"
+    - "Scenario description 2"
+  edge_case:
+    - "Edge case scenario 1"
+  error_case:
+    - "Error scenario 1"
+    - "Error scenario 2"
+  security:
+    - "Security test scenario 1"
+                </div>
+
+                <h3>Category Guidelines</h3>
+                <table>
+                    <tr>
+                        <th>Category</th>
+                        <th>Purpose</th>
+                        <th>Examples</th>
+                    </tr>
+                    <tr>
+                        <td><strong>happy_case</strong></td>
+                        <td>Normal, expected flows</td>
+                        <td>Valid input returns 200, Data saved correctly</td>
+                    </tr>
+                    <tr>
+                        <td><strong>edge_case</strong></td>
+                        <td>Boundary conditions</td>
+                        <td>Empty list, Maximum items, Minimum values</td>
+                    </tr>
+                    <tr>
+                        <td><strong>error_case</strong></td>
+                        <td>Error handling</td>
+                        <td>Invalid input returns 400, Not found returns 404</td>
+                    </tr>
+                    <tr>
+                        <td><strong>security</strong></td>
+                        <td>Security concerns</td>
+                        <td>Unauthorized returns 401, Forbidden returns 403</td>
+                    </tr>
+                </table>
+
+                <h3>Best Practices</h3>
                 <ul>
-                    <li><strong>Coverage Overview:</strong> Overall % and scenario breakdown</li>
-                    <li><strong>Coverage Gaps:</strong> Scenarios without tests (with recommendations)</li>
-                    <li><strong>Orphan APIs:</strong> APIs discovered without scenarios/tests</li>
-                    <li><strong>Orphan Tests:</strong> Tests without scenarios (with suggested fixes)</li>
-                    <li><strong>Traceability Matrix:</strong> Scenario-to-test mapping</li>
-                    <li><strong>Visual Analytics:</strong> Charts showing coverage trends</li>
+                    <li><strong>Be Specific:</strong> Write clear, testable scenario descriptions</li>
+                    <li><strong>Include Status Codes:</strong> Mention expected HTTP status codes</li>
+                    <li><strong>One Concept Per Scenario:</strong> Each scenario should test one thing</li>
+                    <li><strong>Use Action Verbs:</strong> "Create", "Retrieve", "Update", "Delete", "Validate"</li>
+                    <li><strong>Version Control:</strong> Keep baseline files in git</li>
                 </ul>
 
-                <h3>Suggested Fixes Column (NEW)</h3>
-                <p>The orphan tests table now includes a "Suggested Fix" column:</p>
-                <table>
-                    <tr>
-                        <th>Test Category</th>
-                        <th>Suggested Fix</th>
-                    </tr>
-                    <tr>
-                        <td>💼 Business Logic</td>
-                        <td><span style="color: #dc2626;">QA Action: Create scenario for this Controller/API Test</span><br>Suggested ID: CUST-XXX</td>
-                    </tr>
-                    <tr>
-                        <td>🔧 Technical</td>
-                        <td><span style="color: #6b7280;">No action needed</span> - Infrastructure test</td>
-                    </tr>
-                </table>
+                <h3>Example: Complete Baseline</h3>
+                <div class="code-block">
+service: customer-service
 
-                <div class="success-box">
-                    <strong>✅ Auto-Open Feature:</strong> Reports automatically open in your browser after validation!
+POST /api/customers:
+  happy_case:
+    - "Create customer with valid data returns 201"
+    - "Customer ID is generated and returned"
+    - "Customer data is saved to database"
+  edge_case:
+    - "Create customer with minimal required fields only"
+    - "Create customer with all optional fields populated"
+  error_case:
+    - "Missing required field (email) returns 400"
+    - "Invalid email format returns 400"
+    - "Duplicate email returns 409"
+  security:
+    - "Unauthenticated request returns 401"
+    - "Missing required permissions returns 403"
+
+GET /api/customers/{id}:
+  happy_case:
+    - "Retrieve existing customer returns 200"
+    - "All customer fields are populated correctly"
+  error_case:
+    - "Non-existent customer ID returns 404"
+    - "Invalid UUID format returns 400"
+
+PUT /api/customers/{id}:
+  happy_case:
+    - "Update customer with valid data returns 200"
+    - "Updated fields are persisted to database"
+  error_case:
+    - "Update non-existent customer returns 404"
+    - "Invalid field values return 400"
+    - "Attempt to update email to duplicate returns 409"
+
+DELETE /api/customers/{id}:
+  happy_case:
+    - "Delete existing customer returns 204"
+    - "Customer is soft-deleted (not hard deleted)"
+  error_case:
+    - "Delete non-existent customer returns 404"
                 </div>
             </section>
 
-            <section id="fixing-orphans">
-                <h2>8. Fixing Orphan Test Recommendations 🔧</h2>
+            <section id="architecture">
+                <h2>7. System Architecture 🏗️</h2>
 
-                <h3>What is an Orphan Test?</h3>
-                <p>A unit test that exists but isn't mapped to any business scenario.</p>
-
-                <h3>Types of Orphans</h3>
-                <ol>
-                    <li><strong>Business Logic Tests (15 found)</strong> - QA action required</li>
-                    <li><strong>Technical Tests (29 found)</strong> - No action needed</li>
-                </ol>
-
-                <h3>Example: Fixing a Business Logic Orphan</h3>
-                
-                <h4>Step 1: Identify the Orphan</h4>
-                <div class="code-block">
-Test: CustomerControllerTest.getCustomers_ShouldReturnAllCustomers
-Suggested Fix: QA Action - Create scenario
-Suggested ID: CUST-XXX
-                </div>
-
-                <h4>Step 2: Create Scenario</h4>
-                <p>Add to <code>.traceability/scenarios/customer-service.scenarios.yaml</code>:</p>
-                <div class="code-block">
-- id: CUST-015
-  description: Retrieve all customers without filters
-  priority: P1
-  riskLevel: Medium
-  apiEndpoint: /api/customers
-  httpMethod: GET
-  acceptanceCriteria:
-    - Returns list of all customers
-    - Returns 200 status code
-    - Response includes customer details
-                </div>
-
-                <h4>Step 3: Re-Run Validation</h4>
-                <div class="code-block">
-npm run validate -- --service customer-service
-                </div>
-
-                <div class="success-box">
-                    <strong>✅ Result:</strong> The test is now mapped to CUST-015 and no longer orphaned!
-                </div>
-            </section>
-
-            <section id="writing-tests">
-                <h2>9. Writing Unit Tests (Best Practices) ✍️</h2>
-
-                <h3>AAA Pattern</h3>
-                <p>Follow the <strong>Arrange-Act-Assert</strong> pattern:</p>
-                <div class="code-block">
-@Test
-public void testCreateCustomer_Success() {
-    // Arrange
-    CustomerRequest request = new CustomerRequest("John", "Doe", 30);
-    
-    // Act
-    CustomerResponse response = service.createCustomer(request);
-    
-    // Assert
-    assertNotNull(response.getId());
-    assertEquals("John", response.getFirstName());
-}
-                </div>
-
-                <h3>Naming Convention</h3>
-                <p>Use descriptive names that match scenario descriptions:</p>
-                <div class="code-block">
-// Good - Matches scenario description
-@Test
-public void createCustomer_ShouldReturnSuccess_WhenValidPayload() { }
-
-// Bad - Too generic
-@Test
-public void test1() { }
-                </div>
-
-                <h3>Coverage Requirements</h3>
+                <h3>Core Modules</h3>
                 <table>
                     <tr>
-                        <th>Layer</th>
-                        <th>What to Test</th>
-                        <th>Priority</th>
+                        <th>Module</th>
+                        <th>File</th>
+                        <th>Responsibility</th>
                     </tr>
                     <tr>
-                        <td>Controller</td>
-                        <td>API endpoints, validation, status codes</td>
-                        <td><span class="badge badge-p0">P0</span></td>
+                        <td><strong>SwaggerParser</strong></td>
+                        <td>lib/core/SwaggerParser.ts</td>
+                        <td>Parse OpenAPI/Swagger specifications</td>
                     </tr>
                     <tr>
-                        <td>Service</td>
-                        <td>Business logic, error handling</td>
-                        <td><span class="badge badge-p1">P1</span></td>
+                        <td><strong>AITestCaseGenerator</strong></td>
+                        <td>lib/core/AITestCaseGenerator.ts</td>
+                        <td>Generate test cases using Claude AI</td>
                     </tr>
                     <tr>
-                        <td>Repository</td>
-                        <td>Data persistence, queries</td>
-                        <td><span class="badge badge-info">P2</span></td>
+                        <td><strong>SimpleCoverageAnalyzer</strong></td>
+                        <td>lib/core/SimpleCoverageAnalyzer.ts</td>
+                        <td>AI-based coverage analysis</td>
                     </tr>
                     <tr>
-                        <td>DTO/Mapper</td>
-                        <td>Data transformation</td>
-                        <td><span class="badge badge-info">P3</span></td>
+                        <td><strong>TestParserFactory</strong></td>
+                        <td>lib/core/TestParserFactory.ts</td>
+                        <td>Multi-language test parsing</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ServiceManager</strong></td>
+                        <td>lib/core/ServiceManager.ts</td>
+                        <td>Service configuration management</td>
                     </tr>
                 </table>
+
+                <h3>Supported Languages & Frameworks</h3>
+                <table>
+                    <tr>
+                        <th>Language</th>
+                        <th>Frameworks</th>
+                        <th>Test Patterns</th>
+                    </tr>
+                    <tr>
+                        <td>Java</td>
+                        <td>JUnit 4, JUnit 5, TestNG</td>
+                        <td>*Test.java, *Tests.java</td>
+                    </tr>
+                    <tr>
+                        <td>TypeScript/JavaScript</td>
+                        <td>Jest, Mocha, Jasmine</td>
+                        <td>*.test.ts, *.spec.ts</td>
+                    </tr>
+                    <tr>
+                        <td>Python</td>
+                        <td>Pytest, Unittest</td>
+                        <td>test_*.py, *_test.py</td>
+                    </tr>
+                    <tr>
+                        <td>Go</td>
+                        <td>Go Test</td>
+                        <td>*_test.go</td>
+                    </tr>
+                </table>
+
+                <h3>Folder Structure</h3>
+                <div class="code-block">
+.traceability/
+├── config.json                      # System configuration
+├── test-cases/
+│   ├── baseline/                    # QA-managed (git tracked)
+│   │   ├── customer-service-baseline.yml
+│   │   └── identity-service-baseline.yml
+│   ├── ai_cases/                    # AI-generated (git ignored)
+│   │   ├── customer-service-ai.json
+│   │   └── identity-service-ai.json
+│   └── reports/                     # Coverage reports (git ignored)
+│       └── coverage-analysis.txt
+                </div>
+
+                <h3>Data Flow</h3>
+                <div class="code-block">
+1. GENERATE PHASE:
+   Swagger Spec → SwaggerParser → AITestCaseGenerator → ai_cases/
+
+2. ANALYZE PHASE:
+   Baseline + Unit Tests → SimpleCoverageAnalyzer → AI Analysis → Console Output
+                </div>
             </section>
 
             <section id="troubleshooting">
-                <h2>10. Troubleshooting 🔍</h2>
+                <h2>8. Troubleshooting 🔍</h2>
 
-                <h3>Common Errors</h3>
+                <h3>Common Issues</h3>
 
-                <h4>Error: "Config file not found"</h4>
+                <h4>Error: "Claude API key required"</h4>
                 <div class="code-block">
-Solution: Ensure you're running from project root where .traceability/config.json exists
+Solution: Set environment variable
+export CLAUDE_API_KEY="sk-ant-your-key-here"
+
+# Or set in your shell profile (.bashrc, .zshrc)
+echo 'export CLAUDE_API_KEY="sk-ant-your-key"' >> ~/.zshrc
+                </div>
+
+                <h4>Error: "Config not found"</h4>
+                <div class="code-block">
+Solution: Ensure you're in project root
 cd /path/to/project-root
-npm run validate
+ls .traceability/config.json  # Should exist
+
+# If missing, check .traceability/ directory exists
                 </div>
 
-                <h4>Error: "No tests found"</h4>
+                <h4>Error: "File not found: baseline"</h4>
                 <div class="code-block">
-Solution: Check testPattern in config.json matches your test files
-For Java: "**/*Test.java" or "**/*Tests.java"
-For TypeScript: "**/*.test.ts" or "**/*.spec.ts"
+Solution: Create baseline file
+mkdir -p .traceability/test-cases/baseline
+touch .traceability/test-cases/baseline/your-service-baseline.yml
+
+# Then populate with scenarios (see section 6)
                 </div>
 
-                <h4>Issue: Low Match Scores</h4>
+                <h4>Issue: No tests found</h4>
                 <div class="code-block">
-Solution: Ensure test descriptions contain relevant keywords
-- Include API endpoint in test name
-- Use domain terms from scenario description
-- Reference scenario ID in test comments
+Solution: Check testPattern in config.json
+- Java: "**/*Test.java" or "**/*Tests.java"
+- TypeScript: "**/*.test.ts" or "**/*.spec.ts"
+- Python: "**/test_*.py" or "**/*_test.py"
+- Go: "**/*_test.go"
                 </div>
 
-                <h4>Issue: Too Many Orphan Tests</h4>
+                <h4>Issue: AI analysis seems incomplete</h4>
                 <div class="code-block">
-Solution:
-1. Create scenarios for business logic tests (Controller/Service tests)
-2. Technical tests (DTOs, Mappers) can remain as orphans
-3. Use suggested IDs from the report
+Solution: Adjust AI parameters in config.json
+{
+  "ai": {
+    "model": "claude-3-5-sonnet-20241022",
+    "temperature": 0.2,      # Lower = more focused
+    "maxTokens": 3000        # Increase for more detail
+  }
+}
                 </div>
 
+                <h3>Debug Mode</h3>
+                <div class="code-block">
+# Enable verbose logging
+DEBUG=* npm run continue
+
+# Check TypeScript compilation
+npm run build
+
+# Verify test parsing
+node -e "const {TestParserFactory} = require('./lib/core/TestParserFactory'); console.log('OK')"
+                </div>
+
+                <h3>Getting Help</h3>
                 <div class="warning-box">
-                    <strong>⚠️ Need Help?</strong> Check <code>docs/QA_GUIDE.md</code> or contact the QA Automation Team.
-                </div>
-            </section>
-
-            <section id="acceptance">
-                <h2>11. Integration Acceptance Checklist ✅</h2>
-
-                <h3>Phase 1: Configuration</h3>
-                <ul>
-                    <li>☐ Service added to <code>.traceability/config.json</code></li>
-                    <li>☐ Scenario file created at correct path</li>
-                    <li>☐ Test patterns match actual test files</li>
-                </ul>
-
-                <h3>Phase 2: Initial Run</h3>
-                <ul>
-                    <li>☐ <code>npm run validate</code> executes successfully</li>
-                    <li>☐ HTML report generates and opens</li>
-                    <li>☐ Service appears in report with correct test count</li>
-                </ul>
-
-                <h3>Phase 3: Scenario Coverage</h3>
-                <ul>
-                    <li>☐ All P0 scenarios have test coverage</li>
-                    <li>☐ P1 scenarios 80%+ covered</li>
-                    <li>☐ Business logic orphans have scenarios created</li>
-                </ul>
-
-                <h3>Phase 4: Pre-Commit Integration</h3>
-                <ul>
-                    <li>☐ Pre-commit hook installed (<code>npm run install-hooks</code>)</li>
-                    <li>☐ Test commit - validation runs automatically</li>
-                    <li>☐ P0 gaps correctly block commits</li>
-                </ul>
-
-                <h3>Phase 5: Team Onboarding</h3>
-                <ul>
-                    <li>☐ Team trained on reading reports</li>
-                    <li>☐ Process documented for adding new scenarios</li>
-                    <li>☐ QA/Dev handoff process established</li>
-                </ul>
-
-                <h3>Phase 6: Ongoing Maintenance</h3>
-                <ul>
-                    <li>☐ Weekly review of orphan tests</li>
-                    <li>☐ Monthly coverage trend analysis</li>
-                    <li>☐ Quarterly configuration review</li>
-                </ul>
-
-                <div class="success-box">
-                    <strong>🎉 Congratulations!</strong> Service integration complete when all checkboxes are checked!
+                    <strong>📧 Need Support?</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>Check documentation: <code>docs/QA_GUIDE.html</code></li>
+                        <li>Review examples: <code>.traceability/test-cases/baseline/example-baseline.yml</code></li>
+                        <li>Contact team: QA Automation Team</li>
+                    </ul>
                 </div>
             </section>
 
             <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid #e2e8f0; text-align: center; color: #718096;">
-                <p>Universal Unit-Test Traceability Validator v2.0.0 | Developer Guide</p>
-                <p>Generated: December 2025 | For more info, see <code>docs/QA_GUIDE.html</code></p>
+                <p>AI Test Coverage Analyzer v3.0.0 | Developer Guide</p>
+                <p>Powered by Claude AI | Generated: December 2025</p>
             </footer>
         </main>
     </div>

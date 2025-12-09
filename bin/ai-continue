@@ -1,0 +1,129 @@
+#!/usr/bin/env node
+
+const path = require('path');
+const fs = require('fs');
+
+if (fs.existsSync(path.join(__dirname, '../lib/core/EnhancedCoverageAnalyzer.ts'))) {
+  require('ts-node/register');
+}
+
+const { EnhancedCoverageAnalyzer } = require('../lib/core/EnhancedCoverageAnalyzer');
+const { GitChangeDetector } = require('../lib/core/GitChangeDetector');
+const { ReportGenerator } = require('../lib/core/ReportGenerator');
+
+async function main() {
+  console.log(`
+╔══════════════════════════════════════════════════════════════════════╗
+║          📊 AI-Powered Coverage Analyzer & Reporter                  ║
+║     Orphan Categorization | Git Changes | Multi-Format Reports       ║
+╚══════════════════════════════════════════════════════════════════════╝
+`);
+
+  const apiKey = process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    console.error('❌ ERROR: Claude API key required!');
+    console.error('   Set: export CLAUDE_API_KEY="sk-ant-..."');
+    process.exit(1);
+  }
+
+  const projectRoot = process.cwd();
+  const configPath = path.join(projectRoot, '.traceability/config.json');
+
+  if (!fs.existsSync(configPath)) {
+    console.error('❌ ERROR: Config not found:', configPath);
+    process.exit(1);
+  }
+
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+  const analyzer = new EnhancedCoverageAnalyzer(apiKey, projectRoot);
+  const gitDetector = new GitChangeDetector(projectRoot);
+  const reportGenerator = new ReportGenerator(projectRoot);
+
+  // Detect Git changes
+  const servicePaths = config.services.filter(s => s.enabled).map(s => s.path);
+  const gitChanges = await gitDetector.detectChanges(servicePaths);
+
+  let allAnalyses = [];
+  let hasP0Gaps = false;
+  let hasP1Gaps = false;
+
+  // Analyze each service
+  for (const service of config.services.filter(s => s.enabled)) {
+    try {
+      const analysis = await analyzer.analyze(service);
+      allAnalyses.push(analysis);
+
+      // Check for critical gaps
+      if (analysis.summary.p0Gaps > 0) {
+        hasP0Gaps = true;
+      }
+      if (analysis.summary.p1Gaps > 0) {
+        hasP1Gaps = true;
+      }
+
+      // Generate reports (HTML, JSON, CSV, Markdown)
+      const reports = await reportGenerator.generateReports(
+        analysis,
+        gitChanges,
+        {
+          formats: ['html', 'json', 'csv', 'markdown'],
+          outputDir: '.traceability/reports',
+          serviceName: service.name,
+          openHtmlAutomatically: true
+        }
+      );
+
+      console.log(`\n✅ Generated ${reports.length} reports for ${service.name}`);
+
+    } catch (error) {
+      console.error(`\n❌ Failed: ${service.name}:`, error.message);
+      if (process.env.VERBOSE) {
+        console.error(error.stack);
+      }
+    }
+  }
+
+  // Final summary
+  console.log('\n' + '='.repeat(70));
+  console.log('📋 FINAL SUMMARY');
+  console.log('='.repeat(70));
+
+  const totalP0Gaps = allAnalyses.reduce((sum, a) => sum + a.summary.p0Gaps, 0);
+  const totalP1Gaps = allAnalyses.reduce((sum, a) => sum + a.summary.p1Gaps, 0);
+  const totalP2Gaps = allAnalyses.reduce((sum, a) => sum + a.summary.p2Gaps, 0);
+  const avgCoverage = allAnalyses.length > 0 
+    ? allAnalyses.reduce((sum, a) => sum + a.coveragePercent, 0) / allAnalyses.length 
+    : 0;
+
+  console.log(`Services Analyzed: ${allAnalyses.length}`);
+  console.log(`Average Coverage: ${avgCoverage.toFixed(1)}%`);
+  console.log(`Total Gaps: P0=${totalP0Gaps}, P1=${totalP1Gaps}, P2=${totalP2Gaps}`);
+
+  if (gitChanges.summary.apisWithoutTests > 0) {
+    console.log(`\n⚠️  WARNING: ${gitChanges.summary.apisWithoutTests} new APIs without tests!`);
+  }
+
+  // Exit with appropriate code
+  if (hasP0Gaps) {
+    console.log('\n❌ ANALYSIS FAILED: P0 gaps detected!');
+    console.log('   Fix critical gaps before committing.');
+    process.exit(1);
+  }
+
+  if (hasP1Gaps && config.preCommit?.blockOnP1Gaps) {
+    console.log('\n❌ ANALYSIS FAILED: P1 gaps detected!');
+    console.log('   Fix high-priority gaps before committing.');
+    process.exit(1);
+  }
+
+  console.log('\n✅ Analysis complete! All reports generated.');
+  process.exit(0);
+}
+
+main().catch(error => {
+  console.error('\n❌ Fatal error:', error.message);
+  if (process.env.VERBOSE) {
+    console.error(error.stack);
+  }
+  process.exit(1);
+});

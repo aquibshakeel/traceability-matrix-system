@@ -1,28 +1,32 @@
 /**
- * Unit-Test-Tracer - Universal Validator Library
- * Main entry point for the validation system
+ * AI-Driven Test Coverage System
+ * Complete AI-powered test coverage analysis with advanced features
  * 
- * @package unit-test-tracer
- * @version 1.0.0
+ * @package ai-test-coverage
+ * @version 4.0.0
  */
 
-export { UniversalValidator } from './core/UniversalValidator';
-export { ScenarioLoader } from './core/ScenarioLoader';
-export { TestParserFactory } from './core/TestParserFactory';
-export { AIBasedMatcher } from './core/AIBasedMatcher';
-export { SwaggerParser } from './core/SwaggerParser';
+// Core Analysis Modules
+export { EnhancedCoverageAnalyzer } from './core/EnhancedCoverageAnalyzer';
 export { AITestCaseGenerator } from './core/AITestCaseGenerator';
-export { TestCaseOrchestrator } from './core/TestCaseOrchestrator';
+export { ServiceManager } from './core/ServiceManager';
+
+// Git & Change Detection
+export { GitChangeDetector } from './core/GitChangeDetector';
+
+// Reporting
 export { ReportGenerator } from './core/ReportGenerator';
 
-// Types
-export * from './types';
+// API Discovery
+export { SwaggerParser } from './core/SwaggerParser';
+export { APIScanner } from './core/APIScanner';
 
-// Parsers
+// Test Parsing
+export { TestParserFactory } from './core/TestParserFactory';
 export { TypeScriptTestParser } from './parsers/TypeScriptTestParser';
 export { JavaTestParser } from './parsers/JavaTestParser';
 export { PythonTestParser } from './parsers/PythonTestParser';
 export { GoTestParser } from './parsers/GoTestParser';
 
-// Re-export for convenience
-export { ValidationResult, ValidationConfig, Scenario, UnitTest } from './types';
+// Types
+export * from './types';

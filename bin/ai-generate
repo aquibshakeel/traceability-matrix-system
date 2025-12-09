@@ -1,0 +1,57 @@
+#!/usr/bin/env node
+
+const path = require('path');
+const fs = require('fs');
+
+if (fs.existsSync(path.join(__dirname, '../lib/core/AITestCaseGenerator.ts'))) {
+  require('ts-node/register');
+}
+
+const { AITestCaseGenerator } = require('../lib/core/AITestCaseGenerator');
+
+async function main() {
+  console.log(`
+╔══════════════════════════════════════════════════════════════════════╗
+║         🤖 AI Test Case Generator (Simple One-Liner Format)          ║
+╚══════════════════════════════════════════════════════════════════════╝
+`);
+
+  const apiKey = process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    console.error('❌ ERROR: Claude API key required!');
+    console.error('Set: export CLAUDE_API_KEY="sk-ant-..."');
+    process.exit(1);
+  }
+
+  const projectRoot = process.cwd();
+  const configPath = path.join(projectRoot, '.traceability/config.json');
+
+  if (!fs.existsSync(configPath)) {
+    console.error('❌ ERROR: Config not found:', configPath);
+    process.exit(1);
+  }
+
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+  const generator = new AITestCaseGenerator(apiKey, projectRoot);
+
+  for (const service of config.services.filter(s => s.enabled)) {
+    try {
+      await generator.generate(service);
+    } catch (error) {
+      console.error(`\n❌ Failed: ${service.name}:`, error.message);
+    }
+  }
+
+  console.log(`
+✅ Generation complete!
+📁 AI cases: .traceability/test-cases/ai_cases/
+📝 QA baseline: .traceability/test-cases/baseline/
+
+Next: Review AI cases and copy relevant 🆕 scenarios to baseline
+`);
+}
+
+main().catch(error => {
+  console.error('\n❌ Fatal error:', error);
+  process.exit(1);
+});
