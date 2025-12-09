@@ -11,6 +11,9 @@ export { ScenarioLoader } from './core/ScenarioLoader';
 export { TestParserFactory } from './core/TestParserFactory';
 export { SemanticMatcher } from './core/SemanticMatcher';
 export { AIBasedMatcher } from './core/AIBasedMatcher';
+export { SwaggerParser } from './core/SwaggerParser';
+export { AITestCaseGenerator } from './core/AITestCaseGenerator';
+export { TestCaseOrchestrator } from './core/TestCaseOrchestrator';
 export { ReportGenerator } from './core/ReportGenerator';
 
 // Types

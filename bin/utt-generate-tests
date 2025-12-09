@@ -1,0 +1,129 @@
+#!/usr/bin/env node
+
+/**
+ * UTT Generate Tests - AI-Powered Test Case Generation
+ * 
+ * Generates comprehensive test cases for all discovered APIs using Claude AI
+ * Implements two-folder architecture:
+ * - baseline/ (QA-managed)
+ * - ai_cases/ (AI-generated, always fresh)
+ */
+
+const path = require('path');
+const fs = require('fs');
+
+// Load TypeScript if in development
+if (fs.existsSync(path.join(__dirname, '../lib/core/TestCaseOrchestrator.ts'))) {
+  require('ts-node/register');
+}
+
+const { TestCaseOrchestrator } = require('../lib/core/TestCaseOrchestrator');
+
+async function main() {
+  console.log(`
+╔══════════════════════════════════════════════════════════════════════╗
+║         🤖 AI-Powered Test Case Generation System                    ║
+║         Two-Folder Architecture (Baseline + AI Cases)                ║
+╚══════════════════════════════════════════════════════════════════════╝
+`);
+
+  // Check for Claude API key
+  const apiKey = process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
+    console.error(`
+🚨 ERROR: Claude API key is required!
+
+Set one of these environment variables:
+  export CLAUDE_API_KEY="sk-ant-..."
+  or
+  export ANTHROPIC_API_KEY="sk-ant-..."
+
+Get your API key at: https://console.anthropic.com/
+`);
+    process.exit(1);
+  }
+
+  // Load configuration
+  const projectRoot = process.cwd();
+  const configPath = path.join(projectRoot, 'traceability.config.json');
+
+  if (!fs.existsSync(configPath)) {
+    console.error(`
+❌ ERROR: Configuration file not found!
+
+Expected: ${configPath}
+
+Run 'npm run init' to create the configuration file.
+`);
+    process.exit(1);
+  }
+
+  console.log(`📁 Project: ${projectRoot}`);
+  console.log(`⚙️  Config: ${configPath}\n`);
+
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+
+  // Initialize orchestrator
+  const orchestrator = new TestCaseOrchestrator(apiKey, projectRoot);
+
+  // Process each enabled service
+  const results = [];
+  const enabledServices = config.services.filter(s => s.enabled);
+
+  console.log(`📋 Processing ${enabledServices.length} service(s)...\n`);
+
+  for (const service of enabledServices) {
+    try {
+      const result = await orchestrator.processService(service);
+      results.push(result);
+    } catch (error) {
+      console.error(`\n❌ Failed to process ${service.name}:`, error.message);
+      results.push({
+        service: service.name,
+        apisProcessed: 0,
+        testCasesGenerated: 0,
+        deltaAnalyses: [],
+        summary: `Failed: ${error.message}`,
+        errors: [error.message]
+      });
+    }
+  }
+
+  // Generate and save comprehensive report
+  orchestrator.saveReport(results);
+
+  // Print final summary
+  const totalAPIs = results.reduce((sum, r) => sum + r.apisProcessed, 0);
+  const totalTestCases = results.reduce((sum, r) => sum + r.testCasesGenerated, 0);
+  const totalErrors = results.reduce((sum, r) => sum + r.errors.length, 0);
+
+  console.log(`
+╔══════════════════════════════════════════════════════════════════════╗
+║                        GENERATION COMPLETE                           ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+✅ Services Processed:    ${results.length}
+✅ APIs Analyzed:         ${totalAPIs}
+✅ Test Cases Generated:  ${totalTestCases}
+${totalErrors > 0 ? `❌ Errors:               ${totalErrors}\n` : ''}
+
+📁 FOLDERS:
+   .traceability/test-cases/baseline/    - QA-managed (edit these)
+   .traceability/test-cases/ai_cases/    - AI-generated (reference)
+   .traceability/test-cases/reports/     - Generation reports
+
+🎯 NEXT STEPS:
+   1. Review AI-generated cases in ai_cases/
+   2. Compare with your baseline/
+   3. Add/update relevant cases in baseline/
+
+💡 TIP: Check the detailed report for delta analysis!
+`);
+
+  process.exit(totalErrors > 0 ? 1 : 0);
+}
+
+main().catch(error => {
+  console.error('\n❌ Fatal error:', error);
+  process.exit(1);
+});

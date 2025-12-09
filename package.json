@@ -6,6 +6,7 @@
   "types": "lib/index.d.ts",
   "bin": {
     "utt-validate": "./bin/utt-validate",
+    "utt-generate-tests": "./bin/utt-generate-tests",
     "utt": "./bin/utt-validate"
   },
   "scripts": {
@@ -23,7 +24,9 @@
     "report:html": "node bin/utt-validate --all --format html",
     "report:json": "node bin/utt-validate --all --format json",
     "report:markdown": "node bin/utt-validate --all --format markdown",
-    "clean": "rm -rf .traceability/reports/*"
+    "clean": "rm -rf .traceability/reports/*",
+    "generate:tests": "node bin/utt-generate-tests",
+    "generate:tests:verbose": "node bin/utt-generate-tests --verbose"
   },
   "keywords": [
     "unit-testing",
@@ -51,7 +54,7 @@
     "cli-table3": "^0.6.3",
     "commander": "^11.1.0",
     "glob": "^10.3.10",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.1.1",
     "ora": "^5.4.1"
   },
   "devDependencies": {
