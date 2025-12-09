@@ -9,7 +9,6 @@
 export { UniversalValidator } from './core/UniversalValidator';
 export { ScenarioLoader } from './core/ScenarioLoader';
 export { TestParserFactory } from './core/TestParserFactory';
-export { SemanticMatcher } from './core/SemanticMatcher';
 export { AIBasedMatcher } from './core/AIBasedMatcher';
 export { SwaggerParser } from './core/SwaggerParser';
 export { AITestCaseGenerator } from './core/AITestCaseGenerator';
