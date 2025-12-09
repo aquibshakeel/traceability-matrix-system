@@ -1,0 +1,34 @@
+{
+  "projectRoot": ".",
+  "services": [
+    {
+      "name": "customer-service",
+      "enabled": true,
+      "path": "services/customer-service",
+      "language": "java",
+      "testFramework": "junit",
+      "testDirectory": "src/test/java",
+      "testPattern": "*Test.java"
+    },
+    {
+      "name": "identity-service",
+      "enabled": true,
+      "path": "services/identity-service",
+      "language": "java",
+      "testFramework": "junit",
+      "testDirectory": "src/test/java",
+      "testPattern": "*Test.java"
+    }
+  ],
+  "ai": {
+    "model": "claude-3-5-sonnet-20240620",
+    "temperature": 0.3,
+    "maxTokens": 2000,
+    "batchSize": 3
+  },
+  "testCases": {
+    "baselineDirectory": ".traceability/test-cases/baseline",
+    "aiCasesDirectory": ".traceability/test-cases/ai_cases",
+    "reportsDirectory": ".traceability/test-cases/reports"
+  }
+}
