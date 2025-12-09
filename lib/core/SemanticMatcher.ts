@@ -82,15 +82,7 @@ export class SemanticMatcher {
    * Calculate overall match score between scenario and test
    */
   private calculateMatchScore(scenario: Scenario, test: UnitTest): number {
-    // If scenario has explicit matching rules, prioritize regex matching
-    if (scenario.matchingRules && scenario.matchingRules.length > 0) {
-      const regexScore = this.regexMatch(scenario, test);
-      if (regexScore > 0) {
-        return regexScore; // Return 1.0 if regex matches
-      }
-    }
-    
-    // Otherwise use weighted strategy combination
+    // Use weighted strategy combination for semantic matching
     const strategies = this.config.strategies;
     const weights = this.config.weights;
     
@@ -105,7 +97,16 @@ export class SemanticMatcher {
       totalWeight += weight;
     }
 
-    return totalWeight > 0 ? totalScore / totalWeight : 0;
+    const semanticScore = totalWeight > 0 ? totalScore / totalWeight : 0;
+    
+    // If scenario has explicit regex rules, use the BEST score between semantic and regex
+    // This gives flexibility: good regex rules enhance matching, bad ones don't override semantic
+    if (scenario.matchingRules && scenario.matchingRules.length > 0) {
+      const regexScore = this.regexMatch(scenario, test);
+      return Math.max(semanticScore, regexScore); // Take the better score
+    }
+    
+    return semanticScore;
   }
 
   /**
