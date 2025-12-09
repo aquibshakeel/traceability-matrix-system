@@ -696,6 +696,40 @@ npm run generate
 - But QA can still run Phase 1 separately whenever needed
 - This separation gives QA full control over baseline management
 
+### How to Use Phase 1 (QA Independent Generation)
+
+#### Running Phase 1 Separately
+
+```bash
+# Set Claude API key (one time setup)
+export CLAUDE_API_KEY="sk-ant-your-key"
+
+# Run Phase 1 - Generate AI test scenarios
+npm run generate
+
+# Output location
+.traceability/test-cases/ai_cases/{service}-ai.yml
+```
+
+#### When QA Should Run Phase 1
+
+| Situation | Action | Benefit |
+|-----------|--------|---------|
+| New APIs added | Run `npm run generate` | Get AI suggestions for new endpoints |
+| Swagger updated | Run `npm run generate` | Refresh scenarios based on latest API specs |
+| Sprint planning | Run `npm run generate` | Use AI suggestions for test planning |
+| Baseline refresh needed | Run `npm run generate` | Get new scenario ideas from AI |
+
+#### Phase 1 QA Workflow
+
+1. **Run Generation:** Execute `npm run generate`
+2. **Review AI Output:** Check `.traceability/test-cases/ai_cases/`
+3. **Evaluate Scenarios:** Decide which AI suggestions are valuable
+4. **Update Baseline:** Add/modify scenarios in `baseline/{service}.yml`
+5. **Commit Changes:** Push updated baseline to git
+
+💡 **Key Point:** Phase 1 is **QA-driven**. You control what goes into the baseline. AI provides suggestions, but you make the final decisions based on your domain knowledge and testing strategy!
+
 ### QA Commands Reference
 
 #### Command 0: Generate Test Cases for Single API (QA-Only Feature) ⭐ NEW!
