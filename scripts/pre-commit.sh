@@ -48,14 +48,18 @@ GENERATE_EXIT=$?
 
 if [ $GENERATE_EXIT -ne 0 ]; then
   echo ""
-  echo "❌ Phase 1 FAILED!"
-  echo "Fix generation errors before committing."
-  exit 1
+  echo "⚠️  Phase 1 Warning: AI test case generation failed"
+  echo "    Reason: Could not generate AI test cases (check API key, service health, or Swagger files)"
+  echo "    Impact: AI-suggested scenarios won't be available in .traceability/test-cases/ai_cases/"
+  echo "    Action: This won't block commit - baseline scenarios will still be validated"
+  echo ""
+  echo "⚠️  Continuing with Phase 2 (coverage analysis)..."
+  echo ""
+else
+  echo ""
+  echo "✅ Phase 1 Complete - Test scenarios generated in ai_cases/"
+  echo ""
 fi
-
-echo ""
-echo "✅ Phase 1 Complete - Test scenarios generated"
-echo ""
 
 # Phase 2: Complete Coverage Analysis with Reporting
 echo "📊 Phase 2: Coverage Analysis, Git Changes & Report Generation"
@@ -70,6 +74,14 @@ echo ""
 npm run continue
 CONTINUE_EXIT=$?
 
+echo ""
+echo "📋 Reports Generated:"
+echo "   • HTML:     .traceability/reports/*-report.html (auto-opened)"
+echo "   • JSON:     .traceability/reports/*-report.json"
+echo "   • CSV:      .traceability/reports/*-report.csv"
+echo "   • Markdown: .traceability/reports/*-report.md"
+echo ""
+
 if [ $CONTINUE_EXIT -ne 0 ]; then
   echo ""
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -78,15 +90,9 @@ if [ $CONTINUE_EXIT -ne 0 ]; then
   echo ""
   echo "⛔ Critical gaps detected. Required actions:"
   echo ""
-  echo "1. 🔴 P0 Gaps: Implement missing unit tests for critical scenarios"
+  echo "1. 🔴 P0/P1 Gaps: Implement missing unit tests for critical scenarios"
   echo "2. 🔍 Orphan Tests: Review business tests that need scenarios"
   echo "3. 🆕 New APIs: Add tests for newly detected API endpoints"
-  echo ""
-  echo "📋 Reports available at:"
-  echo "   • HTML:     .traceability/reports/*-report.html"
-  echo "   • JSON:     .traceability/reports/*-report.json"
-  echo "   • CSV:      .traceability/reports/*-report.csv"
-  echo "   • Markdown: .traceability/reports/*-report.md"
   echo ""
   echo "💡 Tip: Review the HTML report (auto-opened) for detailed analysis"
   echo ""

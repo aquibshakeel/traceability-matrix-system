@@ -15,6 +15,7 @@ import * as yaml from 'js-yaml';
 import { SwaggerParser } from './SwaggerParser';
 import { APIScanner } from './APIScanner';
 import { ServiceManager } from './ServiceManager';
+import { GitChangeDetector } from './GitChangeDetector';
 import { ServiceConfig } from '../types';
 
 export interface SimpleScenarios {
@@ -51,7 +52,29 @@ export class AITestCaseGenerator {
     console.log(`\n🤖 Generating AI test cases: ${service.name}`);
     console.log('='.repeat(70));
     
-    // 1. Spin service
+    // 1. Detect git changes
+    const gitDetector = new GitChangeDetector(path.dirname(this.aiCasesDir));
+    const gitChanges = await gitDetector.detectChanges([service.path]);
+    const changeMap = new Map<string, any>();
+    
+    for (const change of gitChanges.apiChanges) {
+      const apiKey = `${change.method} ${change.endpoint}`;
+      const affectedTests = gitDetector.findAffectedTests(change.file, service.path);
+      const changeDetails = gitDetector.getChangeDetails(change.file);
+      
+      changeMap.set(apiKey, {
+        type: change.type,
+        file: change.file,
+        affectedTests,
+        changeDetails
+      });
+    }
+    
+    if (gitChanges.apiChanges.length > 0) {
+      console.log(`   ✓ Detected ${gitChanges.apiChanges.length} API changes`);
+    }
+    
+    // 2. Spin service
     await this.serviceManager.ensureServiceRunning({
       name: service.name,
       startCommand: service.startCommand,
@@ -60,16 +83,12 @@ export class AITestCaseGenerator {
       healthCheckTimeout: service.healthCheckTimeout
     });
     
-    // 2. Discover APIs
+    // 3. Discover APIs
     console.log(`\n📡 Discovering APIs...`);
     const apis = await this.discoverAPIs(service);
     console.log(`   ✓ Found ${apis.length} APIs`);
     
-    // 3. Load baseline (read-only!)
-    const baseline = this.loadBaseline(service);
-    console.log(`   ✓ Baseline has ${this.countScenarios(baseline)} scenarios`);
-    
-    // 4. Generate AI scenarios
+    // 4. Generate AI scenarios (NO access to baseline)
     console.log(`\n🤖 AI generating scenarios...`);
     const aiScenarios: SimpleScenarios = {};
     
@@ -79,11 +98,14 @@ export class AITestCaseGenerator {
       aiScenarios[apiKey] = await this.generateForAPI(api);
     }
     
-    // 5. Mark which are in baseline
+    // 5. Mark which are in baseline (separate step)
+    const baseline = this.loadBaseline(service);
+    const baselineCount = this.countScenarios(baseline);
+    console.log(`\n📋 Comparing with baseline (${baselineCount} scenarios)...`);
     const marked = this.markBaseline(aiScenarios, baseline);
     
-    // 6. Save
-    this.save(service, marked);
+    // 6. Save with change impact
+    this.save(service, marked, changeMap);
     
     console.log(`\n✅ Generation complete!`);
     console.log('='.repeat(70));
@@ -267,23 +289,69 @@ Respond in JSON:
   }
 
   /**
-   * Save AI cases
+   * Save AI cases with ✅/🆕 markers and change impact
    */
-  private save(service: ServiceConfig, scenarios: any): void {
+  private save(service: ServiceConfig, scenarios: any, changeMap: Map<string, any>): void {
     const filePath = path.join(this.aiCasesDir, `${service.name}-ai.yml`);
     
-    const data = {
-      service: service.name,
-      generated: new Date().toISOString(),
-      notes: [
-        'AI-generated scenarios (✅ = in baseline, 🆕 = new suggestion)',
-        'DO NOT EDIT - regenerated automatically',
-        'Copy relevant 🆕 scenarios to baseline/{service}-baseline.yml'
-      ],
-      ...scenarios
-    };
+    let content = `# AI-Generated Test Scenarios
+# Generated: ${new Date().toISOString()}
+# (✅ = in baseline, 🆕 = new suggestion, 🔧 = modified, ⚠️ = verify)
+# DO NOT EDIT - regenerated automatically
+# Copy relevant 🆕 scenarios to baseline/${service.name}-baseline.yml
+
+service: ${service.name}
+
+`;
+
+    // Format each API with markers and change impact
+    for (const [apiKey, categories] of Object.entries(scenarios)) {
+      const change = changeMap.get(apiKey);
+      
+      content += `# ${apiKey}\n`;
+      
+      // Add change impact if API was modified
+      if (change) {
+        content += `# 🔧 CHANGE DETECTED - ${change.type.toUpperCase()}\n`;
+        content += `# File: ${change.file}\n`;
+        
+        if (change.changeDetails) {
+          content += `# Lines changed: ${change.changeDetails.linesChanged}\n`;
+        }
+        
+        if (change.affectedTests && change.affectedTests.length > 0) {
+          content += `# ⚠️ Affected tests (${change.affectedTests.length}):\n`;
+          change.affectedTests.slice(0, 5).forEach((test: string) => {
+            content += `#   - ${test}\n`;
+          });
+          if (change.affectedTests.length > 5) {
+            content += `#   - ... and ${change.affectedTests.length - 5} more\n`;
+          }
+        }
+        
+        content += `# Action: Verify affected tests still pass, update if needed\n`;
+        content += `#\n`;
+      }
+      
+      content += `${apiKey}:\n`;
+      
+      for (const [category, scenarioList] of Object.entries(categories as any)) {
+        if (!scenarioList || !Array.isArray(scenarioList) || scenarioList.length === 0) continue;
+        
+        content += `  ${category}:\n`;
+        for (const scenario of scenarioList) {
+          // Add ⚠️ marker to scenarios if API was changed
+          if (change && scenario.includes('✅')) {
+            content += `    - ${scenario.replace('✅', '✅ ⚠️')}\n`;
+          } else {
+            content += `    - ${scenario}\n`;
+          }
+        }
+        content += `\n`;
+      }
+    }
     
-    fs.writeFileSync(filePath, yaml.dump(data, { indent: 2, lineWidth: -1 }));
+    fs.writeFileSync(filePath, content);
     console.log(`   ✓ Saved: ${filePath}`);
   }
 

@@ -1,24 +1,134 @@
 # AI-Driven Test Coverage System - Features
 
-**Version:** 4.0.0  
-**Last Updated:** December 2025
+**Version:** 5.0.0  
+**Last Updated:** December 10, 2025
 
 ## 🎯 Overview
 
-Complete AI-powered test coverage analysis system with orphan test categorization, Git change detection, and multi-format reporting.
+Complete AI-powered test coverage analysis system with **bidirectional scenario completeness detection**, **change impact analysis**, orphan test categorization, Git change detection, and multi-format reporting.
 
 ---
 
 ## ✨ Core Features
 
-### 1. AI-Powered Coverage Analysis
+### 1. Bidirectional Scenario Completeness Detection ⭐ NEW in v5.0.0
+
+**The most advanced feature - 3-layer intelligent analysis that ensures true API completeness.**
+
+#### Layer 1: Forward Check (API Spec → Baseline)
+- **Analyzes API specifications** (Swagger/OpenAPI)
+- **Compares with QA baseline** to find missing scenarios
+- **Checks if unit tests exist** for each missing scenario
+- **Categorizes gaps:**
+  - Unit test exists but scenario missing → CRITICAL (QA must add)
+  - No unit test and no scenario → Completeness gap (QA review)
+
+#### Layer 1b: Reverse Check (Unit Tests → Baseline)
+- **Finds unit tests without baseline scenarios**
+- **Reports as:** "No test case for: [test name]"
+- **Dual reporting:** Appears in both completeness gaps AND orphan tests
+- **Action:** QA reviews and adds scenario if business test
+
+#### Layer 2: Baseline ↔ Unit Tests (Core Matching)
+- **AI-powered semantic matching** using Claude
+- **Initial coverage status** per scenario
+- **NOT just string matching** - understands intent
+
+#### Layer 3: Status Adjustment (Intelligence)
+- **Adjusts status based on API completeness**
+- **FULLY_COVERED** only when:
+  - Baseline scenario has test ✓
+  - AND all API-suggested scenarios have tests ✓
+- **PARTIALLY_COVERED** when:
+  - Baseline scenario has test ✓
+  - BUT API suggests untested scenarios ⚠️
+- **Reason:** "API incomplete despite baseline covered"
+
+**Console Output:**
+```
+POST /api/customers:
+  ⚠️  API Completeness: 3 additional scenarios suggested
+     - No unit test for: "When created with invalid email, return 400"
+     - Unit test exists for: "When created with duplicate, return 409"
+  
+  🔍 Checking for unit tests without test cases...
+  ⚠️  Found 2 unit tests without baseline scenarios
+     - No test case for: "createCustomer_ShouldValidateEmail"
+  
+  📊 Status adjusted: "When customer created, return 201"
+     → PARTIALLY_COVERED (API incomplete)
+```
+
+**Benefits:**
+- ✅ Prevents incomplete baselines (even when tests exist)
+- ✅ 100% API-driven (not static rules)
+- ✅ Detects tests without scenarios
+- ✅ Intelligent status based on API spec
+- ✅ Comprehensive visibility
+
+See `docs/SCENARIO-COMPLETENESS-DETECTION.md` for complete details.
+
+### 2. Change Impact Analysis ⭐ NEW in v5.0.0
+
+**Tracks which tests are affected when code changes.**
+
+#### What It Detects:
+- **Git changes** (added/modified/removed files)
+- **Affected unit tests** for each changed file
+- **Lines changed** with before/after diff
+- **Impact on test coverage**
+
+#### How It Works:
+```typescript
+// 1. Detect changed files
+Git diff → CustomerController.java modified (lines 45-60)
+
+// 2. Find affected tests
+Search test directory → Find CustomerControllerTest
+Extract test methods → 3 tests affected
+
+// 3. Track change details
+Lines changed: 15
+Old code: [captured]
+New code: [captured]
+
+// 4. Document in ai_cases
+Mark scenarios with 🔧 and ⚠️
+List affected tests
+Provide recommendations
+```
+
+#### ai_cases File Output:
+```yaml
+# POST /api/customers
+# 🔧 CHANGE DETECTED - MODIFIED
+# File: CustomerController.java
+# Lines changed: 15
+# ⚠️ Affected tests (3):
+#   - createCustomer_ShouldReturn201_WhenValidData
+#   - createCustomer_ShouldReturn400_WhenInvalidEmail
+#   - createCustomer_ShouldReturn409_WhenDuplicateEmail
+# Action: Verify affected tests still pass, update if needed
+
+POST /api/customers:
+  happy_case:
+    - When customer created with valid data, return 201  ✅ ⚠️
+```
+
+**Benefits:**
+- ✅ Know which tests to re-run after changes
+- ✅ See impact of code modifications
+- ✅ Track coverage degradation
+- ✅ Before/after code comparison
+
+### 3. AI-Powered Coverage Analysis
 - **AI Model:** Claude 3.5 Sonnet
 - **Intelligent Matching:** Maps test scenarios to unit tests using natural language understanding
 - **Coverage Detection:** Identifies FULLY_COVERED, PARTIALLY_COVERED, and NOT_COVERED scenarios
 - **Gap Analysis:** Pinpoints missing tests with priority levels (P0/P1/P2/P3)
 - **Console Output:** Real-time analysis progress and results
 
-### 2. Orphan Test Categorization with AI
+### 4. Orphan Test Categorization with AI
 - **Automatic Classification:** AI categorizes orphan tests into:
   - **Technical Tests:** Infrastructure/utility tests (Entity, DTO, Mapper, etc.) - No action needed
   - **Business Tests:** Controller/Service tests that need business scenarios - QA action required
@@ -26,7 +136,7 @@ Complete AI-powered test coverage analysis system with orphan test categorizatio
 - **Action Recommendations:** Clear guidance on which tests need scenarios
 - **Detailed Breakdown:** Groups tests by category and subtype
 
-### 3. Git API Change Detection
+### 5. Git API Change Detection
 - **Automatic Detection:** Scans git diffs for API changes
 - **Change Types:**
   - APIs Added (new endpoints without tests)
@@ -38,7 +148,7 @@ Complete AI-powered test coverage analysis system with orphan test categorizatio
 - **Impact Analysis:** Identifies APIs without test coverage
 - **Recommendations:** Actionable guidance for each change
 
-### 4. Multi-Format Report Generation
+### 6. Multi-Format Report Generation
 
 #### HTML Reports
 - **Interactive Dashboard** with visual analytics
@@ -66,7 +176,7 @@ Complete AI-powered test coverage analysis system with orphan test categorizatio
 - **Git-Compatible:** Version control ready
 - **Stakeholder Reports:** Easy to share and read
 
-### 5. AI Test Case Generation
+### 7. AI Test Case Generation
 - **Swagger/OpenAPI Integration:** Automatically generates test scenarios from API specs
 - **Code-Based Discovery:** Scans controllers for undocumented APIs
 - **Comprehensive Coverage:**
@@ -79,14 +189,14 @@ Complete AI-powered test coverage analysis system with orphan test categorizatio
   - `ai_cases/`: AI-generated, regenerated fresh
 - **Delta Analysis:** Compares AI suggestions vs baseline
 
-### 6. Multi-Language Support
+### 8. Multi-Language Support
 - **Java:** JUnit 4, JUnit 5, TestNG
 - **TypeScript/JavaScript:** Jest, Mocha, Jasmine
 - **Python:** Pytest, Unittest  
 - **Go:** Go Test
 - **Extensible:** Easy to add new language parsers
 
-### 7. Pre-Commit Validation
+### 9. Pre-Commit Validation
 - **Automatic Hook:** Runs on every commit
 - **Two-Phase Process:**
   1. AI test case generation
@@ -366,5 +476,5 @@ MIT
 
 ---
 
-**Generated by:** AI-Driven Test Coverage System v4.0.0  
-**Last Updated:** December 2025
+**Generated by:** AI-Driven Test Coverage System v5.0.0  
+**Last Updated:** December 10, 2025

@@ -102,6 +102,10 @@ export class EnhancedCoverageAnalyzer {
     
     const baseline = this.loadYAML(baselinePath);
     
+    // Load AI cases for completeness check
+    const aiCasesPath = path.join(this.projectRoot, '.traceability/test-cases/ai_cases', `${service.name}-ai.yml`);
+    const aiCases = fs.existsSync(aiCasesPath) ? this.loadYAML(aiCasesPath) : null;
+    
     // Get unit tests
     const parser = this.testParser.getParser(service.language as any, service.testFramework as any);
     const unitTests = await parser.parseTests(service);
@@ -109,6 +113,9 @@ export class EnhancedCoverageAnalyzer {
     const scenarioCount = this.countScenarios(baseline);
     console.log(`✓ Baseline: ${scenarioCount} scenarios`);
     console.log(`✓ Unit tests: ${unitTests.length} found`);
+    if (aiCases) {
+      console.log(`✓ AI suggestions available for completeness check`);
+    }
 
     // Analyze each API
     console.log(`\n🤖 AI analyzing coverage...`);
@@ -119,7 +126,8 @@ export class EnhancedCoverageAnalyzer {
       if (api === 'service') continue;
       
       console.log(`\n${api}:`);
-      const analysis = await this.analyzeAPI(api, categories as any, unitTests);
+      const aiSuggestions = aiCases && aiCases[api] ? aiCases[api] : null;
+      const analysis = await this.analyzeAPI(api, categories as any, unitTests, aiSuggestions);
       apiAnalyses.push(analysis);
       gaps.push(...analysis.gaps);
     }
@@ -150,8 +158,80 @@ export class EnhancedCoverageAnalyzer {
     };
   }
 
-  private async analyzeAPI(api: string, categories: any, unitTests: UnitTest[]): Promise<APIAnalysis> {
+  private async analyzeAPI(api: string, categories: any, unitTests: UnitTest[], aiSuggestions: any = null): Promise<APIAnalysis> {
     const scenarios = this.flattenScenarios(categories);
+    
+    // Step 1: Analyze API spec completeness FIRST
+    const completenessGaps: GapAnalysis[] = [];
+    let hasUntestedSuggestions = false;
+    let missingScenarios: string[] = [];
+    
+    if (aiSuggestions) {
+      const aiScenarios = this.flattenScenarios(aiSuggestions);
+      missingScenarios = this.findMissingScenarios(scenarios, aiScenarios);
+      
+      if (missingScenarios.length > 0) {
+        console.log(`  ⚠️  API Completeness: ${missingScenarios.length} additional scenarios suggested by API spec`);
+        
+        // For each missing scenario, check if unit test exists
+        for (const missingScenario of missingScenarios) {
+          const hasUnitTest = this.checkIfUnitTestExists(missingScenario, unitTests);
+          
+          if (hasUnitTest) {
+            console.log(`     - Unit test exists for: "${missingScenario.substring(0, 60)}..."`);
+            completenessGaps.push({
+              api,
+              scenario: missingScenario,
+              priority: this.inferPriority(missingScenario),
+              reason: 'Unit test exists but scenario NOT in baseline (baseline incomplete)',
+              recommendations: [
+                `⚠️ CRITICAL: Unit test exists but scenario missing from baseline`,
+                `Action: QA must add this scenario to baseline`,
+                `Suggested scenario: "${missingScenario}"`,
+                `This makes baseline incomplete despite having test coverage`
+              ]
+            });
+          } else {
+            hasUntestedSuggestions = true;
+            console.log(`     - No unit test for: "${missingScenario.substring(0, 60)}..."`);
+            completenessGaps.push({
+              api,
+              scenario: missingScenario,
+              priority: this.inferPriority(missingScenario),
+              reason: 'API spec suggests scenario, but NO baseline AND NO unit test',
+              recommendations: [
+                `QA Action: Review API spec and add scenario if relevant`,
+                `Dev Action: Create unit test if scenario is added`,
+                `Suggested scenario: "${missingScenario}"`,
+                `Based on API spec analysis`
+              ]
+            });
+          }
+        }
+      }
+    }
+    
+    // Step 1b: Reverse check - Find unit tests without test cases
+    console.log(`  🔍 Checking for unit tests without test cases...`);
+    const unscenarioedTests = this.findUnscenarioedTests(scenarios, unitTests, api);
+    if (unscenarioedTests.length > 0) {
+      console.log(`  ⚠️  Found ${unscenarioedTests.length} unit tests without baseline scenarios`);
+      for (const test of unscenarioedTests) {
+        console.log(`     - No test case for: "${test.description}"`);
+        completenessGaps.push({
+          api,
+          scenario: `Unit test: ${test.description}`,
+          priority: 'P2',
+          reason: 'Unit test exists but NO corresponding test case in baseline',
+          recommendations: [
+            `⚠️ Unit test without baseline scenario detected`,
+            `Test: ${test.description}`,
+            `Action: QA should review and add scenario to baseline if this is a business test`,
+            `Or categorize as technical test if it doesn't need a scenario`
+          ]
+        });
+      }
+    }
     
     const prompt = `Analyze test coverage for API endpoint: ${api}
 
@@ -190,16 +270,29 @@ Respond in JSON format:
       const content = response.content[0].type === 'text' ? response.content[0].text : '{}';
       const analysis = this.parseAIResponse(content);
       
-      // Build result
-      const matchedTests = analysis.matches.map((m: any) => ({
-        scenario: m.scenario,
-        tests: m.testNumbers.map((n: number) => unitTests[n - 1]).filter((t: UnitTest) => t),
-        status: m.status
-      }));
+      // Build result with initial status from baseline matching
+      const matchedTests = analysis.matches.map((m: any) => {
+        let finalStatus = m.status;
+        
+        // CRITICAL: Adjust status based on API completeness
+        // If baseline scenario is covered BUT API suggests untested scenarios, mark as PARTIALLY_COVERED
+        if (m.status === 'FULLY_COVERED' && hasUntestedSuggestions) {
+          finalStatus = 'PARTIALLY_COVERED';
+          console.log(`  📊 Status adjusted: "${m.scenario.substring(0, 50)}..." → PARTIALLY_COVERED (API incomplete)`);
+        }
+        
+        return {
+          scenario: m.scenario,
+          tests: m.testNumbers.map((n: number) => unitTests[n - 1]).filter((t: UnitTest) => t),
+          status: finalStatus,
+          originalStatus: m.status,
+          adjustedDueToCompleteness: finalStatus !== m.status
+        };
+      });
 
-      const coveredCount = matchedTests.filter((m: any) => m.status === 'FULLY_COVERED').length;
-      const partialCount = matchedTests.filter((m: any) => m.status === 'PARTIALLY_COVERED').length;
-      const uncoveredCount = matchedTests.filter((m: any) => m.status === 'NOT_COVERED').length;
+      let coveredCount = matchedTests.filter((m: any) => m.status === 'FULLY_COVERED').length;
+      let partialCount = matchedTests.filter((m: any) => m.status === 'PARTIALLY_COVERED').length;
+      let uncoveredCount = matchedTests.filter((m: any) => m.status === 'NOT_COVERED').length;
 
       const gaps: GapAnalysis[] = analysis.matches
         .filter((m: any) => m.status === 'NOT_COVERED' || m.status === 'PARTIALLY_COVERED')
@@ -210,6 +303,9 @@ Respond in JSON format:
           reason: m.missing || 'No unit test found',
           recommendations: [`Create/update unit test to cover: ${m.scenario}`]
         }));
+
+      // Merge completeness gaps
+      gaps.push(...completenessGaps);
 
       console.log(`  ✅ Covered: ${coveredCount}/${scenarios.length}`);
       console.log(`  ⚠️  Gaps: ${uncoveredCount} not covered, ${partialCount} partial`);
@@ -440,5 +536,109 @@ Respond in JSON:
 
   private loadYAML(filePath: string): any {
     return yaml.load(fs.readFileSync(filePath, 'utf-8'));
+  }
+
+  /**
+   * Find scenarios in AI suggestions that are missing from baseline
+   * Uses semantic similarity to avoid false positives
+   */
+  private findMissingScenarios(baselineScenarios: string[], aiScenarios: string[]): string[] {
+    const missing: string[] = [];
+    
+    for (const aiScenario of aiScenarios) {
+      // Remove markers (✅ or 🆕) from AI scenario
+      const cleanAiScenario = aiScenario.replace(/\s*(✅|🆕)\s*$/, '').trim();
+      
+      // Check if this AI scenario is already in baseline
+      const existsInBaseline = baselineScenarios.some(baselineScenario => {
+        const cleanBaseline = baselineScenario.replace(/\s*(✅|🆕)\s*$/, '').trim();
+        return this.similar(cleanAiScenario, cleanBaseline);
+      });
+      
+      if (!existsInBaseline) {
+        missing.push(cleanAiScenario);
+      }
+    }
+    
+    return missing;
+  }
+
+  /**
+   * Check if two scenarios are similar (semantic match)
+   */
+  private similar(a: string, b: string): boolean {
+    const wordsA = a.toLowerCase().split(/\s+/);
+    const wordsB = b.toLowerCase().split(/\s+/);
+    const common = wordsA.filter(w => wordsB.includes(w)).length;
+    return common >= 4; // At least 4 common words
+  }
+
+  /**
+   * Check if unit test exists for a given scenario
+   * Uses semantic matching to find potential test coverage
+   */
+  private checkIfUnitTestExists(scenario: string, unitTests: UnitTest[]): boolean {
+    const scenarioWords = scenario.toLowerCase().split(/\s+/);
+    
+    for (const test of unitTests) {
+      const testWords = test.description.toLowerCase().split(/\s+/);
+      const commonWords = scenarioWords.filter(w => testWords.includes(w)).length;
+      
+      // If significant word overlap, consider test exists
+      if (commonWords >= 4) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  /**
+   * Find unit tests that don't have corresponding scenarios in baseline
+   * Reverse of checkIfUnitTestExists - finds orphaned tests for a specific API
+   */
+  private findUnscenarioedTests(baselineScenarios: string[], allUnitTests: UnitTest[], api: string): UnitTest[] {
+    const unscenarioed: UnitTest[] = [];
+    
+    // Filter tests that are relevant to this API
+    const relevantTests = allUnitTests.filter(test => {
+      const testLower = test.description.toLowerCase();
+      const apiLower = api.toLowerCase();
+      
+      // Check if test is related to this API endpoint
+      // Extract endpoint parts (e.g., "customers" from "/api/customers")
+      const endpointParts = apiLower.split('/').filter(p => p && p !== 'api');
+      
+      for (const part of endpointParts) {
+        if (testLower.includes(part)) {
+          return true;
+        }
+      }
+      
+      return false;
+    });
+    
+    // For each relevant test, check if it has a matching scenario
+    for (const test of relevantTests) {
+      const testWords = test.description.toLowerCase().split(/\s+/);
+      
+      let hasMatchingScenario = false;
+      for (const scenario of baselineScenarios) {
+        const scenarioWords = scenario.toLowerCase().split(/\s+/);
+        const commonWords = testWords.filter(w => scenarioWords.includes(w)).length;
+        
+        // If significant overlap, consider scenario exists for this test
+        if (commonWords >= 4) {
+          hasMatchingScenario = true;
+          break;
+        }
+      }
+      
+      if (!hasMatchingScenario) {
+        unscenarioed.push(test);
+      }
+    }
+    
+    return unscenarioed;
   }
 }

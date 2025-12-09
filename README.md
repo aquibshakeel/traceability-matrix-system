@@ -1,17 +1,22 @@
-# AI-Driven Test Coverage System v4.0.0
+# AI-Driven Test Coverage System v5.0.0
 
-Complete AI-powered test coverage analysis with orphan categorization, Git change detection, and multi-format reporting.
+Complete AI-powered test coverage analysis with bidirectional scenario completeness detection, change impact analysis, orphan categorization, and multi-format reporting.
 
 ## 🎯 What It Does
 
 ### Core Features
 
 1. **AI Test Case Generation** - Generates comprehensive test scenarios from API specs
-2. **AI Coverage Analysis** - Intelligent scenario-to-test matching with gap detection
-3. **Orphan Test Categorization** - AI categorizes orphans as Technical vs Business
-4. **Git Change Detection** - Automatically detects API changes and missing tests
-5. **Multi-Format Reports** - HTML, JSON, CSV, and Markdown reports
-6. **Pre-Commit Validation** - Comprehensive two-phase validation on every commit
+2. **Bidirectional Scenario Completeness Detection** (NEW!) - 3-layer intelligent analysis
+   - Forward Check: API spec → Baseline (detects missing scenarios)
+   - Reverse Check: Unit tests → Baseline (detects tests without scenarios)
+   - Status Adjustment: FULLY_COVERED only when API complete
+3. **AI Coverage Analysis** - Intelligent scenario-to-test matching with gap detection
+4. **Change Impact Analysis** (NEW!) - Tracks affected tests when code changes
+5. **Orphan Test Categorization** - AI categorizes orphans as Technical vs Business
+6. **Git Change Detection** - Automatically detects API changes and missing tests
+7. **Multi-Format Reports** - HTML, JSON, CSV, and Markdown reports
+8. **Pre-Commit Validation** - Comprehensive two-phase validation on every commit
 
 ## 🚀 Quick Start
 
@@ -369,37 +374,79 @@ mkdir -p .traceability/reports
 - `.traceability/test-cases/baseline/example-baseline.yml` - Example baseline
 - `scripts/pre-commit.sh` - Pre-commit hook implementation
 
-## 🌟 What's New in v4.0.0
+## 🌟 What's New in v5.0.0
 
 ### Major Features Added
-1. **Orphan Test Categorization with AI**
+
+1. **Bidirectional Scenario Completeness Detection** ⭐ NEW!
+   - **3-Layer Intelligent Analysis**
+     - Layer 1: API Spec → Baseline (detects missing scenarios)
+     - Layer 1b: Unit Tests → Baseline (detects tests without scenarios) 
+     - Layer 2: Baseline ↔ Unit Tests (core matching)
+     - Layer 3: Status Adjustment (adjusts based on API completeness)
+   - **Smart Status Assignment**
+     - FULLY_COVERED only when baseline complete AND API complete
+     - PARTIALLY_COVERED when baseline covered BUT API suggests untested scenarios
+     - NOT_COVERED when no unit test exists
+   - **Dual Reporting**
+     - Completeness gaps (API-centric view)
+     - Orphan tests (test-centric view)
+   - See `docs/SCENARIO-COMPLETENESS-DETECTION.md` for details
+
+2. **Change Impact Analysis** ⭐ NEW!
+   - Detects code changes via Git
+   - Identifies affected unit tests
+   - Tracks lines changed with before/after diff
+   - Marks scenarios needing re-verification
+   - Documents impact in ai_cases files with 🔧 markers
+
+3. **Enhanced Console Output**
+   - Completeness check progress
+   - "No test case for: [test]" warnings
+   - "No unit test for: [scenario]" warnings
+   - Status adjustment notifications
+   - Detailed gap categorization
+
+### Previous Features (v4.0.0)
+
+4. **Orphan Test Categorization with AI**
    - Automatic classification: Technical vs Business
    - Priority assignment (P0-P3)
    - Action recommendations
 
-2. **Git API Change Detection**
+5. **Git API Change Detection**
    - Detects added/modified/removed APIs
    - Identifies APIs without tests
    - Actionable recommendations
 
-3. **Multi-Format Reporting**
+6. **Multi-Format Reporting**
    - HTML (interactive dashboard with auto-open)
    - JSON (CI/CD integration)
    - CSV (spreadsheet analysis)
    - Markdown (documentation)
 
-4. **Enhanced Pre-Commit Hook**
+7. **Enhanced Pre-Commit Hook**
    - Comprehensive two-phase workflow
    - All features run automatically
    - Better progress output
    - Multi-format report generation
 
-### Improvements
-- Better console output with progress indicators
-- Cleaner code structure
-- Removed redundant modules
-- Updated all documentation
-- TypeScript compilation optimized
+### Improvements in v5.0.0
+- ✅ True API-driven completeness detection
+- ✅ Bidirectional gap analysis
+- ✅ Intelligent status adjustment based on API spec
+- ✅ Enhanced change tracking with affected tests
+- ✅ Comprehensive console output
+- ✅ All documentation updated to match implementation
+- ✅ Better error messages and recommendations
+
+## 📚 Additional Documentation
+
+- `docs/TESTING-GUIDE.md` - Complete testing guide for all features
+- `docs/SCENARIO-COMPLETENESS-DETECTION.md` - Detailed completeness detection guide
+- `FEATURES.md` - Complete feature list with examples
+- `PROJECT-AUDIT.md` - System consistency audit
+- `.traceability/test-cases/baseline/example-baseline.yml` - Example baseline
 
 ## 📄 License
 
@@ -408,13 +455,15 @@ MIT
 ## 🤝 Support
 
 For issues or questions:
-1. Check `FEATURES.md` for detailed feature documentation
-2. Review `PROJECT-AUDIT.md` for system overview
-3. Check generated reports for specific issues
+1. Check `docs/TESTING-GUIDE.md` for comprehensive testing guide
+2. Check `docs/SCENARIO-COMPLETENESS-DETECTION.md` for completeness detection
+3. Review `FEATURES.md` for detailed feature documentation
+4. Check generated reports for specific issues
 
 ---
 
-**Version:** 4.0.0  
+**Version:** 5.0.0  
+**Release Date:** December 10, 2025  
 **Status:** Production Ready  
 **Build:** ✅ Passing  
-**Features:** Complete
+**Features:** Complete with Bidirectional Completeness Detection & Change Impact Analysis

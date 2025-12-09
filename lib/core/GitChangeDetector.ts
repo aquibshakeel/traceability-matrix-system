@@ -16,6 +16,12 @@ export interface APIChange {
   hasTest: boolean;
   hasScenario: boolean;
   recommendation: string;
+  affectedTests?: string[];  // NEW: Tests that may be affected
+  changeDetails?: {          // NEW: Details about the change
+    linesChanged: number;
+    oldCode?: string;
+    newCode?: string;
+  };
 }
 
 export interface GitChangeAnalysis {
@@ -340,6 +346,132 @@ export class GitChangeDetector {
       return this.extractAPIsFromContent(content);
     } catch (error) {
       return [];
+    }
+  }
+
+  /**
+   * Find unit tests that may be affected by changes to a file
+   */
+  findAffectedTests(changedFile: string, servicePath: string): string[] {
+    const affectedTests: string[] = [];
+    
+    // Derive test file name from source file
+    // e.g., CustomerController.java -> CustomerControllerTest.java
+    const fileName = path.basename(changedFile, path.extname(changedFile));
+    const testFileName = `${fileName}Test`;
+    
+    // Search for test files
+    try {
+      const testDir = path.join(this.projectRoot, servicePath, 'src/test');
+      if (fs.existsSync(testDir)) {
+        const testFiles = this.findFilesRecursive(testDir, testFileName);
+        
+        for (const testFile of testFiles) {
+          const tests = this.extractTestNamesFromFile(testFile);
+          affectedTests.push(...tests);
+        }
+      }
+    } catch (error) {
+      // Test directory doesn't exist or other error
+    }
+    
+    return affectedTests;
+  }
+
+  /**
+   * Recursively find files matching a pattern
+   */
+  private findFilesRecursive(dir: string, pattern: string): string[] {
+    const results: string[] = [];
+    
+    if (!fs.existsSync(dir)) {
+      return results;
+    }
+    
+    const files = fs.readdirSync(dir);
+    
+    for (const file of files) {
+      const filePath = path.join(dir, file);
+      const stat = fs.statSync(filePath);
+      
+      if (stat.isDirectory()) {
+        results.push(...this.findFilesRecursive(filePath, pattern));
+      } else if (file.includes(pattern)) {
+        results.push(filePath);
+      }
+    }
+    
+    return results;
+  }
+
+  /**
+   * Extract test method names from a test file
+   */
+  private extractTestNamesFromFile(filePath: string): string[] {
+    const testNames: string[] = [];
+    
+    try {
+      const content = fs.readFileSync(filePath, 'utf-8');
+      const lines = content.split('\n');
+      
+      for (const line of lines) {
+        // Java test methods: @Test ... public void testName()
+        const javaMatch = line.match(/@Test.*?(?:public|private)\s+void\s+(\w+)\s*\(/);
+        if (javaMatch) {
+          testNames.push(javaMatch[1]);
+          continue;
+        }
+        
+        // TypeScript/JavaScript test methods: it('test name', ...)
+        const jsMatch = line.match(/(?:it|test)\s*\(\s*['"]([^'"]+)['"]/);
+        if (jsMatch) {
+          testNames.push(jsMatch[1]);
+          continue;
+        }
+      }
+    } catch (error) {
+      // File read error
+    }
+    
+    return testNames;
+  }
+
+  /**
+   * Get change details for a file (lines changed, old vs new code)
+   */
+  getChangeDetails(file: string): { linesChanged: number; oldCode?: string; newCode?: string } | null {
+    try {
+      const diff = execSync(`git diff HEAD -- "${file}"`, {
+        cwd: this.projectRoot,
+        encoding: 'utf-8'
+      });
+
+      if (!diff) {
+        return null;
+      }
+
+      const lines = diff.split('\n');
+      let linesChanged = 0;
+      let oldCode = '';
+      let newCode = '';
+
+      for (const line of lines) {
+        if (line.startsWith('+') && !line.startsWith('+++')) {
+          linesChanged++;
+          newCode += line.substring(1) + '\n';
+        } else if (line.startsWith('-') && !line.startsWith('---')) {
+          linesChanged++;
+          oldCode += line.substring(1) + '\n';
+        }
+      }
+
+      return {
+        linesChanged,
+        oldCode: oldCode.trim() || undefined,
+        newCode: newCode.trim() || undefined
+      };
+    } catch (error) {
+      return null;
     }
   }
 }

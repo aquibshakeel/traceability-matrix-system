@@ -1,8 +1,8 @@
 # Developer Guide (DEV_GUIDE.md)
-## Universal Unit-Test Traceability Validator
+## AI-Driven Test Coverage System
 
-**Version:** 2.0.0  
-**Last Updated:** December 2025  
+**Version:** 5.0.0  
+**Last Updated:** December 10, 2025  
 **Audience:** Developers, DevOps Engineers, Tech Leads
 
 ---
@@ -10,16 +10,82 @@
 ## 📋 Table of Contents
 
 1. [What is This System?](#what-is-this-system)
-2. [Quick Setup (5 Minutes)](#quick-setup-5-minutes)
-3. [Integration Guide](#integration-guide)
-4. [How the Validator Works](#how-the-validator-works)
-5. [Running Locally](#running-locally)
-6. [Pre-Commit Hook](#pre-commit-hook)
-7. [Interpreting Reports](#interpreting-reports)
-8. [Fixing Orphan Tests](#fixing-orphan-tests)
-9. [Writing Unit Tests - Best Practices](#writing-unit-tests---best-practices)
-10. [Troubleshooting](#troubleshooting)
-11. [Integration Acceptance Checklist](#integration-acceptance-checklist)
+2. [What's New in v5.0.0](#whats-new-in-v50)
+3. [Quick Setup (5 Minutes)](#quick-setup-5-minutes)
+4. [Integration Guide](#integration-guide)
+5. [How the System Works](#how-the-system-works)
+6. [Running Locally](#running-locally)
+7. [Pre-Commit Hook](#pre-commit-hook)
+8. [Interpreting Reports](#interpreting-reports)
+9. [Understanding Scenario Completeness](#understanding-scenario-completeness)
+10. [Fixing Orphan Tests](#fixing-orphan-tests)
+11. [Writing Unit Tests - Best Practices](#writing-unit-tests---best-practices)
+12. [Troubleshooting](#troubleshooting)
+13. [Integration Acceptance Checklist](#integration-acceptance-checklist)
+
+---
+
+## ⭐ What's New in v5.0.0
+
+### Major Features Added
+
+#### 1. Bidirectional Scenario Completeness Detection
+The system now performs **3-layer intelligent analysis** to ensure true API completeness:
+
+**Layer 1: Forward Check (API Spec → Baseline)**
+- Analyzes API specifications to find missing scenarios
+- Checks if unit tests exist for missing scenarios
+- Categorizes gaps as CRITICAL or completeness issues
+
+**Layer 1b: Reverse Check (Unit Tests → Baseline)**
+- Finds unit tests without baseline scenarios
+- Reports as "No test case for: [test]"
+- Dual reporting in both completeness gaps AND orphan tests
+
+**Layer 2: Baseline ↔ Unit Tests (Core Matching)**
+- AI-powered semantic matching
+- Initial coverage status determination
+
+**Layer 3: Status Adjustment (Intelligence)**
+- FULLY_COVERED only when baseline + API complete
+- PARTIALLY_COVERED when baseline covered but API incomplete
+- Smart status based on API spec analysis
+
+**Console Output Example:**
+```
+POST /api/customers:
+  ⚠️  API Completeness: 3 additional scenarios suggested
+     - No unit test for: "When created with invalid email..."
+     - Unit test exists for: "When created with duplicate..."
+  
+  🔍 Checking for unit tests without test cases...
+  ⚠️  Found 2 unit tests without baseline scenarios
+     - No test case for: "createCustomer_ShouldValidateEmail"
+```
+
+#### 2. Change Impact Analysis
+Tracks which tests are affected when code changes:
+
+- Detects git changes (added/modified/removed files)
+- Finds affected unit tests
+- Tracks lines changed with before/after diff
+- Documents impact in ai_cases with 🔧 markers
+- Provides recommendations for re-verification
+
+**Benefits:**
+- Know which tests to re-run after changes
+- See impact of code modifications
+- Track coverage degradation
+- Before/after code comparison
+
+#### 3. Enhanced Console Output
+- Real-time completeness checking progress
+- "No test case for" warnings
+- "No unit test for" warnings
+- Status adjustment notifications
+- Detailed gap categorization
+
+See `docs/SCENARIO-COMPLETENESS-DETECTION.md` for complete details.
 
 ---
 
@@ -1242,10 +1308,10 @@ npx utt-validate --init                    # Initialize config
 
 ---
 
-**Version:** 2.0.0  
-**Last Updated:** December 2025  
-**Maintained By:** Universal Validator Team
+**Version:** 5.0.0  
+**Last Updated:** December 10, 2025  
+**Maintained By:** AI-Driven Test Coverage Team
 
 ---
 
-**🎉 Congratulations! You're now ready to use the Universal Unit-Test Traceability Validator!**
+**🎉 Congratulations! You're now ready to use the AI-Driven Test Coverage System v5.0.0!**

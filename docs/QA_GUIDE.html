@@ -44,7 +44,7 @@
 <body>
     <div class="header">
         <h1>📋 QA Guide</h1>
-        <p>AI Test Coverage Analyzer v3.0.0</p>
+        <p>AI Test Coverage Analyzer v5.0.0</p>
     </div>
     <div class="container">
         <nav class="sidebar">
@@ -79,26 +79,46 @@
                 </ul>
 
                 <h3>Two-Phase System</h3>
+                
+                <div class="info-box">
+                    <strong>🤔 Why Two Phases?</strong><br>
+                    Even though pre-commit runs both phases automatically, they are <strong>separated so QA can run Phase 1 independently!</strong>
+                    <br><br>
+                    <strong>Phase 1 is designed for QA to run separately</strong> - not just for pre-commit automation. This gives QA full control over baseline management.
+                </div>
+                
                 <table>
                     <tr>
                         <th>Phase</th>
                         <th>Command</th>
                         <th>Purpose</th>
-                        <th>When to Use</th>
+                        <th>When QA Uses It</th>
                     </tr>
                     <tr>
                         <td><span class="badge badge-ai">Phase 1</span></td>
                         <td><code>npm run generate</code></td>
-                        <td>Generate test scenarios from APIs</td>
-                        <td>New APIs, Swagger updates</td>
+                        <td>Generate AI test scenarios from APIs</td>
+                        <td><strong>QA runs this separately</strong> to get AI suggestions for baseline</td>
                     </tr>
                     <tr>
                         <td><span class="badge badge-success">Phase 2</span></td>
                         <td><code>npm run continue</code></td>
-                        <td>Analyze actual test coverage</td>
-                        <td>After writing unit tests</td>
+                        <td>Analyze test coverage against baseline</td>
+                        <td>After developers write tests</td>
                     </tr>
                 </table>
+                
+                <h4>QA Workflow Benefits</h4>
+                <ul>
+                    <li><strong>✅ QA Control:</strong> QA team decides which AI suggestions to add to baseline</li>
+                    <li><strong>✅ Baseline Management:</strong> Add, update, or remove scenarios independently</li>
+                    <li><strong>✅ Flexibility:</strong> Don't wait for pre-commit - generate scenarios anytime</li>
+                    <li><strong>✅ Planning:</strong> Use AI suggestions for test planning and sprint work</li>
+                </ul>
+                
+                <div class="success-box">
+                    <strong>Pre-Commit Integration:</strong> Pre-commit automatically runs both phases together, but QA can still run Phase 1 separately whenever needed. This separation gives QA full control over baseline management!
+                </div>
             </section>
 
             <section id="workflow">
@@ -682,6 +702,9 @@ touch .traceability/test-cases/baseline/your-service-baseline.yml
             </section>
 
             <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid #e2e8f0; text-align: center; color: #718096;">
-                <p>AI Test Coverage Analyzer v3.0.0 | QA Guide</p>
-                <p>Powered by Claude AI | Generated: December 2025</p>
+                <p>AI Test Coverage Analyzer v5.0.0 | QA Guide</p>
+                <p>Powered by Claude 3.5 Sonnet | Updated: December 10, 2025</p>
+                <p>✨ NEW: Bidirectional Completeness Detection & Change Impact Analysis</p>
             </footer>
+        </main>
+    </div>

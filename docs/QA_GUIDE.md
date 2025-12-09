@@ -1,8 +1,8 @@
 # QA Guide (QA_GUIDE.md)
-## Universal Unit-Test Traceability Validator
+## AI-Driven Test Coverage System
 
-**Version:** 2.0.0  
-**Last Updated:** December 2025  
+**Version:** 5.0.0  
+**Last Updated:** December 10, 2025  
 **Audience:** QA Engineers, Test Managers, Business Analysts
 
 ---
@@ -10,7 +10,8 @@
 ## 📋 Table of Contents
 
 1. [What is This System?](#what-is-this-system)
-2. [How It Works](#how-it-works)
+2. [What's New in v5.0.0](#whats-new-in-v50)
+3. [How It Works](#how-it-works)
 3. [Matching Techniques & Strategies](#matching-techniques--strategies)
 4. [Working Mechanics](#working-mechanics)
 5. [Pre-Commit Integration](#pre-commit-integration)
@@ -22,6 +23,58 @@
 11. [Action Flows](#action-flows)
 12. [Validation Checklist](#validation-checklist)
 13. [Troubleshooting & Escalation](#troubleshooting--escalation)
+
+---
+
+## ⭐ What's New in v5.0.0
+
+### Major Features for QA
+
+#### 1. Bidirectional Scenario Completeness Detection
+**What It Means for QA:**
+- System now performs 3-layer intelligent analysis
+- Detects scenarios missing from baseline (even if tests exist)
+- Finds tests without scenarios ("No test case for: [test]")
+- Smart status: FULLY_COVERED only when API truly complete
+
+**QA Impact:**
+- More accurate gap detection
+- Baseline completeness verification
+- Better visibility into missing scenarios
+- Actionable recommendations
+
+#### 2. Change Impact Analysis
+**What It Means for QA:**
+- Tracks which tests are affected by code changes
+- Shows before/after code comparison
+- Identifies scenarios needing re-verification
+- Documents impact in ai_cases files
+
+**QA Impact:**
+- Know which scenarios to re-test
+- Track regression risk
+- Faster impact assessment
+- Better change documentation
+
+#### 3. Enhanced Console Output
+**What You'll See:**
+```
+POST /api/customers:
+  ⚠️  API Completeness: 3 additional scenarios suggested
+     - No unit test for: "When created with invalid email..."
+  
+  🔍 Checking for unit tests without test cases...
+  ⚠️  Found 2 unit tests without baseline scenarios
+     - No test case for: "createCustomer_ShouldValidateEmail"
+```
+
+**QA Benefits:**
+- Real-time completeness feedback
+- Clear warnings about gaps
+- Specific action items
+- Better traceability
+
+See `docs/SCENARIO-COMPLETENESS-DETECTION.md` for complete details.
 
 ---
 
@@ -606,6 +659,42 @@ Action: Optional - add when time permits
 ---
 
 ## 🚀 Manual Execution (QA Workflow)
+
+### Why Two Phases?
+
+**Important:** Even though pre-commit runs both phases automatically, they are separated for a specific reason:
+
+**Phase 1 is designed for QA to run independently!**
+
+| Phase | Command | Purpose | When QA Uses It |
+|-------|---------|---------|-----------------|
+| **Phase 1** | `npm run generate` | Generate AI test scenarios from APIs | **QA runs this separately** to get AI suggestions for baseline |
+| **Phase 2** | `npm run continue` | Analyze test coverage against baseline | After developers write tests |
+
+### QA Workflow Benefits
+
+**Phase 1 Separate Execution:**
+```bash
+# QA runs this when:
+# - New APIs are added
+# - Swagger specs are updated
+# - Need to refresh test scenario ideas
+npm run generate
+
+# Result: ai_cases/ folder has AI suggestions
+# QA Action: Review, add/update/remove scenarios in baseline/
+```
+
+**Why This Matters:**
+- ✅ **QA Control:** QA team decides which AI suggestions to add to baseline
+- ✅ **Baseline Management:** Add, update, or remove scenarios independently
+- ✅ **Flexibility:** Don't wait for pre-commit - generate scenarios anytime
+- ✅ **Planning:** Use AI suggestions for test planning and sprint work
+
+**Pre-Commit Integration:**
+- Pre-commit automatically runs **both phases together**
+- But QA can still run Phase 1 separately whenever needed
+- This separation gives QA full control over baseline management
 
 ### QA Commands Reference
 
