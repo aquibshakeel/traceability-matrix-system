@@ -57,3 +57,5 @@ DELETE /api/customers/{id}:
   error_case:
     # - When deleting non-existent customer, return 404
     # - When deleting without authentication, return 401
+
+#dummy text

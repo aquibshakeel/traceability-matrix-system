@@ -18,6 +18,22 @@ echo "║  Phase 1: Test Generation | Phase 2: Coverage Analysis & Reporting  �
 echo "╚══════════════════════════════════════════════════════════════════════╝"
 echo ""
 
+# Try to load API key from various sources
+# 1. Check if already set
+if [ -z "$CLAUDE_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
+  # 2. Try loading from .env file
+  if [ -f ".env" ]; then
+    export $(cat .env | grep -v '^#' | xargs)
+  fi
+  
+  # 3. Try sourcing user's shell profile
+  if [ -f "$HOME/.zshrc" ]; then
+    source "$HOME/.zshrc" 2>/dev/null || true
+  elif [ -f "$HOME/.bashrc" ]; then
+    source "$HOME/.bashrc" 2>/dev/null || true
+  fi
+fi
+
 # Check for Claude API key
 if [ -z "$CLAUDE_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
   echo "❌ ERROR: Claude API key not found!"
@@ -26,6 +42,11 @@ if [ -z "$CLAUDE_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
   echo "  export CLAUDE_API_KEY=\"sk-ant-...\""
   echo "  or"
   echo "  export ANTHROPIC_API_KEY=\"sk-ant-...\""
+  echo ""
+  echo "💡 Options to fix:"
+  echo "  1. Add to ~/.zshrc:  echo 'export ANTHROPIC_API_KEY=\"your-key\"' >> ~/.zshrc"
+  echo "  2. Create .env file: echo 'ANTHROPIC_API_KEY=\"your-key\"' > .env"
+  echo "  3. Skip validation: git commit --no-verify"
   echo ""
   exit 1
 fi
