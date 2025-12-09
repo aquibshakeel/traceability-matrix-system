@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Guide - Universal Unit-Test Traceability Validator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1a202c; background: #f7fafc; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; opacity: 0.9; }
+        .container { display: flex; max-width: 1400px; margin: 0 auto; background: white; }
+        .sidebar { width: 280px; background: #2d3748; color: white; padding: 20px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+        .sidebar h3 { color: #fff; margin-bottom: 15px; font-size: 1.1em; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin: 8px 0; }
+        .sidebar a { color: #cbd5e0; text-decoration: none; display: block; padding: 8px 12px; border-radius: 5px; transition: all 0.3s; }
+        .sidebar a:hover { background: #4a5568; color: #fff; transform: translateX(5px); }
+        .content { flex: 1; padding: 40px 60px; max-width: 900px; }
+        .content h2 { color: #667eea; font-size: 2em; margin: 40px 0 20px 0; padding-bottom: 10px; border-bottom: 3px solid #667eea; }
+        .content h3 { color: #764ba2; font-size: 1.5em; margin: 30px 0 15px 0; }
+        .content h4 { color: #667eea; font-size: 1.2em; margin: 20px 0 10px 0; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold; margin: 5px 5px 5px 0; }
+        .badge-p0 { background: #dc2626; color: white; }
+        .badge-p1 { background: #f59e0b; color: white; }
+        .badge-success { background: #10b981; color: white; }
+        .badge-info { background: #3b82f6; color: white; }
+        .code-block { background: #1a202c; color: #e2e8f0; padding: 20px; border-radius: 8px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 0.9em; }
+        .info-box { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px 20px; margin: 15px 0; border-radius: 5px; }
+        .warning-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px 20px; margin: 15px 0; border-radius: 5px; }
+        .success-box { background: #d1fae5; border-left: 4px solid #10b981; padding: 15px 20px; margin: 15px 0; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        table th { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px; text-align: left; }
+        table td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        table tr:hover { background: #f7fafc; }
+        ul, ol { margin: 15px 0 15px 25px; }
+        li { margin: 8px 0; }
+        code { background: #edf2f7; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.9em; color: #d63384; }
+        @media print { .sidebar { display: none; } .content { max-width: 100%; padding: 20px; } }
+        @media (max-width: 1024px) { .container { flex-direction: column; } .sidebar { width: 100%; height: auto; position: relative; } .content { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📋 QA Guide</h1>
+        <p>Universal Unit-Test Traceability Validator v2.0.0</p>
+    </div>
+    <div class="container">
+        <nav class="sidebar">
+            <h3>📑 Table of Contents</h3>
+            <ul>
+                <li><a href="#overview">1. System Overview</a></li>
+                <li><a href="#architecture">2. Architecture & Flow</a></li>
+                <li><a href="#matching">3. Matching Strategies</a></li>
+                <li><a href="#mechanics">4. Working Mechanics</a></li>
+                <li><a href="#pre-commit">5. Pre-Commit Integration</a></li>
+                <li><a href="#manual">6. Manual Execution</a></li>
+                <li><a href="#onboarding">7. Onboarding Services</a></li>
+                <li><a href="#scenarios">8. Writing Scenarios</a></li>
+                <li><a href="#testing">9. Local Testing</a></li>
+                <li><a href="#reading-reports">10. Reading Reports</a></li>
+                <li><a href="#action-flows">11. Action Flows</a></li>
+                <li><a href="#checklist">12. Validation Checklist</a></li>
+                <li><a href="#troubleshooting">13. Troubleshooting</a></li>
+            </ul>
+        </nav>
+        <main class="content">
+            <section id="overview">
+                <h2>1. System Overview 🎯</h2>
+                <h3>What Is It?</h3>
+                <p>The Universal Unit-Test Traceability Validator is a QA automation framework that validates test coverage by mapping business scenarios to unit tests across microservices.</p>
+                <div class="info-box">
+                    <strong>💡 Purpose:</strong> Ensure every business requirement has corresponding unit test coverage and identify gaps automatically.
+                </div>
+                <h3>Scope</h3>
+                <ul>
+                    <li><strong>Services:</strong> Currently validating 2 services (customer-service, identity-service)</li>
+                    <li><strong>Test Types:</strong> Unit tests only (not E2E or integration tests)</li>
+                    <li><strong>Languages:</strong> Java, TypeScript, Python, Go</li>
+                    <li><strong>Execution:</strong> CLI-based, automated via pre-commit hooks</li>
+                </ul>
+            </section>
+
+            <section id="architecture">
+                <h2>2. Architecture & Data Flow 🏗️</h2>
+                <h3>High-Level Architecture</h3>
+                <ol>
+                    <li><strong>Service Discovery:</strong> Automatically finds all configured services</li>
+                    <li><strong>Test Parsing:</strong> Extracts unit tests from codebase</li>
+                    <li><strong>Scenario Loading:</strong> Loads business scenarios (YAML/JSON/MD)</li>
+                    <li><strong>Semantic Matching:</strong> Maps scenarios to tests using 7 strategies</li>
+                    <li><strong>Gap Analysis:</strong> Identifies coverage gaps and orphans</li>
+                    <li><strong>Report Generation:</strong> Creates HTML/JSON/Markdown/CSV reports</li>
+                </ol>
+                <h3>Data Flow</h3>
+                <div class="code-block">
+Business Scenarios (.yaml) → SemanticMatcher → Unit Tests (.java) → Coverage Analysis → Reports
+                  ↓                                        ↓
+            API Endpoints                          Orphan Detection
+                </div>
+            </section>
+
+            <section id="matching">
+                <h2>3. Matching Strategies 🧠</h2>
+                <p>The system uses <strong>7 intelligent matching strategies</strong> to map scenarios to tests:</p>
+                <table>
+                    <tr><th>Strategy</th><th>Weight</th><th>Example</th></tr>
+                    <tr><td>Exact Matching</td><td>2.0</td><td>"/api/users" = "/api/users"</td></tr>
+                    <tr><td>Fuzzy Matching</td><td>1.5</td><td>"create user" ≈ "creating users"</td></tr>
+                    <tr><td>Semantic</td><td>1.2</td><td>"create" = "add" = "insert"</td></tr>
+                    <tr><td>Keyword</td><td>1.0</td><td>POST, 404, customer</td></tr>
+                    <tr><td>Levenshtein</td><td>-</td><td>Edit distance (typos)</td></tr>
+                    <tr><td>Jaccard</td><td>-</td><td>Set-based similarity</td></tr>
+                    <tr><td>Regex</td><td>-</td><td>Pattern matching</td></tr>
+                </table>
+                <h3>Coverage Thresholds</h3>
+                <ul>
+                    <li><strong>≥75% confidence</strong> → Fully Covered ✅</li>
+                    <li><strong>60-74% confidence</strong> → Partially Covered ⚠️</li>
+                    <li><strong>&lt;60% confidence</strong> → Not Covered ❌</li>
+                </ul>
+            </section>
+
+            <section id="mechanics">
+                <h2>4. Working Mechanics 🔄</h2>
+                <h3>Step-by-Step Process</h3>
+                <ol>
+                    <li><strong>Scenario Authoring:</strong> QA creates scenarios in YAML files</li>
+                    <li><strong>Automatic Parsing:</strong> System reads existing unit tests</li>
+                    <li><strong>Intelligent Mapping:</strong> AI matches scenarios to tests</li>
+                    <li><strong>Gap Identification:</strong> Finds scenarios without tests</li>
+                    <li><strong>Orphan Detection:</strong> Finds tests without scenarios</li>
+                    <li><strong>API Discovery:</strong> Detects orphan APIs (no scenario AND no test)</li>
+                    <li><strong>Report Generation:</strong> Creates interactive HTML reports</li>
+                </ol>
+                <div class="success-box">
+                    <strong>✅ Zero Code Changes:</strong> The validator reads existing code - no modifications needed!
+                </div>
+            </section>
+
+            <section id="pre-commit">
+                <h2>5. Pre-Commit Integration 🔐</h2>
+                <h3>How It Works</h3>
+                <p>The pre-commit hook runs automatically on every <code>git commit</code>:</p>
+                <div class="code-block">
+git commit -m "Add feature"
+→ Secrets scan (Gitleaks)
+→ Traceability validation
+→ Decision: Allow or Block commit
+                </div>
+                <h3>P0 vs P1 Behavior</h3>
+                <table>
+                    <tr><th>Priority</th><th>Behavior</th><th>Impact</th></tr>
+                    <tr><td><span class="badge badge-p0">P0</span></td><td>BLOCKS commits</td><td>Must fix before committing</td></tr>
+                    <tr><td><span class="badge badge-p1">P1</span></td><td>Warning only</td><td>Commit allowed</td></tr>
+                    <tr><td><span class="badge badge-info">P2/P3</span></td><td>Informational</td><td>No impact</td></tr>
+                </table>
+                <h3>Master Pre-Commit Script</h3>
+                <p>Location: <code>scripts/pre-commit.sh</code></p>
+                <ol>
+                    <li>Runs secrets scanning</li>
+                    <li>Loads scenarios from .traceability/scenarios/</li>
+                    <li>Analyzes unit tests</li>
+                    <li>Performs semantic matching</li>
+                    <li>Generates reports</li>
+                    <li>Blocks on P0 gaps if configured</li>
+                </ol>
+            </section>
+
+            <section id="manual">
+                <h2>6. Manual Execution 🚀</h2>
+                <h3>QA Workflow Commands</h3>
+                <div class="code-block">
+# Validate all services
+npm run validate
+
+# Validate specific service
+npm run validate -- --service customer-service
+
+# Validate only changed services
+npm run validate -- --changed
+
+# Dry run (no blocking)
+npm run validate -- --dry-run
+                </div>
+                <h3>Output Locations</h3>
+                <ul>
+                    <li><strong>HTML:</strong> <code>.traceability/reports/traceability-report.html</code> (auto-opens)</li>
+                    <li><strong>JSON:</strong> <code>.traceability/reports/traceability-report.json</code></li>
+                    <li><strong>Markdown:</strong> <code>.traceability/reports/traceability-report.md</code></li>
+                    <li><strong>CSV:</strong> <code>.traceability/reports/traceability-report.csv</code></li>
+                </ul>
+            </section>
+
+            <section id="onboarding">
+                <h2>7. Onboarding a New Service 📦</h2>
+                <h3>Step 1: Add Configuration</h3>
+                <p>Edit <code>.traceability/config.json</code>:</p>
+                <div class="code-block">
+{
+  "name": "payment-service",
+  "enabled": true,
+  "path": "services/payment-service",
+  "language": "java",
+  "testFramework": "junit",
+  "testDirectory": "src/test/java",
+  "testPattern": "**/*Test.java",
+  "scenarioFile": ".traceability/scenarios/payment-service.scenarios.yaml"
+}
+                </div>
+                <h3>Step 2: Create Scenario File</h3>
+                <p>Create <code>.traceability/scenarios/payment-service.scenarios.yaml</code></p>
+                <h3>Step 3: Add Scenarios</h3>
+                <p>See section #8 for scenario format</p>
+                <h3>Step 4: Run Validation</h3>
+                <div class="code-block">
+npm run validate -- --service payment-service
+                </div>
+            </section>
+
+            <section id="scenarios">
+                <h2>8. Writing Business Scenarios ✍️</h2>
+                <h3>Scenario Format (YAML)</h3>
+                <div class="code-block">
+scenarios:
+  - id: PAY-001
+    description: Process payment with valid credit card
+    priority: P0
+    riskLevel: Critical
+    apiEndpoint: /api/payments
+    httpMethod: POST
+    acceptanceCriteria:
+      - Payment is processed successfully
+      - Returns 200 status code
+      - Transaction ID is returned
+    businessImpact: Users must be able to make payments
+                </div>
+                <h3>Priority Levels</h3>
+                <table>
+                    <tr><th>Priority</th><th>When to Use</th><th>Example</th></tr>
+                    <tr><td><span class="badge badge-p0">P0</span></td><td>Critical functionality, security, data integrity</td><td>Payment processing, user authentication</td></tr>
+                    <tr><td><span class="badge badge-p1">P1</span></td><td>Important features, common workflows</td><td>Search, filtering, sorting</td></tr>
+                    <tr><td><span class="badge badge-info">P2</span></td><td>Nice-to-have features</td><td>UI enhancements, optional fields</td></tr>
+                    <tr><td><span class="badge badge-info">P3</span></td><td>Low priority, edge cases</td><td>Rare error scenarios</td></tr>
+                </table>
+                <h3>Best Practices</h3>
+                <ul>
+                    <li>Use clear, descriptive scenario IDs (CUST-001, PAY-001)</li>
+                    <li>Include API endpoint and HTTP method</li>
+                    <li>List 2-4 acceptance criteria</li>
+                    <li>Set appropriate priority and risk level</li>
+                    <li>Add business impact for P0/P1 scenarios</li>
+                </ul>
+            </section>
+
+            <section id="testing">
+                <h2>9. Local Testing Commands 🧪</h2>
+                <h3>Exact Commands for QA</h3>
+                <div class="code-block">
+# Validate single service
+npm run validate -- --service customer-service
+
+# Validate all services
+npm run validate
+
+# Dry-run (no commit blocking)
+npm run validate -- --dry-run
+                </div>
+                <h3>Expected Output</h3>
+                <div class="code-block">
+📊 VALIDATION RESULTS
+Total Scenarios:    14
+Coverage:           71%
+Fully Covered:      6
+Partially Covered:  4
+Not Covered:        4
+P0 Critical Gaps:   4
+                </div>
+            </section>
+
+            <section id="reading-reports">
+                <h2>10. Reading Reports 📊</h2>
+                <h3>Key Report Sections</h3>
+                <ul>
+                    <li><strong>Coverage Overview:</strong> Overall % and breakdown</li>
+                    <li><strong>Coverage Gaps:</strong> Scenarios without tests (P0 highlighted)</li>
+                    <li><strong>Orphan APIs:</strong> APIs without scenarios AND tests</li>
+                    <li><strong>Orphan Tests:</strong> Tests without scenarios (with suggested fixes)</li>
+                    <li><strong>Visual Analytics:</strong> Charts and trends</li>
+                </ul>
+                <h3>Match Confidence</h3>
+                <table>
+                    <tr><th>Confidence</th><th>Status</th><th>Action</th></tr>
+                    <tr><td>≥75%</td><td><span class="badge badge-success">Fully Covered</span></td><td>No action needed</td></tr>
+                    <tr><td>60-74%</td><td><span class="badge badge-p1">Partially Covered</span></td><td>Review and improve</td></tr>
+                    <tr><td>&lt;60%</td><td><span class="badge badge-p0">Not Covered</span></td><td>Create tests (Developer)</td></tr>
+                </table>
+                <h3>Suggested Fix Column (NEW)</h3>
+                <p>Orphan tests table now includes suggested actions:</p>
+                <ul>
+                    <li><strong>Business Tests:</strong> "QA Action: Create scenario" + Suggested ID</li>
+                    <li><strong>Technical Tests:</strong> "No action needed"</li>
+                </ul>
+            </section>
+
+            <section id="action-flows">
+                <h2>11. Action Flows 🔄</h2>
+                <h3>If Orphan Scenario Discovered</h3>
+                <div class="warning-box">
+                    <strong>Scenario exists but no tests found</strong>
+                    <ol>
+                        <li>Verify scenario ID and description are correct</li>
+                        <li>Check if tests exist but don't match (low confidence)</li>
+                        <li>Create ticket for Developer to add tests</li>
+                        <li>Monitor until tests are added and mapped</li>
+                    </ol>
+                </div>
+                <h3>If Orphan Test Discovered (Business Logic)</h3>
+                <div class="info-box">
+                    <strong>Test exists but no scenario</strong>
+                    <ol>
+                        <li>Review test description in report</li>
+                        <li>Check suggested scenario ID</li>
+                        <li>Create scenario in appropriate .yaml file</li>
+                        <li>Re-run validation to confirm mapping</li>
+                    </ol>
+                </div>
+                <h3>If Orphan API Discovered</h3>
+                <div class="warning-box">
+                    <strong>API exists with NO scenario AND NO test</strong>
+                    <ol>
+                        <li>Verify API is intentional (not deprecated)</li>
+                        <li>Create scenario for the API</li>
+                        <li>Request Developer to add unit tests</li>
+                        <li>Re-run validation to confirm</li>
+                    </ol>
+                </div>
+            </section>
+
+            <section id="checklist">
+                <h2>12. Validation Checklist ✅</h2>
+                <h3>Before Sign-Off</h3>
+                <ul>
+                    <li>☐ All P0 scenarios have test coverage</li>
+                    <li>☐ P1 scenarios 80%+ covered</li>
+                    <li>☐ Business logic orphan tests have scenarios</li>
+                    <li>☐ Orphan APIs are addressed (scenarios + tests)</li>
+                    <li>☐ Pre-commit hook tested and working</li>
+                    <li>☐ Team trained on reading reports</li>
+                    <li>☐ Process documented for new scenarios</li>
+                </ul>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>13. Troubleshooting & Escalation 🔍</h2>
+                <h3>Common Issues</h3>
+                <h4>Issue: Low match confidence</h4>
+                <div class="code-block">
+Solution: Ensure test names include scenario keywords
+- Add API endpoint to test name
+- Use domain terms from scenario description
+                </div>
+                <h4>Issue: Many orphan tests</h4>
+                <div class="code-block">
+Solution: Create scenarios for business logic tests
+- Controller tests → Need scenarios
+- DTO/Mapper tests → Can remain orphaned (technical)
+                </div>
+                <h4>Issue: Pre-commit not running</h4>
+                <div class="code-block">
+Solution: Reinstall hooks
+npm run install-hooks
+                </div>
+                <h3>Escalation Steps</h3>
+                <ol>
+                    <li>Check documentation (DEV_GUIDE.html, QA_GUIDE.html)</li>
+                    <li>Review error logs in terminal output</li>
+                    <li>Contact QA Automation Team</li>
+                    <li>Create ticket with full error details</li>
+                </ol>
+            </section>
+
+            <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid #e2e8f0; text-align: center; color: #718096;">
+                <p>Universal Unit-Test Traceability Validator v2.0.0 | QA Guide</p>
+                <p>Generated: December 2025 | For more info, see <code>docs/DEV_GUIDE.html</code></p>
+            </footer>
+        </main>
+    </div>
+</body>
+</html>

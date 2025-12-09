@@ -1,17 +1,5 @@
 [
   {
-    "timestamp": "2025-12-08T23:24:53.293Z",
-    "coveragePercent": 0,
-    "totalScenarios": 0,
-    "fullyCovered": 0,
-    "p0Gaps": 0,
-    "p1Gaps": 0,
-    "p2Gaps": 0,
-    "p3Gaps": 0,
-    "orphanTests": 0,
-    "totalTests": 0
-  },
-  {
     "timestamp": "2025-12-08T23:27:04.941Z",
     "coveragePercent": 0,
     "totalScenarios": 0,
@@ -358,5 +346,17 @@
     "p3Gaps": 0,
     "orphanTests": 3,
     "totalTests": 5
+  },
+  {
+    "timestamp": "2025-12-09T02:10:55.500Z",
+    "coveragePercent": 69,
+    "totalScenarios": 16,
+    "fullyCovered": 6,
+    "p0Gaps": 5,
+    "p1Gaps": 0,
+    "p2Gaps": 0,
+    "p3Gaps": 0,
+    "orphanTests": 44,
+    "totalTests": 63
   }
 ]
