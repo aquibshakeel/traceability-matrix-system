@@ -1,0 +1,201 @@
+#!/usr/bin/env node
+
+/**
+ * AI Test Case Generator - Single API
+ * QA-only tool to generate test scenarios for a specific API endpoint
+ * 
+ * Usage:
+ *   npm run generate:api -- --service customer-service --endpoint "POST /api/customers"
+ *   npm run generate:api -- --service customer-service --endpoint "GET /api/customers/{id}"
+ * 
+ * This tool is separate from the main generation flow and is designed
+ * specifically for QA to quickly generate scenarios for one API at a time.
+ */
+
+const fs = require('fs');
+const path = require('path');
+const { program } = require('commander');
+
+// Parse command line arguments
+program
+  .option('-s, --service <name>', 'Service name (e.g., customer-service)')
+  .option('-e, --endpoint <endpoint>', 'API endpoint (e.g., "POST /api/customers")')
+  .option('-o, --output <path>', 'Output file path (optional)')
+  .parse(process.argv);
+
+const options = program.opts();
+
+// Validation
+if (!options.service) {
+  console.error('❌ Error: --service is required');
+  console.log('Usage: npm run generate:api -- --service customer-service --endpoint "POST /api/customers"');
+  process.exit(1);
+}
+
+if (!options.endpoint) {
+  console.error('❌ Error: --endpoint is required');
+  console.log('Usage: npm run generate:api -- --service customer-service --endpoint "POST /api/customers"');
+  process.exit(1);
+}
+
+console.log(`
+╔════════════════════════════════════════════════════════════╗
+║  🤖 AI Test Case Generator - Single API                   ║
+║  QA Tool for Generating Scenarios for One Endpoint        ║
+╚════════════════════════════════════════════════════════════╝
+`);
+
+console.log(`📋 Service: ${options.service}`);
+console.log(`🔗 Endpoint: ${options.endpoint}`);
+console.log('');
+
+// Import the AI generator
+const AITestCaseGenerator = require('../dist/core/AITestCaseGenerator').AITestCaseGenerator;
+const ServiceManager = require('../dist/core/ServiceManager').ServiceManager;
+const SwaggerParser = require('../dist/core/SwaggerParser').SwaggerParser;
+
+async function generateForSingleAPI() {
+  try {
+    // Load service configuration
+    const serviceManager = new ServiceManager();
+    await serviceManager.loadConfig();
+    
+    const service = serviceManager.getService(options.service);
+    if (!service) {
+      console.error(`❌ Error: Service '${options.service}' not found in configuration`);
+      process.exit(1);
+    }
+
+    console.log('✓ Service configuration loaded');
+    
+    // Parse the endpoint string
+    const endpointMatch = options.endpoint.match(/^(GET|POST|PUT|DELETE|PATCH)\s+(.+)$/i);
+    if (!endpointMatch) {
+      console.error('❌ Error: Invalid endpoint format. Use: "METHOD /path"');
+      console.error('   Examples: "POST /api/customers", "GET /api/customers/{id}"');
+      process.exit(1);
+    }
+    
+    const method = endpointMatch[1].toUpperCase();
+    const path = endpointMatch[2];
+    
+    console.log(`\n🔍 Analyzing endpoint: ${method} ${path}`);
+    
+    // Try to get API info from Swagger if available
+    let apiInfo = null;
+    const swaggerPath = `${service.path}/swagger.json`;
+    if (fs.existsSync(swaggerPath)) {
+      console.log('✓ Found Swagger specification');
+      const swaggerParser = new SwaggerParser();
+      const apis = await swaggerParser.parseSwagger(swaggerPath);
+      
+      apiInfo = apis.find(api => 
+        api.method.toUpperCase() === method && 
+        api.path === path
+      );
+      
+      if (apiInfo) {
+        console.log('✓ Endpoint found in Swagger');
+      } else {
+        console.log('⚠️  Endpoint not found in Swagger, will use generic generation');
+      }
+    } else {
+      console.log('⚠️  Swagger not found, will use generic generation');
+    }
+    
+    // Generate test cases using AI
+    console.log('\n🤖 Generating test scenarios with AI...');
+    const generator = new AITestCaseGenerator();
+    
+    // Create a minimal API object for generation
+    const apiForGeneration = apiInfo || {
+      method: method,
+      path: path,
+      summary: `${method} ${path}`,
+      responses: {}
+    };
+    
+    const scenarios = await generator.generateForSingleAPI(apiForGeneration);
+    
+    if (!scenarios || Object.keys(scenarios).length === 0) {
+      console.error('❌ Failed to generate scenarios');
+      process.exit(1);
+    }
+    
+    console.log('✓ Scenarios generated successfully');
+    
+    // Prepare output
+    const output = {
+      service: options.service,
+      generated_at: new Date().toISOString(),
+      generated_by: 'AI Test Case Generator - Single API Tool',
+      endpoint: {
+        method: method,
+        path: path,
+        full: `${method} ${path}`
+      },
+      scenarios: scenarios
+    };
+    
+    // Determine output path
+    const outputDir = path.join(process.cwd(), '.traceability', 'test-cases', 'ai_cases');
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+    
+    const sanitizedEndpoint = options.endpoint.replace(/[^a-zA-Z0-9]/g, '_');
+    const defaultOutputPath = path.join(
+      outputDir, 
+      `${options.service}-${sanitizedEndpoint}-ai.json`
+    );
+    
+    const outputPath = options.output || defaultOutputPath;
+    
+    // Save to file
+    fs.writeFileSync(outputPath, JSON.stringify(output, null, 2));
+    
+    console.log(`\n✅ Success! Test scenarios generated`);
+    console.log(`📄 Output file: ${outputPath}`);
+    
+    // Display summary
+    console.log(`\n📊 Summary:`);
+    const categoryCount = Object.keys(scenarios).length;
+    let totalScenarios = 0;
+    Object.values(scenarios).forEach(categoryScenarios => {
+      totalScenarios += categoryScenarios.length;
+    });
+    
+    console.log(`   Categories: ${categoryCount}`);
+    console.log(`   Total Scenarios: ${totalScenarios}`);
+    console.log('');
+    
+    // Display scenarios
+    console.log('📝 Generated Scenarios:');
+    console.log('─'.repeat(60));
+    
+    for (const [category, categoryScenarios] of Object.entries(scenarios)) {
+      console.log(`\n  ${category.toUpperCase().replace('_', ' ')} (${categoryScenarios.length}):`);
+      categoryScenarios.forEach((scenario, index) => {
+        console.log(`    ${index + 1}. ${scenario}`);
+      });
+    }
+    
+    console.log('\n─'.repeat(60));
+    console.log('\n💡 Next Steps:');
+    console.log('   1. Review the generated scenarios');
+    console.log('   2. Add relevant scenarios to your baseline file');
+    console.log(`   3. Baseline location: .traceability/test-cases/baseline/${options.service}.yml`);
+    console.log('\n');
+    
+  } catch (error) {
+    console.error('❌ Error generating test cases:', error.message);
+    if (error.stack) {
+      console.error('\nStack trace:');
+      console.error(error.stack);
+    }
+    process.exit(1);
+  }
+}
+
+// Run the generator
+generateForSingleAPI();

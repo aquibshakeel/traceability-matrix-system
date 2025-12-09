@@ -369,4 +369,12 @@ service: ${service.name}
       return {};
     }
   }
+
+  /**
+   * Generate scenarios for a single API endpoint
+   * Used by the QA-only single API generator tool
+   */
+  async generateForSingleAPI(api: any): Promise<any> {
+    return await this.generateForAPI(api);
+  }
 }

@@ -11,6 +11,7 @@
   "scripts": {
     "build": "tsc",
     "generate": "node bin/ai-generate",
+    "generate:api": "node bin/ai-generate-api",
     "continue": "node bin/ai-continue",
     "test:identity": "cd services/identity-service && npm test",
     "test:customer": "cd services/customer-service && ./gradlew test",

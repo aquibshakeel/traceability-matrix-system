@@ -698,6 +698,131 @@ npm run generate
 
 ### QA Commands Reference
 
+#### Command 0: Generate Test Cases for Single API (QA-Only Feature) ⭐ NEW!
+
+**Use Case:** Quickly generate AI test scenarios for ONE specific API endpoint
+
+```bash
+# Generate scenarios for a specific API
+npm run generate:api -- --service customer-service --endpoint "POST /api/customers"
+
+# With custom output path
+npm run generate:api -- --service customer-service --endpoint "GET /api/customers/{id}" --output my-scenarios.json
+```
+
+**When to Use:**
+- New API endpoint added
+- Want to refresh scenarios for one specific endpoint
+- Need inspiration for test cases
+- Don't want to regenerate all APIs
+
+**Output:**
+```
+╔════════════════════════════════════════════════════════════╗
+║  🤖 AI Test Case Generator - Single API                   ║
+║  QA Tool for Generating Scenarios for One Endpoint        ║
+╚════════════════════════════════════════════════════════════╝
+
+📋 Service: customer-service
+🔗 Endpoint: POST /api/customers
+
+✓ Service configuration loaded
+🔍 Analyzing endpoint: POST /api/customers
+✓ Found Swagger specification
+✓ Endpoint found in Swagger
+
+🤖 Generating test scenarios with AI...
+✓ Scenarios generated successfully
+
+✅ Success! Test scenarios generated
+📄 Output file: .traceability/test-cases/ai_cases/customer-service-POST__api_customers-ai.json
+
+📊 Summary:
+   Categories: 4
+   Total Scenarios: 15
+
+📝 Generated Scenarios:
+────────────────────────────────────────────────────────────
+
+  HAPPY CASE (4):
+    1. When customer created with valid data, return 201
+    2. When customer ID is generated and returned
+    3. When customer data is persisted to database
+    4. When response includes all required fields
+
+  EDGE CASE (3):
+    1. When created with only required fields
+    2. When name contains special characters
+    3. When email has international format
+
+  ERROR CASE (5):
+    1. When created with missing email, return 400
+    2. When created with invalid email format, return 400
+    3. When created with duplicate email, return 409
+    4. When created without required fields, return 422
+    5. When server error occurs, return 500
+
+  SECURITY (3):
+    1. When created without auth token, return 401
+    2. When created with invalid token, return 401
+    3. When SQL injection attempted, reject with 400
+
+────────────────────────────────────────────────────────────
+
+💡 Next Steps:
+   1. Review the generated scenarios
+   2. Add relevant scenarios to your baseline file
+   3. Baseline location: .traceability/test-cases/baseline/customer-service.yml
+```
+
+**Examples:**
+
+```bash
+# Different HTTP methods
+npm run generate:api -- --service customer-service --endpoint "GET /api/customers"
+npm run generate:api -- --service customer-service --endpoint "PUT /api/customers/{id}"
+npm run generate:api -- --service customer-service --endpoint "DELETE /api/customers/{id}"
+
+# With path parameters
+npm run generate:api -- --service identity-service --endpoint "GET /api/users/{id}"
+npm run generate:api -- --service payment-service --endpoint "POST /api/payments/{id}/refund"
+```
+
+**Benefits:**
+- ✅ **Fast:** Only generates for one API (seconds vs minutes)
+- ✅ **Focused:** Get scenarios for exactly what you need
+- ✅ **Flexible:** Run anytime without affecting other APIs
+- ✅ **Independent:** Doesn't trigger full generation flow
+
+**Generated File Format:**
+```json
+{
+  "service": "customer-service",
+  "generated_at": "2025-12-10T04:05:00.000Z",
+  "generated_by": "AI Test Case Generator - Single API Tool",
+  "endpoint": {
+    "method": "POST",
+    "path": "/api/customers",
+    "full": "POST /api/customers"
+  },
+  "scenarios": {
+    "happy_case": [
+      "When customer created with valid data, return 201",
+      "Customer ID is generated and returned"
+    ],
+    "edge_case": [
+      "When created with only required fields"
+    ],
+    "error_case": [
+      "When created with missing email, return 400"
+    ],
+    "security": [
+      "When created without auth token, return 401"
+    ]
+  }
+}
+```
+
 #### Command 1: Validate All Services
 
 **Use Case:** Weekly/sprint validation, comprehensive check
