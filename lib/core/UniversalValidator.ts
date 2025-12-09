@@ -22,6 +22,7 @@ import {
 import { ScenarioLoader } from './ScenarioLoader';
 import { TestParserFactory } from './TestParserFactory';
 import { SemanticMatcher } from './SemanticMatcher';
+import { AIBasedMatcher } from './AIBasedMatcher';
 import { ReportGenerator } from './ReportGenerator';
 import { OrphanTestCategorizer } from './OrphanTestCategorizer';
 import { GitAPIChangeDetector } from './GitAPIChangeDetector';
@@ -32,9 +33,11 @@ export class UniversalValidator {
   private scenarioLoader: ScenarioLoader;
   private testParserFactory: TestParserFactory;
   private semanticMatcher: SemanticMatcher;
+  private aiMatcher: AIBasedMatcher | null = null;
   private reportGenerator: ReportGenerator;
   private gitDetector: GitAPIChangeDetector;
   private apiScanner: APIScanner;
+  private useAI: boolean = false;
 
   constructor(config: ValidationConfig) {
     this.config = config;
@@ -44,6 +47,14 @@ export class UniversalValidator {
     this.reportGenerator = new ReportGenerator(config.reporting);
     this.gitDetector = new GitAPIChangeDetector(config.projectRoot);
     this.apiScanner = new APIScanner();
+    
+    // Initialize AI matcher if API key is available
+    const claudeApiKey = process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY;
+    if (claudeApiKey && claudeApiKey !== 'YOUR_API_KEY_HERE') {
+      this.aiMatcher = new AIBasedMatcher(config.matching, claudeApiKey);
+      this.useAI = true;
+      console.log('🤖 AI-Based Matching enabled (Claude API)');
+    }
   }
 
   /**
@@ -136,14 +147,17 @@ export class UniversalValidator {
         // Mark APIs that have tests (use bulk method for better matching)
         this.apiScanner.markAPIsWithTests(discoveredAPIs, tests);
 
-        // Map scenarios to tests
+        // Map scenarios to tests (use AI if available, fallback to semantic)
         console.log(`  Mapping scenarios to tests...`);
-        const mappings = this.semanticMatcher.mapScenarios(scenarios, tests);
+        let mappings: ScenarioMapping[];
+        
+        if (this.useAI && this.aiMatcher) {
+          mappings = await this.aiMatcher.mapScenarios(scenarios, tests);
+        } else {
+          mappings = this.semanticMatcher.mapScenarios(scenarios, tests);
+        }
+        
         console.log(`  ✓ Completed mapping analysis`);
-        
-        // Display fully covered scenarios with their matched tests
-        this.displayFullyCoveredMappings(service.name, mappings);
-        
         allMappings.push(...mappings);
 
       } catch (error) {
@@ -215,37 +229,6 @@ export class UniversalValidator {
       recommendations,
       traceabilityMatrix
     };
-  }
-
-  /**
-   * Display fully covered scenarios with their matched unit tests for verification
-   */
-  private displayFullyCoveredMappings(serviceName: string, mappings: ScenarioMapping[]): void {
-    const fullyCovered = mappings.filter(m => m.coverageStatus === 'Fully Covered');
-    
-    if (fullyCovered.length === 0) {
-      console.log(`\n  ℹ️  No fully covered scenarios found for ${serviceName}`);
-      return;
-    }
-
-    console.log(`\n  ✅ FULLY COVERED SCENARIOS (${fullyCovered.length}):`);
-    console.log(`  ${'='.repeat(80)}`);
-    
-    for (const mapping of fullyCovered) {
-      console.log(`\n  📋 Scenario: ${mapping.scenario.id}`);
-      console.log(`     Description: ${mapping.scenario.description}`);
-      console.log(`     Priority: ${mapping.scenario.priority} | Risk: ${mapping.scenario.riskLevel}`);
-      console.log(`     Match Score: ${(mapping.matchScore * 100).toFixed(1)}%`);
-      console.log(`     Matched Unit Tests (${mapping.matchedTests.length}):`);
-      
-      for (const test of mapping.matchedTests) {
-        console.log(`       ✓ ${test.id}`);
-        console.log(`         Description: ${test.description}`);
-        console.log(`         File: ${test.file}`);
-      }
-    }
-    
-    console.log(`\n  ${'='.repeat(80)}`);
   }
 
   /**

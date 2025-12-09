@@ -91,7 +91,9 @@ export type MatchingStrategy =
   | 'keyword' 
   | 'regex'
   | 'levenshtein'
-  | 'jaccard';
+  | 'jaccard'
+  | 'ai'
+  | 'fallback';
 
 export interface MatchingWeights {
   exact: number;
@@ -101,6 +103,8 @@ export interface MatchingWeights {
   regex?: number;
   levenshtein?: number;
   jaccard?: number;
+  ai?: number;
+  fallback?: number;
 }
 
 export interface NormalizationConfig {

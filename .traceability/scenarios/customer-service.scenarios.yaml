@@ -78,6 +78,7 @@ scenarios:
     riskLevel: Critical
     tags: [api, get, customer, security, auth]
 
+#newly added scenarios
   - id: CUST-015
     description: >
       When user tries to get customer with incorrect id,
@@ -174,7 +175,7 @@ scenarios:
   - id: CUST-010
     description: >
       When user tries to update non-existent customer,
-      then the system should return 404 not found error
+      then the system should return not found error
     apiEndpoint: /api/customer/:id
     httpMethod: PUT
     category: Error Handling
