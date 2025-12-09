@@ -1,0 +1,94 @@
+# AI-Generated Test Scenarios
+# Generated: 2025-12-09T23:55:14.906Z
+# (✅ = in baseline, 🆕 = new suggestion, 🔧 = modified, ⚠️ = verify)
+# DO NOT EDIT - regenerated automatically
+# Copy relevant 🆕 scenarios to baseline/customer-service-baseline.yml
+
+service: customer-service
+
+# GET /v1/customers/{id}
+GET /v1/customers/{id}:
+  happy_case:
+    - When requesting a customer with valid ID, return 200 with customer details  🆕
+    - When requesting a customer with valid ID as admin user, return complete customer profile  🆕
+    - When requesting a customer with valid ID as customer service rep, return customer details with contact history  🆕
+    - When requesting a customer that has no purchase history, return 200 with empty purchase array  🆕
+
+  edge_case:
+    - When requesting a customer with ID at maximum allowed length, return 200 with customer details  🆕
+    - When requesting a customer with ID containing special characters (if allowed), return 200 with customer details  🆕
+    - When requesting a customer with minimum privilege level, return only basic customer information  🆕
+    - When requesting a customer that was created moments ago, return complete and accurate details  🆕
+
+  error_case:
+    - When requesting a customer with non-existent ID, return 404 Not Found  🆕
+    - When requesting a customer without authentication, return 401 Unauthorized  🆕
+    - When requesting a customer without proper permissions, return 403 Forbidden  🆕
+    - When requesting a customer during system maintenance, return 503 Service Unavailable  🆕
+    - When requesting a customer with invalid ID format, return 400 Bad Request  🆕
+
+  security:
+    - When requesting a customer with SQL injection in ID parameter, reject with 400 Bad Request  🆕
+    - When requesting a customer with ID of another customer without permission, return 403 Forbidden  🆕
+    - When requesting a customer with manipulated JWT token, return 401 Unauthorized  🆕
+    - When requesting a customer with excessive requests from same IP, trigger rate limiting with 429 Too Many Requests  🆕
+
+# PUT /v1/customers/{id}
+PUT /v1/customers/{id}:
+  happy_case:
+    - When updating a customer with valid ID and data, return 200 OK  🆕
+    - When updating a customer with minimal required fields, return 200 OK  🆕
+    - When updating a customer with all possible fields, return 200 OK  🆕
+    - When updating a customer with unchanged data, return 200 OK  🆕
+
+  edge_case:
+    - When updating a customer with empty request body, handle appropriately  🆕
+    - When updating a customer with maximum length values in fields, process correctly  🆕
+    - When updating a customer with Unicode characters in text fields, store properly  🆕
+    - When updating a customer with boundary values for numeric fields, accept valid ones  🆕
+    - When updating a customer with null values for optional fields, process correctly  🆕
+
+  error_case:
+    - When updating a non-existent customer ID, return 404 Not Found  🆕
+    - When updating a customer with invalid ID format, return 400 Bad Request  🆕
+    - When updating a customer with invalid field values, return 422 Unprocessable Entity  🆕
+    - When updating a customer without proper authentication, return 401 Unauthorized  🆕
+    - When updating a customer without proper authorization, return 403 Forbidden  🆕
+    - When updating a customer during server error, return 500 Internal Server Error  🆕
+    - When updating a customer with data that conflicts with existing records, return 409 Conflict  🆕
+
+  security:
+    - When updating a customer with SQL injection in fields, sanitize input and prevent execution  🆕
+    - When updating a customer with XSS payload in text fields, escape output to prevent attacks  🆕
+    - When updating a customer with JWT token manipulation, validate token properly  🆕
+    - When updating a customer with excessive payload size, reject with appropriate error  🆕
+    - When updating a customer with CSRF attack attempt, verify CSRF token  🆕
+
+# DELETE /v1/customers/{id}
+DELETE /v1/customers/{id}:
+  happy_case:
+    - When deleting an existing customer with valid ID, return 200 OK with success message  🆕
+    - When deleting a customer with valid ID and proper authorization, customer is permanently removed from database  🆕
+    - When deleting a customer with valid ID, all associated resources are properly cleaned up  🆕
+
+  edge_case:
+    - When deleting a customer with ID at maximum allowed length, process successfully  🆕
+    - When deleting the last customer in the database, handle gracefully  🆕
+    - When deleting a customer with minimum possible valid ID value, process successfully  🆕
+    - When deleting a customer that has just been created, handle correctly  🆕
+
+  error_case:
+    - When deleting a customer with non-existent ID, return 404 Not Found  🆕
+    - When deleting a customer without proper authentication, return 401 Unauthorized  🆕
+    - When deleting a customer without proper authorization, return 403 Forbidden  🆕
+    - When deleting a customer during database maintenance, return 503 Service Unavailable  🆕
+    - When deleting a customer with invalid ID format, return 400 Bad Request  🆕
+    - When deleting a customer with dependencies that prevent deletion, return 409 Conflict  🆕
+
+  security:
+    - When attempting to delete a customer with SQL injection in ID parameter, reject and return 400  🆕
+    - When attempting to delete a customer with ID of another user without permission, return 403  🆕
+    - When attempting to delete a customer with expired authentication token, return 401  🆕
+    - When attempting to delete a customer with excessive requests, implement rate limiting  🆕
+    - When attempting to delete a customer with manipulated JWT claims, reject and log security event  🆕
+
