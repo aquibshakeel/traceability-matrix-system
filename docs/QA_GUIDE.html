@@ -184,7 +184,8 @@ npm run generate
                 <ol>
                     <li><strong>Generate Test Scenarios (Optional)</strong>
                         <ul>
-                            <li>Run <code>npm run generate</code> to get AI suggestions from Swagger</li>
+                            <li><strong>Option A:</strong> Run <code>npm run generate</code> to get AI suggestions from Swagger for all APIs</li>
+                            <li><strong>Option B:</strong> Run <code>npm run generate:api -- --service customer-service --endpoint "POST /api/customers"</code> for a single API</li>
                             <li>Review AI-generated test cases in <code>.traceability/test-cases/ai_cases/</code></li>
                             <li>Use as inspiration for your baseline</li>
                         </ul>
