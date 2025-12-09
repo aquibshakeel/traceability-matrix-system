@@ -29,13 +29,25 @@ export interface SimpleScenarios {
 
 export class AITestCaseGenerator {
   private client: Anthropic;
-  private model: string = 'claude-3-5-sonnet-20241022';
+  private model: string;
   private baselineDir: string;
   private aiCasesDir: string;
   private serviceManager: ServiceManager;
+  private projectRoot: string;
 
   constructor(apiKey: string, projectRoot: string) {
     this.client = new Anthropic({ apiKey });
+    this.projectRoot = projectRoot;
+    
+    // Load model from config
+    const configPath = path.join(projectRoot, '.traceability/config.json');
+    if (fs.existsSync(configPath)) {
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+      this.model = config.ai?.model || 'claude-3-5-sonnet-20240620';
+    } else {
+      this.model = 'claude-3-5-sonnet-20240620';
+    }
+    
     this.baselineDir = path.join(projectRoot, '.traceability/test-cases/baseline');
     this.aiCasesDir = path.join(projectRoot, '.traceability/test-cases/ai_cases');
     this.serviceManager = new ServiceManager();
