@@ -61,12 +61,11 @@ export class AIBasedMatcher {
   async mapScenarios(scenarios: Scenario[], tests: UnitTest[]): Promise<ScenarioMapping[]> {
     const mappings: ScenarioMapping[] = [];
 
-    console.log(`\n🤖 AI-Based Matching (Claude API):`);
+    console.log(`\n🤖 AI-Based Matching (Claude API - Pure AI Mode):`);
     console.log(`   Processing ${scenarios.length} scenarios against ${tests.length} tests...`);
 
     if (!this.client) {
-      console.log(`   ⚠️  No Claude API key configured - falling back to basic matching`);
-      return this.fallbackMatching(scenarios, tests);
+      throw new Error('Claude API key required for AI-based matching. Set CLAUDE_API_KEY or ANTHROPIC_API_KEY environment variable.');
     }
 
     // Process scenarios in batches to respect rate limits
@@ -119,9 +118,9 @@ export class AIBasedMatcher {
         recommendations: aiResult.recommendations
       };
     } catch (error) {
-      console.warn(`   ⚠️  AI analysis failed for ${scenario.id}: ${error instanceof Error ? error.message : String(error)}`);
-      // Fallback to basic matching for this scenario
-      return this.fallbackMatchScenario(scenario, tests);
+      console.error(`   ❌ AI analysis failed for ${scenario.id}: ${error instanceof Error ? error.message : String(error)}`);
+      // In pure AI mode, we don't fall back - throw error
+      throw new Error(`AI matching failed for scenario ${scenario.id}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -317,49 +316,4 @@ Provide your analysis as valid JSON only, no additional text.`;
     return `AI Analysis: No coverage found. ${aiResult.reasoning}`;
   }
 
-  /**
-   * Fallback to basic matching when AI is unavailable
-   */
-  private fallbackMatching(scenarios: Scenario[], tests: UnitTest[]): ScenarioMapping[] {
-    return scenarios.map(scenario => this.fallbackMatchScenario(scenario, tests));
-  }
-
-  /**
-   * Basic fallback matching for single scenario
-   */
-  private fallbackMatchScenario(scenario: Scenario, tests: UnitTest[]): ScenarioMapping {
-    // Simple keyword-based matching as fallback
-    const matchedTests = tests.filter(test => {
-      const scenarioText = scenario.description.toLowerCase();
-      const testText = test.description.toLowerCase();
-      
-      // Check for basic keyword overlap
-      const scenarioWords = scenarioText.split(/\s+/);
-      const testWords = testText.split(/\s+/);
-      
-      const overlap = scenarioWords.filter(w => 
-        w.length > 3 && testWords.some(tw => tw.includes(w) || w.includes(tw))
-      );
-
-      return overlap.length >= 2; // At least 2 overlapping words
-    });
-
-    return {
-      scenario,
-      matchedTests,
-      coverageStatus: matchedTests.length > 0 ? 'Partially Covered' : 'Not Covered',
-      matchScore: matchedTests.length > 0 ? 0.5 : 0,
-      matchDetails: matchedTests.map(test => ({
-        test,
-        strategy: 'fallback',
-        score: 0.5,
-        confidence: 0.5,
-        explanation: 'Fallback keyword matching (AI unavailable)'
-      })),
-      gapExplanation: matchedTests.length > 0 
-        ? 'Basic keyword matching applied (AI unavailable)'
-        : 'No matching tests found',
-      recommendations: ['Configure Claude API key for better matching']
-    };
-  }
 }

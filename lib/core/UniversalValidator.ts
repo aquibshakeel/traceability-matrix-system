@@ -21,7 +21,6 @@ import {
 } from '../types';
 import { ScenarioLoader } from './ScenarioLoader';
 import { TestParserFactory } from './TestParserFactory';
-import { SemanticMatcher } from './SemanticMatcher';
 import { AIBasedMatcher } from './AIBasedMatcher';
 import { ReportGenerator } from './ReportGenerator';
 import { OrphanTestCategorizer } from './OrphanTestCategorizer';
@@ -32,29 +31,32 @@ export class UniversalValidator {
   private config: ValidationConfig;
   private scenarioLoader: ScenarioLoader;
   private testParserFactory: TestParserFactory;
-  private semanticMatcher: SemanticMatcher;
-  private aiMatcher: AIBasedMatcher | null = null;
+  private aiMatcher: AIBasedMatcher;
   private reportGenerator: ReportGenerator;
   private gitDetector: GitAPIChangeDetector;
   private apiScanner: APIScanner;
-  private useAI: boolean = false;
 
   constructor(config: ValidationConfig) {
     this.config = config;
     this.scenarioLoader = new ScenarioLoader(config.projectRoot);
     this.testParserFactory = new TestParserFactory();
-    this.semanticMatcher = new SemanticMatcher(config.matching);
     this.reportGenerator = new ReportGenerator(config.reporting);
     this.gitDetector = new GitAPIChangeDetector(config.projectRoot);
     this.apiScanner = new APIScanner();
     
-    // Initialize AI matcher if API key is available
+    // AI matcher is required - check for API key
     const claudeApiKey = process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY;
-    if (claudeApiKey && claudeApiKey !== 'YOUR_API_KEY_HERE') {
-      this.aiMatcher = new AIBasedMatcher(config.matching, claudeApiKey);
-      this.useAI = true;
-      console.log('🤖 AI-Based Matching enabled (Claude API)');
+    if (!claudeApiKey || claudeApiKey === 'YOUR_API_KEY_HERE') {
+      throw new Error(
+        '🚨 Claude API key is required for AI-based matching.\n' +
+        '   Set CLAUDE_API_KEY or ANTHROPIC_API_KEY environment variable.\n' +
+        '   Get your API key at: https://console.anthropic.com/'
+      );
     }
+    
+    this.aiMatcher = new AIBasedMatcher(config.matching, claudeApiKey);
+    console.log('🤖 Pure AI-Based Matching Mode (Claude API)');
+    console.log('   All matching powered by Claude 3.5 Sonnet');
   }
 
   /**
@@ -147,17 +149,10 @@ export class UniversalValidator {
         // Mark APIs that have tests (use bulk method for better matching)
         this.apiScanner.markAPIsWithTests(discoveredAPIs, tests);
 
-        // Map scenarios to tests (use AI if available, fallback to semantic)
-        console.log(`  Mapping scenarios to tests...`);
-        let mappings: ScenarioMapping[];
-        
-        if (this.useAI && this.aiMatcher) {
-          mappings = await this.aiMatcher.mapScenarios(scenarios, tests);
-        } else {
-          mappings = this.semanticMatcher.mapScenarios(scenarios, tests);
-        }
-        
-        console.log(`  ✓ Completed mapping analysis`);
+        // Map scenarios to tests using AI only
+        console.log(`  Mapping scenarios to tests with AI...`);
+        const mappings = await this.aiMatcher.mapScenarios(scenarios, tests);
+        console.log(`  ✓ Completed AI mapping analysis`);
         allMappings.push(...mappings);
 
       } catch (error) {
