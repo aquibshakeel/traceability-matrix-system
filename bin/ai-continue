@@ -43,12 +43,29 @@ async function main() {
   const servicePaths = config.services.filter(s => s.enabled).map(s => s.path);
   const gitChanges = await gitDetector.detectChanges(servicePaths);
 
+  // Filter services to only those with changes
+  let servicesToAnalyze = config.services.filter(s => s.enabled);
+  
+  if (gitChanges.affectedServices.length > 0) {
+    console.log(`\n📌 Only analyzing changed services: ${gitChanges.affectedServices.join(', ')}`);
+    servicesToAnalyze = servicesToAnalyze.filter(s => 
+      gitChanges.affectedServices.includes(s.name)
+    );
+  } else {
+    console.log(`\n📌 No changes detected - analyzing all services`);
+  }
+
+  if (servicesToAnalyze.length === 0) {
+    console.log('\n✅ No services to analyze');
+    process.exit(0);
+  }
+
   let allAnalyses = [];
   let hasP0Gaps = false;
   let hasP1Gaps = false;
 
   // Analyze each service
-  for (const service of config.services.filter(s => s.enabled)) {
+  for (const service of servicesToAnalyze) {
     try {
       const analysis = await analyzer.analyze(service);
       allAnalyses.push(analysis);
