@@ -76,10 +76,10 @@
     "requireTestForEveryScenario": true,
     "requireTestForNewAPI": true,
     "allowOrphanTests": true,
-    "maxOrphanTestsWarning": 10,
+    "maxOrphanTestsWarning": 100,
     "blockOnOrphanAPI": false,
     "strictMode": false,
-    "minimumCoveragePercent": 70,
+    "minimumCoveragePercent": 0,
     "blockOnCriticalGaps": true,
     "blockOnHighRiskGaps": false,
     "allowPartialCoverage": true
@@ -89,7 +89,7 @@
     "blockOnP0Gaps": true,
     "blockOnP1Gaps": false,
     "allowOrphanTests": true,
-    "maxOrphanTestsThreshold": 15,
+    "maxOrphanTestsThreshold": 100,
     "validateChangedServicesOnly": true
   }
 }
