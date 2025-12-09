@@ -367,6 +367,165 @@ npm run generate
   }
 }
                 </div>
+
+                <h3><span class="badge badge-ai">NEW</span> Generate Test Cases for Single API</h3>
+                <p>Quickly generate AI test scenarios for ONE specific API endpoint - perfect for when you don't want to regenerate all APIs!</p>
+
+                <div class="success-box">
+                    <strong>✨ QA-Only Feature:</strong> This tool is designed specifically for QA to quickly get AI suggestions for individual endpoints without affecting the main generation flow.
+                </div>
+
+                <h4>Quick Usage</h4>
+                <div class="code-block">
+# Generate scenarios for a specific API endpoint
+npm run generate:api -- --service customer-service --endpoint "POST /api/customers"
+
+# With path parameters
+npm run generate:api -- --service identity-service --endpoint "GET /api/users/{id}"
+
+# Different HTTP methods
+npm run generate:api -- --service customer-service --endpoint "GET /api/customers"
+npm run generate:api -- --service customer-service --endpoint "PUT /api/customers/{id}"
+npm run generate:api -- --service customer-service --endpoint "DELETE /api/customers/{id}"
+
+# Custom output path (optional)
+npm run generate:api -- --service customer-service --endpoint "POST /api/customers" --output my-scenarios.json
+                </div>
+
+                <h4>When to Use</h4>
+                <table>
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Use This Tool</th>
+                    </tr>
+                    <tr>
+                        <td>New API endpoint added</td>
+                        <td>✅ Generate scenarios just for that endpoint</td>
+                    </tr>
+                    <tr>
+                        <td>Need to refresh one API's scenarios</td>
+                        <td>✅ Quick regeneration for single endpoint</td>
+                    </tr>
+                    <tr>
+                        <td>Want inspiration for test cases</td>
+                        <td>✅ Get AI suggestions for planning</td>
+                    </tr>
+                    <tr>
+                        <td>Don't want full regeneration</td>
+                        <td>✅ Fast, focused, independent</td>
+                    </tr>
+                </table>
+
+                <h4>Example Output</h4>
+                <div class="code-block">
+╔════════════════════════════════════════════════════════════╗
+║  🤖 AI Test Case Generator - Single API                   ║
+║  QA Tool for Generating Scenarios for One Endpoint        ║
+╚════════════════════════════════════════════════════════════╝
+
+📋 Service: customer-service
+🔗 Endpoint: POST /api/customers
+
+✓ Service configuration loaded
+🔍 Analyzing endpoint: POST /api/customers
+✓ Found Swagger specification
+✓ Endpoint found in Swagger
+
+🤖 Generating test scenarios with AI...
+✓ Scenarios generated successfully
+
+✅ Success! Test scenarios generated
+📄 Output file: .traceability/test-cases/ai_cases/customer-service-POST__api_customers-ai.json
+
+📊 Summary:
+   Categories: 4
+   Total Scenarios: 15
+
+📝 Generated Scenarios:
+────────────────────────────────────────────────────────────
+
+  HAPPY CASE (4):
+    1. When customer created with valid data, return 201
+    2. When customer ID is generated and returned
+    3. When customer data is persisted to database
+    4. When response includes all required fields
+
+  EDGE CASE (3):
+    1. When created with only required fields
+    2. When name contains special characters
+    3. When email has international format
+
+  ERROR CASE (5):
+    1. When created with missing email, return 400
+    2. When created with invalid email format, return 400
+    3. When created with duplicate email, return 409
+    4. When created without required fields, return 422
+    5. When server error occurs, return 500
+
+  SECURITY (3):
+    1. When created without auth token, return 401
+    2. When created with invalid token, return 401
+    3. When SQL injection attempted, reject with 400
+
+────────────────────────────────────────────────────────────
+
+💡 Next Steps:
+   1. Review the generated scenarios
+   2. Add relevant scenarios to your baseline file
+   3. Baseline location: .traceability/test-cases/baseline/customer-service.yml
+                </div>
+
+                <h4>Key Benefits</h4>
+                <ul>
+                    <li><strong>⚡ Fast:</strong> Only generates for one API (seconds vs minutes)</li>
+                    <li><strong>🎯 Focused:</strong> Get scenarios for exactly what you need</li>
+                    <li><strong>🔄 Flexible:</strong> Run anytime without affecting other APIs</li>
+                    <li><strong>🔧 Independent:</strong> Doesn't trigger full generation flow</li>
+                    <li><strong>🤖 AI-Powered:</strong> Same intelligent scenario generation</li>
+                </ul>
+
+                <h4>Comparison: Full vs Single API Generation</h4>
+                <table>
+                    <tr>
+                        <th>Feature</th>
+                        <th><code>npm run generate</code></th>
+                        <th><code>npm run generate:api</code> <span class="badge badge-ai">NEW</span></th>
+                    </tr>
+                    <tr>
+                        <td><strong>Scope</strong></td>
+                        <td>All APIs in service</td>
+                        <td>One specific endpoint</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Speed</strong></td>
+                        <td>Minutes (many APIs)</td>
+                        <td>Seconds (one API)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>When</strong></td>
+                        <td>Pre-commit, scheduled</td>
+                        <td>Anytime, on-demand</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Purpose</strong></td>
+                        <td>Complete refresh</td>
+                        <td>Quick scenarios</td>
+                    </tr>
+                    <tr>
+                        <td><strong>QA Control</strong></td>
+                        <td>Review all suggestions</td>
+                        <td>Review one endpoint</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Use Case</strong></td>
+                        <td>Full regeneration</td>
+                        <td>New API, quick ideas</td>
+                    </tr>
+                </table>
+
+                <div class="info-box">
+                    <strong>💡 Pro Tip:</strong> Use <code>generate:api</code> when you want quick AI suggestions for a new endpoint without waiting for full generation. Perfect for sprint planning and rapid iteration!
+                </div>
             </section>
 
             <section id="analysis">
