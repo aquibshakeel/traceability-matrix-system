@@ -74,11 +74,14 @@ The system automatically enables AI matching when:
 - `CLAUDE_API_KEY` or `ANTHROPIC_API_KEY` environment variable is set
 - The API key is valid (not empty or placeholder)
 
-### Fallback Behavior
+### Required API Key
+
+🚨 **IMPORTANT:** Claude API key is now **MANDATORY**
 
 If no API key is configured:
-- System falls back to semantic matching (existing behavior)
-- You'll see: `⚠️ No Claude API key configured - falling back to basic matching`
+- ❌ System will **FAIL** with error
+- Error message: `🚨 Claude API key is required for AI-based matching`
+- No fallback to semantic matching (removed in v2.0)
 
 ### Example Output
 
@@ -195,7 +198,6 @@ For a typical validation run:
 1. **Batch Processing**: Groups scenarios to minimize API calls
 2. **Test Sampling**: Analyzes top 50 most relevant tests
 3. **Caching**: Results cached in reports (no re-analysis needed)
-4. **Fallback**: Uses semantic matching when API unavailable
 
 ## Advantages Over Rule-Based Matching
 
