@@ -156,24 +156,61 @@ export class APIScanner {
   markAPIsWithTests(apis: DiscoveredAPI[], tests: any[]): void {
     for (const api of apis) {
       const endpoint = api.endpoint.toLowerCase();
+      const method = api.method.toLowerCase();
       
-      // Extract the last part of the endpoint (e.g., "register" from "/identity/register")
-      const endpointParts = endpoint.split('/').filter(p => p);
-      const endpointName = endpointParts[endpointParts.length - 1] || '';
-      
-      // Check if any test tests this specific API endpoint
+      // Check if this specific API endpoint has matching tests
       const hasTest = tests.some(test => {
         const testDesc = (test.description || '').toLowerCase();
         const testFile = (test.file || '').toLowerCase();
+        const testContent = testDesc + ' ' + testFile;
         
-        // Match by endpoint name in test description or file
-        // e.g., "testRegister" matches "register"
-        // or "testRegisterUser" matches "register"
-        return testDesc.includes(endpointName) || testFile.includes(endpointName);
+        // Match by HTTP method + endpoint pattern
+        // Special handling for parameterized endpoints like {id}
+        if (endpoint.includes('{id}') || endpoint.includes('/{id}')) {
+          // For endpoints with {id}, look for "by id" or "byid" in test descriptions
+          const methodKeywords = this.getMethodKeywords(method);
+          const hasMethodMatch = methodKeywords.some(keyword => testContent.includes(keyword));
+          const hasByIdMatch = testContent.includes('by id') || testContent.includes('byid') || testContent.includes('{id}');
+          
+          return hasMethodMatch && hasByIdMatch;
+        } else {
+          // For endpoints without parameters
+          // Extract meaningful parts (e.g., "customers", "register", "login")
+          const endpointParts = endpoint.split('/').filter(p => p && !p.startsWith('{'));
+          
+          // Check if test matches this specific endpoint
+          const methodKeywords = this.getMethodKeywords(method);
+          const hasMethodMatch = methodKeywords.some(keyword => testContent.includes(keyword));
+          
+          if (!hasMethodMatch) return false;
+          
+          // Make sure test doesn't reference parameterized version
+          // e.g., "getCustomers" should NOT match tests for "getCustomerById"
+          const hasParameterReference = testContent.includes('by id') || testContent.includes('byid') || testContent.includes('{id}');
+          if (hasParameterReference) return false;
+          
+          // Check if endpoint parts are mentioned in test
+          return endpointParts.some(part => testContent.includes(part));
+        }
       });
       
       api.hasTest = hasTest;
     }
+  }
+  
+  /**
+   * Get keywords associated with HTTP methods for test matching
+   */
+  private getMethodKeywords(method: string): string[] {
+    const keywords: { [key: string]: string[] } = {
+      'get': ['get', 'fetch', 'retrieve', 'find', 'read', 'load', 'show', 'view'],
+      'post': ['post', 'create', 'add', 'insert', 'register', 'save', 'new'],
+      'put': ['put', 'update', 'edit', 'modify', 'change', 'replace'],
+      'delete': ['delete', 'remove', 'destroy', 'erase'],
+      'patch': ['patch', 'update', 'modify']
+    };
+    
+    return keywords[method.toLowerCase()] || [method.toLowerCase()];
   }
 
   /**

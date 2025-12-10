@@ -493,17 +493,42 @@ Respond in JSON format:
 
     console.log(`  Found ${orphans.length} orphan tests, categorizing...`);
 
-    // AI categorization
-    const prompt = `Categorize these unit tests as either TECHNICAL (infrastructure/utility tests that don't need business scenarios) or BUSINESS (tests that should have business scenarios):
+    // AI categorization with very explicit prompt
+    const prompt = `Categorize these unit tests as either TECHNICAL or BUSINESS.
+
+**CRITICAL RULE: If a test is in a ControllerTest.java file, it is BUSINESS unless it ONLY tests security validation (SQL injection/XSS).**
+
+**TECHNICAL Tests** (NO baseline scenario needed) - VERY RARE:
+- Pure DTO/Entity validation tests (in DTO/Entity test files)
+- Pure Mapper/utility tests (in Mapper/Utility test files)
+- ONLY these security tests: SQL injection validation, XSS payload validation
+- Configuration loading tests
+
+**BUSINESS Tests** (NEED baseline scenario) - MOST TESTS:
+- ALL Controller tests (ControllerTest.java) EXCEPT pure SQL/XSS security validation
+- ALL Service tests (ServiceTest.java)
+- Any test checking HTTP status codes (200, 404, 400, etc.) = BUSINESS
+- Any test checking authentication/authorization = BUSINESS
+- Any test checking error handling (exceptions, error messages) = BUSINESS
+- Any test checking valid/invalid input formats = BUSINESS
+- Any test checking data validation (empty, null, format) = BUSINESS
+- Any test checking business rules or edge cases = BUSINESS
 
 **Tests to categorize (${orphans.length}):**
 ${orphans.slice(0, 50).map((t, i) => `${i+1}. ${t.description} (${t.file})`).join('\n')}
 
+**DECISION TREE:**
+1. Is the file ControllerTest.java or ServiceTest.java? → If YES, it's BUSINESS (unless ONLY SQL/XSS)
+2. Does test check HTTP status, authentication, or business behavior? → If YES, it's BUSINESS
+3. Does test ONLY validate SQL injection or XSS? → If YES and NOTHING else, it's TECHNICAL
+4. Is it a pure DTO/Entity/Mapper test? → If YES, it's TECHNICAL
+5. When in doubt → Mark as BUSINESS
+
 For each test, determine:
 1. Category: TECHNICAL or BUSINESS
-2. Subtype: e.g., "Entity Test", "DTO Test", "Controller Test", "Service Test"
-3. Priority: P0 (critical), P1 (high), P2 (medium), P3 (low)
-4. Action: "none" or "qa_add_scenario"
+2. Subtype: "Controller Test", "Service Test", "Security Validation", "DTO Test", etc.
+3. Priority: P0 (critical business), P1 (important), P2 (normal), P3 (nice to have)
+4. Action: "qa_add_scenario" for BUSINESS, "none" for TECHNICAL
 
 Respond in JSON:
 {
@@ -511,7 +536,7 @@ Respond in JSON:
     {
       "testNumber": 1,
       "category": "TECHNICAL|BUSINESS",
-      "subtype": "Entity Test|DTO Test|Controller Test|etc",
+      "subtype": "Controller Test|Service Test|Security Validation|DTO Test|etc",
       "priority": "P0|P1|P2|P3",
       "action": "none|qa_add_scenario",
       "reason": "brief explanation"
