@@ -50,7 +50,9 @@ async function main() {
       gitAnalysis.affectedServices.includes(s.name)
     );
   } else {
-    console.log(`\n📌 No changes detected - analyzing all services`);
+    console.log(`\n📌 No service code changes detected - skipping analysis`);
+    console.log('✅ No services to process');
+    return;
   }
 
   if (servicesToProcess.length === 0) {
