@@ -301,6 +301,9 @@ Respond in JSON:
     let count = 0;
     for (const apiKey of Object.keys(baseline)) {
       const api = baseline[apiKey];
+      // Skip null/undefined API entries
+      if (!api || api === null) continue;
+      
       for (const category of ['happy_case', 'edge_case', 'error_case', 'security']) {
         count += (api[category] || []).length;
       }

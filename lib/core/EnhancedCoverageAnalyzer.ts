@@ -726,6 +726,8 @@ Respond in JSON:
     let count = 0;
     for (const [key, value] of Object.entries(data)) {
       if (key === 'service') continue;
+      // Skip null/undefined values
+      if (!value || value === null) continue;
       count += this.flattenScenarios(value).length;
     }
     return count;
