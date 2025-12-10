@@ -44,6 +44,12 @@ export interface OrphanAPIInfo {
   hasScenario: boolean;
   hasTest: boolean;
   riskLevel: 'Critical' | 'High' | 'Medium' | 'Low';
+  reason?: string;
+  recommendations?: string[];
+  actionItems?: {
+    qa: string[];
+    dev: string[];
+  };
 }
 
 export interface VisualAnalytics {
@@ -287,7 +293,13 @@ export class EnhancedCoverageAnalyzer {
     const visualAnalytics = this.calculateVisualAnalytics(apiAnalyses, gaps, orphanAnalysis);
     
     // Detect orphan APIs (APIs with no scenarios AND no tests)
-    const orphanAPIs = this.detectOrphanAPIs(baseline, unitTests, apiAnalyses, discoveredAPIs);
+    let orphanAPIs = this.detectOrphanAPIs(baseline, unitTests, apiAnalyses, discoveredAPIs);
+    
+    // Generate AI-powered context for orphan APIs
+    if (orphanAPIs.length > 0) {
+      console.log(`\n🤖 Generating AI context for ${orphanAPIs.length} orphan API(s)...`);
+      orphanAPIs = await this.analyzeOrphanAPIsWithAI(orphanAPIs);
+    }
 
     console.log('\n' + '='.repeat(70));
     console.log(`📈 Coverage: ${summary.coveragePercent.toFixed(1)}%`);
@@ -873,6 +885,89 @@ Respond in JSON:
       },
       coverageTrend
     };
+  }
+
+
+  /**
+   * Generate AI-powered context and recommendations for orphan APIs
+   */
+  private async analyzeOrphanAPIsWithAI(orphanAPIs: OrphanAPIInfo[]): Promise<OrphanAPIInfo[]> {
+    if (orphanAPIs.length === 0) {
+      return orphanAPIs;
+    }
+
+    const prompt = `Analyze these orphan API endpoints that have NO test scenarios AND NO unit tests:
+
+${orphanAPIs.map((api, i) => `${i+1}. ${api.method} ${api.endpoint} (Controller: ${api.controller})`).join('\n')}
+
+For each API, provide:
+1. Brief reason why it's critical (2-3 words)
+2. Specific recommendations (2-3 clear bullet points)
+3. Action items for QA team
+4. Action items for Dev team
+
+Respond in JSON:
+{
+  "analyses": [
+    {
+      "apiNumber": 1,
+      "reason": "No coverage at all",
+      "recommendations": [
+        "recommendation 1",
+        "recommendation 2"
+      ],
+      "qaActions": [
+        "action for QA"
+      ],
+      "devActions": [
+        "action for Dev"
+      ]
+    }
+  ]
+}`;
+
+    try {
+      const model = await this.getModel();
+      const response = await this.client.messages.create({
+        model: model,
+        max_tokens: 2000,
+        temperature: 0.3,
+        messages: [{ role: 'user', content: prompt }]
+      });
+
+      const content = response.content[0].type === 'text' ? response.content[0].text : '{}';
+      const result = this.parseAIResponse(content);
+
+      // Apply AI analysis to each orphan API
+      result.analyses?.forEach((analysis: any) => {
+        const api = orphanAPIs[analysis.apiNumber - 1];
+        if (api) {
+          api.reason = analysis.reason;
+          api.recommendations = analysis.recommendations;
+          api.actionItems = {
+            qa: analysis.qaActions || [],
+            dev: analysis.devActions || []
+          };
+        }
+      });
+
+      return orphanAPIs;
+    } catch (error) {
+      console.log(`  ⚠️ AI context generation failed: ${error}`);
+      // Return orphans with default context
+      return orphanAPIs.map(api => ({
+        ...api,
+        reason: 'No baseline scenarios and no unit tests',
+        recommendations: [
+          'QA: Review API spec and create baseline test scenarios',
+          'Dev: Implement unit tests once scenarios are defined'
+        ],
+        actionItems: {
+          qa: ['Create baseline test scenarios for this API'],
+          dev: ['Implement unit tests based on scenarios']
+        }
+      }));
+    }
   }
 
   /**
