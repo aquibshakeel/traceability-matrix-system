@@ -10,6 +10,7 @@ if (fs.existsSync(path.join(__dirname, '../lib/core/EnhancedCoverageAnalyzer.ts'
 const { EnhancedCoverageAnalyzer } = require('../lib/core/EnhancedCoverageAnalyzer');
 const { GitChangeDetector } = require('../lib/core/GitChangeDetector');
 const { ReportGenerator } = require('../lib/core/ReportGenerator');
+const { HistoryManager } = require('../lib/core/HistoryManager');
 
 async function main() {
   console.log(`
@@ -38,7 +39,11 @@ async function main() {
   const analyzer = new EnhancedCoverageAnalyzer(apiKey, projectRoot);
   const gitDetector = new GitChangeDetector(projectRoot);
   const reportGenerator = new ReportGenerator(projectRoot);
+  const historyManager = new HistoryManager(projectRoot);
 
+  // Get current commit info for history tracking
+  const commitInfo = historyManager.getCommitInfo();
+  
   // Detect Git changes
   const servicePaths = config.services.filter(s => s.enabled).map(s => s.path);
   const gitChanges = await gitDetector.detectChanges(servicePaths);
@@ -93,6 +98,39 @@ async function main() {
       );
 
       console.log(`\n✅ Generated ${reports.length} reports for ${service.name}`);
+      
+      // 📊 HISTORY TRACKING - Store persistent data
+      console.log(`📊 Updating history for ${service.name}...`);
+      
+      // 1. Append coverage trend
+      historyManager.appendCoverageTrend(
+        service.name,
+        analysis.coveragePercent,
+        analysis.summary.fullyCovered,
+        analysis.summary.totalScenarios,
+        analysis.summary.p0Gaps,
+        analysis.summary.p1Gaps,
+        commitInfo?.commit
+      );
+      
+      // 2. Append git changes (if any for this service)
+      const serviceApiChanges = gitChanges.apiChanges.filter(change => 
+        change.file.includes(service.path)
+      );
+      
+      if (serviceApiChanges.length > 0) {
+        historyManager.appendGitChanges(
+          service.name,
+          serviceApiChanges,
+          commitInfo?.commit,
+          commitInfo?.author,
+          commitInfo?.message
+        );
+        
+        // 3. Update API risk scores
+        historyManager.updateAPIRiskScores(service.name, serviceApiChanges);
+        console.log(`  ✅ Recorded ${serviceApiChanges.length} API change(s) to history`);
+      }
 
     } catch (error) {
       console.error(`\n❌ Failed: ${service.name}:`, error.message);

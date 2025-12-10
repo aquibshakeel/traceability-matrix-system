@@ -13,6 +13,7 @@ export { ServiceManager } from './core/ServiceManager';
 
 // Git & Change Detection
 export { GitChangeDetector } from './core/GitChangeDetector';
+export { HistoryManager } from './core/HistoryManager';
 
 // Reporting
 export { ReportGenerator } from './core/ReportGenerator';
