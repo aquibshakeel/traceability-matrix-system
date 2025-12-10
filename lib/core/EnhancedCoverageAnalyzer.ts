@@ -217,6 +217,9 @@ export class EnhancedCoverageAnalyzer {
     // Calculate visual analytics
     const visualAnalytics = this.calculateVisualAnalytics(apiAnalyses, gaps, orphanAnalysis);
     
+    // Mark which discovered APIs have tests using the improved logic
+    this.apiScanner.markAPIsWithTests(discoveredAPIs, unitTests);
+    
     // Detect orphan APIs (APIs with no scenarios AND no tests)
     const orphanAPIs = this.detectOrphanAPIs(baseline, unitTests, apiAnalyses, discoveredAPIs);
     
@@ -893,6 +896,7 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
   /**
    * Detect orphan APIs - APIs that have NO scenarios AND NO tests
    * Uses discovered APIs from APIScanner to catch all APIs
+   * Now uses APIScanner's markAPIsWithTests() for consistent logic
    */
   private detectOrphanAPIs(
     baseline: any,
@@ -902,7 +906,7 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
   ): OrphanAPIInfo[] {
     const orphanAPIs: OrphanAPIInfo[] = [];
 
-    // Check ALL discovered APIs, not just those in baseline
+    // Check ALL discovered APIs (they already have hasTest marked by APIScanner)
     for (const discoveredAPI of discoveredAPIs) {
       const apiKey = `${discoveredAPI.method} ${discoveredAPI.endpoint}`;
       
@@ -910,33 +914,8 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
       const hasScenarios = baseline[apiKey] || baseline[discoveredAPI.endpoint] || baseline[`${discoveredAPI.endpoint}`];
       const scenarioCount = hasScenarios ? this.flattenScenarios(hasScenarios).length : 0;
 
-      // Check if any unit tests cover this API - improved matching with singular/plural support
-      const apiEndpoint = discoveredAPI.endpoint.toLowerCase();
-      const hasTests = unitTests.some(test => {
-        const testDesc = test.description.toLowerCase();
-        const testFile = test.file.toLowerCase();
-        
-        // Extract meaningful parts (skip path parameters like {id})
-        const endpointParts = apiEndpoint
-          .split('/')
-          .filter((p: string) => p && !p.startsWith('{') && p !== 'api' && p !== 'v1');
-        
-        // Check if test mentions the API endpoint (handle singular/plural)
-        const matchesEndpoint = endpointParts.some((part: string) => {
-          // Remove trailing 's' for plural matching (e.g., "customers" -> "customer")
-          const singular = part.endsWith('s') ? part.slice(0, -1) : part;
-          return testDesc.includes(singular) || testFile.includes(singular) ||
-                 testDesc.includes(part) || testFile.includes(part);
-        });
-        
-        // Check if test mentions the HTTP method
-        const method = discoveredAPI.method.toLowerCase();
-        const matchesMethod = testDesc.includes(method) || 
-                             testDesc.includes(method === 'get' ? 'get' : method);
-        
-        // Test must match both endpoint and method for positive match
-        return matchesEndpoint && matchesMethod;
-      });
+      // Use the hasTest flag that was set by APIScanner.markAPIsWithTests()
+      const hasTests = discoveredAPI.hasTest;
 
       // If no scenarios AND no tests, it's an orphan API
       if (scenarioCount === 0 && !hasTests) {
