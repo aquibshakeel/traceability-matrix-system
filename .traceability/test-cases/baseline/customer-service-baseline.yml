@@ -70,4 +70,13 @@ DELETE /v1/customers/{id}:
     - When deleting without authentication, return 401
     - When deleting with invalid ID format, return 400
 
-#test-cases-end,,,,,,,,,,,,,,
+
+PATCH /v1/customers/{id}/email:
+  happy_case:
+    - When customer email is updated with valid email format, return 200 and send verification email and update email after verification
+
+  error_case:
+    - When updating email with invalid format, return 400
+    - When updating email that already exists for another customer, return 409
+
+#test-cases-end,,,,,,,,,,,,,,,

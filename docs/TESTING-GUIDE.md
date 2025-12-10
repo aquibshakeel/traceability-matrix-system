@@ -185,13 +185,42 @@ node bin/ai-continue customer-service
 ## Test Case 2: Partial Coverage
 
 ### Objective
-Test with some scenarios covered by tests, some not.
+Test with scenarios that are **partially covered** - unit test exists but missing critical assertions.
 
 ### Setup
 
 ```bash
-# Create sample unit test file with 10 tests
-mkdir -p services/customer-service/src/test/java/com/pulse/customerservice/controller
+# The PATCH /v1/customers/{id}/email endpoint demonstrates partial coverage
+# Scenario exists in baseline, test exists, but test is incomplete
+```
+
+### Baseline Scenario
+
+```yaml
+PATCH /v1/customers/{id}/email:
+  happy_case:
+    - When customer email is updated with valid email format, return 200 and send verification email and update email after verification
+```
+
+### Partial Unit Test
+
+```java
+// CustomerControllerEmailTest.java
+@Test
+@DisplayName("When customer email is updated with valid email format, return 200 and send verification email and update email after verification")
+void testUpdateEmail_WithValidFormat_Returns200() {
+    // Arrange
+    Long customerId = 1L;
+    String newEmail = "newemail@example.com";
+    
+    // Assert
+    assertEquals(HttpStatus.OK, status);
+    
+    // ❌ MISSING: Verification that verification email was sent
+    // ❌ MISSING: Verification that email update happens AFTER verification
+    // ❌ MISSING: Assertion that old email is preserved until verification
+    // ❌ MISSING: Check that verification token was generated
+}
 ```
 
 ### Execute
@@ -203,20 +232,44 @@ node bin/ai-continue customer-service
 ### Expected Output
 
 ```
-✓ Baseline: 25 scenarios
-✓ Unit tests: 10 found
-📈 Coverage: 40.0%
-✅ Covered: 10/25
-⚠️  Gaps: P0=3, P1=5, P2=7
+✓ Baseline: 35 scenarios
+✓ Unit tests: 31 found
+📈 Coverage: 57.1%
+✅ Covered: 19/35
+⚠️ Partially Covered: 1/35
+⚠️  Gaps: P0=1, P1=1, P2=0, P3=13
 ```
 
 ### Verification Checklist
 
-- [ ] System finds 10 unit tests
-- [ ] Coverage: ~40% (10/25)
-- [ ] 10 scenarios marked as FULLY_COVERED
-- [ ] 15 scenarios marked as gaps
-- [ ] Report shows which scenarios are covered vs not
+- [ ] System finds partial coverage
+- [ ] 1 scenario marked as PARTIALLY_COVERED
+- [ ] Report shows missing assertions
+- [ ] AI identifies what needs to be added
+- [ ] Developer sees clear action items
+
+### Report Shows:
+
+```
+⚠️ PARTIALLY COVERED: PATCH /v1/customers/{id}/email
+
+Scenario: When customer email is updated with valid email format, return 200 
+          and send verification email and update email after verification
+
+Test Found: testUpdateEmail_WithValidFormat_Returns200()
+File: CustomerControllerEmailTest.java
+
+Present Assertions:
+  ✅ assertEquals(HttpStatus.OK, status)
+
+Missing Assertions:
+  ❌ Verification that verification email was sent
+  ❌ Verification that email update happens AFTER verification
+  ❌ Assertion that old email is preserved until verification
+  ❌ Check that verification token was generated
+
+Action: Complete the test by adding missing assertions
+```
 
 ---
 
