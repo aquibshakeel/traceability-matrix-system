@@ -10,101 +10,81 @@ The AI doesn't randomly assign priorities - it follows a **deterministic, keywor
 
 ## 🔍 Priority Assignment Rules
 
+> **Design Philosophy:** The priority system uses a **small, focused set of keywords** to keep logic simple, predictable, and maintainable. This intentional simplicity ensures consistent behavior across all services and avoids false positives.
+
 ### P0 - CRITICAL (Blocking)
-**Triggers:** Security vulnerabilities, authentication/authorization failures, data protection issues
+**Triggers:** Security vulnerabilities, authentication/authorization failures, critical business issues
 
 **Keywords that trigger P0:**
-- `security`
-- `auth` / `authentication`
-- `authorization` / `permission`
-- `injection` (SQL, XSS, NoSQL)
-- `token` (missing/expired)
-- `data exposure`
-- `privacy breach`
-- `critical` (business blocker)
-- `access control`
+- `critical` - Business-critical failures or blocking issues
+- `security` - Security vulnerabilities, exploits, breaches
+- `auth` - Authentication/authorization issues (covers "authentication", "authorization", etc.)
 
 **Examples:**
 ```
 ❌ When deleting without authentication, return 401
    → P0 (contains "auth")
    
-❌ When customer name contains SQL injection attempt, reject with 400
-   → P0 (contains "security" and "injection")
+❌ When security validation fails on customer creation, reject with 400
+   → P0 (contains "security")
    
-❌ When user lacks permission to delete customer, return 403
-   → P0 (contains "permission")
+❌ When critical business rule is violated, return 400
+   → P0 (contains "critical")
 ```
 
 **Why P0:**
-- Security holes can be exploited
-- Authentication failures expose data
-- Authorization bypasses violate access control
+- Security holes can be exploited immediately
+- Authentication failures expose sensitive data
+- Critical issues block business operations
 - These MUST be tested before release
 
 ---
 
 ### P1 - HIGH (Important)
-**Triggers:** Error handling, input validation, failure scenarios, system failures
+**Triggers:** Error handling, input validation, failure scenarios
 
 **Keywords that trigger P1:**
-- `error`
-- `invalid`
-- `fail` / `failure`
-- `exception`
-- `missing` (required fields)
-- `unsupported`
-- `constraint violation`
-- `bad request` (400)
-- `conflict` (409 status)
-- `duplicate`
-- `validation errors`
-- `not found` (404)
+- `error` - Error handling, error responses, error cases
+- `invalid` - Invalid input, invalid format, invalid data
+- `fail` - Failure scenarios, failed operations (covers "failure", "failed", etc.)
 
 **Examples:**
 ```
-⚠️ When creating customer with missing required fields, return 400
-   → P1 (contains "error" context and "missing")
-   
 ⚠️ When creating customer with invalid email format, return 400
    → P1 (contains "invalid")
    
-⚠️ When customer with duplicate email already exists, return 409
-   → P1 (contains "duplicate")
+⚠️ When operation fails due to system error, return 500
+   → P1 (contains "error" and "fail")
+   
+⚠️ When creating customer with invalid phone number fails, return 400
+   → P1 (contains "invalid" and "fail")
 ```
 
 **Why P1:**
-- Error handling prevents crashes
-- Input validation prevents bad data
+- Error handling prevents application crashes
+- Input validation prevents data corruption
 - Failure scenarios must be handled gracefully
 - These should be tested early in QA cycle
 
 ---
 
 ### P2 - MEDIUM (Standard)
-**Triggers:** Edge cases, boundary conditions, unusual inputs
+**Triggers:** Edge cases, boundary conditions
 
 **Keywords that trigger P2:**
-- `edge`
-- `boundary`
-- `limit`
-- `maximum` / `minimum`
-- `special characters`
-- `alternative flows`
-- `unusual` (but valid formats)
-- `extreme values`
-- `empty` / `null` (edge testing)
+- `edge` - Edge cases, edge scenarios, edge conditions
+- `boundary` - Boundary testing, boundary values, boundary limits
 
 **Examples:**
 ```
-💡 When customer name is at maximum length (255 chars), accept successfully
-   → P2 (contains "maximum")
+💡 When testing edge case with maximum length name, accept successfully
+   → P2 (contains "edge")
    
-💡 When requesting customers by age zero, return 200 and customers with age 0
-   → P2 (edge case with zero boundary)
+💡 When customer age is at boundary value (120), return 200
+   → P2 (contains "boundary")
    
-💡 When customer email has unusual but valid format, accept successfully
-   → P2 (contains "unusual")
+💡 When testing edge case with empty string, handle appropriately
+   → P2 (contains "edge")
 ```
 
 **Why P2:**
@@ -117,22 +97,20 @@ The AI doesn't randomly assign priorities - it follows a **deterministic, keywor
 ### P3 - LOW (Nice to Have)
 **Triggers:** Happy path scenarios, standard functionality, nominal cases
 
-**Default assignment when no other keywords match**
+**Default assignment when no P0/P1/P2 keywords match**
 
 **Common patterns for P3:**
-- `happy path`
-- `standard flow`
-- `valid data`
-- `correct inputs`
-- `nominal cases`
-- `simple CRUD success`
+- Any scenario without P0/P1/P2 keywords
+- Happy path scenarios
+- Standard CRUD operations
+- Valid input with expected success
 
 **Examples:**
 ```
 ✅ When customer is created with valid data, return 201 and customer ID
    → P3 (no trigger keywords, default)
    
-✅ When requesting all customers with valid authentication, return 200
+✅ When requesting all customers, return 200 with customer list
    → P3 (happy path, basic functionality)
    
 ✅ When customer is updated with valid data, return 200
@@ -140,29 +118,31 @@ The AI doesn't randomly assign priorities - it follows a **deterministic, keywor
 ```
 
 **Why P3:**
-- Happy path tests are essential but not urgent
-- Standard CRUD operations
-- These provide baseline coverage
+- Happy path tests are essential baseline coverage
+- Standard CRUD operations validate core functionality
+- These provide foundation but aren't urgent
 
 ---
 
 ## 📋 Priority Decision Tree
 
 ```
-Is scenario about security/auth/permissions?
+Does scenario contain "critical", "security", or "auth"?
   ├─ YES → P0 (CRITICAL)
   └─ NO ↓
 
-Does scenario involve errors/invalid input/failures?
+Does scenario contain "error", "invalid", or "fail"?
   ├─ YES → P1 (HIGH)
   └─ NO ↓
 
-Does scenario test edge cases/boundaries/limits?
+Does scenario contain "edge" or "boundary"?
   ├─ YES → P2 (MEDIUM)
   └─ NO ↓
 
 DEFAULT → P3 (LOW)
 ```
+
+**Note:** Matching is case-insensitive and uses substring matching (e.g., "authentication" matches "auth", "failure" matches "fail").
 
 ---
 
@@ -266,23 +246,23 @@ private inferPriority(scenario: string): Priority {
 ### Case 4: GET /v1/customers
 
 ```yaml
-# P3 - Happy paths (default)
-- When requesting all customers with valid authentication, return 200
+# P3 - Happy paths (no trigger keywords)
+- When requesting all customers with valid data, return 200
 - When requesting customers filtered by valid age, return 200
 - When requesting all customers with empty database, return 200
 - When requesting customers by age and multiple match, return 200
 
-# P2 - Edge cases (contains "edge"/"boundary")
-- When requesting customers by age zero, return 200
-- When requesting customers by maximum age value (120), return 200
-- When requesting customers by age with no matches, return 200
+# P2 - Edge cases (contains "edge")
+- When testing edge case with age zero, return 200
+- When testing boundary case with maximum age value, return 200
+- When testing edge case with no matches, return 200
 
 # P1 - Error handling (contains "invalid")
-- When requesting customers with invalid age format (negative), return 400
+- When requesting customers with invalid age format, return 400
 
-# P0 - Security/Auth (contains "auth"/"security")
+# P0 - Security/Auth (contains "auth")
 - When requesting customers without authentication token, return 401
-- When requesting customers with SQL injection in age parameter, reject 400
+- When requesting with auth token expired, return 401
 ```
 
 **Distribution:**
@@ -296,12 +276,12 @@ private inferPriority(scenario: string): Priority {
 ### Case 5: DELETE /v1/customers/{id}
 
 ```yaml
-# P3 - Happy paths (default)
+# P3 - Happy paths (no trigger keywords)
 - When customer is deleted by valid ID, return 204
 - When customer is deleted successfully, verify customer no longer exists
 
-# P1 - Error handling (contains "error")
-- When deleting non-existent customer, return 404
+# P1 - Error handling (contains "error" or "invalid")
+- When deleting with error due to non-existent customer, return 404
 - When deleting with invalid ID format, return 400
 
 # P0 - Security/Auth (contains "auth")

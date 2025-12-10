@@ -169,7 +169,7 @@ The system includes three comprehensive demonstration cases that showcase all co
 npm run build
 
 # Run analysis to see all three cases
-npx ts-node scripts/run-analysis.ts customer-service
+npm run continue
 
 # View the HTML report
 open .traceability/reports/customer-service-report.html
@@ -182,7 +182,7 @@ The analysis will show:
 - Case 5: "✅ BASELINE COVERED + 💡 22 AI SUGGESTIONS"
 - Case 6: "⚠️ MIXED COVERAGE - 3 GAPS IDENTIFIED"
 
-**Learn More:** See `docs/TEST-CASES-GUIDE.md` for detailed documentation of all three cases.
+**Learn More:** See `docs/DETAILED-CASE-MAPPINGS.md` for detailed documentation of all cases with exact scenario-to-test mappings.
 
 ---
 
@@ -1603,7 +1603,7 @@ git commit --no-verify -m "message"
   - `docs/TESTING-GUIDE.md` - Testing and validation guide
   
 - **Test Case Documentation:**
-  - `docs/TEST-CASES-GUIDE.md` - Overview of demonstration cases (4, 5, 6)
+  - `docs/DETAILED-CASE-MAPPINGS.md` - Complete traceability matrix for all 5 APIs (Cases 1, 3, 4, 5, 6)
   - `docs/AI-PRIORITY-LOGIC.md` - How P0/P1/P2/P3 priorities work
   - `docs/TWO-PHASE-ANALYSIS-EXPLAINED.md` - Baseline vs completeness
   - `docs/DETAILED-CASE-MAPPINGS.md` - All 3 cases with exact mappings and details

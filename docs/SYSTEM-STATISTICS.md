@@ -16,7 +16,7 @@
 | API | Method | Scenarios | Status |
 |-----|--------|-----------|--------|
 | `/v1/customers` | POST | 12 | ❌ No tests |
-| `/v1/customers` | GET | 10 | ✅ 100% covered |
+| `/v1/customers` | GET | 10 | ⚠️ **70% covered (3 partial)** |
 | `/v1/customers/{id}` | GET | 0 | 🔴 **ORPHAN API** |
 | `/v1/customers/{id}` | PUT | 5 | 80% covered |
 | `/v1/customers/{id}` | DELETE | 5 | ✅ 100% covered |
@@ -53,43 +53,56 @@
 
 ## 🎯 Coverage Analysis
 
-### Overall Coverage: **57.1%** (20/35 scenarios)
+### Overall Coverage: **45.7%** (16/35 scenarios)
 
 **Coverage Distribution:**
-- ✅ **Fully Covered:** 19 scenarios
-- ⚠️ **Partially Covered:** 1 scenario
+- ✅ **Fully Covered:** 16 scenarios
+- ⚠️ **Partially Covered:** 4 scenarios
 - ❌ **Not Covered:** 15 scenarios
+
+**Note:** Only FULLY_COVERED scenarios count toward coverage percentage.
 
 ---
 
-## ⚠️ Gaps Found: **13 Total**
+## ⚠️ Gaps Found: **19 Total**
 
 ### Gap Priority Breakdown:
-- **P0 (Critical):** 1 gap
-- **P1 (High):** 1 gap
+- **P0 (Critical):** 2 gaps
+- **P1 (High):** 3 gaps
 - **P2 (Medium):** 0 gaps
-- **P3 (Low):** 11 gaps
+- **P3 (Low):** 14 gaps
 
 ### P0 Gaps (Blocks Commit):
 1. **POST /v1/customers**
    - `When request is made without authentication token, return 401`
+2. **GET /v1/customers** (PARTIALLY_COVERED)
+   - `When requesting customers without authentication token, return 401`
+   - Test exists but missing HTTP 401 status verification
 
 ### P1 Gaps (Should Fix):
 1. **POST /v1/customers**
    - `When customer is created with invalid email format, return 400`
+2. **GET /v1/customers** (PARTIALLY_COVERED)
+   - `When requesting customers with invalid age format (negative), return 400`
+   - Test exists but missing HTTP 400 status verification
+3. **DELETE /v1/customers/{id}**
+   - `When deleting with invalid ID format, return 400`
 
-### P3 Gaps (11 total):
-All from POST /v1/customers endpoint (remaining 11 scenarios without tests)
+### P3 Gaps (14 total):
+- **11 gaps** from POST /v1/customers endpoint (not covered)
+- **1 gap** from GET /v1/customers (PARTIALLY_COVERED - SQL injection)
+- **1 gap** from PUT /v1/customers/{id} (not covered - duplicate email)
+- **1 gap** from PATCH /v1/customers/{id}/email (PARTIALLY_COVERED)
 
 ---
 
-## 🔍 Orphan Tests: **10 Total**
+## 🔍 Orphan Tests: **11 Total**
 
-### Business Tests (Need Scenarios): **8 tests**
+### Business Tests (Need Scenarios): **9 tests**
 
 **Priority Breakdown:**
 - **P0:** 3 orphan tests
-- **P1:** 3 orphan tests
+- **P1:** 4 orphan tests
 - **P2:** 2 orphan tests
 
 **Examples:**
@@ -107,6 +120,11 @@ All from POST /v1/customers endpoint (remaining 11 scenarios without tests)
 3. **P1 Orphan - testGetCustomerById_WithNonExistentId_ThrowsException**
    - File: `CustomerControllerTest.java`
    - Missing Scenario: "When customer ID does not exist, throw CustomerNotFoundException"
+   - Action: QA must add this scenario to baseline
+
+4. **P1 Orphan - testDeleteCustomer_WithInvalidIdFormat_ThrowsBadRequestException**
+   - File: `CustomerControllerDeleteTest.java`
+   - Missing Scenario: "When deleting with invalid ID format, return 400"
    - Action: QA must add this scenario to baseline
 
 ### Technical Tests (No Action Needed): **2 tests**
@@ -185,7 +203,7 @@ Issues:
 Result: PARTIALLY_COVERED ⚠️
 ```
 
-**Note:** Currently, our system has **0 partially covered** scenarios.
+**Note:** Currently, our system has **4 partially covered** scenarios (3 from GET /v1/customers, 1 from PATCH /v1/customers/{id}/email).
 
 ---
 
@@ -316,10 +334,27 @@ Action: QA must add scenario to baseline
 
 ### GET /v1/customers
 - **Scenarios:** 10
-- **Coverage:** 100% (10/10) ✅
-- **Fully Covered:** 10
+- **Coverage:** 70% (7/10) ⚠️
+- **Fully Covered:** 7
+- **Partially Covered:** 3
 - **Not Covered:** 0
-- **Status:** ✅ Complete
+- **Status:** ⚠️ 3 scenarios need HTTP status assertions
+
+**Partially Covered Scenarios:**
+1. "When requesting customers with invalid age format (negative), return 400"
+   - Test: `testGetCustomers_WithNegativeAge_ThrowsException`
+   - Issue: Missing `assertEquals(HttpStatus.BAD_REQUEST, ...)` assertion
+   - Priority: P1
+
+2. "When requesting customers without authentication token, return 401"
+   - Test: `testGetCustomers_WithoutAuthentication_ThrowsUnauthorizedException`
+   - Issue: Missing `assertEquals(HttpStatus.UNAUTHORIZED, ...)` assertion
+   - Priority: P0
+
+3. "When requesting customers with SQL injection in age parameter, reject safely with 400"
+   - Test: `testGetCustomers_WithSQLInjectionInAge_HandledSafely`
+   - Issue: Missing `assertEquals(HttpStatus.BAD_REQUEST, ...)` assertion
+   - Priority: P3
 
 ### GET /v1/customers/{id}
 - **Scenarios:** 0
@@ -513,11 +548,11 @@ Action: No action needed - technical test doesn't require baseline scenario
 
 | Status | Baseline Exists? | Unit Test Exists? | Test Complete? | Example |
 |--------|------------------|-------------------|----------------|---------|
-| **FULLY_COVERED** ✅ | Yes | Yes | Yes | GET /v1/customers scenarios (10/10) |
+| **FULLY_COVERED** ✅ | Yes | Yes | Yes | GET /v1/customers scenarios (7/10 fully covered) |
 | **PARTIALLY_COVERED** ⚠️ | Yes | Yes | No | Test missing some assertions |
 | **NOT_COVERED** ❌ | Yes | No | N/A | POST /v1/customers scenarios (0/12) |
 | **ORPHAN API** 🔴 | No | No | N/A | GET /v1/customers/{id} |
-| **ORPHAN TEST (Business)** ⚠️ | No | Yes | N/A | testGetCustomerById_WithValidId (8 total) |
+| **ORPHAN TEST (Business)** ⚠️ | No | Yes | N/A | testGetCustomerById_WithValidId (9 total) |
 | **ORPHAN TEST (Technical)** ✓ | No | Yes | N/A | SQL/XSS tests (2 total) |
 
 ---
@@ -551,15 +586,16 @@ Action: No action needed - technical test doesn't require baseline scenario
 
 ## 📊 Progress Tracking
 
-- **Current Coverage:** 59.4% (19/32)
+- **Current Coverage:** 45.7% (16/35)
 - **Target Coverage:** 100%
-- **Scenarios to Cover:** 13 remaining
-- **Orphan Tests to Link:** 8 business tests
+- **Scenarios to Cover:** 15 not covered + 4 partially covered = 19 remaining
+- **Orphan Tests to Link:** 9 business tests
 - **Orphan APIs to Track:** 1 API
 
 **Estimated Effort:**
-- Create 13 new unit tests: ~2-3 days
-- Link 8 orphan tests with scenarios: ~1 hour
+- Create 15 new unit tests: ~2-3 days
+- Fix 4 partially covered tests (add HTTP status assertions): ~1 hour
+- Link 9 orphan tests with scenarios: ~1 hour
 - Document orphan API scenarios: ~30 minutes
 
 ---
