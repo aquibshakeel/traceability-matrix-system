@@ -734,7 +734,47 @@ Respond in JSON:
   }
 
   private loadYAML(filePath: string): any {
-    return yaml.load(fs.readFileSync(filePath, 'utf-8'));
+    try {
+      const content = fs.readFileSync(filePath, 'utf-8');
+      const data = yaml.load(content);
+      
+      // Validate structure
+      if (!data || typeof data !== 'object') {
+        throw new Error(`Invalid YAML structure: expected object, got ${typeof data}`);
+      }
+      
+      // Validate API endpoint format
+      for (const [key, value] of Object.entries(data)) {
+        if (key === 'service') continue;
+        
+        // Check if value is properly structured
+        if (value !== null && typeof value === 'object') {
+          const hasValidCategories = ['happy_case', 'edge_case', 'error_case', 'security']
+            .some(cat => Array.isArray((value as any)[cat]));
+          
+          if (!hasValidCategories && Object.keys(value as object).length > 0) {
+            console.warn(`⚠️  Warning: API "${key}" has no valid test categories (happy_case, edge_case, error_case, security)`);
+          }
+        }
+      }
+      
+      return data;
+    } catch (error: any) {
+      console.error(`\n❌ ERROR: Failed to load baseline YAML`);
+      console.error(`   File: ${filePath}`);
+      console.error(`   Error: ${error.message}`);
+      console.error(`\n📋 Troubleshooting Steps:`);
+      console.error(`   1. Check YAML syntax: https://yaml-online-parser.appspot.com/`);
+      console.error(`   2. Ensure proper indentation (2 spaces, no tabs)`);
+      console.error(`   3. Verify all colons have spaces after them`);
+      console.error(`   4. Check for missing dashes before list items`);
+      console.error(`   5. Ensure no special characters without quotes`);
+      console.error(`\n💡 Example valid structure:`);
+      console.error(`   GET /api/endpoint:`);
+      console.error(`     happy_case:`);
+      console.error(`       - Scenario description here`);
+      throw error; // Re-throw to stop execution
+    }
   }
 
   /**
