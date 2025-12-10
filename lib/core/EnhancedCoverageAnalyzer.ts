@@ -127,19 +127,45 @@ export class EnhancedCoverageAnalyzer {
       console.log(`✓ AI suggestions available for review`);
     }
 
-    // Early exit if baseline is empty - no coverage analysis needed
-    if (scenarioCount === 0) {
+    // Early exit if BOTH baseline AND unit tests are empty
+    if (scenarioCount === 0 && unitTests.length === 0) {
       console.log('\n' + '='.repeat(70));
-      console.log(`ℹ️  Baseline is empty - skipping coverage analysis`);
+      console.log(`ℹ️  Baseline and unit tests are both empty - skipping coverage analysis`);
       console.log(`📋 Next step: QA should review AI suggestions and create baseline`);
-      console.log(`✅ No blocking issues - proceed with development`);
+      console.log(`📋 Next step: Developers should create unit tests`);
+      
+      // Extract API list from baseline structure
+      const apiList: string[] = [];
+      for (const key of Object.keys(baseline)) {
+        if (key !== 'service') {
+          apiList.push(key);
+        }
+      }
+      
+      if (apiList.length > 0) {
+        console.log(`\n📊 API Coverage Summary:`);
+        console.log(`   Found ${apiList.length} API endpoint(s) without test cases or unit tests:`);
+        for (const api of apiList) {
+          console.log(`   - ${api} (no baseline, no unit tests)`);
+        }
+      }
+      
+      console.log(`\n✅ No blocking issues - proceed with development`);
       
       return {
         service: service.name,
         timestamp: new Date(),
         baselineScenarios: 0,
-        unitTestsFound: unitTests.length,
-        apis: [],
+        unitTestsFound: 0,
+        apis: apiList.map(api => ({
+          api,
+          scenarios: [],
+          coveredScenarios: 0,
+          partiallyCoveredScenarios: 0,
+          uncoveredScenarios: 0,
+          matchedTests: [],
+          gaps: []
+        })),
         orphanTests: {
           totalOrphans: 0,
           technicalTests: [],
@@ -157,7 +183,7 @@ export class EnhancedCoverageAnalyzer {
           p0Gaps: 0,
           p1Gaps: 0,
           p2Gaps: 0,
-          criticalIssues: []
+          criticalIssues: [`No baseline scenarios and no unit tests for ${apiList.length} API(s)`]
         }
       };
     }
