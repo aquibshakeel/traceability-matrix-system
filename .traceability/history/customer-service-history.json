@@ -1,6 +1,283 @@
 {
   "service": "customer-service",
-  "gitChanges": [],
+  "gitChanges": [
+    {
+      "timestamp": "2025-12-10T21:11:39.971Z",
+      "commit": "ae218c6",
+      "author": "MohdAquibShakeel",
+      "message": "fix: allow empty API entries in baseline YAML",
+      "apisChanged": [
+        {
+          "type": "added",
+          "endpoint": "/{id}/email",
+          "method": "PATCH",
+          "file": "services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java",
+          "lineNumber": 166,
+          "hasTest": false,
+          "hasScenario": false,
+          "recommendation": "Create unit test and add scenario to baseline"
+        }
+      ],
+      "summary": {
+        "added": 1,
+        "modified": 0,
+        "removed": 0
+      }
+    },
+    {
+      "timestamp": "2025-12-10T21:13:17.145Z",
+      "commit": "ae218c6",
+      "author": "MohdAquibShakeel",
+      "message": "fix: allow empty API entries in baseline YAML",
+      "apisChanged": [
+        {
+          "type": "added",
+          "endpoint": "/{id}/email",
+          "method": "PATCH",
+          "file": "services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java",
+          "lineNumber": 166,
+          "hasTest": false,
+          "hasScenario": false,
+          "recommendation": "Create unit test and add scenario to baseline"
+        }
+      ],
+      "summary": {
+        "added": 1,
+        "modified": 0,
+        "removed": 0
+      }
+    },
+    {
+      "timestamp": "2025-12-10T21:15:40.778Z",
+      "commit": "ae218c6",
+      "author": "MohdAquibShakeel",
+      "message": "fix: allow empty API entries in baseline YAML",
+      "apisChanged": [
+        {
+          "type": "added",
+          "endpoint": "/{id}/email",
+          "method": "PATCH",
+          "file": "services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java",
+          "lineNumber": 166,
+          "hasTest": false,
+          "hasScenario": false,
+          "recommendation": "Create unit test and add scenario to baseline"
+        }
+      ],
+      "summary": {
+        "added": 1,
+        "modified": 0,
+        "removed": 0
+      }
+    },
+    {
+      "timestamp": "2025-12-10T21:19:34.194Z",
+      "commit": "ae218c6",
+      "author": "MohdAquibShakeel",
+      "message": "fix: allow empty API entries in baseline YAML",
+      "apisChanged": [
+        {
+          "type": "added",
+          "endpoint": "/{id}/email",
+          "method": "PATCH",
+          "file": "services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java",
+          "lineNumber": 166,
+          "hasTest": false,
+          "hasScenario": false,
+          "recommendation": "Create unit test and add scenario to baseline"
+        }
+      ],
+      "summary": {
+        "added": 1,
+        "modified": 0,
+        "removed": 0
+      }
+    },
+    {
+      "timestamp": "2025-12-10T21:37:00.037Z",
+      "commit": "ae218c6",
+      "author": "MohdAquibShakeel",
+      "message": "fix: allow empty API entries in baseline YAML",
+      "apisChanged": [
+        {
+          "type": "added",
+          "endpoint": "/{id}/email",
+          "method": "PATCH",
+          "file": "services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java",
+          "lineNumber": 166,
+          "hasTest": false,
+          "hasScenario": false,
+          "recommendation": "Create unit test and add scenario to baseline"
+        }
+      ],
+      "summary": {
+        "added": 1,
+        "modified": 0,
+        "removed": 0
+      }
+    },
+    {
+      "timestamp": "2025-12-10T21:44:56.077Z",
+      "commit": "ae218c6",
+      "author": "MohdAquibShakeel",
+      "message": "fix: allow empty API entries in baseline YAML",
+      "apisChanged": [
+        {
+          "type": "added",
+          "endpoint": "/{id}/email",
+          "method": "PATCH",
+          "file": "services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java",
+          "lineNumber": 166,
+          "hasTest": false,
+          "hasScenario": false,
+          "recommendation": "Create unit test and add scenario to baseline"
+        }
+      ],
+      "summary": {
+        "added": 1,
+        "modified": 0,
+        "removed": 0
+      }
+    },
+    {
+      "timestamp": "2025-12-10T21:50:05.737Z",
+      "commit": "ae218c6",
+      "author": "MohdAquibShakeel",
+      "message": "fix: allow empty API entries in baseline YAML",
+      "apisChanged": [
+        {
+          "type": "added",
+          "endpoint": "/{id}/email",
+          "method": "PATCH",
+          "file": "services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java",
+          "lineNumber": 166,
+          "hasTest": false,
+          "hasScenario": false,
+          "recommendation": "Create unit test and add scenario to baseline"
+        }
+      ],
+      "summary": {
+        "added": 1,
+        "modified": 0,
+        "removed": 0
+      }
+    },
+    {
+      "timestamp": "2025-12-10T21:50:49.462Z",
+      "commit": "ae218c6",
+      "author": "MohdAquibShakeel",
+      "message": "fix: allow empty API entries in baseline YAML",
+      "apisChanged": [
+        {
+          "type": "added",
+          "endpoint": "/{id}/email",
+          "method": "PATCH",
+          "file": "services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java",
+          "lineNumber": 166,
+          "hasTest": false,
+          "hasScenario": false,
+          "recommendation": "Create unit test and add scenario to baseline"
+        }
+      ],
+      "summary": {
+        "added": 1,
+        "modified": 0,
+        "removed": 0
+      }
+    },
+    {
+      "timestamp": "2025-12-10T21:55:47.175Z",
+      "commit": "ae218c6",
+      "author": "MohdAquibShakeel",
+      "message": "fix: allow empty API entries in baseline YAML",
+      "apisChanged": [
+        {
+          "type": "added",
+          "endpoint": "/{id}/email",
+          "method": "PATCH",
+          "file": "services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java",
+          "lineNumber": 166,
+          "hasTest": false,
+          "hasScenario": false,
+          "recommendation": "Create unit test and add scenario to baseline"
+        }
+      ],
+      "summary": {
+        "added": 1,
+        "modified": 0,
+        "removed": 0
+      }
+    },
+    {
+      "timestamp": "2025-12-10T21:57:21.037Z",
+      "commit": "ae218c6",
+      "author": "MohdAquibShakeel",
+      "message": "fix: allow empty API entries in baseline YAML",
+      "apisChanged": [
+        {
+          "type": "added",
+          "endpoint": "/{id}/email",
+          "method": "PATCH",
+          "file": "services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java",
+          "lineNumber": 166,
+          "hasTest": false,
+          "hasScenario": false,
+          "recommendation": "Create unit test and add scenario to baseline"
+        }
+      ],
+      "summary": {
+        "added": 1,
+        "modified": 0,
+        "removed": 0
+      }
+    },
+    {
+      "timestamp": "2025-12-10T22:01:40.796Z",
+      "commit": "ae218c6",
+      "author": "MohdAquibShakeel",
+      "message": "fix: allow empty API entries in baseline YAML",
+      "apisChanged": [
+        {
+          "type": "added",
+          "endpoint": "/{id}/email",
+          "method": "PATCH",
+          "file": "services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java",
+          "lineNumber": 166,
+          "hasTest": false,
+          "hasScenario": false,
+          "recommendation": "Create unit test and add scenario to baseline"
+        }
+      ],
+      "summary": {
+        "added": 1,
+        "modified": 0,
+        "removed": 0
+      }
+    },
+    {
+      "timestamp": "2025-12-10T22:02:37.144Z",
+      "commit": "ae218c6",
+      "author": "MohdAquibShakeel",
+      "message": "fix: allow empty API entries in baseline YAML",
+      "apisChanged": [
+        {
+          "type": "added",
+          "endpoint": "/{id}/email",
+          "method": "PATCH",
+          "file": "services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java",
+          "lineNumber": 166,
+          "hasTest": false,
+          "hasScenario": false,
+          "recommendation": "Create unit test and add scenario to baseline"
+        }
+      ],
+      "summary": {
+        "added": 1,
+        "modified": 0,
+        "removed": 0
+      }
+    }
+  ],
   "coverageTrends": [
     {
       "timestamp": "2025-12-10T11:53:47.605Z",
@@ -91,8 +368,137 @@
       "totalScenarios": 35,
       "p0Gaps": 0,
       "p1Gaps": 0
+    },
+    {
+      "timestamp": "2025-12-10T21:07:58.259Z",
+      "commit": "ae218c6",
+      "coveragePercent": 45.714285714285715,
+      "scenariosCovered": 16,
+      "totalScenarios": 35,
+      "p0Gaps": 2,
+      "p1Gaps": 3
+    },
+    {
+      "timestamp": "2025-12-10T21:11:39.971Z",
+      "commit": "ae218c6",
+      "coveragePercent": 45.714285714285715,
+      "scenariosCovered": 16,
+      "totalScenarios": 35,
+      "p0Gaps": 2,
+      "p1Gaps": 3
+    },
+    {
+      "timestamp": "2025-12-10T21:13:17.145Z",
+      "commit": "ae218c6",
+      "coveragePercent": 45.714285714285715,
+      "scenariosCovered": 16,
+      "totalScenarios": 35,
+      "p0Gaps": 2,
+      "p1Gaps": 3
+    },
+    {
+      "timestamp": "2025-12-10T21:15:40.778Z",
+      "commit": "ae218c6",
+      "coveragePercent": 54.285714285714285,
+      "scenariosCovered": 19,
+      "totalScenarios": 35,
+      "p0Gaps": 1,
+      "p1Gaps": 2
+    },
+    {
+      "timestamp": "2025-12-10T21:19:34.194Z",
+      "commit": "ae218c6",
+      "coveragePercent": 45.714285714285715,
+      "scenariosCovered": 16,
+      "totalScenarios": 35,
+      "p0Gaps": 2,
+      "p1Gaps": 3
+    },
+    {
+      "timestamp": "2025-12-10T21:37:00.036Z",
+      "commit": "ae218c6",
+      "coveragePercent": 45.714285714285715,
+      "scenariosCovered": 16,
+      "totalScenarios": 35,
+      "p0Gaps": 2,
+      "p1Gaps": 3
+    },
+    {
+      "timestamp": "2025-12-10T21:44:56.077Z",
+      "commit": "ae218c6",
+      "coveragePercent": 28.57142857142857,
+      "scenariosCovered": 10,
+      "totalScenarios": 35,
+      "p0Gaps": 2,
+      "p1Gaps": 3
+    },
+    {
+      "timestamp": "2025-12-10T21:50:05.736Z",
+      "commit": "ae218c6",
+      "coveragePercent": 28.57142857142857,
+      "scenariosCovered": 10,
+      "totalScenarios": 35,
+      "p0Gaps": 2,
+      "p1Gaps": 3
+    },
+    {
+      "timestamp": "2025-12-10T21:50:49.462Z",
+      "commit": "ae218c6",
+      "coveragePercent": 28.57142857142857,
+      "scenariosCovered": 10,
+      "totalScenarios": 35,
+      "p0Gaps": 2,
+      "p1Gaps": 3
+    },
+    {
+      "timestamp": "2025-12-10T21:55:47.174Z",
+      "commit": "ae218c6",
+      "coveragePercent": 42.857142857142854,
+      "scenariosCovered": 15,
+      "totalScenarios": 35,
+      "p0Gaps": 1,
+      "p1Gaps": 2
+    },
+    {
+      "timestamp": "2025-12-10T21:57:21.036Z",
+      "commit": "ae218c6",
+      "coveragePercent": 42.857142857142854,
+      "scenariosCovered": 15,
+      "totalScenarios": 35,
+      "p0Gaps": 1,
+      "p1Gaps": 2
+    },
+    {
+      "timestamp": "2025-12-10T22:01:40.796Z",
+      "commit": "ae218c6",
+      "coveragePercent": 42.857142857142854,
+      "scenariosCovered": 15,
+      "totalScenarios": 35,
+      "p0Gaps": 1,
+      "p1Gaps": 2
+    },
+    {
+      "timestamp": "2025-12-10T22:02:37.144Z",
+      "commit": "ae218c6",
+      "coveragePercent": 34.285714285714285,
+      "scenariosCovered": 12,
+      "totalScenarios": 35,
+      "p0Gaps": 2,
+      "p1Gaps": 3
     }
   ],
-  "apiRiskScores": [],
-  "lastUpdated": "2025-12-10T19:31:43.351Z"
+  "apiRiskScores": [
+    {
+      "api": "PATCH /{id}/email",
+      "changeCount": 13,
+      "lastChanged": "2025-12-10T22:02:37.145Z",
+      "riskScore": 1,
+      "reasons": [
+        "Changed 13 times in 30 days",
+        "Recently changed (0 days ago)",
+        "No unit tests"
+      ]
+    }
+  ],
+  "lastUpdated": "2025-12-10T22:02:37.145Z"
 }

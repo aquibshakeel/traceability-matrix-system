@@ -162,6 +162,41 @@ public class CustomerController {
         customerService.deleteCustomer(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/email")
+    @Operation(
+        summary = "Update customer email",
+        description = "Updates a customer's email address and sends verification"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Email updated successfully",
+            content = @Content(schema = @Schema(implementation = CustomerResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid email format"
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Customer not found"
+        ),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Email already exists for another customer"
+        )
+    })
+    public ResponseEntity<CustomerResponse> updateCustomerEmail(
+            @Parameter(description = "Customer ID", required = true)
+            @PathVariable String id,
+            @Parameter(description = "New email address", required = true)
+            @RequestParam String email) {
+        log.info("PATCH /v1/customers/{}/email - Updating email to: {}", id, email);
+
+        CustomerResponse response = customerService.updateCustomerEmail(id, email);
+        return ResponseEntity.ok(response);
+    }
 }
 // test
 // debug test

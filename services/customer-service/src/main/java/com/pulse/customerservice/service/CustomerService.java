@@ -57,4 +57,13 @@ public interface CustomerService {
      * @param id Customer ID
      */
     void deleteCustomer(String id);
+
+    /**
+     * Update customer email.
+     *
+     * @param id Customer ID
+     * @param email New email address
+     * @return Updated customer response
+     */
+    CustomerResponse updateCustomerEmail(String id, String email);
 }

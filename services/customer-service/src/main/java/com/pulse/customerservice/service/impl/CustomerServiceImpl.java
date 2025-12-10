@@ -109,4 +109,25 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.deleteById(id);
         log.info("Customer deleted successfully with ID: {}", id);
     }
+
+    @Override
+    @Transactional
+    public CustomerResponse updateCustomerEmail(String id, String email) {
+        log.info("Updating email for customer with ID: {} to: {}", id, email);
+
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with ID: " + id));
+
+        // TODO: Add email validation logic
+        // TODO: Check if email already exists for another customer (409 Conflict)
+        // TODO: Send verification email
+
+        customer.setEmail(email);
+        customer.setUpdatedAt(LocalDateTime.now());
+
+        Customer updatedCustomer = customerRepository.save(customer);
+        log.info("Email updated successfully for customer ID: {}", updatedCustomer.getId());
+
+        return customerMapper.toResponse(updatedCustomer);
+    }
 }

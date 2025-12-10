@@ -208,6 +208,9 @@ export class EnhancedCoverageAnalyzer {
     
     const baseline = this.loadYAML(baselinePath);
     
+    // Extract API mapping if present (new format with unique keys)
+    const apiMapping = baseline.api_mapping || {};
+    
     // Load AI cases for completeness check
     const aiCasesPath = path.join(this.projectRoot, '.traceability/test-cases/ai_cases', `${service.name}-ai.yml`);
     const aiCases = fs.existsSync(aiCasesPath) ? this.loadYAML(aiCasesPath) : null;
@@ -250,12 +253,15 @@ export class EnhancedCoverageAnalyzer {
     const apiAnalyses: APIAnalysis[] = [];
     const gaps: GapAnalysis[] = [];
     
-    for (const [api, categories] of Object.entries(baseline)) {
-      if (api === 'service') continue;
+    for (const [apiKey, categories] of Object.entries(baseline)) {
+      if (apiKey === 'service' || apiKey === 'api_mapping') continue;
       
-      console.log(`\n${api}:`);
-      const aiSuggestions = aiCases && aiCases[api] ? aiCases[api] : null;
-      const analysis = await this.analyzeAPI(api, categories as any, unitTests, aiSuggestions);
+      // Get actual API endpoint from mapping (or use key as-is for old format)
+      const actualAPI = apiMapping[apiKey] || apiKey;
+      
+      console.log(`\n${actualAPI}:`);
+      const aiSuggestions = aiCases && aiCases[actualAPI] ? aiCases[actualAPI] : null;
+      const analysis = await this.analyzeAPI(actualAPI, categories as any, unitTests, aiSuggestions);
       apiAnalyses.push(analysis);
       gaps.push(...analysis.gaps);
     }
@@ -339,6 +345,11 @@ export class EnhancedCoverageAnalyzer {
         gaps: []
       };
     }
+    
+    // 🔧 FIX: Filter unit tests to only include tests relevant to THIS API endpoint
+    // This prevents cross-endpoint matching (e.g., GET /{id} tests matching POST scenarios)
+    const relevantTests = this.filterTestsByEndpoint(api, unitTests);
+    console.log(`  📋 Analyzing ${scenarios.length} scenarios with ${relevantTests.length} relevant tests (filtered from ${unitTests.length} total)`);
     
     // Step 1: Analyze API spec completeness FIRST
     const completenessGaps: GapAnalysis[] = [];
@@ -438,16 +449,20 @@ export class EnhancedCoverageAnalyzer {
     
     const prompt = `Analyze test coverage for API endpoint: ${api}
 
+**CRITICAL: Only consider unit tests that are specifically for THIS API endpoint. Do NOT match tests from other endpoints.**
+
 **Expected Scenarios (${scenarios.length}):**
 ${scenarios.map((s, i) => `${i+1}. ${s}`).join('\n')}
 
-**Available Unit Tests (${unitTests.length}):**
-${unitTests.slice(0, 30).map((t, i) => `${i+1}. ${t.description} (${t.file})`).join('\n')}
+**Available Unit Tests for ${api} (${relevantTests.length}):**
+${relevantTests.slice(0, 30).map((t, i) => `${i+1}. ${t.description} (${t.file})`).join('\n')}
 
 For each scenario, determine:
 1. Which unit tests cover it (list test numbers)
 2. Coverage status: FULLY_COVERED / PARTIALLY_COVERED / NOT_COVERED
 3. What's missing if not fully covered
+
+**IMPORTANT: Test numbers refer to the filtered list above, NOT all unit tests.**
 
 Respond in JSON format:
 {
@@ -476,7 +491,8 @@ Respond in JSON format:
       
       // Build result with match details for traceability
       const matchedTests = analysis.matches.map((m: any) => {
-        const tests = m.testNumbers.map((n: number) => unitTests[n - 1]).filter((t: UnitTest) => t);
+        // 🔧 FIX: Use relevantTests (filtered list) instead of all unitTests
+        const tests = m.testNumbers.map((n: number) => relevantTests[n - 1]).filter((t: UnitTest) => t);
         
         // Build detailed match info for each test
         const matchDetails = tests.map((test: UnitTest) => ({
@@ -766,7 +782,7 @@ Respond in JSON:
   private countScenarios(data: any): number {
     let count = 0;
     for (const [key, value] of Object.entries(data)) {
-      if (key === 'service') continue;
+      if (key === 'service' || key === 'api_mapping') continue;
       // Skip null/undefined values
       if (!value || value === null) continue;
       count += this.flattenScenarios(value).length;
@@ -1126,5 +1142,143 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
     }
 
     return bestMatch;
+  }
+
+  /**
+   * Filter unit tests to only include tests relevant to a specific API endpoint
+   * Prevents cross-endpoint matching (e.g., GET /{id} tests matching POST scenarios)
+   */
+  private filterTestsByEndpoint(api: string, unitTests: UnitTest[]): UnitTest[] {
+    // Extract endpoint and method from API string
+    // API format: "METHOD /path" or "/path" (e.g., "GET /v1/customers/{id}")
+    const apiParts = api.trim().split(/\s+/);
+    let method: string;
+    let endpoint: string;
+    
+    if (apiParts.length === 2) {
+      // Format: "METHOD /path"
+      method = apiParts[0].toUpperCase();
+      endpoint = apiParts[1];
+    } else {
+      // Format: "/path" (no method specified)
+      method = '';
+      endpoint = api;
+    }
+    
+    // Normalize endpoint for matching
+    const normalizeEndpoint = (path: string): string => {
+      return path
+        .replace(/\/v\d+/, '') // Remove version (e.g., /v1)
+        .replace(/\{[^}]+\}/g, '') // Remove path parameters (e.g., {id})
+        .replace(/\/$/, '') // Remove trailing slash
+        .toLowerCase();
+    };
+    
+    const normalizedEndpoint = normalizeEndpoint(endpoint);
+    const pathSegments = normalizedEndpoint.split('/').filter(s => s.length > 0);
+    
+    // Define method keywords for each HTTP method
+    const methodKeywords: { [key: string]: string[] } = {
+      'GET': ['get', 'fetch', 'retrieve', 'find', 'list'],
+      'POST': ['post', 'create', 'add', 'insert'],
+      'PUT': ['put', 'update', 'modify', 'change'],
+      'DELETE': ['delete', 'remove', 'destroy'],
+      'PATCH': ['patch', 'update', 'modify']
+    };
+    
+    return unitTests.filter(test => {
+      const testDesc = test.description.toLowerCase();
+      const testFile = test.file.toLowerCase();
+      
+      // RULE 1: Path segment matching (required)
+      // Test MUST mention at least one path segment (singular or plural)
+      const matchesPathSegment = pathSegments.some(segment => {
+        if (testDesc.includes(segment) || testFile.includes(segment)) {
+          return true;
+        }
+        const singular = segment.endsWith('s') ? segment.slice(0, -1) : segment;
+        if (testDesc.includes(singular) || testFile.includes(singular)) {
+          return true;
+        }
+        return false;
+      });
+      
+      if (!matchesPathSegment && pathSegments.length > 0) {
+        return false; // Test doesn't mention any path segments
+      }
+      
+      // RULE 2: Method-specific keyword matching (if method is specified)
+      if (method) {
+        const expectedKeywords = methodKeywords[method] || [];
+        const testId = test.id.toLowerCase();
+        
+        // Check test description, file name, AND test ID (method name)
+        const hasExpectedKeyword = expectedKeywords.some(kw => 
+          testDesc.includes(kw) || testFile.includes(kw) || testId.includes(kw)
+        );
+        
+        // Check if test has keywords from OTHER methods (conflicting)
+        const otherMethods = Object.keys(methodKeywords).filter(m => m !== method);
+        const hasConflictingKeyword = otherMethods.some(otherMethod => {
+          const otherKeywords = methodKeywords[otherMethod];
+          return otherKeywords.some(kw => testDesc.includes(kw) || testId.includes(kw));
+        });
+        
+        // If test has expected keyword, include it
+        if (hasExpectedKeyword) {
+          // Unless it also has conflicting keywords (ambiguous)
+          if (hasConflictingKeyword) {
+            // For ambiguous cases, check which keyword is more prominent
+            // Count occurrences of each method's keywords
+            const expectedCount = expectedKeywords.filter(kw => testDesc.includes(kw)).length;
+            const conflictCount = otherMethods.reduce((sum, m) => {
+              return sum + methodKeywords[m].filter(kw => testDesc.includes(kw)).length;
+            }, 0);
+            
+            // Include if expected keywords are more prominent
+            if (expectedCount <= conflictCount) {
+              return false;
+            }
+          }
+          // Has expected keyword and no/fewer conflicts - include
+          return true;
+        }
+        
+        // Test doesn't have expected keyword
+        // Exclude if it has conflicting keywords
+        if (hasConflictingKeyword) {
+          return false;
+        }
+        
+        // No expected keyword, no conflicting keyword
+        // Check for parameterized paths
+        if (endpoint.includes('{id}')) {
+          const hasByIdPattern = 
+            testDesc.includes('by id') || 
+            testDesc.includes('byid') ||
+            testDesc.includes('by_id') ||
+            testFile.includes('byid');
+          
+          if (!hasByIdPattern) {
+            // Not a "by id" test - exclude unless it's a general list test
+            const isGeneralTest = 
+              testDesc.includes('all') || 
+              testDesc.includes('list') ||
+              testDesc.includes('filter');
+            return isGeneralTest;
+          }
+          // Has "by id" pattern - could be for this endpoint
+          // But since no method keyword, it's ambiguous - exclude to be safe
+          return false;
+        }
+        
+        // No {id}, no method keywords - marginal case, exclude
+        return false;
+      }
+      
+      // No method specified in API - less strict filtering
+      // Just check path segments (already done above)
+      return true;
+    });
   }
 }
