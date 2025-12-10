@@ -175,96 +175,26 @@ export class EnhancedCoverageAnalyzer {
       console.log(`✓ AI suggestions available for review`);
     }
 
-    // Early exit if BOTH baseline AND unit tests are empty
-    if (scenarioCount === 0 && unitTests.length === 0) {
+    // Check if baseline is empty - handle differently
+    const isBaselineEmpty = scenarioCount === 0;
+    
+    // Log status message if both are empty
+    if (isBaselineEmpty && unitTests.length === 0) {
       console.log('\n' + '='.repeat(70));
       console.log(`ℹ️  Baseline and unit tests are both empty - skipping coverage analysis`);
       console.log(`📋 Next step: QA should review AI suggestions and create baseline`);
       console.log(`📋 Next step: Developers should create unit tests`);
       
-      // Extract API list from baseline structure
-      const apiList: string[] = [];
-      for (const key of Object.keys(baseline)) {
-        if (key !== 'service') {
-          apiList.push(key);
-        }
-      }
-      
-      if (apiList.length > 0) {
+      if (discoveredAPIs.length > 0) {
         console.log(`\n📊 API Coverage Summary:`);
-        console.log(`   Found ${apiList.length} API endpoint(s) without test cases or unit tests:`);
-        for (const api of apiList) {
-          console.log(`   - ${api} (no baseline, no unit tests)`);
+        console.log(`   Found ${discoveredAPIs.length} API endpoint(s) without test cases or unit tests:`);
+        for (const api of discoveredAPIs) {
+          console.log(`   - ${api.method} ${api.endpoint} (no baseline, no unit tests)`);
         }
       }
       
       console.log(`\n✅ No blocking issues - proceed with development`);
-      
-      const orphanAPIs = apiList.map(api => ({
-        method: this.extractHttpMethod(api),
-        endpoint: api,
-        controller: 'Unknown',
-        lineNumber: 0,
-        hasScenario: false,
-        hasTest: false,
-        riskLevel: 'Critical' as 'Critical' | 'High' | 'Medium' | 'Low'
-      }));
-      
-      return {
-        service: service.name,
-        timestamp: new Date(),
-        baselineScenarios: 0,
-        unitTestsFound: 0,
-        apis: apiList.map(api => ({
-          api,
-          scenarios: [],
-          coveredScenarios: 0,
-          partiallyCoveredScenarios: 0,
-          uncoveredScenarios: 0,
-          matchedTests: [],
-          gaps: []
-        })),
-        orphanTests: {
-          totalOrphans: 0,
-          technicalTests: [],
-          businessTests: [],
-          categorization: []
-        },
-        orphanAPIs,
-        gaps: [],
-        coveragePercent: 0,
-        summary: {
-          totalScenarios: 0,
-          fullyCovered: 0,
-          partiallyCovered: 0,
-          notCovered: 0,
-          coveragePercent: 0,
-          p0Gaps: 0,
-          p1Gaps: 0,
-          p2Gaps: 0,
-          criticalIssues: [`No baseline scenarios and no unit tests for ${apiList.length} API(s)`]
-        },
-        visualAnalytics: {
-          coverageDistribution: {
-            fullyCovered: 0,
-            partiallyCovered: 0,
-            notCovered: 0
-          },
-          gapPriorityBreakdown: {
-            p0: 0,
-            p1: 0,
-            p2: 0,
-            p3: 0
-          },
-          orphanTestPriorityBreakdown: {
-            p0: 0,
-            p1: 0,
-            p2: 0,
-            p3: 0
-          },
-          coverageTrend: []
-        }
-      };
+      // Continue to orphan detection below - don't early exit
     }
 
     // Analyze each API (only if baseline has scenarios)
