@@ -444,30 +444,116 @@ export class ReportGenerator {
       const businessTests = orphanTests.businessTests;
       if (businessTests.length === 0) return '';
       
-      // Group tests by inferred API (from test description)
-      const grouped: any = {};
+      // Convert test name to baseline "When X, then Y" format
+      const convertToBaselineFormat = (testDesc: string): string => {
+        // Remove test framework artifacts
+        let scenario = testDesc
+          .replace(/^test/i, '')
+          .replace(/Test$/i, '')
+          .trim();
+        
+        // Convert from camelCase/PascalCase to sentence
+        scenario = scenario
+          .replace(/([A-Z])/g, ' $1')
+          .toLowerCase()
+          .trim();
+        
+        // Try to format as "When X, then Y"
+        if (scenario.includes('with') && scenario.includes('return')) {
+          const parts = scenario.split('return');
+          const condition = parts[0].replace(/^get |^post |^put |^delete /, '').trim();
+          const result = parts[1] ? parts[1].trim() : '';
+          return `When ${condition}, return ${result}`;
+        } else if (scenario.includes('with') && scenario.includes('throw')) {
+          const parts = scenario.split('throw');
+          const condition = parts[0].replace(/^get |^post |^put |^delete /, '').trim();
+          return `When ${condition}, throw exception`;
+        } else if (scenario.includes('with')) {
+          const condition = scenario.replace(/^get |^post |^put |^delete /, '').trim();
+          return `When ${condition}, process successfully`;
+        } else {
+          // Fallback: just capitalize first letter
+          return scenario.charAt(0).toUpperCase() + scenario.slice(1);
+        }
+      };
+      
+      // Group tests by inferred API and category
+      interface GroupedTests {
+        [api: string]: {
+          happy_case: string[];
+          edge_case: string[];
+          error_case: string[];
+          security: string[];
+        };
+      }
+      
+      const grouped: GroupedTests = {};
+      
       businessTests.forEach((test: any) => {
-        // Try to extract API from test description
-        let api = 'Unknown API';
+        // Extract API from test description
+        let api = 'GET /v1/customers/{id}'; // Default based on your tests
         const desc = test.description.toLowerCase();
         
-        if (desc.includes('get customer by id')) api = 'GET /api/customers/{id}';
-        else if (desc.includes('post') || desc.includes('create customer')) api = 'POST /api/customers';
-        else if (desc.includes('put') || desc.includes('update customer')) api = 'PUT /api/customers/{id}';
-        else if (desc.includes('delete customer')) api = 'DELETE /api/customers/{id}';
+        if (desc.includes('post') || desc.includes('create customer')) api = 'POST /v1/customers';
+        else if (desc.includes('put') || desc.includes('update')) api = 'PUT /v1/customers/{id}';
+        else if (desc.includes('delete')) api = 'DELETE /v1/customers/{id}';
+        else if (desc.includes('get') && !desc.includes('{id}')) api = 'GET /v1/customers';
         
-        if (!grouped[api]) grouped[api] = [];
-        grouped[api].push(test.description);
+        if (!grouped[api]) {
+          grouped[api] = { happy_case: [], edge_case: [], error_case: [], security: [] };
+        }
+        
+        // Categorize by test type
+        const scenario = convertToBaselineFormat(test.description);
+        
+        if (desc.includes('error') || desc.includes('exception') || desc.includes('invalid') || desc.includes('non existent')) {
+          grouped[api].error_case.push(scenario);
+        } else if (desc.includes('edge') || desc.includes('minimum') || desc.includes('maximum') || desc.includes('uuid') || desc.includes('empty')) {
+          grouped[api].edge_case.push(scenario);
+        } else if (desc.includes('sql') || desc.includes('xss') || desc.includes('injection') || desc.includes('security')) {
+          grouped[api].security.push(scenario);
+        } else {
+          grouped[api].happy_case.push(scenario);
+        }
       });
       
-      let yaml = 'service: ' + serviceName + '\n\n';
+      let yaml = `service: ${serviceName}\n\n`;
+      
       Object.keys(grouped).forEach(api => {
-        yaml += api + ':\n';
-        yaml += '  happy_case:\n';
-        grouped[api].forEach((desc: string) => {
-          yaml += '    - ' + desc + '\n';
-        });
-        yaml += '\n';
+        yaml += `${api}:\n`;
+        
+        // Add categories in order: happy_case, edge_case, error_case, security
+        if (grouped[api].happy_case.length > 0) {
+          yaml += '  happy_case:\n';
+          grouped[api].happy_case.forEach(scenario => {
+            yaml += `    - ${scenario}\n`;
+          });
+          yaml += '\n';
+        }
+        
+        if (grouped[api].edge_case.length > 0) {
+          yaml += '  edge_case:\n';
+          grouped[api].edge_case.forEach(scenario => {
+            yaml += `    - ${scenario}\n`;
+          });
+          yaml += '\n';
+        }
+        
+        if (grouped[api].error_case.length > 0) {
+          yaml += '  error_case:\n';
+          grouped[api].error_case.forEach(scenario => {
+            yaml += `    - ${scenario}\n`;
+          });
+          yaml += '\n';
+        }
+        
+        if (grouped[api].security.length > 0) {
+          yaml += '  security:\n';
+          grouped[api].security.forEach(scenario => {
+            yaml += `    - ${scenario}\n`;
+          });
+          yaml += '\n';
+        }
       });
       
       return yaml;
