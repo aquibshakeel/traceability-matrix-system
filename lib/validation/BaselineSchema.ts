@@ -37,10 +37,9 @@ export class BaselineValidator {
         errors.push(`Invalid API format: "${key}" - should be "METHOD /path" (e.g., "GET /v1/customers")`);
       }
       
-      // Check value structure
+      // Allow null/undefined values - means 0 scenarios (valid use case)
       if (value === null || value === undefined) {
-        errors.push(`API "${key}" has no content - should have test categories`);
-        continue;
+        continue; // Skip validation, this is valid
       }
       
       if (typeof value !== 'object') {
@@ -84,10 +83,8 @@ export class BaselineValidator {
         }
       }
       
-      // Warn if no categories defined
-      if (categories.length === 0) {
-        errors.push(`API "${key}" has no test categories - should have at least one`);
-      }
+      // Allow empty categories - means 0 scenarios (valid use case)
+      // Don't error, just skip
     }
     
     return {
