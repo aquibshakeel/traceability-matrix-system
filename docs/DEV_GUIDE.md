@@ -1606,8 +1606,7 @@ git commit --no-verify -m "message"
   - `docs/TEST-CASES-GUIDE.md` - Overview of demonstration cases (4, 5, 6)
   - `docs/AI-PRIORITY-LOGIC.md` - How P0/P1/P2/P3 priorities work
   - `docs/TWO-PHASE-ANALYSIS-EXPLAINED.md` - Baseline vs completeness
-  - `docs/DETAILED-CASE-MAPPINGS.md` - Exact scenario-to-test mappings
-  - `docs/CASE-6-PARTIAL-COVERAGE.md` - Partial coverage deep dive
+  - `docs/DETAILED-CASE-MAPPINGS.md` - All 3 cases with exact mappings and details
 
 - **Technical Documentation:**
   - `docs/SCENARIO-COMPLETENESS-DETECTION.md` - Completeness detection

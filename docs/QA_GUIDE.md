@@ -17,14 +17,15 @@
 
 1. [What is This System?](#what-is-this-system)
 2. [Quick Start](#quick-start)
-3. [How Claude AI Works](#how-claude-ai-works)
-4. [QA Workflow](#qa-workflow)
-5. [Writing Business Scenarios](#writing-business-scenarios)
-6. [Understanding Reports](#understanding-reports)
-7. [Advanced Features](#advanced-features)
-8. [Onboarding a New Service](#onboarding-a-new-service)
-9. [Quick Reference](#quick-reference)
-10. [Version History](#version-history)
+3. [Demonstration Test Cases](#demonstration-test-cases) 🆕
+4. [How Claude AI Works](#how-claude-ai-works)
+5. [QA Workflow](#qa-workflow)
+6. [Writing Business Scenarios](#writing-business-scenarios)
+7. [Understanding Reports](#understanding-reports)
+8. [Advanced Features](#advanced-features)
+9. [Onboarding a New Service](#onboarding-a-new-service)
+10. [Quick Reference](#quick-reference)
+11. [Version History](#version-history)
 
 ---
 
@@ -103,6 +104,59 @@ npm run continue
 # View reports
 open .traceability/reports/<service>-report.html
 ```
+
+---
+
+## 🎯 Demonstration Test Cases
+
+The system includes three demonstration cases that QA teams can reference to understand different coverage states:
+
+### Case 4: Full Coverage (GET /v1/customers)
+**Purpose:** Shows what perfect coverage looks like
+
+- **Baseline:** 10 scenarios in `customer-service-baseline.yml`
+- **Status:** ✅ 100% covered (10/10)
+- **What QA Learns:**
+  - How to write scenarios that match perfectly with tests
+  - What "fully covered" means in practice
+  - How to structure scenarios for clear traceability
+
+### Case 5: Intelligent Gap Detection (DELETE /v1/customers/{id})
+**Purpose:** Shows AI's two-phase analysis capability
+
+- **Baseline:** 5 scenarios in `customer-service-baseline.yml`
+- **Status:** ✅ 100% baseline + 🤖 22 AI suggestions
+- **What QA Learns:**
+  - Difference between "covered" vs "complete"
+  - How AI suggests additional scenarios from API spec
+  - How to evaluate and add AI suggestions to baseline
+
+### Case 6: Partial Coverage (PUT /v1/customers/{id})
+**Purpose:** Shows real-world gaps and how to address them
+
+- **Baseline:** 5 scenarios in `customer-service-baseline.yml`
+- **Status:** ⚠️ 40% fully covered (2 full + 2 partial + 1 none)
+- **What QA Learns:**
+  - How to identify incomplete test assertions
+  - How to enhance partial tests to full coverage
+  - How to prioritize gap remediation (P0/P1/P2)
+
+### Using the Demonstrations
+
+```bash
+# Run analysis to see all three cases
+npm run continue
+
+# Open report to review results
+open .traceability/reports/customer-service-report.html
+```
+
+**For QA Teams:**
+- Use Case 4 as your coverage goal
+- Use Case 5 to understand AI suggestions
+- Use Case 6 to learn gap identification
+
+**Learn More:** See `docs/TEST-CASES-GUIDE.md` for complete details.
 
 ---
 
@@ -522,10 +576,20 @@ npm run install:hooks         # Install pre-commit hook
 
 ## 📚 Additional Resources
 
-- **Developer Guide:** `docs/DEV_GUIDE.md`
-- **Testing Guide:** `docs/TESTING-GUIDE.md`
-- **Completeness Detection:** `docs/SCENARIO-COMPLETENESS-DETECTION.md`
-- **Implementation Summary:** `IMPLEMENTATION_SUMMARY.md`
+- **Main Documentation:**
+  - `README.md` - Project overview and quick start
+  - `docs/DEV_GUIDE.md` - Developer guide and implementation
+  - `docs/TESTING-GUIDE.md` - Testing and validation guide
+
+- **Test Case Documentation:**
+  - `docs/TEST-CASES-GUIDE.md` - Overview of demonstration cases (4, 5, 6)
+  - `docs/AI-PRIORITY-LOGIC.md` - How P0/P1/P2/P3 priorities work
+  - `docs/TWO-PHASE-ANALYSIS-EXPLAINED.md` - Baseline vs completeness
+  - `docs/DETAILED-CASE-MAPPINGS.md` - All 3 cases with exact mappings and details
+
+- **Technical Documentation:**
+  - `docs/SCENARIO-COMPLETENESS-DETECTION.md` - Completeness detection
+  - `IMPLEMENTATION_SUMMARY.md` - Implementation overview
 
 ---
 

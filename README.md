@@ -400,8 +400,7 @@ npm run generate
   - `docs/TEST-CASES-GUIDE.md` - Overview of demonstration cases
   - `docs/AI-PRIORITY-LOGIC.md` - How P0/P1/P2/P3 priorities are determined
   - `docs/TWO-PHASE-ANALYSIS-EXPLAINED.md` - Baseline vs completeness phases
-  - `docs/DETAILED-CASE-MAPPINGS.md` - Exact scenario-to-test mappings
-  - `docs/CASE-6-PARTIAL-COVERAGE.md` - Partial coverage detection deep dive
+  - `docs/DETAILED-CASE-MAPPINGS.md` - All 3 cases with exact mappings and details
 
 ---
 
