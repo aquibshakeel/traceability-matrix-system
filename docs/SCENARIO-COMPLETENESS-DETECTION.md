@@ -1,5 +1,8 @@
 # Enhanced Scenario Completeness Detection
 
+**Version:** 6.1.0  
+**Last Updated:** December 10, 2025
+
 ## Overview
 
 This AI-driven system now features **intelligent scenario completeness detection** that goes beyond simple baseline checking. It analyzes API specifications, compares with baseline scenarios, checks for corresponding unit tests, and provides comprehensive recommendations.
