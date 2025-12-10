@@ -160,7 +160,6 @@ node bin/ai-continue customer-service
 
 #### Console Output:
 ```
-📊 Analyzing: customer-service
 ✓ Baseline: 25 scenarios
 ✓ Unit tests: 0 found
 
@@ -237,9 +236,8 @@ Test with tests that don't have corresponding scenarios (traditional orphans).
 ```
 ✓ Baseline: 25 scenarios
 ✓ Unit tests: 15 found
-🔍 Categorizing orphan tests...
-  Found 5 orphan tests, categorizing...
-  ✅ Technical: 3, Business: 2
+Found 5 orphan tests, categorizing...
+🔍 Orphans: 5 tests (2 need scenarios)
 ```
 
 ### Verification Checklist
@@ -505,6 +503,30 @@ Phase 2: Coverage Analysis
 - [ ] Detects missing scenarios
 - [ ] Creates "Completeness Gaps" in report
 - [ ] AI cases file shows 🆕 for missing scenarios
+
+---
+
+## 📋 Detailed Case Mappings
+
+For complete scenario-to-test traceability with exact line numbers and file locations for all 5 APIs, see:
+
+**📄 [DETAILED-CASE-MAPPINGS.md](./DETAILED-CASE-MAPPINGS.md)**
+
+This comprehensive document provides:
+- **Case 1 (POST /v1/customers):** 12 baseline scenarios (tests pending)
+- **Case 3 (GET /v1/customers/{id}):** 10 orphan unit tests (scenarios missing)
+- **Case 4 (GET /v1/customers):** 10 scenarios, 100% coverage ✅
+- **Case 5 (DELETE /v1/customers/{id}):** 5 scenarios, 100% coverage + AI suggestions ✅
+- **Case 6 (PUT /v1/customers/{id}):** 5 scenarios, mixed coverage (40% full, 40% partial, 20% none)
+
+Each case includes:
+- Exact scenario text
+- Matched unit test with @DisplayName
+- File location and line numbers
+- Match confidence levels
+- Gap analysis and recommendations
+- Priority breakdown (P0/P1/P2/P3)
+- Visual traceability matrices
 
 ---
 
@@ -797,8 +819,8 @@ Reports:
 ---
 
 **Last Updated:** December 10, 2025  
-**Version:** 2.1 (v6.1.0 - Premium Report Redesign)  
-**System:** AI-Driven Traceability Matrix v6.1.0
+**Version:** 6.1.0  
+**System:** AI-Driven Traceability Matrix
 
 ## Recent Updates (v6.1.0)
 

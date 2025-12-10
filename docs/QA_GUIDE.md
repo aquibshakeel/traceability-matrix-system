@@ -156,7 +156,7 @@ open .traceability/reports/customer-service-report.html
 - Use Case 5 to understand AI suggestions
 - Use Case 6 to learn gap identification
 
-**Learn More:** See `docs/TEST-CASES-GUIDE.md` for complete details.
+**Learn More:** See `docs/DETAILED-CASE-MAPPINGS.md` for complete details with exact scenario-to-test mappings.
 
 ---
 
@@ -582,7 +582,7 @@ npm run install:hooks         # Install pre-commit hook
   - `docs/TESTING-GUIDE.md` - Testing and validation guide
 
 - **Test Case Documentation:**
-  - `docs/TEST-CASES-GUIDE.md` - Overview of demonstration cases (4, 5, 6)
+  - `docs/DETAILED-CASE-MAPPINGS.md` - Complete traceability matrix for all 5 APIs (Cases 1, 3, 4, 5, 6)
   - `docs/AI-PRIORITY-LOGIC.md` - How P0/P1/P2/P3 priorities work
   - `docs/TWO-PHASE-ANALYSIS-EXPLAINED.md` - Baseline vs completeness
   - `docs/DETAILED-CASE-MAPPINGS.md` - All 3 cases with exact mappings and details
@@ -623,7 +623,7 @@ npm run install:hooks         # Install pre-commit hook
 
 ---
 
-**Version:** 6.0.0  
+**Version:** 6.1.0  
 **Powered By:** Claude AI (Anthropic)  
 **Status:** Production Ready
 

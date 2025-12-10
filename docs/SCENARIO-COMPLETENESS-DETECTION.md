@@ -393,5 +393,5 @@ The key innovation: **The system now understands that having a unit test without
 ---
 
 **Last Updated:** December 10, 2025  
-**Version:** 2.0  
+**Version:** 6.1.0  
 **Feature:** Enhanced Scenario Completeness Detection
