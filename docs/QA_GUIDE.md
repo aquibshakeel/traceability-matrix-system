@@ -1,8 +1,15 @@
 # QA Guide - AI-Driven Test Coverage System
 
-**Version:** 6.0.0
+**Version:** 6.1.0
 **Last Updated:** December 10, 2025
 **Audience:** QA Engineers, Test Managers, Business Analysts
+
+## 🎨 New in v6.1.0 - Premium Report Redesign
+- Colored coverage badges for instant status (🟢 Green, 🟡 Yellow, 🔴 Red)
+- Collapsible sections to reduce scrolling
+- Priority-first layout (critical gaps shown first)
+- One-click copy for YAML scenarios
+- Professional design for stakeholder presentations
 
 ---
 

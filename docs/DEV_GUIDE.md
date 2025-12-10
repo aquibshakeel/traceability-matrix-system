@@ -1,8 +1,16 @@
 # Developer Guide - AI-Driven Test Coverage System
 
-**Version:** 6.0.0  
-**Last Updated:** December 10, 2025  
+**Version:** 6.1.0
+**Last Updated:** December 10, 2025
 **Audience:** Developers, DevOps Engineers, Tech Leads
+
+## 🎨 New in v6.1.0 - Premium Report Redesign
+- Enterprise-grade visual design with animations
+- Colored coverage badges (🟢 Green, 🟡 Yellow, 🔴 Red)
+- Collapsible sections with ▼ toggle buttons
+- Priority-first layout (Gaps shown first)
+- Professional Inter font typography
+- Animated shimmer header effect
 
 ---
 
