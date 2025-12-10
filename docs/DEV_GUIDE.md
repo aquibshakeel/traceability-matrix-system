@@ -18,19 +18,20 @@
 
 1. [What is This System?](#what-is-this-system)
 2. [Quick Setup](#quick-setup)
-3. [How It Works (Claude AI)](#how-it-works-claude-ai)
-4. [Architecture Overview](#architecture-overview)
-5. [Running Locally](#running-locally)
-6. [Pre-Commit Hook](#pre-commit-hook)
-7. [Interpreting Reports](#interpreting-reports)
-8. [Advanced Features Deep Dive](#advanced-features-deep-dive)
-9. [Implementation Details](#implementation-details)
-10. [Writing Unit Tests](#writing-unit-tests)
-11. [Real-World Examples](#real-world-examples)
-12. [Best Practices](#best-practices)
-13. [Troubleshooting](#troubleshooting)
-14. [Quick Reference](#quick-reference)
-15. [Version History](#version-history)
+3. [Demonstration Test Cases](#demonstration-test-cases) 🆕
+4. [How It Works (Claude AI)](#how-it-works-claude-ai)
+5. [Architecture Overview](#architecture-overview)
+6. [Running Locally](#running-locally)
+7. [Pre-Commit Hook](#pre-commit-hook)
+8. [Interpreting Reports](#interpreting-reports)
+9. [Advanced Features Deep Dive](#advanced-features-deep-dive)
+10. [Implementation Details](#implementation-details)
+11. [Writing Unit Tests](#writing-unit-tests)
+12. [Real-World Examples](#real-world-examples)
+13. [Best Practices](#best-practices)
+14. [Troubleshooting](#troubleshooting)
+15. [Quick Reference](#quick-reference)
+16. [Version History](#version-history)
 
 ---
 
@@ -111,6 +112,77 @@ npm run install:hooks
 npm run generate   # Phase 1: AI generates scenarios
 npm run continue   # Phase 2: AI analyzes coverage
 ```
+
+---
+
+## 🎯 Demonstration Test Cases
+
+The system includes three comprehensive demonstration cases that showcase all coverage detection capabilities:
+
+### Case 4: Full Coverage (GET /v1/customers)
+**Purpose:** Demonstrates 100% coverage with perfect traceability
+
+- **Implementation:**
+  - 10 baseline scenarios in `customer-service-baseline.yml`
+  - 10 unit tests in `CustomerControllerGetAllTest.java`
+  - Perfect 1:1 scenario-to-test mapping
+  
+- **What It Shows:**
+  - ✅ FULLY_COVERED status for all scenarios
+  - HIGH confidence matches
+  - Complete traceability with file/line numbers
+  - No gaps or action items needed
+
+### Case 5: Intelligent Gap Detection (DELETE /v1/customers/{id})
+**Purpose:** Demonstrates two-phase analysis (baseline vs API completeness)
+
+- **Implementation:**
+  - 5 baseline scenarios in `customer-service-baseline.yml`
+  - 5 unit tests in `CustomerControllerDeleteTest.java`
+  - 100% baseline coverage
+  
+- **What It Shows:**
+  - ✅ Baseline 100% covered
+  - 🤖 AI suggests 22 additional scenarios from API spec
+  - Demonstrates difference between "covered" and "complete"
+  - Priority-based recommendations (P1/P2)
+
+### Case 6: Partial Coverage (PUT /v1/customers/{id})
+**Purpose:** Demonstrates mixed coverage states and gap detection
+
+- **Implementation:**
+  - 5 baseline scenarios in `customer-service-baseline.yml`
+  - 4 unit tests in `CustomerControllerUpdateTest.java`
+  - Intentionally incomplete coverage
+  
+- **What It Shows:**
+  - ✅ FULLY_COVERED: 2 scenarios (40%)
+  - ⚠️ PARTIALLY_COVERED: 2 scenarios (40%)
+  - ❌ NOT_COVERED: 1 scenario (20%)
+  - Detailed gap analysis with remediation steps
+  - Real-world quality issues
+
+### Running the Demonstrations
+
+```bash
+# Build the project
+npm run build
+
+# Run analysis to see all three cases
+npx ts-node scripts/run-analysis.ts customer-service
+
+# View the HTML report
+open .traceability/reports/customer-service-report.html
+```
+
+### Expected Results
+
+The analysis will show:
+- Case 4: "✅ ALL SCENARIOS FULLY COVERED (10/10)"
+- Case 5: "✅ BASELINE COVERED + 💡 22 AI SUGGESTIONS"
+- Case 6: "⚠️ MIXED COVERAGE - 3 GAPS IDENTIFIED"
+
+**Learn More:** See `docs/TEST-CASES-GUIDE.md` for detailed documentation of all three cases.
 
 ---
 
@@ -1525,12 +1597,22 @@ git commit --no-verify -m "message"
 
 ## 📚 Additional Resources
 
-- **QA Guide:** `docs/QA_GUIDE.md`
-- **Testing Guide:** `docs/TESTING-GUIDE.md`
-- **Completeness Detection:** `docs/SCENARIO-COMPLETENESS-DETECTION.md`
-- **Implementation Summary:** `IMPLEMENTATION_SUMMARY.md`
-- **Features:** `FEATURES.md`
-- **README:** `README.md`
+- **Main Documentation:**
+  - `README.md` - Project overview and quick start
+  - `docs/QA_GUIDE.md` - QA workflow and baseline management
+  - `docs/TESTING-GUIDE.md` - Testing and validation guide
+  
+- **Test Case Documentation:**
+  - `docs/TEST-CASES-GUIDE.md` - Overview of demonstration cases (4, 5, 6)
+  - `docs/AI-PRIORITY-LOGIC.md` - How P0/P1/P2/P3 priorities work
+  - `docs/TWO-PHASE-ANALYSIS-EXPLAINED.md` - Baseline vs completeness
+  - `docs/DETAILED-CASE-MAPPINGS.md` - Exact scenario-to-test mappings
+  - `docs/CASE-6-PARTIAL-COVERAGE.md` - Partial coverage deep dive
+
+- **Technical Documentation:**
+  - `docs/SCENARIO-COMPLETENESS-DETECTION.md` - Completeness detection
+  - `IMPLEMENTATION_SUMMARY.md` - Implementation overview
+  - `FEATURES.md` - Complete feature list
 
 ---
 

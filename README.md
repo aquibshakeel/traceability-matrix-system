@@ -389,11 +389,19 @@ npm run generate
   - `docs/DEV_GUIDE.md` - Developer guide with implementation details
   - `docs/QA_GUIDE.md` - QA guide for test scenario management  
   - `docs/TESTING-GUIDE.md` - Comprehensive testing and validation guide
-  - `docs/SCENARIO-COMPLETENESS-DETECTION.md` - Completeness detection details
+  - `docs/TEST-CASES-GUIDE.md` - **NEW:** Demonstration test cases (Cases 4, 5, 6)
 
 - **📋 Feature Documentation:**
   - `FEATURES.md` - Complete feature list with examples
   - `IMPLEMENTATION_SUMMARY.md` - Implementation overview
+  - `docs/SCENARIO-COMPLETENESS-DETECTION.md` - Completeness detection details
+
+- **🎯 Test Case Documentation:**
+  - `docs/TEST-CASES-GUIDE.md` - Overview of demonstration cases
+  - `docs/AI-PRIORITY-LOGIC.md` - How P0/P1/P2/P3 priorities are determined
+  - `docs/TWO-PHASE-ANALYSIS-EXPLAINED.md` - Baseline vs completeness phases
+  - `docs/DETAILED-CASE-MAPPINGS.md` - Exact scenario-to-test mappings
+  - `docs/CASE-6-PARTIAL-COVERAGE.md` - Partial coverage detection deep dive
 
 ---
 
@@ -477,6 +485,29 @@ Major visual and UX improvements:
 - Orphan Test Categorization with AI
 - Git API Change Detection
 - Pre-commit hook integration
+
+---
+
+## 🎯 Demonstration Test Cases
+
+The system includes three comprehensive test cases that demonstrate all coverage states:
+
+### **Case 4: Full Coverage** (GET /v1/customers)
+- ✅ 10 scenarios, 10 tests, 100% coverage
+- Demonstrates perfect 1:1 traceability
+- All scenarios FULLY_COVERED
+
+### **Case 5: Intelligent Gap Detection** (DELETE /v1/customers/{id})
+- ✅ 5 scenarios, 5 tests, 100% baseline coverage
+- 🤖 AI suggests 22 additional scenarios
+- Demonstrates two-phase analysis
+
+### **Case 6: Partial Coverage** (PUT /v1/customers/{id})
+- ⚠️ 5 scenarios, 4 tests, mixed states
+- Shows FULLY_COVERED, PARTIALLY_COVERED, and NOT_COVERED states
+- Demonstrates real-world quality issues
+
+**Learn More:** See `docs/TEST-CASES-GUIDE.md` for complete details on all three cases.
 
 ---
 
