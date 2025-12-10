@@ -5,12 +5,13 @@
 
 export interface BaselineSchema {
   service?: string;
+  api_mapping?: { [key: string]: string }; // Maps unique keys to actual endpoints
   [apiEndpoint: string]: {
     happy_case?: string[];
     edge_case?: string[];
     error_case?: string[];
     security?: string[];
-  } | string | undefined;
+  } | string | undefined | { [key: string]: string };
 }
 
 export class BaselineValidator {
@@ -28,13 +29,19 @@ export class BaselineValidator {
       return { valid: false, errors };
     }
     
+    // Get API mapping if present (new format)
+    const apiMapping = data.api_mapping || {};
+    
     // Validate each API endpoint
     for (const [key, value] of Object.entries(data)) {
-      if (key === 'service') continue; // Skip service metadata
+      if (key === 'service' || key === 'api_mapping') continue; // Skip metadata
       
-      // Check if API key looks valid
-      if (!this.isValidAPIKey(key)) {
-        errors.push(`Invalid API format: "${key}" - should be "METHOD /path" (e.g., "GET /v1/customers")`);
+      // Check if API key looks valid (either old format or new unique key format)
+      const isOldFormat = this.isValidAPIKey(key);
+      const isNewFormat = apiMapping.hasOwnProperty(key);
+      
+      if (!isOldFormat && !isNewFormat) {
+        errors.push(`Invalid API format: "${key}" - should be "METHOD /path" (e.g., "GET /v1/customers") or a unique key defined in api_mapping`);
       }
       
       // Allow null/undefined values - means 0 scenarios (valid use case)
@@ -85,6 +92,21 @@ export class BaselineValidator {
       
       // Allow empty categories - means 0 scenarios (valid use case)
       // Don't error, just skip
+    }
+    
+    // Validate api_mapping if present
+    if (data.api_mapping) {
+      if (typeof data.api_mapping !== 'object') {
+        errors.push('api_mapping must be an object');
+      } else {
+        for (const [key, value] of Object.entries(data.api_mapping)) {
+          if (typeof value !== 'string') {
+            errors.push(`api_mapping["${key}"] must be a string (API endpoint)`);
+          } else if (!this.isValidAPIKey(value as string)) {
+            errors.push(`api_mapping["${key}"] = "${value}" is not a valid API format (should be "METHOD /path")`);
+          }
+        }
+      }
     }
     
     return {
