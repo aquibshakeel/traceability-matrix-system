@@ -124,10 +124,45 @@ export class EnhancedCoverageAnalyzer {
     console.log(`✓ Baseline: ${scenarioCount} scenarios`);
     console.log(`✓ Unit tests: ${unitTests.length} found`);
     if (aiCases) {
-      console.log(`✓ AI suggestions available for completeness check`);
+      console.log(`✓ AI suggestions available for review`);
     }
 
-    // Analyze each API
+    // Early exit if baseline is empty - no coverage analysis needed
+    if (scenarioCount === 0) {
+      console.log('\n' + '='.repeat(70));
+      console.log(`ℹ️  Baseline is empty - skipping coverage analysis`);
+      console.log(`📋 Next step: QA should review AI suggestions and create baseline`);
+      console.log(`✅ No blocking issues - proceed with development`);
+      
+      return {
+        service: service.name,
+        timestamp: new Date(),
+        baselineScenarios: 0,
+        unitTestsFound: unitTests.length,
+        apis: [],
+        orphanTests: {
+          totalOrphans: 0,
+          technicalTests: [],
+          businessTests: [],
+          categorization: []
+        },
+        gaps: [],
+        coveragePercent: 0,
+        summary: {
+          totalScenarios: 0,
+          fullyCovered: 0,
+          partiallyCovered: 0,
+          notCovered: 0,
+          coveragePercent: 0,
+          p0Gaps: 0,
+          p1Gaps: 0,
+          p2Gaps: 0,
+          criticalIssues: []
+        }
+      };
+    }
+
+    // Analyze each API (only if baseline has scenarios)
     console.log(`\n🤖 AI analyzing coverage...`);
     const apiAnalyses: APIAnalysis[] = [];
     const gaps: GapAnalysis[] = [];
