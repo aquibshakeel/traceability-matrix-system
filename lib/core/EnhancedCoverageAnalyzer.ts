@@ -838,11 +838,16 @@ Respond in JSON:
       return '';
     }
 
-    const prompt = `Provide a brief summary (2-3 sentences) for these ${orphanAPIs.length} orphan API endpoints with NO test scenarios AND NO unit tests:
+    const prompt = `Generate a SHORT, focused summary for these ${orphanAPIs.length} orphan API endpoints (NO test scenarios AND NO unit tests):
 
 ${orphanAPIs.map((api, i) => `${i+1}. ${api.method} ${api.endpoint}`).join('\n')}
 
-Explain why this is a concern and what QA/Dev teams should do. Keep it concise.`;
+Format (max 3-4 sentences total):
+**Summary:** [1 sentence: what's missing]
+**Risk:** [1 sentence: why it matters]  
+**Action:** [1-2 sentences: QA and Dev next steps]
+
+Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be concise and direct.`;
 
     try {
       const model = await this.getModel();
