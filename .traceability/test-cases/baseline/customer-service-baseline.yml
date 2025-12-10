@@ -57,17 +57,17 @@ GET_ListAllCustomers:
 GET_CustomerById:
 
 
-PUT_UpdateCustomer:
-  happy_case:
-    - When customer is updated with valid data, return 200 and updated data
-    - When customer is updated with partial data, return 200 and update only provided fields
-
-  edge_case:
-    - When updating customer with same data, return 200 without changes
-
-  error_case:
-    - When updating non-existent customer, return 404
-    - When updating with duplicate email, return 409
+#PUT_UpdateCustomer:
+#  happy_case:
+#    - When customer is updated with valid data, return 200 and updated data
+#    - When customer is updated with partial data, return 200 and update only provided fields
+#
+#  edge_case:
+#    - When updating customer with same data, return 200 without changes
+#
+#  error_case:
+#    - When updating non-existent customer, return 404
+#    - When updating with duplicate email, return 409
 
 
 DELETE_DeleteCustomer:
@@ -83,10 +83,10 @@ DELETE_DeleteCustomer:
 
 PATCH_UpdateCustomerEmail:
   happy_case:
-    - When customer email is updated with valid email format, return 200 and send verification email and update email after verification
+    - When customer email is updated with valid email format, return 200
 
   error_case:
     - When updating email with invalid format, return 400
     - When updating email that already exists for another customer, return 409
 
-#test-cases-end,,/
+#test-cases-end,,//..

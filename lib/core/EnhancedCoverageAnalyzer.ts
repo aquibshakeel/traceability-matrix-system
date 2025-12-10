@@ -90,6 +90,12 @@ export interface APIAnalysis {
     }[];
   }>;
   gaps: GapAnalysis[];
+  aiAnalysis?: {
+    coverageStatus: 'excellent' | 'good' | 'needs_improvement' | 'critical';
+    message: string;
+    suggestedScenarios?: string[];
+    missingScenarios?: number;
+  };
 }
 
 export interface OrphanTestAnalysis {
@@ -538,6 +544,16 @@ Respond in JSON format:
         console.log(`  ℹ️  Note: API spec analysis suggests ${missingScenarios.length} additional scenario(s) not in baseline`);
       }
 
+      // Generate AI analysis for ALL endpoints (including 100% covered)
+      const aiAnalysis = this.generateAIAnalysis(
+        coveredCount, 
+        scenarios.length, 
+        uncoveredCount, 
+        partialCount,
+        missingScenarios.length,
+        hasUntestedSuggestions
+      );
+
       return {
         api,
         scenarios,
@@ -545,7 +561,8 @@ Respond in JSON format:
         partiallyCoveredScenarios: partialCount,
         uncoveredScenarios: uncoveredCount,
         matchedTests,
-        gaps
+        gaps,
+        aiAnalysis
       };
     } catch (error) {
       console.log(`  ⚠️ Analysis failed: ${error}`);
@@ -712,6 +729,48 @@ Respond in JSON:
         categorization: []
       };
     }
+  }
+
+  /**
+   * Generate AI analysis for endpoint coverage
+   * CRITICAL: This runs for ALL endpoints, including 100% covered ones
+   */
+  private generateAIAnalysis(
+    coveredCount: number,
+    totalScenarios: number,
+    uncoveredCount: number,
+    partialCount: number,
+    missingCount: number,
+    hasMissingScenarios: boolean
+  ): { coverageStatus: 'excellent' | 'good' | 'needs_improvement' | 'critical'; message: string; missingScenarios?: number } {
+    const coveragePercent = totalScenarios > 0 ? (coveredCount / totalScenarios) * 100 : 0;
+    
+    // Determine coverage status
+    let coverageStatus: 'excellent' | 'good' | 'needs_improvement' | 'critical';
+    let message: string;
+    
+    if (coveragePercent === 100 && !hasMissingScenarios) {
+      coverageStatus = 'excellent';
+      message = '✅ Perfect coverage! All baseline scenarios are fully tested with no gaps detected.';
+    } else if (coveragePercent === 100 && hasMissingScenarios) {
+      coverageStatus = 'good';
+      message = `✅ All ${totalScenarios} baseline scenarios covered! However, API spec suggests ${missingCount} additional scenarios for comprehensive testing.`;
+    } else if (coveragePercent >= 80) {
+      coverageStatus = 'good';
+      message = `Good coverage at ${coveragePercent.toFixed(1)}%. ${uncoveredCount} scenarios need tests${partialCount > 0 ? `, ${partialCount} partially covered` : ''}.`;
+    } else if (coveragePercent >= 50) {
+      coverageStatus = 'needs_improvement';
+      message = `⚠️  Coverage needs improvement (${coveragePercent.toFixed(1)}%). ${uncoveredCount} critical scenarios missing tests.`;
+    } else {
+      coverageStatus = 'critical';
+      message = `❌ Critical gaps! Only ${coveragePercent.toFixed(1)}% covered. Immediate action needed for ${uncoveredCount} scenarios.`;
+    }
+    
+    return {
+      coverageStatus,
+      message,
+      missingScenarios: hasMissingScenarios ? missingCount : undefined
+    };
   }
 
   private parseAIResponse(content: string): any {
@@ -1058,7 +1117,8 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
   /**
    * Detect orphan APIs - APIs that have NO scenarios AND NO tests
    * Uses discovered APIs from APIScanner to catch all APIs
-   * Now uses APIScanner's markAPIsWithTests() for consistent logic
+   * Now uses api_mapping for proper lookup with unique keys
+   * Also detects commented baseline entries as orphan APIs
    */
   private detectOrphanAPIs(
     baseline: any,
@@ -1067,33 +1127,120 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
     discoveredAPIs: any[]
   ): OrphanAPIInfo[] {
     const orphanAPIs: OrphanAPIInfo[] = [];
+    
+    // Build reverse mapping: actual API endpoint -> unique key
+    const apiMapping = baseline.api_mapping || {};
+    const reverseMapping: { [key: string]: string } = {};
+    for (const [uniqueKey, actualAPI] of Object.entries(apiMapping)) {
+      reverseMapping[actualAPI as string] = uniqueKey;
+    }
 
-    // Check ALL discovered APIs (they already have hasTest marked by APIScanner)
+    // Check ALL discovered APIs
     for (const discoveredAPI of discoveredAPIs) {
-      const apiKey = `${discoveredAPI.method} ${discoveredAPI.endpoint}`;
+      const actualAPIKey = `${discoveredAPI.method} ${discoveredAPI.endpoint}`;
+      
+      // Try to find the unique key for this API (or use actualAPIKey if no mapping)
+      const uniqueKey = reverseMapping[actualAPIKey] || actualAPIKey;
       
       // Check if API has scenarios in baseline
-      const hasScenarios = baseline[apiKey] || baseline[discoveredAPI.endpoint] || baseline[`${discoveredAPI.endpoint}`];
-      const scenarioCount = hasScenarios ? this.flattenScenarios(hasScenarios).length : 0;
+      let scenarioCount = 0;
+      let hasBaselineEntry = false;
+      
+      if (baseline[uniqueKey] !== undefined) {
+        hasBaselineEntry = true;
+        // Check if entry is truly empty (null, empty object, or no scenarios)
+        const entry = baseline[uniqueKey];
+        if (entry === null || entry === '' || (typeof entry === 'object' && Object.keys(entry).length === 0)) {
+          // Empty entry - treat as 0 scenarios
+          scenarioCount = 0;
+        } else {
+          scenarioCount = this.flattenScenarios(entry).length;
+        }
+      }
 
       // Use the hasTest flag that was set by APIScanner.markAPIsWithTests()
       const hasTests = discoveredAPI.hasTest;
 
       // If no scenarios AND no tests, it's an orphan API
+      // This includes: no baseline entry, empty baseline entry, or 0 scenarios
       if (scenarioCount === 0 && !hasTests) {
         orphanAPIs.push({
           method: discoveredAPI.method,
           endpoint: discoveredAPI.endpoint,
           controller: discoveredAPI.controller,
           lineNumber: discoveredAPI.lineNumber,
-          hasScenario: false,
+          hasScenario: hasBaselineEntry && scenarioCount === 0, // true if entry exists but empty
           hasTest: false,
           riskLevel: 'Critical'
         });
       }
     }
+    
+    // Also detect commented APIs in baseline (APIs that exist in mapping but are commented out)
+    // CRITICAL: Commented baseline entries are ALWAYS orphan, regardless of whether tests exist
+    // This is because a commented baseline means incomplete documentation
+    const commentedAPIs = this.detectCommentedBaseline();
+    for (const commentedKey of commentedAPIs) {
+      // Get actual endpoint from mapping
+      const actualEndpoint = apiMapping[commentedKey];
+      if (actualEndpoint) {
+        // Parse method and endpoint
+        const parts = actualEndpoint.split(/\s+/);
+        const method = parts.length === 2 ? parts[0] : 'GET';
+        const endpoint = parts.length === 2 ? parts[1] : actualEndpoint;
+        
+        // Check if this API was already processed in the discoveredAPIs loop
+        const existingIndex = orphanAPIs.findIndex(o => o.method === method && o.endpoint === endpoint);
+        
+        if (existingIndex >= 0) {
+          // Already in list from discoveredAPIs - update it to show it's commented
+          orphanAPIs[existingIndex].controller = orphanAPIs[existingIndex].controller + ' (baseline commented)';
+          orphanAPIs[existingIndex].hasScenario = false; // Commented = no scenarios
+        } else {
+          // Not in list yet - this means it has tests but baseline is commented
+          // STILL add it as orphan because commented baseline is incomplete
+          orphanAPIs.push({
+            method,
+            endpoint,
+            controller: 'Has tests but baseline commented',
+            lineNumber: 0,
+            hasScenario: false,
+            hasTest: true, // Has tests but baseline missing
+            riskLevel: 'Critical'
+          });
+        }
+      }
+    }
 
     return orphanAPIs;
+  }
+  
+  /**
+   * Detect commented API keys in baseline YAML
+   * Returns list of API keys that are commented out
+   */
+  private detectCommentedBaseline(): string[] {
+    const baselinePath = path.join(this.projectRoot, '.traceability/test-cases/baseline', `customer-service-baseline.yml`);
+    if (!fs.existsSync(baselinePath)) {
+      return [];
+    }
+    
+    const rawContent = fs.readFileSync(baselinePath, 'utf-8');
+    const lines = rawContent.split('\n');
+    const commentedKeys: string[] = [];
+    
+    // Look for commented lines that match API key pattern
+    // Example: #PUT_UpdateCustomer:
+    const apiKeyPattern = /^#\s*([A-Z_]+):\s*$/;
+    
+    for (const line of lines) {
+      const match = line.match(apiKeyPattern);
+      if (match) {
+        commentedKeys.push(match[1]);
+      }
+    }
+    
+    return commentedKeys;
   }
 
   /**
@@ -1212,12 +1359,27 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
         const expectedKeywords = methodKeywords[method] || [];
         const testId = test.id.toLowerCase();
         
+        // Special handling for PATCH - check file name for "patch" or "email" patterns
+        if (method === 'PATCH') {
+          const hasPatchIndicator = 
+            testFile.includes('patch') || 
+            testFile.includes('email') ||
+            testDesc.includes('patch') ||
+            testDesc.includes('email');
+          
+          if (hasPatchIndicator) {
+            // Strong indication this is a PATCH test - include it
+            return true;
+          }
+        }
+        
         // Check test description, file name, AND test ID (method name)
         const hasExpectedKeyword = expectedKeywords.some(kw => 
           testDesc.includes(kw) || testFile.includes(kw) || testId.includes(kw)
         );
         
         // Check if test has keywords from OTHER methods (conflicting)
+        // BUT: For PATCH/PUT ambiguity, give preference to endpoint structure
         const otherMethods = Object.keys(methodKeywords).filter(m => m !== method);
         const hasConflictingKeyword = otherMethods.some(otherMethod => {
           const otherKeywords = methodKeywords[otherMethod];
