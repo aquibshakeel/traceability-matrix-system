@@ -18,6 +18,8 @@ import static org.mockito.Mockito.*;
 /**
  * Unit tests for CustomerController.
  * Tests the GET /v1/customers/{id} endpoint.
+ * 
+ * ALL TESTS COMMENTED OUT FOR TESTING ORPHAN API DETECTION
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Customer Controller Tests")
@@ -29,6 +31,7 @@ class CustomerControllerTest {
     @InjectMocks
     private CustomerController customerController;
 
+    /*
     @Test
     @DisplayName("When valid customer ID is provided, return 200 with customer details")
     void testGetCustomerById_WithValidId_Returns200() {
@@ -249,4 +252,5 @@ class CustomerControllerTest {
         
         verify(customerService, times(1)).getCustomerById(xssId);
     }
+    */
 }
