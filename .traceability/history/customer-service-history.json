@@ -82,8 +82,17 @@
       "totalScenarios": 35,
       "p0Gaps": 1,
       "p1Gaps": 2
+    },
+    {
+      "timestamp": "2025-12-10T19:31:43.351Z",
+      "commit": "747e64e",
+      "coveragePercent": 0,
+      "scenariosCovered": 0,
+      "totalScenarios": 35,
+      "p0Gaps": 0,
+      "p1Gaps": 0
     }
   ],
   "apiRiskScores": [],
-  "lastUpdated": "2025-12-10T18:40:25.278Z"
+  "lastUpdated": "2025-12-10T19:31:43.351Z"
 }

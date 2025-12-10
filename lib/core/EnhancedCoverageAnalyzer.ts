@@ -11,6 +11,7 @@ import { TestParserFactory } from './TestParserFactory';
 import { ServiceConfig, UnitTest, OrphanTestCategory, Priority } from '../types';
 import { ModelDetector } from './ModelDetector';
 import { APIScanner } from './APIScanner';
+import { BaselineValidator } from '../validation/BaselineSchema';
 
 export interface APIScenario {
   api: string;
@@ -136,13 +137,53 @@ export class EnhancedCoverageAnalyzer {
   private testParser: TestParserFactory;
   private projectRoot: string;
   private apiScanner: APIScanner;
+  private baselineValidator: BaselineValidator;
+  private fileTimestamps = new Map<string, number>();
 
   constructor(apiKey: string, projectRoot: string) {
     this.client = new Anthropic({ apiKey });
     this.modelDetector = new ModelDetector(apiKey);
     this.testParser = new TestParserFactory();
     this.apiScanner = new APIScanner();
+    this.baselineValidator = new BaselineValidator();
     this.projectRoot = projectRoot;
+  }
+  
+  /**
+   * Check if file has changed since last access
+   */
+  private hasFileChanged(filePath: string): boolean {
+    if (!fs.existsSync(filePath)) {
+      // File was deleted
+      this.fileTimestamps.delete(filePath);
+      return true;
+    }
+    
+    const stats = fs.statSync(filePath);
+    const currentTime = stats.mtimeMs;
+    const previousTime = this.fileTimestamps.get(filePath);
+    
+    if (!previousTime) {
+      // First time seeing file
+      this.fileTimestamps.set(filePath, currentTime);
+      return true;
+    }
+    
+    if (currentTime !== previousTime) {
+      console.log(`    🔄 File changed: ${path.basename(filePath)}`);
+      this.fileTimestamps.set(filePath, currentTime);
+      return true;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * Clear cache - useful for forcing fresh analysis
+   */
+  public clearCache(): void {
+    this.fileTimestamps.clear();
+    console.log('🧹 Cache cleared');
   }
 
   private async getModel(): Promise<string> {
@@ -734,28 +775,30 @@ Respond in JSON:
   }
 
   private loadYAML(filePath: string): any {
+    // Check if file changed (cache invalidation)
+    const changed = this.hasFileChanged(filePath);
+    if (changed && this.fileTimestamps.size > 1) {
+      console.log(`    🔄 Reloading baseline (file modified)`);
+    }
+    
     try {
       const content = fs.readFileSync(filePath, 'utf-8');
       const data = yaml.load(content);
       
-      // Validate structure
+      // Basic structure validation
       if (!data || typeof data !== 'object') {
         throw new Error(`Invalid YAML structure: expected object, got ${typeof data}`);
       }
       
-      // Validate API endpoint format
-      for (const [key, value] of Object.entries(data)) {
-        if (key === 'service') continue;
-        
-        // Check if value is properly structured
-        if (value !== null && typeof value === 'object') {
-          const hasValidCategories = ['happy_case', 'edge_case', 'error_case', 'security']
-            .some(cat => Array.isArray((value as any)[cat]));
-          
-          if (!hasValidCategories && Object.keys(value as object).length > 0) {
-            console.warn(`⚠️  Warning: API "${key}" has no valid test categories (happy_case, edge_case, error_case, security)`);
-          }
+      // Schema validation
+      const validationResult = this.baselineValidator.validate(data, filePath);
+      
+      if (!validationResult.valid) {
+        console.error(`\n❌ Baseline validation failed:`);
+        for (const error of validationResult.errors) {
+          console.error(`   - ${error}`);
         }
+        throw new Error('Invalid baseline structure - see errors above');
       }
       
       return data;
@@ -769,10 +812,32 @@ Respond in JSON:
       console.error(`   3. Verify all colons have spaces after them`);
       console.error(`   4. Check for missing dashes before list items`);
       console.error(`   5. Ensure no special characters without quotes`);
+      
+      // Enhanced error messages for common issues
+      if (error.message.includes('duplicate')) {
+        console.error(`\n💡 Common Issue: Duplicate API endpoints detected`);
+        console.error(`   Check for multiple definitions of the same endpoint`);
+      }
+      
+      if (error.message.includes('indent') || error.message.includes('tab')) {
+        console.error(`\n💡 Common Issue: Indentation error`);
+        console.error(`   Ensure consistent 2-space indentation throughout file`);
+        console.error(`   Do NOT use tabs - use spaces only`);
+      }
+      
+      if (error.message.includes('Invalid API format')) {
+        console.error(`\n💡 Common Issue: API endpoint format incorrect`);
+        console.error(`   Format should be: "METHOD /path" (e.g., "GET /v1/customers")`);
+        console.error(`   Valid methods: GET, POST, PUT, DELETE, PATCH`);
+      }
+      
       console.error(`\n💡 Example valid structure:`);
       console.error(`   GET /api/endpoint:`);
       console.error(`     happy_case:`);
       console.error(`       - Scenario description here`);
+      console.error(`     error_case:`);
+      console.error(`       - Another scenario here`);
+      console.error(`\n📖 Documentation: docs/QA_GUIDE.md#baseline-format`);
       throw error; // Re-throw to stop execution
     }
   }
