@@ -159,25 +159,90 @@ export class ReportGenerator {
     <span class="section-toggle" onclick="toggleSection('api-coverage')">▼</span>
   </h2>
   <div class="section-content" id="api-coverage-content">
-    ${apis.map(api => `
+    ${apis.map(api => {
+      const hasMissing = api.uncoveredScenarios > 0;
+      const hasAIAnalysis = api.completenessAnalysis && api.completenessAnalysis.length > 0;
+      
+      return `
     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
       <h4 style="color: #667eea; margin-bottom: 15px;">${api.api}</h4>
-      <div style="margin-bottom: 15px;">
-        <span class="badge badge-success">${api.coveredScenarios} Covered</span>
-        <span class="badge badge-warning">${api.partiallyCoveredScenarios} Partial</span>
-        <span class="badge badge-danger">${api.uncoveredScenarios} Missing</span>
+      
+      <!-- Actual Coverage Results (Baseline vs Unit Tests) -->
+      <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid #28a745;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+          <span style="font-size: 1.2em;">✅</span>
+          <strong style="color: #333;">Actual Coverage (Baseline vs Unit Tests)</strong>
+        </div>
+        <div style="margin-bottom: 15px;">
+          <span class="badge badge-success">${api.coveredScenarios} Covered</span>
+          <span class="badge badge-warning">${api.partiallyCoveredScenarios} Partial</span>
+          <span class="badge badge-danger">${api.uncoveredScenarios} Missing</span>
+        </div>
+        ${api.matchedTests.slice(0, 10).map((match: any) => `
+        <div style="padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+          <span>${match.scenario}</span>
+          <span style="color: ${match.status === 'FULLY_COVERED' ? '#28a745' : match.status === 'PARTIALLY_COVERED' ? '#ffc107' : '#dc3545'}; font-weight: bold;">
+            ${match.status.replace('_', ' ')} (${match.tests.length} test${match.tests.length !== 1 ? 's' : ''})
+          </span>
+        </div>
+        `).join('')}
+        ${api.matchedTests.length > 10 ? `<div style="text-align: center; padding: 10px; color: #666;">... and ${api.matchedTests.length - 10} more scenarios</div>` : ''}
       </div>
-      ${api.matchedTests.slice(0, 10).map((match: any) => `
-      <div style="padding: 10px; margin: 5px 0; background: white; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
-        <span>${match.scenario}</span>
-        <span style="color: ${match.status === 'FULLY_COVERED' ? '#28a745' : match.status === 'PARTIALLY_COVERED' ? '#ffc107' : '#dc3545'}; font-weight: bold;">
-          ${match.status.replace('_', ' ')} (${match.tests.length} test${match.tests.length !== 1 ? 's' : ''})
-        </span>
+      
+      ${hasAIAnalysis ? `
+      <!-- AI-Powered Analysis & Recommendations -->
+      <div style="background: linear-gradient(135deg, #e7f3ff 0%, #f0f7ff 100%); padding: 15px; border-radius: 8px; border-left: 3px solid #667eea;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+          <span style="font-size: 1.2em;">🤖</span>
+          <strong style="color: #667eea;">AI-Powered Analysis (from API Spec)</strong>
+          <span class="badge badge-info" style="font-size: 0.75em;">AI SUGGESTION</span>
+        </div>
+        <p style="margin: 0 0 10px 0; color: #666; font-size: 0.9em;">
+          ⚠️ These are AI-generated suggestions based on API specification analysis, not actual test results.
+        </p>
+        <div style="background: white; padding: 12px; border-radius: 6px; margin-top: 10px;">
+          <strong style="color: #333; margin-bottom: 8px; display: block;">📋 Additional Scenarios Suggested (${api.completenessAnalysis.length}):</strong>
+          <ul style="margin: 8px 0 0 20px; padding: 0; color: #555; line-height: 1.8;">
+            ${api.completenessAnalysis.slice(0, 5).map((suggestion: string) => `
+            <li style="margin-bottom: 5px;">${suggestion}</li>
+            `).join('')}
+            ${api.completenessAnalysis.length > 5 ? `<li style="color: #999; font-style: italic;">... and ${api.completenessAnalysis.length - 5} more suggestions</li>` : ''}
+          </ul>
+        </div>
+        
+        <!-- Action Items -->
+        <div style="background: rgba(102, 126, 234, 0.1); padding: 12px; border-radius: 6px; margin-top: 12px; border-left: 3px solid #667eea;">
+          <strong style="color: #667eea; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+            <span>⚡</span> Recommended Actions:
+          </strong>
+          <div style="display: grid; gap: 8px;">
+            <div style="display: flex; align-items: start; gap: 8px;">
+              <span style="color: #667eea; font-weight: bold; min-width: 80px;">👥 For QA:</span>
+              <span style="color: #555;">Review AI suggestions and add relevant scenarios to baseline YAML file for traceability</span>
+            </div>
+            <div style="display: flex; align-items: start; gap: 8px;">
+              <span style="color: #667eea; font-weight: bold; min-width: 80px;">👨‍💻 For DEV:</span>
+              <span style="color: #555;">Implement unit tests for missing baseline scenarios and consider AI-suggested edge cases</span>
+            </div>
+          </div>
+        </div>
       </div>
-      `).join('')}
-      ${api.matchedTests.length > 10 ? `<div style="text-align: center; padding: 10px; color: #666;">... and ${api.matchedTests.length - 10} more scenarios</div>` : ''}
+      ` : ''}
+      
+      ${hasMissing && !hasAIAnalysis ? `
+      <!-- Action Items for Missing Coverage -->
+      <div style="background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 3px solid #ffc107;">
+        <strong style="color: #856404; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+          <span>⚠️</span> Action Required:
+        </strong>
+        <div style="color: #856404;">
+          <strong>👨‍💻 DEV:</strong> ${api.uncoveredScenarios} baseline scenario(s) need unit tests
+        </div>
+      </div>
+      ` : ''}
     </div>
-    `).join('')}
+    `;
+    }).join('')}
   </div>
 </div>`;
   }
