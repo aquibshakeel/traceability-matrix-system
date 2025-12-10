@@ -152,6 +152,13 @@ export class ReportGenerator {
   private buildAPICoverageSection(apis: any[]): string {
     if (apis.length === 0) return '';
     
+    // Filter out APIs with no scenarios and no AI analysis
+    const relevantApis = apis.filter(api => 
+      api.scenarios.length > 0 || (api.completenessAnalysis && api.completenessAnalysis.length > 0)
+    );
+    
+    if (relevantApis.length === 0) return '';
+    
     return `
 <div class="section">
   <h2>
@@ -159,7 +166,7 @@ export class ReportGenerator {
     <span class="section-toggle" onclick="toggleSection('api-coverage')">▼</span>
   </h2>
   <div class="section-content" id="api-coverage-content">
-    ${apis.map(api => {
+    ${relevantApis.map(api => {
       const hasMissing = api.uncoveredScenarios > 0;
       const hasAIAnalysis = api.completenessAnalysis && api.completenessAnalysis.length > 0;
       
@@ -457,14 +464,14 @@ export class ReportGenerator {
         grouped[api].push(test.description);
       });
       
-      let yaml = 'service: ' + serviceName + '\\n\\n';
+      let yaml = 'service: ' + serviceName + '\n\n';
       Object.keys(grouped).forEach(api => {
-        yaml += api + ':\\n';
-        yaml += '  happy_case:\\n';
+        yaml += api + ':\n';
+        yaml += '  happy_case:\n';
         grouped[api].forEach((desc: string) => {
-          yaml += '    - ' + desc + '\\n';
+          yaml += '    - ' + desc + '\n';
         });
-        yaml += '\\n';
+        yaml += '\n';
       });
       
       return yaml;
@@ -546,7 +553,8 @@ export class ReportGenerator {
                 ${test.orphanCategory?.actionRequired === 'qa_add_scenario' ? `
                 <div style="margin-top: 8px; padding: 10px; background: #fff3cd; border-radius: 4px; border-left: 3px solid #f59e0b;">
                   <strong style="color: #856404;">QA Action:</strong> Add this scenario to baseline YAML:
-                  <pre style="margin-top: 5px; padding: 8px; background: white; border-radius: 3px; overflow-x: auto; font-size: 0.85em;">  happy_case:\\n    - ${test.description}</pre>
+                  <pre style="margin-top: 5px; padding: 8px; background: white; border-radius: 3px; overflow-x: auto; font-size: 0.85em;">  happy_case:
+    - ${test.description}</pre>
                 </div>
                 ` : ''}
               </div>
