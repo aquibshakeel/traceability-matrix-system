@@ -57,10 +57,25 @@ export class JavaTestParser implements TestParser {
     let currentTest: any = null;
     let inTestMethod = false;
     let methodBody: string[] = [];
+    let inMultiLineComment = false;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const trimmed = line.trim();
+
+      // Track multi-line comment state
+      if (trimmed.includes('/*')) {
+        inMultiLineComment = true;
+      }
+      if (trimmed.includes('*/')) {
+        inMultiLineComment = false;
+        continue; // Skip the line with closing comment
+      }
+      
+      // Skip if inside multi-line comment or single-line comment
+      if (inMultiLineComment || trimmed.startsWith('//')) {
+        continue;
+      }
 
       // Extract class name - support both public and package-private classes
       if (trimmed.match(/^(?:public\s+)?class\s+(\w+)/)) {

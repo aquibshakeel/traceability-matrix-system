@@ -98,12 +98,17 @@ export class APIScanner {
 
     // Patterns for Spring Boot REST annotations
     const mappingPatterns = [
-      { regex: /@GetMapping\s*\(\s*["']([^"']+)["']/, method: 'GET' },
-      { regex: /@PostMapping\s*\(\s*["']([^"']+)["']/, method: 'POST' },
-      { regex: /@PutMapping\s*\(\s*["']([^"']+)["']/, method: 'PUT' },
-      { regex: /@DeleteMapping\s*\(\s*["']([^"']+)["']/, method: 'DELETE' },
-      { regex: /@PatchMapping\s*\(\s*["']([^"']+)["']/, method: 'PATCH' },
-      { regex: /@RequestMapping\s*\(.*value\s*=\s*["']([^"']+)["'].*method\s*=\s*RequestMethod\.(\w+)/, method: null }
+      { regex: /@GetMapping\s*\(\s*["']([^"']+)["']/, method: 'GET', hasPath: true },
+      { regex: /@GetMapping\s*(?:\(\s*\))?(?:\s|$)/, method: 'GET', hasPath: false }, // @GetMapping or @GetMapping()
+      { regex: /@PostMapping\s*\(\s*["']([^"']+)["']/, method: 'POST', hasPath: true },
+      { regex: /@PostMapping\s*(?:\(\s*\))?(?:\s|$)/, method: 'POST', hasPath: false },
+      { regex: /@PutMapping\s*\(\s*["']([^"']+)["']/, method: 'PUT', hasPath: true },
+      { regex: /@PutMapping\s*(?:\(\s*\))?(?:\s|$)/, method: 'PUT', hasPath: false },
+      { regex: /@DeleteMapping\s*\(\s*["']([^"']+)["']/, method: 'DELETE', hasPath: true },
+      { regex: /@DeleteMapping\s*(?:\(\s*\))?(?:\s|$)/, method: 'DELETE', hasPath: false },
+      { regex: /@PatchMapping\s*\(\s*["']([^"']+)["']/, method: 'PATCH', hasPath: true },
+      { regex: /@PatchMapping\s*(?:\(\s*\))?(?:\s|$)/, method: 'PATCH', hasPath: false },
+      { regex: /@RequestMapping\s*\(.*value\s*=\s*["']([^"']+)["'].*method\s*=\s*RequestMethod\.(\w+)/, method: null, hasPath: true }
     ];
 
     for (let i = 0; i < lines.length; i++) {
@@ -113,9 +118,9 @@ export class APIScanner {
         const match = line.match(pattern.regex);
         
         if (match) {
-          const endpoint = match[1];
+          const endpoint = pattern.hasPath ? match[1] : ''; // Empty string for no path
           const method = pattern.method || (match[2] || 'GET').toUpperCase();
-          const fullEndpoint = baseMapping ? `${baseMapping}${endpoint}` : endpoint;
+          const fullEndpoint = baseMapping ? `${baseMapping}${endpoint}` : (endpoint || baseMapping);
 
           apis.push({
             endpoint: fullEndpoint,
