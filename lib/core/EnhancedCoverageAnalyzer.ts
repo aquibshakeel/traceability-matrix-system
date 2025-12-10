@@ -270,7 +270,7 @@ export class EnhancedCoverageAnalyzer {
   private async analyzeAPI(api: string, categories: any, unitTests: UnitTest[], aiSuggestions: any = null): Promise<APIAnalysis> {
     // Handle null/undefined categories (empty baseline entry)
     if (!categories || categories === null) {
-      console.log(`  ℹ️  No scenarios in baseline - skipping analysis`);
+      console.log(`  ⚠️  0 scenarios, 0 unit tests - will be flagged as Orphan API`);
       return {
         api,
         scenarios: [],
@@ -287,7 +287,7 @@ export class EnhancedCoverageAnalyzer {
     // If baseline has 0 scenarios, return empty analysis immediately
     // Do NOT analyze with AI when baseline is empty
     if (scenarios.length === 0) {
-      console.log(`  ℹ️  No scenarios in baseline - skipping analysis`);
+      console.log(`  ⚠️  0 scenarios, 0 unit tests - will be flagged as Orphan API`);
       return {
         api,
         scenarios: [],
