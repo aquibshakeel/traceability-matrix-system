@@ -52,6 +52,8 @@ export class ModelDetector {
       // Models API returns models sorted by newest first
       // Claude 4.5 model IDs: claude-sonnet-4-5-..., claude-opus-4-5-..., claude-haiku-4-5-...
       // Claude 3.x model IDs: claude-sonnet-3-7-..., claude-sonnet-3-5-...
+      
+      // Filter by model family
       const claude4Models = data.data.filter((m: any) => 
         m.id.includes('-4-5-') || m.id.includes('-4-') 
       );
@@ -59,17 +61,23 @@ export class ModelDetector {
         m.id.includes('-3-7-') || m.id.includes('-3-5-') || m.id.includes('-3-')
       );
       
-      // Prefer Claude 4.x, then Claude 3.x
+      // Per model selection matrix, prefer Sonnet 4.5 for coding/agents
+      // Priority: Sonnet 4.5 > Opus 4.5 > Haiku 4.5 > Claude 3.x
       let selectedModel = null;
       
       if (claude4Models.length > 0) {
-        // Use first Claude 4 model (newest)
-        selectedModel = claude4Models[0];
+        // Prefer Sonnet (best for coding/agents), then Opus, then Haiku
+        const sonnet = claude4Models.find((m: any) => m.id.includes('sonnet'));
+        const opus = claude4Models.find((m: any) => m.id.includes('opus'));
+        const haiku = claude4Models.find((m: any) => m.id.includes('haiku'));
+        
+        selectedModel = sonnet || opus || haiku || claude4Models[0];
       } else if (claude3Models.length > 0) {
-        // Use first Claude 3 model (newest)
-        selectedModel = claude3Models[0];
+        // Fallback to Claude 3.x (prefer Sonnet)
+        const sonnet = claude3Models.find((m: any) => m.id.includes('sonnet'));
+        selectedModel = sonnet || claude3Models[0];
       } else {
-        // Fallback to first available model
+        // Ultimate fallback
         selectedModel = data.data[0];
       }
       
