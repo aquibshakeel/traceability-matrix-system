@@ -364,9 +364,16 @@ export class ReportGenerator {
                 <strong>⚠️ Critical: These APIs were discovered but have NO scenarios or tests.</strong> They are completely untracked and represent gaps in test coverage.
             </div>
             ${analysis.orphanAPISummary ? `
-            <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; margin-bottom: 20px;">
-                <h4 style="margin-bottom: 10px; color: #667eea;">🤖 AI Analysis</h4>
-                <p style="margin: 0; line-height: 1.8;">${analysis.orphanAPISummary}</p>
+            <div style="background: linear-gradient(135deg, #e7f3ff 0%, #f0f7ff 100%); padding: 25px; border-radius: 10px; border-left: 5px solid #667eea; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <span style="font-size: 1.5em;">🤖</span>
+                    <h4 style="margin: 0; color: #667eea; font-size: 1.2em;">AI Analysis</h4>
+                </div>
+                <div style="color: #333; line-height: 1.8; font-size: 0.95em;">
+                    ${analysis.orphanAPISummary.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #667eea;">$1</strong>')
+                        .replace(/## (.*?)\n/g, '<div style="font-weight: 600; color: #667eea; margin-top: 12px; margin-bottom: 8px;">$1</div>')
+                        .replace(/\n/g, '<br>')}
+                </div>
             </div>
             ` : ''}
             <table>
