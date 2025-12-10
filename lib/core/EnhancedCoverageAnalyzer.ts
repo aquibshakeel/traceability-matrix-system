@@ -10,6 +10,7 @@ import * as yaml from 'js-yaml';
 import { TestParserFactory } from './TestParserFactory';
 import { ServiceConfig, UnitTest, OrphanTestCategory, Priority } from '../types';
 import { ModelDetector } from './ModelDetector';
+import { APIScanner } from './APIScanner';
 
 export interface APIScenario {
   api: string;
@@ -121,11 +122,13 @@ export class EnhancedCoverageAnalyzer {
   private modelDetector: ModelDetector;
   private testParser: TestParserFactory;
   private projectRoot: string;
+  private apiScanner: APIScanner;
 
   constructor(apiKey: string, projectRoot: string) {
     this.client = new Anthropic({ apiKey });
     this.modelDetector = new ModelDetector(apiKey);
     this.testParser = new TestParserFactory();
+    this.apiScanner = new APIScanner();
     this.projectRoot = projectRoot;
   }
 
@@ -140,6 +143,9 @@ export class EnhancedCoverageAnalyzer {
     console.log(`\n📊 Analyzing: ${service.name}`);
     console.log('='.repeat(70));
 
+    // Scan APIs from actual code
+    const discoveredAPIs = await this.apiScanner.scanAPIs(service);
+    
     // Load baseline
     const baselinePath = path.join(this.projectRoot, '.traceability/test-cases/baseline', `${service.name}-baseline.yml`);
     if (!fs.existsSync(baselinePath)) {
@@ -281,7 +287,7 @@ export class EnhancedCoverageAnalyzer {
     const visualAnalytics = this.calculateVisualAnalytics(apiAnalyses, gaps, orphanAnalysis);
     
     // Detect orphan APIs (APIs with no scenarios AND no tests)
-    const orphanAPIs = this.detectOrphanAPIs(baseline, unitTests, apiAnalyses);
+    const orphanAPIs = this.detectOrphanAPIs(baseline, unitTests, apiAnalyses, discoveredAPIs);
 
     console.log('\n' + '='.repeat(70));
     console.log(`📈 Coverage: ${summary.coveragePercent.toFixed(1)}%`);
@@ -871,31 +877,42 @@ Respond in JSON:
 
   /**
    * Detect orphan APIs - APIs that have NO scenarios AND NO tests
+   * Uses discovered APIs from APIScanner to catch all APIs
    */
   private detectOrphanAPIs(
     baseline: any,
     unitTests: UnitTest[],
-    apiAnalyses: APIAnalysis[]
+    apiAnalyses: APIAnalysis[],
+    discoveredAPIs: any[]
   ): OrphanAPIInfo[] {
     const orphanAPIs: OrphanAPIInfo[] = [];
 
-    for (const [api, categories] of Object.entries(baseline)) {
-      if (api === 'service') continue;
-
-      const scenarios = this.flattenScenarios(categories);
-      const hasScenarios = scenarios.length > 0;
+    // Check ALL discovered APIs, not just those in baseline
+    for (const discoveredAPI of discoveredAPIs) {
+      const apiKey = `${discoveredAPI.method} ${discoveredAPI.endpoint}`;
+      
+      // Check if API has scenarios in baseline
+      const hasScenarios = baseline[apiKey] || baseline[discoveredAPI.endpoint] || baseline[`${discoveredAPI.endpoint}`];
+      const scenarioCount = hasScenarios ? this.flattenScenarios(hasScenarios).length : 0;
 
       // Check if any unit tests cover this API
-      const apiAnalysis = apiAnalyses.find(a => a.api === api);
-      const hasTests = apiAnalysis && apiAnalysis.matchedTests.some(m => m.tests.length > 0);
+      const apiEndpoint = discoveredAPI.endpoint.toLowerCase();
+      const hasTests = unitTests.some(test => {
+        const testDesc = test.description.toLowerCase();
+        const testFile = test.file.toLowerCase();
+        
+        // Extract endpoint parts for matching
+        const endpointParts = apiEndpoint.split('/').filter((p: string) => p);
+        return endpointParts.some((part: string) => testDesc.includes(part) || testFile.includes(part));
+      });
 
       // If no scenarios AND no tests, it's an orphan API
-      if (!hasScenarios && !hasTests) {
+      if (scenarioCount === 0 && !hasTests) {
         orphanAPIs.push({
-          method: this.extractHttpMethod(api),
-          endpoint: api,
-          controller: 'Unknown',
-          lineNumber: 0,
+          method: discoveredAPI.method,
+          endpoint: discoveredAPI.endpoint,
+          controller: discoveredAPI.controller,
+          lineNumber: discoveredAPI.lineNumber,
           hasScenario: false,
           hasTest: false,
           riskLevel: 'Critical'
