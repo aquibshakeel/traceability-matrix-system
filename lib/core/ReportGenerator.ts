@@ -152,13 +152,6 @@ export class ReportGenerator {
   private buildAPICoverageSection(apis: any[]): string {
     if (apis.length === 0) return '';
     
-    // Filter out APIs with no scenarios and no AI analysis
-    const relevantApis = apis.filter(api => 
-      api.scenarios.length > 0 || (api.completenessAnalysis && api.completenessAnalysis.length > 0)
-    );
-    
-    if (relevantApis.length === 0) return '';
-    
     return `
 <div class="section">
   <h2>
@@ -166,7 +159,7 @@ export class ReportGenerator {
     <span class="section-toggle" onclick="toggleSection('api-coverage')">▼</span>
   </h2>
   <div class="section-content" id="api-coverage-content">
-    ${relevantApis.map(api => {
+    ${apis.map(api => {
       const hasMissing = api.uncoveredScenarios > 0;
       const hasAIAnalysis = api.completenessAnalysis && api.completenessAnalysis.length > 0;
       
@@ -185,7 +178,7 @@ export class ReportGenerator {
           <span class="badge badge-warning">${api.partiallyCoveredScenarios} Partial</span>
           <span class="badge badge-danger">${api.uncoveredScenarios} Missing</span>
         </div>
-        ${api.matchedTests.slice(0, 10).map((match: any) => `
+        ${api.matchedTests.map((match: any) => `
         <div style="padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
           <span>${match.scenario}</span>
           <span style="color: ${match.status === 'FULLY_COVERED' ? '#28a745' : match.status === 'PARTIALLY_COVERED' ? '#ffc107' : '#dc3545'}; font-weight: bold;">
@@ -193,7 +186,6 @@ export class ReportGenerator {
           </span>
         </div>
         `).join('')}
-        ${api.matchedTests.length > 10 ? `<div style="text-align: center; padding: 10px; color: #666;">... and ${api.matchedTests.length - 10} more scenarios</div>` : ''}
       </div>
       
       ${hasAIAnalysis ? `
@@ -210,10 +202,9 @@ export class ReportGenerator {
         <div style="background: white; padding: 12px; border-radius: 6px; margin-top: 10px;">
           <strong style="color: #333; margin-bottom: 8px; display: block;">📋 Additional Scenarios Suggested (${api.completenessAnalysis.length}):</strong>
           <ul style="margin: 8px 0 0 20px; padding: 0; color: #555; line-height: 1.8;">
-            ${api.completenessAnalysis.slice(0, 5).map((suggestion: string) => `
-            <li style="margin-bottom: 5px;">${suggestion}</li>
+            ${api.completenessAnalysis.map((suggestion: string) => `
+            <li style="margin-bottom: 5px;"><span style="color: #667eea; font-weight: 600;">🆕</span> ${suggestion}</li>
             `).join('')}
-            ${api.completenessAnalysis.length > 5 ? `<li style="color: #999; font-style: italic;">... and ${api.completenessAnalysis.length - 5} more suggestions</li>` : ''}
           </ul>
         </div>
         
@@ -243,7 +234,12 @@ export class ReportGenerator {
           <span>⚠️</span> Action Required:
         </strong>
         <div style="color: #856404;">
-          <strong>👨‍💻 DEV:</strong> ${api.uncoveredScenarios} baseline scenario(s) need unit tests
+          <strong>👨‍💻 DEV:</strong> Implement unit tests for these ${api.uncoveredScenarios} baseline scenarios:
+          <ul style="margin: 8px 0 0 20px; padding: 0; line-height: 1.8;">
+            ${api.matchedTests.filter((m: any) => m.status === 'NOT_COVERED').map((m: any) => `
+            <li style="margin: 4px 0;">• ${m.scenario}</li>
+            `).join('')}
+          </ul>
         </div>
       </div>
       ` : ''}
