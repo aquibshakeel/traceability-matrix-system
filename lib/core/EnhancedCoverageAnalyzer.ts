@@ -255,6 +255,21 @@ export class EnhancedCoverageAnalyzer {
   private async analyzeAPI(api: string, categories: any, unitTests: UnitTest[], aiSuggestions: any = null): Promise<APIAnalysis> {
     const scenarios = this.flattenScenarios(categories);
     
+    // If baseline has 0 scenarios, return empty analysis immediately
+    // Do NOT analyze with AI when baseline is empty
+    if (scenarios.length === 0) {
+      console.log(`  ℹ️  No scenarios in baseline - skipping analysis`);
+      return {
+        api,
+        scenarios: [],
+        coveredScenarios: 0,
+        partiallyCoveredScenarios: 0,
+        uncoveredScenarios: 0,
+        matchedTests: [],
+        gaps: []
+      };
+    }
+    
     // Step 1: Analyze API spec completeness FIRST
     const completenessGaps: GapAnalysis[] = [];
     let hasUntestedSuggestions = false;
