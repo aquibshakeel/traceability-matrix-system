@@ -414,56 +414,73 @@ export class ReportGenerator {
 
         ${orphanTests.totalOrphans > 0 ? `
         <div class="section">
-            <h2 class="section-title"><span class="icon">🔍</span> Orphan Tests (${orphanTests.totalOrphans})</h2>
+            <h2 class="section-title"><span class="icon">🔍</span> Orphan Unit Tests (${orphanTests.totalOrphans})</h2>
             <div style="background: #fff8dc; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                Tests without corresponding business scenarios. <strong>${orphanTests.businessTests.length}</strong> require QA action, <strong>${orphanTests.technicalTests.length}</strong> are infrastructure tests.
+                <strong>Unit tests without baseline scenarios.</strong> ${orphanTests.businessTests.length} business tests require QA action, ${orphanTests.technicalTests.length} are infrastructure tests (no action needed).
             </div>
-            <div class="orphan-section">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div>
-                        <strong>Technical Tests:</strong> ${orphanTests.technicalTests.length}<br>
-                        <small style="color: #666;">No action needed - infrastructure/utility tests</small>
-                    </div>
-                    <div>
-                        <strong>Business Tests:</strong> ${orphanTests.businessTests.length}<br>
-                        <small style="color: #dc3545;">Action required - need business scenarios</small>
+            
+            ${[...orphanTests.businessTests, ...orphanTests.technicalTests].length > 0 ? `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Test Description</th>
+                        <th>Test File Path</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Suggested Fix</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${[...orphanTests.businessTests, ...orphanTests.technicalTests].map(test => `
+                    <tr>
+                        <td><strong>${serviceName}</strong></td>
+                        <td>${test.description}</td>
+                        <td><code style="font-size: 0.85em;">${test.file}</code></td>
+                        <td><span class="badge badge-${test.orphanCategory?.type === 'technical' ? 'info' : 'warning'}">${(test.orphanCategory?.type || 'unknown').toUpperCase()}</span></td>
+                        <td><span class="badge badge-${(test.orphanCategory?.priority || 'p3').toLowerCase()}">${test.orphanCategory?.priority || 'P3'}</span></td>
+                        <td style="font-size: 0.9em;">
+                            ${test.orphanCategory?.actionRequired === 'qa_add_scenario' 
+                                ? `<strong style="color: #dc3545;">QA Action:</strong> Add "${test.description}" scenario to baseline for traceability`
+                                : 'No action needed - infrastructure/utility test'}
+                        </td>
+                    </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            ` : ''}
+            
+            ${orphanTests.businessTests.filter(t => t.orphanCategory?.priority === 'P0').length > 0 ? `
+            <div style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 25px; border-radius: 10px; margin-top: 30px; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <span style="font-size: 1.8em;">🚨</span>
+                    <h3 style="margin: 0; font-size: 1.3em;">Critical P0 Orphan Tests - Immediate Action Required</h3>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                    <p style="margin: 0 0 15px 0; font-size: 1.05em; line-height: 1.7;">
+                        <strong>${orphanTests.businessTests.filter(t => t.orphanCategory?.priority === 'P0').length} critical test(s)</strong> cover essential business logic but lack baseline scenarios. 
+                        This creates a <strong>traceability gap</strong> where core functionality is tested but not documented.
+                    </p>
+                    <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 6px; border-left: 4px solid white;">
+                        <strong style="display: block; margin-bottom: 10px; font-size: 1.1em;">📋 Immediate Actions:</strong>
+                        <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                            <li><strong>QA Team:</strong> Review each P0 test below and add corresponding scenarios to baseline YAML file</li>
+                            <li><strong>Priority:</strong> Complete within 24 hours - these tests verify critical business requirements</li>
+                            <li><strong>Impact:</strong> Without baseline scenarios, we cannot track requirement coverage or generate proper test reports</li>
+                        </ul>
                     </div>
                 </div>
-                
-                ${orphanTests.categorization.length > 0 ? `
-                <h4 style="margin-top: 20px; margin-bottom: 15px;">Categorization</h4>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th>Subtype</th>
-                            <th>Count</th>
-                            <th>Priority</th>
-                            <th>Action Required</th>
-                            <th>Suggested Fix</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${orphanTests.categorization.map(cat => `
-                        <tr>
-                            <td><span class="badge badge-${cat.category === 'technical' ? 'info' : 'warning'}">${cat.category.toUpperCase()}</span></td>
-                            <td>${cat.subtype}</td>
-                            <td>${cat.count}</td>
-                            <td><span class="badge badge-${cat.priority.toLowerCase()}">${cat.priority}</span></td>
-                            <td>${cat.actionRequired ? '✅ Yes' : '❌ No'}</td>
-                            <td>${cat.actionRequired ? `QA Action: Create scenario for ${cat.category} tests` : 'No action needed'}</td>
-                        </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                
-                ${orphanTests.businessTests.length > 0 ? `
-                <div style="background: #fff3cd; padding: 15px; border-radius: 4px; margin-top: 20px; border-left: 4px solid #ffc107;">
-                    <strong>⚠️ Priority Action:</strong> ${orphanTests.businessTests.length} business test(s) need scenarios to be added to baseline for traceability.
+                <div style="background: rgba(255,255,255,0.95); color: #333; padding: 15px; border-radius: 8px;">
+                    <strong style="color: #dc3545; display: block; margin-bottom: 10px;">P0 Tests Requiring Baseline Scenarios:</strong>
+                    <ol style="margin: 0; padding-left: 20px; line-height: 2;">
+                        ${orphanTests.businessTests
+                            .filter(t => t.orphanCategory?.priority === 'P0')
+                            .map(test => `<li><code>${test.description}</code> <span style="color: #666; font-size: 0.9em;">(${test.file})</span></li>`)
+                            .join('')}
+                    </ol>
                 </div>
-                ` : ''}
-                ` : ''}
             </div>
+            ` : ''}
         </div>
         ` : ''}
 
