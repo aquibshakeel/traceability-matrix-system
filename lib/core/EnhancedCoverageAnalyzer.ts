@@ -342,30 +342,19 @@ Respond in JSON format:
       const content = response.content[0].type === 'text' ? response.content[0].text : '{}';
       const analysis = this.parseAIResponse(content);
       
-      // Build result with initial status from baseline matching
-      const matchedTests = analysis.matches.map((m: any) => {
-        let finalStatus = m.status;
-        
-        // CRITICAL: Adjust status based on API completeness
-        // If baseline scenario is covered BUT API suggests untested scenarios, mark as PARTIALLY_COVERED
-        if (m.status === 'FULLY_COVERED' && hasUntestedSuggestions) {
-          finalStatus = 'PARTIALLY_COVERED';
-          console.log(`  📊 Status adjusted: "${m.scenario.substring(0, 50)}..." → PARTIALLY_COVERED (API incomplete)`);
-        }
-        
-        return {
-          scenario: m.scenario,
-          tests: m.testNumbers.map((n: number) => unitTests[n - 1]).filter((t: UnitTest) => t),
-          status: finalStatus,
-          originalStatus: m.status,
-          adjustedDueToCompleteness: finalStatus !== m.status
-        };
-      });
+      // Build result - keep original status from baseline vs unit test matching
+      // DO NOT override status based on API spec completeness
+      const matchedTests = analysis.matches.map((m: any) => ({
+        scenario: m.scenario,
+        tests: m.testNumbers.map((n: number) => unitTests[n - 1]).filter((t: UnitTest) => t),
+        status: m.status, // Keep original status
+      }));
 
       let coveredCount = matchedTests.filter((m: any) => m.status === 'FULLY_COVERED').length;
       let partialCount = matchedTests.filter((m: any) => m.status === 'PARTIALLY_COVERED').length;
       let uncoveredCount = matchedTests.filter((m: any) => m.status === 'NOT_COVERED').length;
 
+      // Baseline vs unit test gaps
       const gaps: GapAnalysis[] = analysis.matches
         .filter((m: any) => m.status === 'NOT_COVERED' || m.status === 'PARTIALLY_COVERED')
         .map((m: any) => ({
@@ -376,11 +365,17 @@ Respond in JSON format:
           recommendations: [`Create/update unit test to cover: ${m.scenario}`]
         }));
 
-      // Merge completeness gaps
+      // Add completeness gaps (from API spec) as informational only
+      // These are reported but don't change coverage status
       gaps.push(...completenessGaps);
 
       console.log(`  ✅ Covered: ${coveredCount}/${scenarios.length}`);
       console.log(`  ⚠️  Gaps: ${uncoveredCount} not covered, ${partialCount} partial`);
+      
+      // Add high-level note about API completeness (if gaps found)
+      if (hasUntestedSuggestions) {
+        console.log(`  ℹ️  Note: API spec analysis suggests ${missingScenarios.length} additional scenario(s) not in baseline`);
+      }
 
       return {
         api,
