@@ -3,59 +3,50 @@
 
 service: customer-service
 
-# POST /api/customers
 POST /api/customers:
   happy_case:
-    # - When customer is created with valid data, return 201 and customer ID
-    # - When customer is created with all optional fields, return 201 and store all fields
-  
+    - When customer is created with valid data, return 201 and customer ID
+    - When customer is created with all optional fields, return 201 and store all fields
+
   edge_case:
-    # - When customer name has special characters, accept and store correctly
-    # - When customer name is at maximum length (255 chars), accept successfully
-    # - When customer email has unusual but valid format, accept successfully
-  
+    - When customer name has special characters, accept and store correctly
+    - When customer name is at maximum length (255 chars), accept successfully
+    - When customer email has unusual but valid format, accept successfully
+
   error_case:
-    # - When customer is created with missing required fields, return 400
-    # - When customer is created with invalid email format, return 400
-    # - When customer is created with duplicate email, return 409
-    # - When customer name exceeds maximum length, return 400
-  
+    - When customer is created with missing required fields, return 400
+    - When customer is created with invalid email format, return 400
+    - When customer is created with duplicate email, return 409
+    - When customer name exceeds maximum length, return 400
+
   security:
-    # - When customer name contains SQL injection attempt, reject with 400
-    # - When customer name contains XSS attempt, sanitize and accept
-    # - When request is made without authentication token, return 401
+    - When customer name contains SQL injection attempt, reject with 400
+    - When customer name contains XSS attempt, sanitize and accept
+    - When request is made without authentication token, return 401
 
-# GET /api/customers/{id}
-GET /api/customers/{id}:
-  happy_case:
-    # - When customer is retrieved by valid ID, return 200 with customer data
-    # - When retrieving existing customer, return all fields correctly
-  
-  error_case:
-    # - When retrieving customer with invalid ID format, return 400
-    # - When retrieving non-existent customer, return 404
-    # - When request is made without authentication, return 401
 
-# PUT /api/customers/{id}
-PUT /api/customers/{id}:
-  happy_case:
-    # - When customer is updated with valid data, return 200 and updated data
-  
-  edge_case:
-    # - When updating with same data, return 200 without changes
-  
-  error_case:
-    # - When updating non-existent customer, return 404
-    # - When updating with invalid data, return 400
-    # - When updating with duplicate email, return 409
+GET /api/customers:
 
-# DELETE /api/customers/{id}
+
+#PUT /api/customers/{id}:
+#  happy_case:
+#    - When customer is updated with valid data, return 200 and updated data
+#
+#  edge_case:
+#    - When updating with same data, return 200 without changes
+#
+#  error_case:
+#    - When updating non-existent customer, return 404
+#    - When updating with invalid data, return 400
+#    - When updating with duplicate email, return 409
+
+
 DELETE /api/customers/{id}:
   happy_case:
-    # - When customer is deleted by valid ID, return 204
-  
-  error_case:
-    # - When deleting non-existent customer, return 404
-    # - When deleting without authentication, return 401
+    - When customer is deleted by valid ID, return 204
 
-#dummy text,test,,,,,,,,
+  error_case:
+    - When deleting non-existent customer, return 404
+    - When deleting without authentication, return 401
+
+#test-cases-end
