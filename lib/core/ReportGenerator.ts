@@ -363,6 +363,12 @@ export class ReportGenerator {
             <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 20px;">
                 <strong>⚠️ Critical: These APIs were discovered but have NO scenarios or tests.</strong> They are completely untracked and represent gaps in test coverage.
             </div>
+            ${analysis.orphanAPISummary ? `
+            <div style="background: #e7f3ff; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; margin-bottom: 20px;">
+                <h4 style="margin-bottom: 10px; color: #667eea;">🤖 AI Analysis</h4>
+                <p style="margin: 0; line-height: 1.8;">${analysis.orphanAPISummary}</p>
+            </div>
+            ` : ''}
             <table>
                 <thead>
                     <tr>
