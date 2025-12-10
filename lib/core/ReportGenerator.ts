@@ -621,7 +621,15 @@ export class ReportGenerator {
         </tr>
       </thead>
       <tbody>
-        ${allTests.map((test: any, index: number) => `
+        ${allTests
+          .sort((a: any, b: any) => {
+            // Sort by priority: P0 → P1 → P2 → P3
+            const priorityOrder: { [key: string]: number } = { 'P0': 0, 'P1': 1, 'P2': 2, 'P3': 3 };
+            const prioA = priorityOrder[a.orphanCategory?.priority || 'P3'] ?? 999;
+            const prioB = priorityOrder[b.orphanCategory?.priority || 'P3'] ?? 999;
+            return prioA - prioB;
+          })
+          .map((test: any, index: number) => `
         <tr data-priority="${(test.orphanCategory?.priority || 'p3').toLowerCase()}" style="background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s;">
           <td style="padding: 15px; border-left: 4px solid ${test.orphanCategory?.priority === 'P0' ? '#dc2626' : test.orphanCategory?.priority === 'P1' ? '#f59e0b' : test.orphanCategory?.priority === 'P2' ? '#3b82f6' : '#6b7280'}; vertical-align: top;">
             <strong style="color: #667eea;">${serviceName}</strong>

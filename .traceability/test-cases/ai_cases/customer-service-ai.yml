@@ -1,5 +1,5 @@
 # AI-Generated Test Scenarios
-# Generated: 2025-12-10T23:18:18.960Z
+# Generated: 2025-12-10T23:21:44.248Z
 # (✅ = in baseline, 🆕 = new suggestion, 🔧 = modified, ⚠️ = verify)
 # DO NOT EDIT - regenerated automatically
 # Copy relevant 🆕 scenarios to baseline/customer-service-baseline.yml
@@ -12,41 +12,40 @@ POST /v1/customers:
     - When customer created with valid data, return 201  🆕
     - When customer created with all optional fields populated, return 201  🆕
     - When customer created with minimal required fields only, return 201  🆕
-    - When response includes customer ID and created timestamp, return 201  🆕
+    - When valid customer data submitted, return customer ID in response  🆕
 
   edge_case:
-    - When customer name contains special characters (!@#$%^&*), accept and store  🆕
-    - When customer name contains unicode characters, accept and store  🆕
-    - When customer email is at maximum allowed length, accept and store  🆕
-    - When request body has empty string values for optional fields, handle gracefully  🆕
-    - When request body has null values for optional fields, handle gracefully  🆕
-    - When customer name has leading/trailing whitespace, trim or accept  🆕
-    - When request body is empty JSON object, return appropriate response  🆕
-    - When customer phone number has various formats, validate and accept  🆕
-    - When customer address contains multi-line text, accept and store  🆕
+    - When customer name has special characters (!@#$%), accept and store  🆕
+    - When customer name is empty string, handle appropriately  🆕
+    - When customer name is null, handle appropriately  🆕
+    - When customer name exceeds maximum length, return 400  🆕
+    - When request body is empty object, handle appropriately  🆕
+    - When email has valid but unusual format (e.g., user+tag@domain.co.uk), accept  🆕
+    - When phone number has international format, accept and store  🆕
+    - When customer data contains Unicode characters, accept and store  🆕
+    - When request body has extra unknown fields, ignore or reject appropriately  🆕
 
   error_case:
     - When created with missing required fields, return 400  🆕
-    - When created with invalid email format, return 400  🆕
-    - When created with invalid data types, return 422  🆕
-    - When created without authentication token, return 401  🆕
-    - When created with expired authentication token, return 401  🆕
-    - When created without proper permissions, return 403  🆕
-    - When customer with duplicate email already exists, return 409  🆕
-    - When request body exceeds size limit, return 413  🆕
-    - When invalid JSON format in request body, return 400  🆕
-    - When database connection fails, return 500  🆕
-    - When Content-Type header is not application/json, return 415  🆕
+    - When email format is invalid, return 400  🆕
+    - When request body is malformed JSON, return 400  🆕
+    - When Content-Type header is missing, return 400 or 415  🆕
+    - When authentication token is missing, return 401  🆕
+    - When authentication token is invalid or expired, return 401  🆕
+    - When user lacks permission to create customers, return 403  🆕
+    - When customer with same email already exists, return 409  🆕
+    - When field data type is incorrect, return 422  🆕
+    - When server encounters internal error, return 500  🆕
 
   security:
     - When customer name contains SQL injection payload, reject with 400  🆕
-    - When customer email contains SQL injection, sanitize or reject with 400  🆕
-    - When customer address contains XSS script tags, sanitize or reject with 400  🆕
-    - When request includes malicious JavaScript code, reject with 400  🆕
-    - When attempting to create customer without valid JWT token, return 401  🆕
-    - When using another user's token to create customer, validate ownership  🆕
-    - When request includes path traversal attempts in fields, reject with 400  🆕
-    - When request includes command injection attempts, reject with 400  🆕
+    - When customer name contains XSS script tags, sanitize or reject with 400  🆕
+    - When request includes path traversal characters (../, etc.), reject with 400  🆕
+    - When attempting to create customer without valid authentication, return 401  🆕
+    - When using another user's token to create customer, validate token ownership  🆕
+    - When request body exceeds size limit, reject with 413  🆕
+    - When customer data contains HTML/JavaScript, sanitize before storage  🆕
+    - When using revoked or blacklisted token, return 401  🆕
 
 # GET /v1/customers
 GET /v1/customers:
@@ -54,33 +53,33 @@ GET /v1/customers:
     - When GET /v1/customers is called with valid authentication, return 200 with customer list  🆕
     - When GET /v1/customers is called and customers exist, return 200 with non-empty array  🆕
     - When GET /v1/customers is called and no customers exist, return 200 with empty array  🆕
-    - When GET /v1/customers is called, return properly formatted customer objects with all fields  🆕
+    - When GET /v1/customers is called, return customers with all expected fields  🆕
 
   edge_case:
-    - When GET /v1/customers is called with pagination parameters at boundary (page=0), handle gracefully  🆕
-    - When GET /v1/customers is called with very large page size, return appropriate limit or error  🆕
+    - When GET /v1/customers is called with pagination query params, return paginated results  🆕
+    - When GET /v1/customers is called with very large page size, handle gracefully  🆕
+    - When GET /v1/customers is called with filter query params, return filtered results  🆕
+    - When GET /v1/customers is called with sorting query params, return sorted results  🆕
+    - When GET /v1/customers is called with special characters in query params, handle correctly  🆕
+    - When GET /v1/customers is called with empty query string values, ignore or handle gracefully  🆕
     - When GET /v1/customers is called with negative page number, return 400 or default to first page  🆕
-    - When GET /v1/customers is called with special characters in query params, sanitize and process  🆕
-    - When GET /v1/customers is called with empty string query parameters, handle as missing params  🆕
-    - When GET /v1/customers is called with extremely long query string, return 414 or truncate  🆕
 
   error_case:
-    - When GET /v1/customers is called without authentication token, return 401  🆕
-    - When GET /v1/customers is called with invalid/expired token, return 401  🆕
+    - When GET /v1/customers is called without authentication, return 401  🆕
+    - When GET /v1/customers is called with invalid token, return 401  🆕
+    - When GET /v1/customers is called with expired token, return 401  🆕
     - When GET /v1/customers is called without required permissions, return 403  🆕
     - When GET /v1/customers is called with malformed query parameters, return 400  🆕
-    - When GET /v1/customers is called and database is unavailable, return 500  🆕
+    - When GET /v1/customers is called and database is unavailable, return 500 or 503  🆕
     - When GET /v1/customers is called with unsupported HTTP method, return 405  🆕
-    - When GET /v1/customers is called with invalid content-type header, return 415 or process anyway  🆕
 
   security:
     - When GET /v1/customers is called with SQL injection in query params, sanitize and return safe results  🆕
-    - When GET /v1/customers is called with XSS payload in query params, escape and return 400  🆕
-    - When GET /v1/customers is called with another user's token, return only authorized customer data  🆕
-    - When GET /v1/customers is called with path traversal attempt, reject with 400  🆕
-    - When GET /v1/customers is called with IDOR attempt via manipulated params, enforce authorization  🆕
-    - When GET /v1/customers is called without HTTPS, reject or redirect to secure connection  🆕
-    - When GET /v1/customers is called with excessive requests, apply rate limiting and return 429  🆕
+    - When GET /v1/customers is called with XSS payload in query params, sanitize input  🆕
+    - When GET /v1/customers is called with authentication bypass attempt, return 401  🆕
+    - When GET /v1/customers is called with JWT token manipulation, return 401  🆕
+    - When GET /v1/customers is called with IDOR attempt via query params, return only authorized customer data  🆕
+    - When GET /v1/customers is called with excessive requests, apply rate limiting  🆕
 
 # GET /v1/customers/{id}
 GET /v1/customers/{id}:
@@ -90,150 +89,156 @@ GET /v1/customers/{id}:
     - When authenticated user requests customer by valid ID, return customer data successfully  🆕
 
   edge_case:
-    - When customer ID is at minimum boundary (e.g., 1), return customer if exists  🆕
-    - When customer ID is at maximum boundary (e.g., max integer), handle appropriately  🆕
-    - When customer ID contains leading zeros, normalize and return customer  🆕
+    - When customer ID is at minimum valid value (e.g., 1), return customer if exists  🆕
+    - When customer ID is at maximum valid value, return customer if exists  🆕
+    - When customer ID contains leading zeros, handle appropriately  🆕
     - When customer ID is UUID format, return customer if valid  🆕
-    - When customer ID has special characters, return 400 or 404  🆕
-    - When customer ID is extremely long string, return 400  🆕
+    - When customer ID has special characters in path, return 400 or 404  🆕
+    - When customer ID is extremely long string, return 400 or 404  🆕
     - When customer ID is empty string, return 400 or 404  🆕
-    - When customer ID is null, return 400  🆕
+    - When customer ID is null or undefined, return 400  🆕
 
   error_case:
     - When customer ID does not exist, return 404  🆕
-    - When no authentication token provided, return 401  🆕
-    - When invalid authentication token provided, return 401  🆕
+    - When request is made without authentication token, return 401  🆕
     - When user lacks permission to view customer, return 403  🆕
     - When customer ID format is invalid, return 400  🆕
-    - When customer ID is non-numeric (if numeric expected), return 400  🆕
-    - When database connection fails, return 500  🆕
-    - When internal server error occurs, return 500  🆕
+    - When customer ID is non-numeric (if expecting numeric), return 400  🆕
+    - When server encounters internal error, return 500  🆕
+    - When customer ID is negative number, return 400 or 404  🆕
+    - When database is unavailable, return 500 or 503  🆕
 
   security:
-    - When customer ID contains SQL injection payload, reject with 400 and no SQL execution  🆕
+    - When customer ID contains SQL injection payload, reject with 400 and not execute query  🆕
     - When customer ID contains XSS script tags, sanitize and return 400  🆕
-    - When attempting to access another user's customer without permission, return 403  🆕
-    - When using expired or revoked token, return 401  🆕
-    - When customer ID contains path traversal characters, reject with 400  🆕
-    - When customer ID contains NoSQL injection payload, reject with 400  🆕
-    - When excessive requests from same IP, apply rate limiting  🆕
+    - When attempting to access another user's customer without authorization, return 403  🆕
+    - When using expired or invalid auth token, return 401  🆕
+    - When customer ID contains path traversal characters (../, ./), return 400  🆕
+    - When using JWT token of different user, prevent unauthorized access with 403  🆕
+    - When customer ID contains NoSQL injection attempts, reject with 400  🆕
 
 # PUT /v1/customers/{id}
 PUT /v1/customers/{id}:
   happy_case:
     - When customer updated with valid id and data, return 200  🆕
-    - When existing customer fields are modified with valid values, return updated customer  🆕
-    - When partial customer data is updated, return 200 with merged data  🆕
-    - When customer updated with all allowed fields, successfully persist changes  🆕
+    - When customer updated with all fields populated, return 200 with updated data  🆕
+    - When customer updated with partial fields, return 200 and update only provided fields  🆕
+    - When customer updated successfully, return updated customer object in response  🆕
 
   edge_case:
     - When customer id is at maximum integer value, handle correctly  🆕
-    - When customer id is minimum valid value (1), process update  🆕
+    - When customer id is minimum valid value (1), handle correctly  🆕
     - When request body is empty object, return 400 or accept as no-op  🆕
-    - When customer fields contain unicode characters, accept and store  🆕
-    - When customer fields contain special characters (!@#$%), handle appropriately  🆕
-    - When request body has very long string values (10000+ chars), validate or reject  🆕
-    - When customer fields are null values, handle gracefully  🆕
-    - When customer id contains leading zeros (001), normalize or reject  🆕
-    - When request body contains extra unknown fields, ignore or reject  🆕
+    - When request body contains null values, handle appropriately  🆕
+    - When request body has very long string fields (10000+ chars), validate and reject or truncate  🆕
+    - When request body contains special characters in text fields, accept and store correctly  🆕
+    - When request body contains unicode/emoji characters, accept and store correctly  🆕
+    - When customer id contains leading zeros, normalize or reject appropriately  🆕
 
   error_case:
     - When customer id does not exist, return 404  🆕
     - When customer id is invalid format (non-numeric), return 400  🆕
     - When customer id is negative number, return 400  🆕
-    - When request body has invalid JSON format, return 400  🆕
-    - When required fields are missing in request body, return 400  🆕
-    - When authentication token is missing, return 401  🆕
-    - When authentication token is expired, return 401  🆕
+    - When request without authentication token, return 401  🆕
+    - When request with expired authentication token, return 401  🆕
     - When user lacks permission to update customer, return 403  🆕
-    - When customer data violates business rules, return 422  🆕
-    - When customer email already exists for another customer, return 409  🆕
-    - When database connection fails, return 500  🆕
-    - When customer id is empty string, return 400  🆕
+    - When request body has invalid JSON format, return 400  🆕
+    - When request body contains invalid data types, return 422  🆕
+    - When required fields are missing in request body, return 400  🆕
+    - When email format is invalid, return 422  🆕
+    - When duplicate email/unique field conflict, return 409  🆕
+    - When server encounters internal error, return 500  🆕
 
   security:
-    - When customer fields contain SQL injection payload, sanitize and reject with 400  🆕
-    - When customer fields contain XSS script tags, sanitize and reject with 400  🆕
+    - When customer id contains SQL injection payload, reject with 400 and not execute query  🆕
+    - When request body contains SQL injection in text fields, sanitize and reject with 400  🆕
+    - When request body contains XSS script tags, sanitize and reject with 400  🆕
+    - When request body contains JavaScript injection, sanitize and reject with 400  🆕
+    - When authentication token is missing, return 401 and deny access  🆕
+    - When authentication token is tampered/invalid, return 401  🆕
     - When attempting to update another user's customer without permission, return 403  🆕
-    - When customer id contains path traversal characters (../), reject with 400  🆕
-    - When request contains malicious XML/XXE payload, reject with 400  🆕
-    - When authentication token belongs to different customer, return 403  🆕
-    - When request header contains injection attempts, sanitize and process safely  🆕
-    - When customer fields contain NoSQL injection patterns, sanitize and reject  🆕
+    - When request contains path traversal attempts in id, reject with 400  🆕
+    - When request headers contain injection attempts, sanitize and process safely  🆕
 
 # DELETE /v1/customers/{id}
 DELETE /v1/customers/{id}:
   happy_case:
-    - When deleting existing customer with valid id, return 200 or 204  🆕
-    - When deleting customer that exists, customer is removed from system  🆕
-    - When deleting customer with numeric id, successfully delete and return success response  🆕
+    - When deleting customer with valid existing id, return 200 or 204  🆕
+    - When customer is successfully deleted, remove from database  🆕
+    - When deleting customer with valid authentication token, process deletion successfully  🆕
 
   edge_case:
-    - When id is zero, return 404 or 400  🆕
-    - When id is negative number, return 404 or 400  🆕
-    - When id is very large number (exceeds max int), return 400 or 404  🆕
-    - When id contains leading zeros, handle appropriately  🆕
-    - When id is alphanumeric string, return 400 or 404  🆕
-    - When id has special characters, return 400  🆕
+    - When id is zero, return 400 or 404  🆕
+    - When id is negative number, return 400 or 404  🆕
+    - When id is extremely large number, return 400 or 404  🆕
+    - When id contains special characters, return 400  🆕
     - When id is empty string, return 400 or 404  🆕
-    - When id path parameter is missing, return 404 or 405  🆕
+    - When id is null, return 400 or 404  🆕
+    - When id has leading/trailing whitespace, return 400  🆕
+    - When id is UUID format instead of integer, handle based on system design  🆕
+    - When deleting already deleted customer, return 404 or 410  🆕
 
   error_case:
-    - When deleting without authentication token, return 401  🆕
-    - When deleting with invalid/expired token, return 401  🆕
-    - When user lacks permission to delete customer, return 403  🆕
     - When customer id does not exist, return 404  🆕
-    - When deleting already deleted customer, return 404 or 410  🆕
-    - When customer has active dependencies/relationships, return 409 or 422  🆕
+    - When request has no authentication token, return 401  🆕
+    - When authentication token is invalid or expired, return 401  🆕
+    - When user lacks permission to delete customer, return 403  🆕
+    - When customer has dependent records and cannot be deleted, return 409  🆕
     - When database connection fails, return 500  🆕
-    - When id format is invalid (non-numeric), return 400 or 422  🆕
+    - When server encounters unexpected error, return 500  🆕
+    - When id format is invalid, return 400  🆕
+    - When customer is soft-deleted but still referenced, return 422 or 409  🆕
 
   security:
-    - When id contains SQL injection payload, reject with 400 and no SQL execution  🆕
+    - When id contains SQL injection payload, sanitize and return 400 or 404  🆕
     - When id contains XSS script tags, sanitize and return 400  🆕
-    - When attempting to delete another tenant's customer, return 403 or 404  🆕
-    - When using deleted/revoked auth token, return 401  🆕
-    - When id contains path traversal characters (../, ./), return 400  🆕
-    - When attempting CSRF attack without proper token, return 403  🆕
-    - When rate limit exceeded for delete operations, return 429  🆕
-    - When id contains NoSQL injection patterns, reject with 400  🆕
+    - When attempting to delete without valid JWT token, return 401  🆕
+    - When attempting to delete another user's customer without admin rights, return 403  🆕
+    - When id contains path traversal characters, sanitize and return 400  🆕
+    - When using deleted/revoked authentication token, return 401  🆕
+    - When CSRF token is missing or invalid, return 403  🆕
+    - When rate limit is exceeded for delete operations, return 429  🆕
 
 # PATCH /v1/customers/{id}/email
 PATCH /v1/customers/{id}/email:
   happy_case:
-    - When customer ID exists and valid email provided in request body, return 200 and update email  🆕
-    - When updating email to a new valid format, return success and reflect changes  🆕
-    - When authenticated user updates their own customer email with valid data, return 200  🆕
+    - When valid customer ID and valid email provided, return 200 and update email  🆕
+    - When updating email to a new unique address, return success response  🆕
+    - When authenticated user updates their own email, return 200  🆕
+    - When email updated with proper format (user@domain.com), accept and save  🆕
 
   edge_case:
-    - When email contains special characters but valid format (e.g., user+tag@domain.com), accept and update  🆕
-    - When email is maximum allowed length, accept and store  🆕
-    - When email has subdomain (user@mail.company.co.uk), accept and update  🆕
-    - When request body contains empty email string, return 400 or 422  🆕
-    - When request body is null or missing email field, return 400  🆕
-    - When email contains unicode characters, validate according to RFC standards  🆕
-    - When customer ID is at boundary values (min/max integer), handle appropriately  🆕
-    - When email has only whitespace, return 400 or 422  🆕
+    - When email contains plus addressing (user+tag@domain.com), accept and update  🆕
+    - When email has maximum allowed length (254 characters), accept and update  🆕
+    - When email contains special characters in local part (user.name+tag@domain.com), accept  🆕
+    - When email is empty string, return validation error  🆕
+    - When email is null, return 400 bad request  🆕
+    - When customer ID is at boundary (min/max integer), handle appropriately  🆕
+    - When email contains international domain (user@domain.co.uk), accept  🆕
+    - When email has subdomain (user@mail.example.com), accept and update  🆕
+    - When request body is empty object, return 400 missing email field  🆕
 
   error_case:
-    - When customer ID does not exist, return 404  🆕
-    - When email format is invalid, return 400 or 422  🆕
-    - When no authentication token provided, return 401  🆕
-    - When user lacks permission to update customer email, return 403  🆕
-    - When email already exists for another customer, return 409  🆕
-    - When customer ID is invalid format (non-numeric), return 400  🆕
-    - When request body is malformed JSON, return 400  🆕
-    - When database connection fails, return 500  🆕
-    - When email domain does not exist or is invalid, return 422  🆕
-    - When customer account is deleted or inactive, return 404 or 410  🆕
+    - When customer ID does not exist, return 404 not found  🆕
+    - When email format is invalid (missing @), return 400 bad request  🆕
+    - When email already exists for another customer, return 409 conflict  🆕
+    - When authentication token is missing, return 401 unauthorized  🆕
+    - When user lacks permission to update customer, return 403 forbidden  🆕
+    - When email field has wrong data type (number instead of string), return 422 unprocessable entity  🆕
+    - When customer ID is invalid format (non-numeric), return 400 bad request  🆕
+    - When database connection fails, return 500 internal server error  🆕
+    - When email domain does not exist, return 400 validation error  🆕
+    - When request content-type is not application/json, return 415 unsupported media type  🆕
 
   security:
-    - When email contains SQL injection payload, sanitize and reject with 400  🆕
-    - When email contains XSS script tags, sanitize and reject with 400  🆕
+    - When email contains SQL injection ('; DROP TABLE--), sanitize and reject with 400  🆕
+    - When email contains XSS payload (<script>alert('xss')</script>), sanitize and reject  🆕
     - When attempting to update another user's email without authorization, return 403  🆕
-    - When using expired or invalid JWT token, return 401  🆕
-    - When customer ID contains path traversal characters (../, etc.), reject with 400  🆕
-    - When email contains HTML injection attempts, sanitize and reject  🆕
-    - When request includes additional fields to modify other attributes, ignore or reject  🆕
-    - When using brute force on customer IDs to enumerate accounts, implement rate limiting  🆕
+    - When using expired or invalid JWT token, return 401 unauthorized  🆕
+    - When email contains command injection attempts, sanitize and reject  🆕
+    - When customer ID contains SQL injection in path parameter, reject with 400  🆕
+    - When request includes additional malicious fields (isAdmin: true), ignore extra fields  🆕
+    - When using brute force with multiple invalid IDs, implement rate limiting  🆕
+    - When CSRF token is missing or invalid, return 403 forbidden  🆕
+    - When attempting path traversal in customer ID (../../admin), return 400  🆕
 
