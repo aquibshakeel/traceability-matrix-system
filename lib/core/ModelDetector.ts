@@ -9,18 +9,17 @@ import Anthropic from '@anthropic-ai/sdk';
 
 export class ModelDetector {
   private client: Anthropic;
+  private apiKey: string;
   private cachedModel: string | null = null;
 
   constructor(apiKey: string) {
+    this.apiKey = apiKey;
     this.client = new Anthropic({ apiKey });
   }
 
   /**
    * Detect the best available Claude model for the user
-   * Prefers latest Sonnet models in this order:
-   * 1. Claude 4.5 Sonnet (if available)
-   * 2. Claude 3.7 Sonnet (if available)
-   * 3. Claude 3.5 Sonnet (fallback)
+   * Uses the Models API to list available models and selects the best one
    */
   async detectBestModel(): Promise<string> {
     // Return cached model if already detected
@@ -28,21 +27,65 @@ export class ModelDetector {
       return this.cachedModel;
     }
 
+    console.log('🔍 Auto-detecting best available Claude model...');
+
     try {
-      // Try to list available models (if API supports it)
-      // Note: Anthropic doesn't have a public list models endpoint yet,
-      // so we'll try models in order of preference
+      // Use the Models API to list available models
+      const response = await fetch('https://api.anthropic.com/v1/models', {
+        method: 'GET',
+        headers: {
+          'x-api-key': this.apiKey,
+          'anthropic-version': '2023-06-01'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Models API failed: ${response.status}`);
+      }
+
+      const data: any = await response.json();
       
+      if (!data.data || data.data.length === 0) {
+        throw new Error('No models returned from API');
+      }
+
+      // Preference order for model selection
+      const preferenceOrder = [
+        'claude-4',     // Claude 4.x family (newest)
+        'claude-3',     // Claude 3.x family
+      ];
+
+      // Find best available model
+      for (const prefix of preferenceOrder) {
+        const matchingModel = data.data.find((model: any) => 
+          model.id.startsWith(prefix) && 
+          (model.id.includes('sonnet') || model.id.includes('4'))
+        );
+        
+        if (matchingModel) {
+          console.log(`   ✓ Using: ${matchingModel.id} (${matchingModel.display_name})`);
+          this.cachedModel = matchingModel.id;
+          return matchingModel.id;
+        }
+      }
+
+      // If no preferred model found, use the first available
+      const firstModel = data.data[0];
+      console.log(`   ✓ Using: ${firstModel.id} (${firstModel.display_name})`);
+      this.cachedModel = firstModel.id;
+      return firstModel.id;
+
+    } catch (error) {
+      console.warn(`   ⚠️  Models API failed, trying fallback detection...`);
+      
+      // Fallback to trying models manually
       const modelsToTry = [
-        'claude-4-5-20250929',           // Latest Claude 4.5 (correct format)
-        'claude-4-5-sonnet-20250929',    // Alternative format
+        'claude-4-5-20250929',
+        'claude-4-5-sonnet-20250929',
         'claude-3-7-sonnet-20250219',
         'claude-3-5-sonnet-20241022',
         'claude-3-5-sonnet-20240620',
-        'claude-3-sonnet-20240229',
       ];
-
-      console.log('🔍 Auto-detecting best available Claude model...');
 
       for (const model of modelsToTry) {
         if (await this.isModelAvailable(model)) {
@@ -52,16 +95,9 @@ export class ModelDetector {
         }
       }
 
-      // Fallback to a safe default
+      // Ultimate fallback
       const fallback = 'claude-3-5-sonnet-20240620';
       console.log(`   ⚠️  Using fallback model: ${fallback}`);
-      this.cachedModel = fallback;
-      return fallback;
-
-    } catch (error) {
-      // If detection fails, use safe default
-      const fallback = 'claude-3-5-sonnet-20240620';
-      console.log(`   ⚠️  Model detection failed, using: ${fallback}`);
       this.cachedModel = fallback;
       return fallback;
     }

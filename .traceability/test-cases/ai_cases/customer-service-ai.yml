@@ -1,5 +1,5 @@
 # AI-Generated Test Scenarios
-# Generated: 2025-12-09T23:59:47.819Z
+# Generated: 2025-12-10T00:12:33.875Z
 # (✅ = in baseline, 🆕 = new suggestion, 🔧 = modified, ⚠️ = verify)
 # DO NOT EDIT - regenerated automatically
 # Copy relevant 🆕 scenarios to baseline/customer-service-baseline.yml
@@ -10,86 +10,88 @@ service: customer-service
 GET /v1/customers/{id}:
   happy_case:
     - When requesting a customer with valid ID, return 200 with customer details  🆕
-    - When requesting a customer with valid ID as admin user, return complete customer profile  🆕
-    - When requesting a customer with valid ID as regular user with proper permissions, return customer details  🆕
+    - When requesting a customer with valid ID as admin user, return full customer profile  🆕
+    - When requesting a customer with valid ID as customer service rep, return customer details with contact history  🆕
     - When requesting a customer that has no orders, return customer with empty orders array  🆕
 
   edge_case:
     - When requesting a customer with ID at maximum allowed length, return customer details  🆕
     - When requesting a customer with minimum allowed ID value, return customer details  🆕
     - When requesting a customer with ID containing special characters (if allowed), return customer details  🆕
-    - When requesting a customer with ID at boundary values, return appropriate customer details  🆕
+    - When requesting a customer with no transaction history, return customer with empty transaction array  🆕
 
   error_case:
     - When requesting a customer with non-existent ID, return 404 Not Found  🆕
     - When requesting a customer without authentication, return 401 Unauthorized  🆕
-    - When requesting a customer without proper authorization, return 403 Forbidden  🆕
+    - When requesting a customer without proper permissions, return 403 Forbidden  🆕
     - When requesting a customer with invalid ID format, return 400 Bad Request  🆕
     - When server encounters database error, return 500 Internal Server Error  🆕
 
   security:
-    - When requesting with ID containing SQL injection pattern, reject with 400 Bad Request  🆕
-    - When requesting with manipulated JWT token, return 401 Unauthorized  🆕
-    - When attempting path traversal in ID parameter, reject with 400 Bad Request  🆕
-    - When attempting to access customer data of another user without permission, return 403 Forbidden  🆕
-    - When attempting to bypass authorization with modified headers, return 401 Unauthorized  🆕
+    - When requesting with SQL injection in ID parameter, reject with 400 Bad Request  🆕
+    - When requesting with JWT token belonging to different customer, return 403 Forbidden  🆕
+    - When requesting with expired authentication token, return 401 Unauthorized  🆕
+    - When requesting with manipulated authorization header, return 401 Unauthorized  🆕
+    - When requesting with excessive requests from same IP, trigger rate limiting  🆕
 
 # PUT /v1/customers/{id}
 PUT /v1/customers/{id}:
   happy_case:
-    - When updating a customer with valid data, return 200 OK  🆕
-    - When updating a customer's name with a new value, return updated customer data  🆕
-    - When updating a customer's contact information, successfully save changes  🆕
-    - When updating a customer with minimal required fields, process successfully  🆕
-    - When updating a customer with all possible fields, save all data correctly  🆕
+    - When updating a customer with valid ID and data, return 200 OK  🆕
+    - When updating a customer with minimal required fields, return 200 OK  🆕
+    - When updating a customer with all possible fields, return 200 OK  🆕
+    - When updating a customer with unchanged data, return 200 OK  🆕
 
   edge_case:
-    - When updating a customer with empty request body, handle appropriately  🆕
-    - When updating a customer with very long text fields at maximum limits, process successfully  🆕
-    - When updating a customer with Unicode characters in name fields, store correctly  🆕
-    - When updating a customer with null values for optional fields, handle appropriately  🆕
-    - When updating a customer with boundary values (min/max) for numeric fields, validate and save  🆕
+    - When updating a customer with maximum length values, accept and store correctly  🆕
+    - When updating a customer with empty strings in optional fields, accept and store  🆕
+    - When updating a customer with Unicode characters, accept and store correctly  🆕
+    - When updating a customer with boundary values (min/max), accept and store correctly  🆕
+    - When updating a customer with trailing/leading whitespace, trim and store correctly  🆕
 
   error_case:
     - When updating a non-existent customer ID, return 404 Not Found  🆕
-    - When updating a customer with invalid format data, return 400 Bad Request  🆕
-    - When updating a customer without proper authentication, return 401 Unauthorized  🆕
-    - When updating a customer without proper permissions, return 403 Forbidden  🆕
-    - When updating a customer with server error, return 500 Internal Server Error  🆕
-    - When updating a customer with data that violates business rules, return 422 Unprocessable Entity  🆕
-    - When updating a customer with duplicate unique fields, return 409 Conflict  🆕
+    - When updating a customer with invalid ID format, return 400 Bad Request  🆕
+    - When updating a customer with missing required fields, return 400 Bad Request  🆕
+    - When updating a customer with invalid field formats, return 422 Unprocessable Entity  🆕
+    - When updating a customer with unauthorized credentials, return 401 Unauthorized  🆕
+    - When updating a customer without sufficient permissions, return 403 Forbidden  🆕
+    - When updating a customer during system maintenance, return 503 Service Unavailable  🆕
+    - When updating a customer with conflicting data, return 409 Conflict  🆕
 
   security:
-    - When updating a customer with SQL injection in text fields, sanitize input and prevent attack  🆕
-    - When updating a customer with XSS script in text fields, escape output to prevent attack  🆕
-    - When attempting to update another customer's data without permission, return 403 Forbidden  🆕
+    - When updating a customer with SQL injection in fields, sanitize input and prevent execution  🆕
+    - When updating a customer with XSS script in text fields, escape content and prevent execution  🆕
     - When updating a customer with JWT token manipulation, reject with 401 Unauthorized  🆕
-    - When attempting path traversal in customer ID parameter, reject with 400 Bad Request  🆕
+    - When updating a customer with excessive request size, reject with 413 Payload Too Large  🆕
+    - When updating a customer with CSRF attack attempt, validate token and prevent update  🆕
+    - When updating a customer with another user's ID but valid token, return 403 Forbidden  🆕
 
 # DELETE /v1/customers/{id}
 DELETE /v1/customers/{id}:
   happy_case:
     - When deleting an existing customer with valid ID, return 200 OK with success message  🆕
-    - When deleting a customer with valid ID and proper authentication, customer should be removed from database  🆕
+    - When deleting a customer with valid ID and proper authorization, customer should be removed from database  🆕
     - When deleting a customer with valid ID, subsequent GET requests for that customer should return 404  🆕
 
   edge_case:
-    - When deleting a customer with ID at the upper boundary of integer limit, process correctly  🆕
-    - When deleting a customer with ID containing special characters (if UUID), handle properly  🆕
-    - When deleting the last customer in the database, system should handle empty customer list  🆕
-    - When deleting a customer with associated data in other tables, handle cascading deletes properly  🆕
+    - When deleting a customer with ID at maximum allowed length, process successfully  🆕
+    - When deleting a customer with ID at boundary value (e.g., max integer), handle correctly  🆕
+    - When deleting a customer that has associated data (orders, payments), handle dependencies appropriately  🆕
+    - When deleting the last customer in database, handle empty state correctly  🆕
 
   error_case:
     - When deleting a customer with non-existent ID, return 404 Not Found  🆕
-    - When deleting a customer without authentication, return 401 Unauthorized  🆕
-    - When deleting a customer with insufficient permissions, return 403 Forbidden  🆕
-    - When deleting a customer during database unavailability, return 500 Internal Server Error  🆕
-    - When deleting a customer that has active orders/dependencies, return 409 Conflict  🆕
+    - When deleting a customer without authentication token, return 401 Unauthorized  🆕
+    - When deleting a customer without proper permissions, return 403 Forbidden  🆕
+    - When deleting a customer during database outage, return 500 Internal Server Error  🆕
+    - When deleting a customer with malformed ID format, return 400 Bad Request  🆕
+    - When deleting a customer with ID that violates foreign key constraints, return 409 Conflict  🆕
 
   security:
-    - When customer ID contains SQL injection attempt, sanitize input and reject with 400  🆕
-    - When request includes forged authentication token, reject with 401  🆕
-    - When attempting to delete customer with elevated privileges from regular account, return 403  🆕
-    - When attempting path traversal in customer ID parameter, reject with 400  🆕
-    - When attempting to delete customer with stolen session cookie, verify session validity and reject with 401  🆕
+    - When deleting a customer with ID containing SQL injection payload, sanitize input and reject with 400  🆕
+    - When attempting to delete customer with another user's authentication token, return 403 Forbidden  🆕
+    - When attempting path traversal in customer ID (e.g., '../admin'), reject with 400  🆕
+    - When attempting to delete customer with expired or tampered JWT token, return 401 Unauthorized  🆕
+    - When attempting to delete customer with excessive requests (DoS), implement rate limiting  🆕
 
