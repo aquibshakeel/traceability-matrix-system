@@ -268,6 +268,20 @@ export class EnhancedCoverageAnalyzer {
   }
 
   private async analyzeAPI(api: string, categories: any, unitTests: UnitTest[], aiSuggestions: any = null): Promise<APIAnalysis> {
+    // Handle null/undefined categories (empty baseline entry)
+    if (!categories || categories === null) {
+      console.log(`  ℹ️  No scenarios in baseline - skipping analysis`);
+      return {
+        api,
+        scenarios: [],
+        coveredScenarios: 0,
+        partiallyCoveredScenarios: 0,
+        uncoveredScenarios: 0,
+        matchedTests: [],
+        gaps: []
+      };
+    }
+    
     const scenarios = this.flattenScenarios(categories);
     
     // If baseline has 0 scenarios, return empty analysis immediately
