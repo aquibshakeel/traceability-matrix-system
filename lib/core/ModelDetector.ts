@@ -49,31 +49,28 @@ export class ModelDetector {
         throw new Error('No models returned from API');
       }
 
-      // Preference order for model selection
-      const preferenceOrder = [
-        'claude-4',     // Claude 4.x family (newest)
-        'claude-3',     // Claude 3.x family
-      ];
-
-      // Find best available model
-      for (const prefix of preferenceOrder) {
-        const matchingModel = data.data.find((model: any) => 
-          model.id.startsWith(prefix) && 
-          (model.id.includes('sonnet') || model.id.includes('4'))
-        );
-        
-        if (matchingModel) {
-          console.log(`   ✓ Using: ${matchingModel.id} (${matchingModel.display_name})`);
-          this.cachedModel = matchingModel.id;
-          return matchingModel.id;
-        }
+      // Models API returns models sorted by newest first
+      // So we collect all Claude 4 and Claude 3 models, then pick best
+      const claude4Models = data.data.filter((m: any) => m.id.startsWith('claude-4'));
+      const claude3Models = data.data.filter((m: any) => m.id.startsWith('claude-3'));
+      
+      // Prefer Claude 4.x, then Claude 3.x
+      let selectedModel = null;
+      
+      if (claude4Models.length > 0) {
+        // Use first Claude 4 model (newest)
+        selectedModel = claude4Models[0];
+      } else if (claude3Models.length > 0) {
+        // Use first Claude 3 model (newest)
+        selectedModel = claude3Models[0];
+      } else {
+        // Fallback to first available model
+        selectedModel = data.data[0];
       }
-
-      // If no preferred model found, use the first available
-      const firstModel = data.data[0];
-      console.log(`   ✓ Using: ${firstModel.id} (${firstModel.display_name})`);
-      this.cachedModel = firstModel.id;
-      return firstModel.id;
+      
+      console.log(`   ✓ Using: ${selectedModel.id} (${selectedModel.display_name})`);
+      this.cachedModel = selectedModel.id;
+      return selectedModel.id;
 
     } catch (error) {
       console.warn(`   ⚠️  Models API failed, trying fallback detection...`);

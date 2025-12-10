@@ -1,0 +1,98 @@
+# AI-Generated Test Scenarios
+# Generated: 2025-12-10T00:18:00.005Z
+# (✅ = in baseline, 🆕 = new suggestion, 🔧 = modified, ⚠️ = verify)
+# DO NOT EDIT - regenerated automatically
+# Copy relevant 🆕 scenarios to baseline/customer-service-baseline.yml
+
+service: customer-service
+
+# GET /v1/customers/{id}
+GET /v1/customers/{id}:
+  happy_case:
+    - When requesting a customer with valid ID, return 200 with customer details  🆕
+    - When requesting a customer with valid ID as an authenticated user, return complete customer profile  🆕
+    - When requesting a customer with valid ID that has multiple addresses, return all addresses in response  🆕
+    - When requesting a customer with valid ID that has purchase history, include purchase summary in response  🆕
+
+  edge_case:
+    - When requesting a customer with ID at maximum allowed length, return valid response  🆕
+    - When requesting a customer with ID containing special characters (if allowed), return valid response  🆕
+    - When requesting a customer with ID of a newly created customer, return correct data  🆕
+    - When requesting a customer with ID of customer with no transaction history, return profile with empty transaction list  🆕
+
+  error_case:
+    - When requesting a customer with non-existent ID, return 404 Not Found  🆕
+    - When requesting a customer without authentication, return 401 Unauthorized  🆕
+    - When requesting a customer with insufficient permissions, return 403 Forbidden  🆕
+    - When requesting a customer during database outage, return 500 Internal Server Error  🆕
+    - When requesting a customer with invalid ID format, return 400 Bad Request  🆕
+
+  security:
+    - When requesting a customer with ID containing SQL injection patterns, sanitize input and reject with 400  🆕
+    - When requesting a customer with ID belonging to another user without proper authorization, return 403  🆕
+    - When requesting a customer with manipulated JWT token, reject with 401  🆕
+    - When requesting a customer with excessive requests from same IP, apply rate limiting  🆕
+    - When requesting a customer with ID containing path traversal attempts, reject with 400  🆕
+
+# PUT /v1/customers/{id}
+PUT /v1/customers/{id}:
+  happy_case:
+    - When updating a customer with valid ID and data, return 200 OK  🆕
+    - When updating a customer with minimal required fields, return 200 OK  🆕
+    - When updating a customer with all possible fields, return 200 OK  🆕
+    - When updating a customer with unchanged data, return 200 OK  🆕
+
+  edge_case:
+    - When updating a customer with empty request body, return appropriate response  🆕
+    - When updating a customer with maximum length values in fields, process successfully  🆕
+    - When updating a customer with Unicode characters in text fields, store correctly  🆕
+    - When updating a customer with boundary values (min/max) for numeric fields, accept valid ones  🆕
+    - When updating a customer with null values for optional fields, process successfully  🆕
+
+  error_case:
+    - When updating a non-existent customer ID, return 404 Not Found  🆕
+    - When updating a customer with invalid ID format, return 400 Bad Request  🆕
+    - When updating a customer with invalid data types, return 400 Bad Request  🆕
+    - When updating a customer with unauthorized credentials, return 401 Unauthorized  🆕
+    - When updating a customer without required permissions, return 403 Forbidden  🆕
+    - When updating a customer with server error, return 500 Internal Server Error  🆕
+    - When updating a customer with validation errors, return 422 Unprocessable Entity  🆕
+    - When updating a customer with conflicting data, return 409 Conflict  🆕
+
+  security:
+    - When updating a customer with SQL injection in fields, sanitize input and reject with 400  🆕
+    - When updating a customer with XSS payload in text fields, sanitize input and reject with 400  🆕
+    - When updating a customer with authentication token tampering, return 401 Unauthorized  🆕
+    - When updating a customer with excessive request size, reject with appropriate error  🆕
+    - When updating a customer with JWT token manipulation, reject with 401 Unauthorized  🆕
+    - When updating another customer's data with valid but unauthorized credentials, return 403 Forbidden  🆕
+
+# DELETE /v1/customers/{id}
+DELETE /v1/customers/{id}:
+  happy_case:
+    - When deleting a customer with valid ID, return 200 OK  🆕
+    - When deleting a customer with valid ID, customer should no longer exist in database  🆕
+    - When deleting a customer with valid ID, related resources should be properly handled  🆕
+    - When deleting a customer with valid ID that has no dependencies, return 200 OK  🆕
+
+  edge_case:
+    - When deleting a customer with ID at maximum allowed length, process successfully  🆕
+    - When deleting a customer with ID containing special characters (if allowed by ID format), process successfully  🆕
+    - When deleting the last customer in the system, process successfully  🆕
+    - When deleting a customer with many associated resources, handle cascade deletion properly  🆕
+
+  error_case:
+    - When deleting a customer with non-existent ID, return 404 Not Found  🆕
+    - When deleting a customer without authentication, return 401 Unauthorized  🆕
+    - When deleting a customer without proper permissions, return 403 Forbidden  🆕
+    - When deleting a customer with ID in invalid format, return 400 Bad Request  🆕
+    - When deleting a customer with dependencies that prevent deletion, return 409 Conflict  🆕
+    - When database connection fails during deletion, return 500 Internal Server Error  🆕
+
+  security:
+    - When customer ID contains SQL injection attempt, sanitize input and reject with 400  🆕
+    - When request includes manipulated authentication token, return 401 Unauthorized  🆕
+    - When attempting to delete customer with elevated privileges using regular user credentials, return 403 Forbidden  🆕
+    - When attempting path traversal in customer ID, reject with 400 Bad Request  🆕
+    - When attempting to delete customer after session timeout, require re-authentication  🆕
+
