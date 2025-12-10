@@ -249,6 +249,9 @@ Respond in JSON:
     if (!baseline || !baseline[apiKey]) return false;
     
     const baselineApi = baseline[apiKey];
+    // Handle null/undefined baseline API entries
+    if (!baselineApi || baselineApi === null) return false;
+    
     for (const category of ['happy_case', 'edge_case', 'error_case', 'security']) {
       const scenarios = baselineApi[category] || [];
       for (const baselineScenario of scenarios) {
