@@ -50,9 +50,14 @@ export class ModelDetector {
       }
 
       // Models API returns models sorted by newest first
-      // So we collect all Claude 4 and Claude 3 models, then pick best
-      const claude4Models = data.data.filter((m: any) => m.id.startsWith('claude-4'));
-      const claude3Models = data.data.filter((m: any) => m.id.startsWith('claude-3'));
+      // Claude 4.5 model IDs: claude-sonnet-4-5-..., claude-opus-4-5-..., claude-haiku-4-5-...
+      // Claude 3.x model IDs: claude-sonnet-3-7-..., claude-sonnet-3-5-...
+      const claude4Models = data.data.filter((m: any) => 
+        m.id.includes('-4-5-') || m.id.includes('-4-') 
+      );
+      const claude3Models = data.data.filter((m: any) => 
+        m.id.includes('-3-7-') || m.id.includes('-3-5-') || m.id.includes('-3-')
+      );
       
       // Prefer Claude 4.x, then Claude 3.x
       let selectedModel = null;
