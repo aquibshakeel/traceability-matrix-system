@@ -1,241 +1,357 @@
 # AI-Driven Test Coverage System - Features
 
-**Version:** 5.0.0  
+**Version:** 6.0.0  
 **Last Updated:** December 10, 2025
 
 ## 🎯 Overview
 
-Complete AI-powered test coverage analysis system with **bidirectional scenario completeness detection**, **change impact analysis**, orphan test categorization, Git change detection, and multi-format reporting.
+Complete AI-powered test coverage analysis system with orphan unit test detection with AI suggestions, orphan API detection, visual analytics, bidirectional scenario completeness detection, change impact analysis, and multi-format reporting.
 
 ---
 
 ## ✨ Core Features
 
-### 1. Bidirectional Scenario Completeness Detection ⭐ NEW in v5.0.0
+### 1. AI Test Case Generation
 
-**The most advanced feature - 3-layer intelligent analysis that ensures true API completeness.**
+**Generates comprehensive test scenarios from API specifications using Claude AI.**
 
-#### Layer 1: Forward Check (API Spec → Baseline)
-- **Analyzes API specifications** (Swagger/OpenAPI)
-- **Compares with QA baseline** to find missing scenarios
-- **Checks if unit tests exist** for each missing scenario
-- **Categorizes gaps:**
-  - Unit test exists but scenario missing → CRITICAL (QA must add)
-  - No unit test and no scenario → Completeness gap (QA review)
+#### What It Does:
+- Discovers APIs via Swagger/OpenAPI specs
+- Scans code for API endpoints  
+- Generates scenarios in categories: happy_case, edge_case, error_case, security
+- Compares with baseline to mark existing vs new suggestions
+- Saves to ai_cases folder for reference
 
-#### Layer 1b: Reverse Check (Unit Tests → Baseline)
-- **Finds unit tests without baseline scenarios**
-- **Reports as:** "No test case for: [test name]"
-- **Dual reporting:** Appears in both completeness gaps AND orphan tests
-- **Action:** QA reviews and adds scenario if business test
-
-#### Layer 2: Baseline ↔ Unit Tests (Core Matching)
-- **AI-powered semantic matching** using Claude
-- **Initial coverage status** per scenario
-- **NOT just string matching** - understands intent
-
-#### Layer 3: Status Adjustment (Intelligence)
-- **Adjusts status based on API completeness**
-- **FULLY_COVERED** only when:
-  - Baseline scenario has test ✓
-  - AND all API-suggested scenarios have tests ✓
-- **PARTIALLY_COVERED** when:
-  - Baseline scenario has test ✓
-  - BUT API suggests untested scenarios ⚠️
-- **Reason:** "API incomplete despite baseline covered"
-
-**Console Output:**
+#### Console Output:
 ```
-POST /api/customers:
-  ⚠️  API Completeness: 3 additional scenarios suggested
-     - No unit test for: "When created with invalid email, return 400"
-     - Unit test exists for: "When created with duplicate, return 409"
-  
-  🔍 Checking for unit tests without test cases...
-  ⚠️  Found 2 unit tests without baseline scenarios
-     - No test case for: "createCustomer_ShouldValidateEmail"
-  
-  📊 Status adjusted: "When customer created, return 201"
-     → PARTIALLY_COVERED (API incomplete)
+🤖 Generating AI test cases: customer-service
+📡 Discovering APIs...
+   ✓ Found 10 APIs
+
+🤖 AI generating scenarios...
+   Processing: POST /api/customers
+   Processing: GET /api/customers/{id}
+   ...
+
+📋 Comparing with baseline (25 scenarios)...
+   ✓ Saved: .traceability/test-cases/ai_cases/customer-service-ai.yml
 ```
 
 **Benefits:**
-- ✅ Prevents incomplete baselines (even when tests exist)
-- ✅ 100% API-driven (not static rules)
-- ✅ Detects tests without scenarios
-- ✅ Intelligent status based on API spec
-- ✅ Comprehensive visibility
+- ✅ Comprehensive scenario coverage
+- ✅ Consistent structure across APIs
+- ✅ Baseline comparison
+- ✅ Change tracking with markers
+
+### 2. Orphan Unit Test Detection with AI Suggestions
+
+**Detects unit tests that exist but have NO corresponding baseline scenarios, and provides AI-powered scenario suggestions.**
+
+#### What It Does:
+- **Reverse detection:** Finds unit tests without baseline scenarios
+- **AI-powered matching:** Searches AI-generated scenarios for best match
+- **Smart suggestions:** Provides scenario text for QA to add to baseline
+- **Per-API analysis:** Checks each API endpoint separately
+
+#### How It Works:
+```
+1. For each API, system finds unit tests related to that API
+2. Checks if each test has a matching scenario in baseline
+3. If no match found:
+   → Search AI-generated scenarios for semantic match
+   → If match found: Provide as 💡 AI Suggestion
+   → If no match: Generic recommendation
+
+4. Reports as P2 gap with actionable recommendations
+```
+
+#### Console Output:
+```
+/api/customer/{id}:
+  🔍 Checking for unit tests without test cases...
+  ⚠️  Found 2 unit tests without baseline scenarios
+     - No test case for: "getCustomer_ByEmail_ShouldReturn200"
+       💡 AI Suggestion: "When user fetches customer by email, return 200 with details"
+     - No test case for: "getCustomer_ByPhone_ShouldReturn200" (no AI suggestion available)
+```
+
+#### Report Output:
+```
+Coverage Gaps:
+  P2 | /api/customer/{id} | Unit test: getCustomer_ByEmail_ShouldReturn200
+  
+  Reason: Unit test exists but NO corresponding test case in baseline
+  
+  Recommendations:
+    ⚠️ ORPHAN UNIT TEST: Test exists without baseline scenario
+    Test: getCustomer_ByEmail_ShouldReturn200
+    File: CustomerControllerTest.java
+    💡 AI-Suggested Scenario: "When user fetches customer by email, return 200 with details"
+    Action: QA should add this AI-suggested scenario to baseline
+    If not suitable, create custom scenario based on test intent
+```
+
+**Benefits:**
+- ✅ Automatically suggests scenarios for orphan tests
+- ✅ Reduces QA effort in creating scenarios
+- ✅ Ensures baseline completeness
+- ✅ AI-powered intelligent matching
+- ✅ Clear, actionable recommendations
+
+### 3. Orphan API Detection
+
+**Identifies APIs that have ZERO scenarios AND ZERO tests (completely untracked endpoints).**
+
+#### What It Detects:
+- APIs with empty scenario sections in baseline
+- AND no unit tests covering those APIs
+- Completely "forgotten" or undocumented endpoints
+
+#### When It Triggers:
+- Both baseline scenarios = 0
+- AND unit tests = 0
+- For the same API endpoint
+
+#### Console Output:
+```
+✓ Baseline: 0 scenarios
+✓ Unit tests: 0 found
+
+ℹ️  Baseline and unit tests are both empty - skipping coverage analysis
+
+📊 API Coverage Summary:
+   Found 3 API endpoint(s) without test cases or unit tests:
+   - POST /api/customers (no baseline, no unit tests)
+   - GET /api/customers/{id} (no baseline, no unit tests)
+   - DELETE /api/customers/{id} (no baseline, no unit tests)
+
+⚠️  Orphan APIs: 3 APIs with no scenarios AND no tests
+
+✅ No blocking issues - proceed with development
+```
+
+#### Report Output:
+```
+Orphan APIs (3)
+
+⚠️ Critical: These APIs were discovered but have NO scenarios or tests.
+They are completely untracked and represent gaps in test coverage.
+
+Method | Endpoint              | Controller | Line | Scenario | Test
+-------|----------------------|------------|------|----------|-----
+POST   | /api/customers       | Unknown    | N/A  | ❌       | ❌
+GET    | /api/customers/{id}  | Unknown    | N/A  | ❌       | ❌
+DELETE | /api/customers/{id}  | Unknown    | N/A  | ❌       | ❌
+
+📋 Recommended Actions:
+  • Create scenarios to document expected behavior for each API
+  • Add unit tests to verify API functionality
+  • If APIs are deprecated, remove them from code
+  • Ensure all new APIs are created with tests
+```
+
+**Behavior:**
+- ⚠️ **Non-blocking:** Allows development to proceed
+- ℹ️ **Informational:** Provides visibility during initial development
+- 📊 **Report tracking:** Creates dedicated section in HTML report
+
+**When This is Normal:**
+- Initial development phase
+- Proof of concept
+- API scaffolding before implementation
+
+**Benefits:**
+- ✅ Complete visibility of untracked APIs
+- ✅ Prevents "forgotten" endpoints
+- ✅ Non-blocking for valid scenarios
+- ✅ Clear action items
+
+### 4. Visual Analytics Dashboard
+
+**Interactive charts and metrics in HTML reports for better insights.**
+
+#### Coverage Distribution
+- **Progress bars** showing fully covered, partially covered, and not covered scenarios
+- **Percentage calculations** for each category
+- **Visual indicators** with color coding (green/yellow/red)
+
+#### Gap Priority Breakdown
+- **Grid layout** showing P0, P1, P2, P3 gaps
+- **Large numbers** with color coding:
+  - P0 (Critical): Red
+  - P1 (High): Orange
+  - P2 (Medium): Yellow
+  - P3 (Low): Gray
+- **Quick identification** of priority areas
+
+#### Orphan Test Priority Breakdown
+- **Similar grid layout** for orphan tests
+- **Priority distribution** of business vs technical tests
+- **Action required indicators**
+
+#### Coverage Trends (Extensible)
+- **Current coverage snapshot**
+- **Historical tracking** capability (for future enhancement)
+- **Date-based metrics**
+
+#### HTML Report Section:
+```html
+Visual Analytics
+
+[Coverage Distribution]
+  ✅ Fully Covered: 15 ████████████████░░░░ 60%
+  ⚠️ Partially Covered: 5 ████░░░░░░░░░░░░░░░░ 20%
+  ❌ Not Covered: 5 ████░░░░░░░░░░░░░░░░ 20%
+
+[Gap Priority Breakdown]
+  ┌─────┬─────┬─────┬─────┐
+  │ P0  │ P1  │ P2  │ P3  │
+  │  3  │  5  │  8  │ 12  │
+  │ 🔴  │ 🟠  │ 🟡  │ ⚪  │
+  └─────┴─────┴─────┴─────┘
+
+[Orphan Test Priority Breakdown]
+  ┌─────┬─────┬─────┬─────┐
+  │ P0  │ P1  │ P2  │ P3  │
+  │  0  │  2  │  5  │ 10  │
+  └─────┴─────┴─────┴─────┘
+```
+
+**Benefits:**
+- ✅ At-a-glance insights
+- ✅ Visual priority identification
+- ✅ Better stakeholder communication
+- ✅ Data-driven decision making
+
+### 5. Bidirectional Scenario Completeness Detection
+
+**3-layer intelligent analysis ensuring true API completeness.**
+
+#### Layer 1: Forward Check (API Spec → Baseline)
+- Analyzes API specifications (Swagger/OpenAPI)
+- Compares with QA baseline to find missing scenarios
+- Checks if unit tests exist for each missing scenario
+
+#### Layer 1b: Reverse Check (Unit Tests → Baseline)
+- Finds unit tests without baseline scenarios
+- **NOW with AI suggestions** for scenario creation
+- Dual reporting in completeness gaps AND orphan tests
+
+#### Layer 2: Baseline ↔ Unit Tests
+- AI-powered semantic matching using Claude
+- Initial coverage status per scenario
+
+#### Layer 3: Status Adjustment
+- Adjusts status based on API completeness
+- Intelligent FULLY_COVERED vs PARTIALLY_COVERED decisions
 
 See `docs/SCENARIO-COMPLETENESS-DETECTION.md` for complete details.
 
-### 2. Change Impact Analysis ⭐ NEW in v5.0.0
+### 6. Change Impact Analysis
 
 **Tracks which tests are affected when code changes.**
 
-#### What It Detects:
-- **Git changes** (added/modified/removed files)
-- **Affected unit tests** for each changed file
-- **Lines changed** with before/after diff
-- **Impact on test coverage**
+- Git change detection (added/modified/removed files)
+- Affected unit tests identification
+- Lines changed tracking with before/after diff
+- Impact documentation in ai_cases
 
-#### How It Works:
-```typescript
-// 1. Detect changed files
-Git diff → CustomerController.java modified (lines 45-60)
+### 7. AI-Powered Coverage Analysis
 
-// 2. Find affected tests
-Search test directory → Find CustomerControllerTest
-Extract test methods → 3 tests affected
-
-// 3. Track change details
-Lines changed: 15
-Old code: [captured]
-New code: [captured]
-
-// 4. Document in ai_cases
-Mark scenarios with 🔧 and ⚠️
-List affected tests
-Provide recommendations
-```
-
-#### ai_cases File Output:
-```yaml
-# POST /api/customers
-# 🔧 CHANGE DETECTED - MODIFIED
-# File: CustomerController.java
-# Lines changed: 15
-# ⚠️ Affected tests (3):
-#   - createCustomer_ShouldReturn201_WhenValidData
-#   - createCustomer_ShouldReturn400_WhenInvalidEmail
-#   - createCustomer_ShouldReturn409_WhenDuplicateEmail
-# Action: Verify affected tests still pass, update if needed
-
-POST /api/customers:
-  happy_case:
-    - When customer created with valid data, return 201  ✅ ⚠️
-```
-
-**Benefits:**
-- ✅ Know which tests to re-run after changes
-- ✅ See impact of code modifications
-- ✅ Track coverage degradation
-- ✅ Before/after code comparison
-
-### 3. AI-Powered Coverage Analysis
 - **AI Model:** Claude 3.5 Sonnet
-- **Intelligent Matching:** Maps test scenarios to unit tests using natural language understanding
-- **Coverage Detection:** Identifies FULLY_COVERED, PARTIALLY_COVERED, and NOT_COVERED scenarios
-- **Gap Analysis:** Pinpoints missing tests with priority levels (P0/P1/P2/P3)
-- **Console Output:** Real-time analysis progress and results
+- **Intelligent Matching:** Natural language understanding for test-to-scenario mapping
+- **Coverage Detection:** FULLY_COVERED, PARTIALLY_COVERED, NOT_COVERED
+- **Gap Analysis:** Priority levels (P0/P1/P2/P3)
+- **Real-time Console Output:** Live analysis progress
 
-### 4. Orphan Test Categorization with AI
-- **Automatic Classification:** AI categorizes orphan tests into:
-  - **Technical Tests:** Infrastructure/utility tests (Entity, DTO, Mapper, etc.) - No action needed
-  - **Business Tests:** Controller/Service tests that need business scenarios - QA action required
-- **Priority Assignment:** P0 (critical) to P3 (low) based on test type
-- **Action Recommendations:** Clear guidance on which tests need scenarios
-- **Detailed Breakdown:** Groups tests by category and subtype
+### 8. Orphan Test Categorization with AI
 
-### 5. Git API Change Detection
+- **Automatic Classification:**
+  - Technical Tests (P3): Entity, DTO, Mapper tests
+  - Business Tests (P0-P2): Controller, Service tests requiring scenarios
+- **Priority Assignment:** Based on test type and importance
+- **Action Recommendations:** QA action required vs no action needed
+- **Detailed Breakdown:** Grouped by category and subtype
+
+### 9. Git API Change Detection
+
 - **Automatic Detection:** Scans git diffs for API changes
-- **Change Types:**
-  - APIs Added (new endpoints without tests)
-  - APIs Modified (parameter/response changes)
-  - APIs Removed (deleted endpoints)
-- **Framework Support:**
-  - Java Spring (@GetMapping, @PostMapping, @RequestMapping, etc.)
-  - Express.js (router.get, app.post, etc.)
-- **Impact Analysis:** Identifies APIs without test coverage
-- **Recommendations:** Actionable guidance for each change
+- **Change Types:** Added, Modified, Removed
+- **Framework Support:** Java Spring, Express.js, etc.
+- **Impact Analysis:** APIs without test coverage
+- **Actionable Recommendations**
 
-### 6. Multi-Format Report Generation
+### 10. Multi-Format Report Generation
 
 #### HTML Reports
-- **Interactive Dashboard** with visual analytics
-- **Summary Cards:** Coverage %, P0/P1 gaps, orphan tests
-- **Progress Bars:** Visual coverage indicators
-- **Git Changes Section:** Highlights new/modified/removed APIs
-- **API Coverage Analysis:** Per-endpoint scenario coverage
-- **Coverage Gaps Table:** Sortable, filterable gaps with priorities
-- **Orphan Test Analysis:** Categorized breakdown with action items
-- **Modern Design:** Gradient header, hover effects, responsive layout
-- **Auto-Open:** Automatically opens in browser after generation
+- Interactive dashboard with visual analytics
+- Summary cards with metrics
+- Orphan APIs section
+- Enhanced Orphan Tests section
+- Coverage gaps table
+- Git changes section
+- Modern design with responsive layout
 
 #### JSON Reports
-- **Machine-Readable:** For CI/CD integration
-- **Complete Data:** All analysis results structured
-- **API-Friendly:** Easy integration with custom tools
+- Machine-readable for CI/CD
+- Complete structured data
+- API-friendly integration
 
 #### CSV Reports
-- **Spreadsheet-Ready:** Import into Excel/Google Sheets
-- **Data Analysis:** Pivot tables, charts
-- **Scenario Tracking:** Coverage status per scenario
+- Spreadsheet-ready
+- Pivot table compatible
+- Excel/Google Sheets import
 
 #### Markdown Reports
-- **Documentation-Friendly:** For README, Wiki pages
-- **Git-Compatible:** Version control ready
-- **Stakeholder Reports:** Easy to share and read
+- Documentation-friendly
+- Git-compatible
+- Stakeholder reports
 
-### 7. AI Test Case Generation
-- **Swagger/OpenAPI Integration:** Automatically generates test scenarios from API specs
-- **Code-Based Discovery:** Scans controllers for undocumented APIs
-- **Comprehensive Coverage:**
-  - Happy path scenarios
-  - Edge cases
-  - Error scenarios
-  - Security scenarios
-- **Two-Folder System:**
-  - `baseline/`: QA-managed, version controlled
-  - `ai_cases/`: AI-generated, regenerated fresh
-- **Delta Analysis:** Compares AI suggestions vs baseline
+### 11. Multi-Language Support
 
-### 8. Multi-Language Support
-- **Java:** JUnit 4, JUnit 5, TestNG
-- **TypeScript/JavaScript:** Jest, Mocha, Jasmine
-- **Python:** Pytest, Unittest  
-- **Go:** Go Test
-- **Extensible:** Easy to add new language parsers
+- Java (JUnit 4/5, TestNG)
+- TypeScript/JavaScript (Jest, Mocha, Jasmine)
+- Python (Pytest, Unittest)
+- Go (Go Test)
+- Extensible architecture
 
-### 9. Pre-Commit Validation
-- **Automatic Hook:** Runs on every commit
-- **Two-Phase Process:**
-  1. AI test case generation
-  2. Coverage analysis & reporting
-- **Commit Blocking:** Blocks commits with P0 gaps
-- **Configurable:** P0/P1 blocking rules
-- **Comprehensive Output:** Shows all analysis steps
-- **Report Generation:** Creates all report formats on commit
+### 12. Pre-Commit Validation
+
+- Automatic git hook
+- Two-phase process (generation + analysis)
+- Commit blocking for P0/P1 gaps
+- Configurable rules
+- Comprehensive output
 
 ---
 
 ## 🔧 Technical Capabilities
 
 ### Analysis Engine
-- **Language-Agnostic:** Works with any programming language
-- **Framework-Independent:** Supports multiple testing frameworks
-- **AI-Powered:** Uses Claude API for intelligent analysis
-- **Fast Processing:** Efficient parsing and analysis
-- **Error Handling:** Graceful degradation on failures
+- Language-agnostic
+- Framework-independent
+- AI-powered (Claude API)
+- Fast processing
+- Graceful error handling
+- Orphan unit test detection
+- Orphan API detection
+- Visual analytics generation
 
 ### Report Generation
-- **Multiple Formats:** HTML, JSON, CSV, Markdown
-- **Beautiful HTML:** Modern design with charts and interactivity
-- **Auto-Open Browser:** HTML report opens automatically
-- **Comprehensive Data:** All analysis results included
-- **File Size Optimization:** Efficient storage
+- Multiple formats (HTML, JSON, CSV, Markdown)
+- Beautiful modern HTML design
+- Visual analytics charts
+- Orphan APIs section
+- Enhanced orphan tests section
+- Auto-open browser
+- File size optimization
 
 ### Git Integration
-- **Change Detection:** Analyzes staged and unstaged files
-- **API Extraction:** Parses controller files for endpoints
-- **Diff Analysis:** Tracks additions, modifications, deletions
-- **Service Correlation:** Maps changes to affected services
-- **Smart Filtering:** Focuses on service-related files
-
-### Configuration
-- **JSON-Based:** Easy to understand and modify
-- **Service-Specific:** Per-service settings
-- **Flexible Rules:** Configurable validation rules
-- **Pre-Commit Options:** Customizable blocking behavior
+- Change detection
+- API extraction
+- Diff analysis
+- Service correlation
+- Smart filtering
 
 ---
 
@@ -247,10 +363,16 @@ POST /api/customers:
 ======================================================================
 ✓ Baseline: 25 scenarios
 ✓ Unit tests: 42 found
+✓ AI suggestions available for review
 
 🤖 AI analyzing coverage...
 
 POST /api/customers:
+  🔍 Checking for unit tests without test cases...
+  ⚠️  Found 2 unit tests without baseline scenarios
+     - No test case for: "createCustomer_WithEmail_ShouldReturn201"
+       💡 AI Suggestion: "When customer created with valid email, return 201"
+  
   ✅ Covered: 8/10
   ⚠️  Gaps: 2 not covered, 0 partial
 
@@ -263,23 +385,31 @@ POST /api/customers:
 ✅ Covered: 20/25
 ⚠️  Gaps: P0=0, P1=2, P2=3
 🔍 Orphans: 12 tests (2 need scenarios)
+⚠️  Orphan APIs: 0
 
 📄 Generating reports...
-  ✅ HTML: .traceability/reports/customer-service-report.html (45.2 KB)
-  ✅ JSON: .traceability/reports/customer-service-report.json (12.3 KB)
-  ✅ CSV: .traceability/reports/customer-service-report.csv (3.1 KB)
-  ✅ MARKDOWN: .traceability/reports/customer-service-report.md (5.4 KB)
+  ✅ HTML: .traceability/reports/customer-service-report.html (52.8 KB)
+  ✅ JSON: .traceability/reports/customer-service-report.json (15.1 KB)
+  ✅ CSV: .traceability/reports/customer-service-report.csv (3.5 KB)
+  ✅ MARKDOWN: .traceability/reports/customer-service-report.md (6.2 KB)
 
 🌐 Opening HTML report...
 ```
 
-### Git Change Detection
+### Orphan API Detection Output
 ```
-🔍 Detecting Git changes...
-  Found 5 changed files
-  3 service files changed
-  API Changes: +2 ~1 -0
-  ⚠️  2 new APIs without tests!
+✓ Baseline: 0 scenarios
+✓ Unit tests: 0 found
+
+ℹ️  Baseline and unit tests are both empty - skipping coverage analysis
+
+📊 API Coverage Summary:
+   Found 3 API endpoint(s) without test cases or unit tests:
+   - POST /api/customers (no baseline, no unit tests)
+   - GET /api/customers/{id} (no baseline, no unit tests)
+   - DELETE /api/customers/{id} (no baseline, no unit tests)
+
+✅ No blocking issues - proceed with development
 ```
 
 ---
@@ -291,20 +421,22 @@ POST /api/customers:
 # Set API key
 export CLAUDE_API_KEY="sk-ant-..."
 
-# Run analysis (with all features)
+# Run analysis (includes all new features)
 npm run continue
 
-# Generates:
-# - Console output with real-time analysis
-# - HTML report (auto-opens in browser)
-# - JSON report for CI/CD
-# - CSV report for spreadsheets
-# - Markdown report for documentation
+# Or for specific service
+node bin/ai-continue customer-service
 ```
 
-### Generate Test Scenarios
+### Generate Test Scenarios (Required for AI Suggestions)
 ```bash
+# Generate AI scenarios first
 npm run generate
+# OR
+node bin/ai-generate-api customer-service
+
+# Then run coverage analysis to get AI suggestions
+npm run continue
 ```
 
 ### Pre-Commit Hook
@@ -312,31 +444,8 @@ npm run generate
 # Install hook
 npm run install:hooks
 
-# Runs automatically on commit
+# Runs automatically on commit with all features
 git commit -m "Your message"
-```
-
-### Independent Service Analysis
-The system can analyze any service independently:
-
-```bash
-# Configure service in .traceability/config.json
-{
-  "services": [
-    {
-      "name": "your-service",
-      "enabled": true,
-      "path": "path/to/service",
-      "language": "java",
-      "testFramework": "junit",
-      "testDirectory": "src/test/java",
-      "testPattern": "*Test.java"
-    }
-  ]
-}
-
-# Run analysis
-npm run continue
 ```
 
 ---
@@ -344,15 +453,16 @@ npm run continue
 ## 📋 Report Contents
 
 ### HTML Report Includes:
+
 1. **Summary Cards**
-   - Coverage percentage with progress bar
-   - Critical gaps (P0) count
-   - High priority gaps (P1) count
+   - Coverage % with progress bar
+   - Critical gaps (P0)
+   - High priority gaps (P1)
    - Orphan tests count
 
-2. **Git Changes Section** (if detected)
+2. **Git Changes Section**
    - APIs added/modified/removed
-   - Warning for APIs without tests
+   - Warnings for APIs without tests
 
 3. **API Coverage Analysis**
    - Per-endpoint breakdown
@@ -360,42 +470,27 @@ npm run continue
    - Matched tests per scenario
 
 4. **Coverage Gaps Table**
-   - Priority badges (P0/P1/P2/P3)
-   - API endpoint
-   - Scenario description
+   - Priority badges
+   - Orphan unit test entries with AI suggestions
    - Reason for gap
-   - Recommendations
+   - Recommendations with 💡 AI suggestions
 
-5. **Orphan Tests Analysis**
+5. **Orphan APIs Section**
+   - Table of completely untracked APIs
+   - Method, Endpoint, Status indicators
+   - Recommended actions
+
+6. **Orphan Tests Section**
    - Technical vs Business categorization
-   - Subtype breakdown
-   - Priority levels
+   - Priority breakdown table
+   - Suggested fix column
    - Action required flags
 
-### JSON Report Structure:
-```json
-{
-  "service": "customer-service",
-  "timestamp": "2025-12-09T18:30:00.000Z",
-  "summary": {
-    "coveragePercent": 82.5,
-    "p0Gaps": 0,
-    "p1Gaps": 2,
-    "p2Gaps": 3
-  },
-  "orphanTests": {
-    "total": 12,
-    "technical": 10,
-    "business": 2,
-    "categorization": [...]
-  },
-  "gitChanges": {
-    "summary": {...},
-    "changes": [...]
-  },
-  "apis": [...]
-}
-```
+7. **Visual Analytics Section**
+   - Coverage Distribution charts
+   - Gap Priority Breakdown grid
+   - Orphan Test Priority grid
+   - Coverage trends
 
 ---
 
@@ -405,59 +500,101 @@ npm run continue
 - ✅ Pre-commit validation catches gaps early
 - ✅ Clear guidance on what tests to write
 - ✅ Automatic API change detection
+- ✅ **NEW:** Know which tests are missing scenarios
+- ✅ **NEW:** See orphan APIs immediately
 - ✅ Fast feedback loop
 
 ### For QA
 - ✅ AI-generated test scenarios
 - ✅ Gap analysis with priorities
+- ✅ AI-suggested scenarios for orphan tests
+- ✅ Orphan API visibility
+- ✅ Visual analytics for stakeholders
 - ✅ Orphan test categorization
 - ✅ Multiple report formats
 - ✅ Action item tracking
 
 ### For Teams
 - ✅ Comprehensive coverage visibility
+- ✅ Visual analytics dashboard
+- ✅ Complete API tracking (no orphans)
 - ✅ Git integration for change tracking
-- ✅ Historical trend analysis (via JSON reports)
-- ✅ Stakeholder-friendly HTML reports
+- ✅ Historical trend analysis
+- ✅ Stakeholder-friendly reports
 - ✅ CI/CD integration ready
 
 ---
 
-## 🔍 Technical Details
+## 🔍 Technical Implementation Details
+
+### Features Architecture
+
+#### Orphan Unit Test Detection
+```typescript
+// File: lib/core/EnhancedCoverageAnalyzer.ts
+
+// 1. Find unit tests without baseline scenarios
+private findUnscenarioedTests(
+  baselineScenarios: string[],
+  unitTests: UnitTest[],
+  api: string
+): UnitTest[]
+
+// 2. Match with AI-generated scenarios
+private findMatchingAIScenario(
+  test: UnitTest,
+  aiScenarios: string[]
+): string | null
+
+// 3. Report as P2 gap with AI suggestion
+```
+
+#### Orphan API Detection
+```typescript
+// File: lib/core/EnhancedCoverageAnalyzer.ts
+
+// 1. Detect APIs with no scenarios AND no tests
+private detectOrphanAPIs(
+  baseline: any,
+  unitTests: UnitTest[],
+  apiAnalyses: APIAnalysis[]
+): OrphanAPIInfo[]
+
+// 2. Extract HTTP method
+private extractHttpMethod(api: string): string
+```
+
+#### Visual Analytics
+```typescript
+// File: lib/core/EnhancedCoverageAnalyzer.ts
+
+// Calculate all analytics data
+private calculateVisualAnalytics(
+  apiAnalyses: APIAnalysis[],
+  gaps: GapAnalysis[],
+  orphanAnalysis: OrphanTestAnalysis
+): VisualAnalytics
+```
+
+### File Structure
+```
+lib/
+├── core/
+│   ├── EnhancedCoverageAnalyzer.ts   # Coverage analysis with orphan detection
+│   ├── ReportGenerator.ts            # Multi-format reporting with analytics
+│   ├── GitChangeDetector.ts
+│   ├── AITestCaseGenerator.ts
+│   ├── SwaggerParser.ts
+│   └── TestParserFactory.ts
+└── types.ts                           # Type definitions
+```
 
 ### AI Model
 - **Provider:** Anthropic Claude
 - **Model:** claude-3-5-sonnet-20241022
-- **Temperature:** 0.2 (focused, deterministic)
-- **Max Tokens:** 1500-3000 (depending on task)
-
-### File Structure
-```
-project/
-├── lib/
-│   ├── core/
-│   │   ├── EnhancedCoverageAnalyzer.ts    # Main analysis engine
-│   │   ├── GitChangeDetector.ts           # Git integration
-│   │   ├── ReportGenerator.ts             # Multi-format reports
-│   │   ├── AITestCaseGenerator.ts         # Scenario generation
-│   │   ├── SwaggerParser.ts               # API discovery
-│   │   └── TestParserFactory.ts           # Test parsing
-│   └── parsers/
-│       ├── JavaTestParser.ts
-│       ├── TypeScriptTestParser.ts
-│       └── ...
-├── bin/
-│   ├── ai-generate                        # Test generation CLI
-│   └── ai-continue                        # Coverage analysis CLI
-├── scripts/
-│   └── pre-commit.sh                      # Git hook
-└── .traceability/
-    ├── config.json                        # Configuration
-    ├── reports/                           # Generated reports
-    └── test-cases/
-        ├── baseline/                      # QA-managed scenarios
-        └── ai_cases/                      # AI-generated scenarios
-```
+- **Temperature:** 0.2 (deterministic)
+- **Max Tokens:** 2000-3000 (context-dependent)
+- **Features:** Semantic matching, scenario generation, test categorization
 
 ---
 
@@ -470,11 +607,32 @@ project/
 
 ---
 
+## 📝 Version History
+
+### v6.0.0 (December 10, 2025) - Current
+- Orphan Unit Test Detection with AI-suggested scenarios
+- Orphan API Detection for completely untracked endpoints
+- Visual Analytics Dashboard in HTML reports
+- Enhanced reporting with new sections
+- Improved console output with AI suggestions
+
+### v5.0.0
+- Bidirectional Scenario Completeness Detection
+- Change Impact Analysis
+- Enhanced AI categorization
+
+### v4.0.0
+- Multi-format reporting
+- Git integration
+- Orphan test categorization
+
+---
+
 ## 📝 License
 
 MIT
 
 ---
 
-**Generated by:** AI-Driven Test Coverage System v5.0.0  
+**Generated by:** AI-Driven Test Coverage System v6.0.0  
 **Last Updated:** December 10, 2025

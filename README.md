@@ -1,22 +1,25 @@
-# AI-Driven Test Coverage System v5.0.0
+# AI-Driven Test Coverage System v6.0.0
 
-Complete AI-powered test coverage analysis with bidirectional scenario completeness detection, change impact analysis, orphan categorization, and multi-format reporting.
+Complete AI-powered test coverage analysis with **orphan unit test detection with AI suggestions**, **orphan API detection**, **visual analytics**, bidirectional scenario completeness detection, change impact analysis, and multi-format reporting.
 
 ## 🎯 What It Does
 
 ### Core Features
 
 1. **AI Test Case Generation** - Generates comprehensive test scenarios from API specs
-2. **Bidirectional Scenario Completeness Detection** (NEW!) - 3-layer intelligent analysis
+2. **AI Coverage Analysis** - Intelligent scenario-to-test matching with gap detection
+3. **Bidirectional Scenario Completeness Detection** - 3-layer intelligent analysis
    - Forward Check: API spec → Baseline (detects missing scenarios)
-   - Reverse Check: Unit tests → Baseline (detects tests without scenarios)
+   - Reverse Check: Unit tests → Baseline (detects tests without scenarios with AI suggestions)
    - Status Adjustment: FULLY_COVERED only when API complete
-3. **AI Coverage Analysis** - Intelligent scenario-to-test matching with gap detection
-4. **Change Impact Analysis** (NEW!) - Tracks affected tests when code changes
-5. **Orphan Test Categorization** - AI categorizes orphans as Technical vs Business
-6. **Git Change Detection** - Automatically detects API changes and missing tests
-7. **Multi-Format Reports** - HTML, JSON, CSV, and Markdown reports
-8. **Pre-Commit Validation** - Comprehensive two-phase validation on every commit
+4. **Orphan Unit Test Detection with AI Suggestions** - Detects unit tests without baseline scenarios and provides AI-powered scenario suggestions
+5. **Orphan API Detection** - Identifies APIs with NO scenarios AND NO tests (completely untracked)
+6. **Orphan Test Categorization** - AI categorizes orphans as Technical vs Business
+7. **Git Change Detection** - Automatically detects API changes and missing tests
+8. **Change Impact Analysis** - Tracks affected tests when code changes
+9. **Visual Analytics Dashboard** - Interactive charts showing coverage distribution, gap priorities, orphan test breakdowns
+10. **Multi-Format Reports** - HTML with visual analytics, JSON, CSV, and Markdown
+11. **Pre-Commit Validation** - Comprehensive two-phase validation on every commit
 
 ## 🚀 Quick Start
 
@@ -369,16 +372,63 @@ mkdir -p .traceability/reports
 
 ## 📚 Documentation
 
-- `FEATURES.md` - Complete feature documentation
-- `PROJECT-AUDIT.md` - System consistency audit
-- `.traceability/test-cases/baseline/example-baseline.yml` - Example baseline
-- `scripts/pre-commit.sh` - Pre-commit hook implementation
+- **Complete Guides:**
+  - `docs/DEV_GUIDE.md` - Developer guide with implementation details
+  - `docs/QA_GUIDE.md` - QA guide for test scenario management
+  - `docs/TESTING-GUIDE.md` - Comprehensive testing guide
+  - `docs/SCENARIO-COMPLETENESS-DETECTION.md` - Completeness detection details
+- **Feature Documentation:**
+  - `FEATURES.md` - Complete feature list with examples
+  - `IMPLEMENTATION_SUMMARY.md` - Implementation overview
+- **Examples:**
+  - `.traceability/test-cases/baseline/example-baseline.yml` - Example baseline
 
-## 🌟 What's New in v5.0.0
+---
 
-### Major Features Added
+## 📜 Version History
 
-1. **Bidirectional Scenario Completeness Detection** ⭐ NEW!
+### v6.0.0 (December 10, 2025) - Current Release
+
+**Major Features:**
+
+1. **Orphan Unit Test Detection with AI Suggestions**
+   - Detects unit tests that exist but have NO corresponding baseline scenarios
+   - Provides AI-powered scenario suggestions from ai_cases
+   - Reports as P2 gaps with "💡 AI Suggestion: ..." in recommendations
+   - Helps QA create appropriate baseline scenarios faster
+   - Console shows: "🔍 Checking for unit tests without test cases..."
+
+2. **Orphan API Detection**
+   - Identifies APIs with ZERO scenarios AND ZERO tests (completely untracked)
+   - Special handling when both baseline=0 and tests=0
+   - Non-blocking - allows development to proceed
+   - Shows "⚠️ Orphan APIs: X APIs..." in console
+   - Creates dedicated "Orphan APIs" section in HTML report
+
+3. **Visual Analytics Dashboard**
+   - Coverage Distribution with progress bars
+   - Gap Priority Breakdown grid (P0/P1/P2/P3)
+   - Orphan Test Priority Breakdown
+   - Color-coded metrics for quick insights
+   - Interactive charts in HTML reports
+
+4. **Enhanced Reverse Check (Layer 1b)**
+   - NOW provides AI-suggested scenarios for orphan unit tests
+   - Semantic matching between test names and AI scenarios
+   - Falls back to generic recommendations if no AI match found
+
+**Improvements:**
+- ✅ AI-powered scenario suggestions for orphan unit tests
+- ✅ Complete visibility of untracked APIs (orphan APIs)
+- ✅ Visual analytics for better stakeholder communication
+- ✅ Enhanced HTML reports with new sections
+- ✅ Improved console output with AI suggestions (💡)
+- ✅ All documentation updated to v6.0.0
+
+### v5.0.0
+**Major Features:**
+
+1. **Bidirectional Scenario Completeness Detection**
    - **3-Layer Intelligent Analysis**
      - Layer 1: API Spec → Baseline (detects missing scenarios)
      - Layer 1b: Unit Tests → Baseline (detects tests without scenarios) 
@@ -393,7 +443,7 @@ mkdir -p .traceability/reports
      - Orphan tests (test-centric view)
    - See `docs/SCENARIO-COMPLETENESS-DETECTION.md` for details
 
-2. **Change Impact Analysis** ⭐ NEW!
+2. **Change Impact Analysis**
    - Detects code changes via Git
    - Identifies affected unit tests
    - Tracks lines changed with before/after diff
@@ -407,7 +457,8 @@ mkdir -p .traceability/reports
    - Status adjustment notifications
    - Detailed gap categorization
 
-### Previous Features (v4.0.0)
+### v4.0.0
+**Features:**
 
 4. **Orphan Test Categorization with AI**
    - Automatic classification: Technical vs Business
@@ -431,7 +482,7 @@ mkdir -p .traceability/reports
    - Better progress output
    - Multi-format report generation
 
-### Improvements in v5.0.0
+**Improvements:**
 - ✅ True API-driven completeness detection
 - ✅ Bidirectional gap analysis
 - ✅ Intelligent status adjustment based on API spec
@@ -440,13 +491,6 @@ mkdir -p .traceability/reports
 - ✅ All documentation updated to match implementation
 - ✅ Better error messages and recommendations
 
-## 📚 Additional Documentation
-
-- `docs/TESTING-GUIDE.md` - Complete testing guide for all features
-- `docs/SCENARIO-COMPLETENESS-DETECTION.md` - Detailed completeness detection guide
-- `FEATURES.md` - Complete feature list with examples
-- `PROJECT-AUDIT.md` - System consistency audit
-- `.traceability/test-cases/baseline/example-baseline.yml` - Example baseline
 
 ## 📄 License
 
@@ -462,8 +506,8 @@ For issues or questions:
 
 ---
 
-**Version:** 5.0.0  
+**Version:** 6.0.0  
 **Release Date:** December 10, 2025  
 **Status:** Production Ready  
 **Build:** ✅ Passing  
-**Features:** Complete with Bidirectional Completeness Detection & Change Impact Analysis
+**Features:** Complete with Orphan Unit Test Detection (AI Suggestions), Orphan API Detection, Visual Analytics, Bidirectional Completeness Detection & Change Impact Analysis

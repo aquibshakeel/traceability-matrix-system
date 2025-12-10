@@ -1,8 +1,7 @@
-# QA Guide (QA_GUIDE.md)
-## AI-Driven Test Coverage System
+# QA Guide - AI-Driven Test Coverage System
 
-**Version:** 5.0.0  
-**Last Updated:** December 10, 2025  
+**Version:** 6.0.0
+**Last Updated:** December 10, 2025
 **Audience:** QA Engineers, Test Managers, Business Analysts
 
 ---
@@ -10,1036 +9,420 @@
 ## 📋 Table of Contents
 
 1. [What is This System?](#what-is-this-system)
-2. [What's New in v5.0.0](#whats-new-in-v50)
-3. [How It Works](#how-it-works)
-3. [Matching Techniques & Strategies](#matching-techniques--strategies)
-4. [Working Mechanics](#working-mechanics)
-5. [Pre-Commit Integration](#pre-commit-integration)
-6. [Manual Execution (QA Workflow)](#manual-execution-qa-workflow)
-7. [Onboarding a New Service](#onboarding-a-new-service)
-8. [Writing Business Scenarios](#writing-business-scenarios)
-9. [Local Testing Commands](#local-testing-commands)
-10. [Understanding Reports](#understanding-reports)
-11. [Action Flows](#action-flows)
-12. [Validation Checklist](#validation-checklist)
-13. [Troubleshooting & Escalation](#troubleshooting--escalation)
-
----
-
-## ⭐ What's New in v5.0.0
-
-### Major Features for QA
-
-#### 1. Bidirectional Scenario Completeness Detection
-**What It Means for QA:**
-- System now performs 3-layer intelligent analysis
-- Detects scenarios missing from baseline (even if tests exist)
-- Finds tests without scenarios ("No test case for: [test]")
-- Smart status: FULLY_COVERED only when API truly complete
-
-**QA Impact:**
-- More accurate gap detection
-- Baseline completeness verification
-- Better visibility into missing scenarios
-- Actionable recommendations
-
-#### 2. Change Impact Analysis
-**What It Means for QA:**
-- Tracks which tests are affected by code changes
-- Shows before/after code comparison
-- Identifies scenarios needing re-verification
-- Documents impact in ai_cases files
-
-**QA Impact:**
-- Know which scenarios to re-test
-- Track regression risk
-- Faster impact assessment
-- Better change documentation
-
-#### 3. Enhanced Console Output
-**What You'll See:**
-```
-POST /api/customers:
-  ⚠️  API Completeness: 3 additional scenarios suggested
-     - No unit test for: "When created with invalid email..."
-  
-  🔍 Checking for unit tests without test cases...
-  ⚠️  Found 2 unit tests without baseline scenarios
-     - No test case for: "createCustomer_ShouldValidateEmail"
-```
-
-**QA Benefits:**
-- Real-time completeness feedback
-- Clear warnings about gaps
-- Specific action items
-- Better traceability
-
-See `docs/SCENARIO-COMPLETENESS-DETECTION.md` for complete details.
+2. [Quick Start](#quick-start)
+3. [How Claude AI Works](#how-claude-ai-works)
+4. [QA Workflow](#qa-workflow)
+5. [Writing Business Scenarios](#writing-business-scenarios)
+6. [Understanding Reports](#understanding-reports)
+7. [Advanced Features](#advanced-features)
+8. [Onboarding a New Service](#onboarding-a-new-service)
+9. [Quick Reference](#quick-reference)
+10. [Version History](#version-history)
 
 ---
 
 ## 🎯 What is This System?
 
-### Purpose & Scope
+### Purpose
 
-The **Universal Unit-Test Traceability Validator** is an automated system that ensures **every business scenario has corresponding unit test coverage**. It creates a bridge between:
+An **AI-powered system** that uses **Claude AI** to automatically validate whether business scenarios have corresponding unit test coverage. It ensures developers can't commit code for critical scenarios without tests.
 
-- **Business Requirements** (what QA documents)
-- **Unit Tests** (what developers write)
-- **Traceability** (proof that requirements are tested)
+### Core Technology
+
+**🤖 Powered by Claude AI (Anthropic)**
+- Natural language understanding
+- No manual pattern matching
+- 100% AI-driven analysis
+- Auto-detects best Claude model
 
 ### Key Benefits for QA
 
-✅ **Automated Validation** - Runs on every developer commit  
-✅ **Clear Traceability** - See exactly which scenarios have test coverage  
-✅ **Gap Detection** - Automatically identifies missing tests  
-✅ **Beautiful Reports** - HTML dashboards you can share with stakeholders  
-✅ **Suggested Fixes** - System tells you exactly what actions to take  
-✅ **P0 Protection** - Critical scenarios without tests block commits  
+✅ **Automated Validation** - Runs on every developer commit
+✅ **AI-Generated Scenarios** - Claude AI suggests test scenarios from APIs
+✅ **AI-Powered Matching** - Claude AI maps scenarios to tests intelligently
+✅ **Smart Recommendations** - AI provides context-aware suggestions
+✅ **Orphan Detection** - AI categorizes orphan tests (Technical vs Business)
+✅ **Visual Dashboards** - Interactive charts for stakeholder presentations
+✅ **Multiple Reports** - HTML, JSON, CSV, Markdown formats
 
 ### What Problems Does It Solve?
 
 **Before:**
-- ❌ Scenarios exist in documents but no link to actual tests
 - ❌ No way to verify if requirements are tested
 - ❌ Manual tracking in spreadsheets
-- ❌ Tests added but no one knows which scenario they cover
-- ❌ Features ship without tests, causing regressions
+- ❌ Features ship without test coverage
+- ❌ Unclear which tests cover which scenarios
 
 **After:**
-- ✅ Automated scenario → test mapping
+- ✅ Automated scenario → test mapping via Claude AI
 - ✅ Real-time coverage visibility
-- ✅ P0 scenarios MUST have tests (enforced automatically)
-- ✅ Clear reports showing gaps
-- ✅ Developers can't commit untested P0 features
-
-### Scope
-
-**What It Covers:**
-- Unit test coverage validation
-- Business scenario traceability
-- API endpoint coverage
-- Gap analysis and reporting
-- Orphan test categorization
-
-**What It Doesn't Cover:**
-- Integration test coverage (separate tool)
-- E2E test coverage (separate tool)
-- Code coverage metrics (use JaCoCo, Istanbul, etc.)
-- Test execution or results (use test runners)
+- ✅ P0 scenarios MUST have tests (enforced)
+- ✅ AI-generated scenario suggestions
+- ✅ Clear reports showing gaps and recommendations
 
 ---
 
-## ⚙️ How It Works
+## ⚡ Quick Start
 
-### High-Level Architecture
+### Prerequisites
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                    QA Team Activities                         │
-│  • Write business scenarios in YAML/JSON/Markdown            │
-│  • Define priorities (P0/P1/P2/P3)                           │
-│  • Set risk levels (Critical/High/Medium/Low)                │
-│  • Add acceptance criteria                                   │
-└────────────────────┬─────────────────────────────────────────┘
-                     │
-                     ▼
-┌──────────────────────────────────────────────────────────────┐
-│              Scenario Files Stored in Repository             │
-│  .traceability/scenarios/service-name.scenarios.yaml         │
-└────────────────────┬─────────────────────────────────────────┘
-                     │
-                     ▼
-┌──────────────────────────────────────────────────────────────┐
-│                 Developer Commits Code                        │
-│  git commit -m "Add feature"                                 │
-└────────────────────┬─────────────────────────────────────────┘
-                     │
-                     ▼
-┌──────────────────────────────────────────────────────────────┐
-│              Pre-Commit Hook Triggers                         │
-│  • Detects changed files                                     │
-│  • Identifies affected services                              │
-│  • Runs validation automatically                             │
-└────────────────────┬─────────────────────────────────────────┘
-                     │
-                     ▼
-┌──────────────────────────────────────────────────────────────┐
-│                  Validation Process                           │
-│                                                               │
-│  1. Load Scenarios (from .traceability/scenarios/)           │
-│  2. Parse Unit Tests (Java, TypeScript, Python, etc.)        │
-│  3. Semantic Matching (AI/fuzzy matching)                    │
-│  4. Gap Analysis (scenarios without tests)                   │
-│  5. Orphan Detection (tests without scenarios)               │
-│  6. Generate Reports (HTML, JSON, MD, CSV)                   │
-└────────────────────┬─────────────────────────────────────────┘
-                     │
-                     ▼
-┌──────────────────────────────────────────────────────────────┐
-│                  Decision Point                               │
-│                                                               │
-│  ❌ P0 Gaps Found → BLOCK COMMIT                             │
-│     - Show which scenarios lack tests                        │
-│     - Display gap report                                     │
-│     - Exit with error code                                   │
-│                                                               │
-│  ✅ No P0 Gaps → ALLOW COMMIT                                │
-│     - Show coverage statistics                               │
-│     - Generate reports                                       │
-│     - Continue with commit                                   │
-└──────────────────────────────────────────────────────────────┘
-```
-
-### Data Flow
-
-```
-Scenarios (YAML/JSON/MD)
-         ↓
-    Scenario Loader
-         ↓
-   Parsed Scenarios ──────────┐
-                              │
-Unit Tests (Java/TS/etc)      │
-         ↓                    │
-    Test Parser               │
-         ↓                    │
-   Parsed Tests ──────────────┤
-                              ↓
-                      Semantic Matcher
-                              ↓
-                     Matching Analysis
-                              ↓
-                ┌─────────────┴─────────────┐
-                ↓                           ↓
-           Gaps Found              Orphans Found
-                ↓                           ↓
-           Gap Analyzer           Orphan Categorizer
-                │                           │
-                └───────────┬───────────────┘
-                            ↓
-                    Report Generator
-                            ↓
-              ┌─────────────┼─────────────┐
-              ↓             ↓             ↓
-            HTML          JSON        Markdown
-```
-
----
-
-## 🧠 Matching Techniques & Strategies
-
-The system uses **7 advanced matching strategies** to map scenarios to tests:
-
-### 1. Exact Matching (Weight: 2.0)
-
-**What:** Direct string match, highest confidence  
-**Used For:** API endpoints, scenario IDs  
-**Example:**
-```yaml
-Scenario: apiEndpoint: /api/customer/:id
-Test: mockMvc.perform(get("/api/customer/123"))
-Match: ✅ 100% (exact endpoint match)
-```
-
-### 2. Fuzzy Matching (Weight: 1.5)
-
-**What:** Token-based similarity, handles typos and word order  
-**Algorithm:** Jaccard similarity, token overlap  
-**Example:**
-```yaml
-Scenario: "When user creates customer with valid data"
-Test: "test creates valid customer data"
-Match: ✅ 85% (similar tokens, different order)
-```
-
-### 3. Semantic Matching (Weight: 1.2)
-
-**What:** Context-aware matching with synonym expansion  
-**Synonyms Configured:**
-- create = add, insert, new, post
-- read = get, fetch, retrieve, find
-- update = modify, edit, change, put
-- delete = remove, destroy, drop
-
-**Example:**
-```yaml
-Scenario: "When user deletes customer"
-Test: "testRemoveCustomer()"
-Match: ✅ 80% ("delete" = "remove" are synonyms)
-```
-
-### 4. Keyword Matching (Weight: 1.0)
-
-**What:** Matches important domain keywords  
-**Keywords:** HTTP methods, status codes, entities, actions  
-**Example:**
-```yaml
-Scenario: "Customer returns 404 for invalid ID"
-Test: "testInvalidCustomerId404()"
-Match: ✅ 75% (keywords: customer, 404, invalid, id)
-```
-
-### 5. Levenshtein Distance
-
-**What:** Edit distance algorithm, catches typos  
-**Example:**
-```yaml
-Scenario: "validate customer email"
-Test: "validateCustomrEmail()" 
-Match: ✅ 90% (only 1 character different)
-```
-
-### 6. Jaccard Similarity
-
-**What:** Set-based similarity of words  
-**Example:**
-```yaml
-Scenario: "create new customer account"
-Test: "testCreateCustomerAccount()"
-Match: ✅ 88% (3 of 4 words match)
-```
-
-### 7. Regex Pattern Matching
-
-**What:** Custom pattern matching for specific formats  
-**Example:**
-```yaml
-Scenario: "API-001"
-Test: "/** Tests API-001 **/"
-Match: ✅ 100% (explicit reference)
-```
-
-### Match Score Calculation
-
-```typescript
-// Weighted score calculation
-finalScore = 
-  (exact × 2.0) + 
-  (fuzzy × 1.5) + 
-  (semantic × 1.2) + 
-  (keyword × 1.0)
-
-confidence = (finalScore / maxPossibleScore) × 100
-
-// Decision thresholds
-if (confidence >= 75%) → "Fully Covered" ✅
-if (confidence >= 60%) → "Partially Covered" ⚠️
-if (confidence < 60%)  → "Not Covered" ❌
-```
-
-### Threshold Configuration
-
-**Default:** 65% minimum confidence  
-**Configurable:** Can be adjusted in `.traceability/config.json`
-
-```json
-{
-  "matching": {
-    "defaultThreshold": 0.65,
-    "strategies": ["exact", "fuzzy", "semantic", "keyword"]
-  }
-}
-```
-
----
-
-## 🔄 Working Mechanics
-
-### Step-by-Step Process
-
-#### Step 1: QA Authors Scenarios
-
-**File:** `.traceability/scenarios/customer-service.scenarios.yaml`
-
-```yaml
-scenarios:
-  - id: CUST-001
-    description: When user creates customer with valid data, returns 201
-    apiEndpoint: /api/customer
-    httpMethod: POST
-    priority: P1
-    riskLevel: High
-    category: Happy Path
-    tags: [api, create, customer]
-    acceptanceCriteria:
-      - Response status is 201
-      - Customer ID is returned
-      - Data is saved in database
-```
-
-**QA Actions:**
-1. Create/update scenario file
-2. Commit to repository
-3. Notify developers of new scenarios
-
-#### Step 2: Developer Writes Unit Test
-
-**File:** `CustomerControllerTest.java`
-
-```java
-@Test
-@DisplayName("When user creates customer with valid data, returns 201")
-public void testCreateCustomerWithValidData() {
-    // Arrange
-    CustomerRequest request = new CustomerRequest("John", "john@example.com");
-    
-    // Act
-    ResponseEntity<CustomerResponse> response = 
-        controller.createCustomer(request);
-    
-    // Assert
-    assertEquals(201, response.getStatusCodeValue());
-    assertNotNull(response.getBody().getCustomerId());
-}
-```
-
-**Developer Actions:**
-1. Write unit test
-2. Run test locally (ensure it passes)
-3. Commit code
-
-#### Step 3: Pre-Commit Validation Runs
-
-**Triggered Automatically:**
 ```bash
-git commit -m "Add customer creation feature"
-
-# System automatically runs:
-# ╔════════════════════════════════════════════╗
-# ║  Unit-Test Traceability Validator          ║
-# ╚════════════════════════════════════════════╝
-# 
-# 📝 Analyzing customer-service...
-# ✓ Loaded 15 scenarios
-# ✓ Found 12 unit tests
-# ✓ Performing semantic matching...
+# Required
+export CLAUDE_API_KEY="sk-ant-your-key-here"
 ```
 
-#### Step 4: System Performs Matching
+### First Time Setup
 
-**Matching Process:**
-1. **Load:** Read CUST-001 scenario description
-2. **Parse:** Extract test name and @DisplayName
-3. **Match:** Compare using 7 strategies
-4. **Score:** Calculate confidence (e.g., 95%)
-5. **Classify:** "Fully Covered" ✅
+```bash
+# 1. Generate AI scenarios from APIs
+npm run generate
 
-**Match Result:**
-```
-CUST-001 → testCreateCustomerWithValidData()
-Match Score: 95%
-Status: ✅ Fully Covered
-Strategies Used: exact, fuzzy, semantic
-```
+# 2. Review AI suggestions
+# Edit: .traceability/test-cases/baseline/<service>-baseline.yml
 
-#### Step 5: Gap Analysis
+# 3. Analyze coverage
+npm run continue
 
-**Scenario Examples:**
-
-**Example A: Covered Scenario**
-```
-CUST-001: Create customer with valid data
-✅ Matched to: testCreateCustomerWithValidData()
-Match: 95%
-Status: Fully Covered
+# 4. Open HTML report
+open .traceability/reports/<service>-report.html
 ```
 
-**Example B: Gap Found**
-```
-CUST-002: Create customer with duplicate email returns 409
-❌ No matching test found
-Status: Not Covered
-Priority: P0
-Action: BLOCK COMMIT
-```
+### Daily Usage
 
-**Example C: Orphan Test**
-```
-Test: testCustomerMapperMapsToDto()
-❌ No matching scenario
-Category: 🔧 Technical (DTO test)
-Action: No action needed
-```
+```bash
+# Check coverage status
+npm run continue
 
-#### Step 6: Report Generation
-
-**Generated Files:**
-```
-.traceability/reports/
-├── traceability-report.html    # Visual dashboard
-├── traceability-report.json    # Machine-readable data
-├── traceability-report.md      # Documentation
-└── traceability-report.csv     # Spreadsheet import
-```
-
-#### Step 7: Decision
-
-**Scenario A: Commit Allowed**
-```
-✓ VALIDATION PASSED
-Coverage: 85%
-P0 Gaps: 0
-P1 Gaps: 2 (warnings only)
-
-📊 View report: .traceability/reports/traceability-report.html
-
-✅ Commit proceeding...
-```
-
-**Scenario B: Commit Blocked**
-```
-✗ VALIDATION FAILED
-❌ Critical (P0) Gaps: 2
-
-CUST-002: Create customer with duplicate email
-CUST-005: Authentication required
-
-📊 View detailed report for recommendations
-💡 Fix these gaps and try again
-
-❌ Commit BLOCKED
+# View reports
+open .traceability/reports/<service>-report.html
 ```
 
 ---
 
-## 🔗 Pre-Commit Integration
+## 🤖 How Claude AI Works
 
-### How Pre-Commit Works
+### AI-Powered Analysis (Not Manual Matching)
 
-**Automatic Execution:**
-```bash
-# When developer commits:
-git commit -m "Add feature"
+**Important:** This system uses Claude AI with natural language understanding, NOT manual fuzzy matching, pattern matching, or similarity algorithms.
 
-# Hook automatically executes:
-.git/hooks/pre-commit → scripts/pre-commit.sh
-
-# Script performs:
-1. Detect changed files (git diff)
-2. Identify affected services
-3. Run validation for those services
-4. Check for P0/P1 gaps
-5. Generate reports
-6. Exit with appropriate code
-```
-
-### Master Pre-Commit Script Workflow
-
-**Location:** `scripts/pre-commit.sh`
+### Auto Model Selection
 
 **What It Does:**
+- System automatically selects the best Claude model for your needs
+- Analyzes codebase size and complexity
+- Chooses optimal Claude model
+- **Default:** claude-3-5-sonnet-20241022 (optimized for coverage analysis)
 
-```bash
-#!/bin/bash
-# 1. SETUP
-echo "🧪 Unit-Test Traceability Validator"
-echo "═══════════════════════════════════"
+**Why It Matters:**
+- Ensures optimal performance
+- Reduces unnecessary API costs
+- Maintains accuracy with intelligent model selection
+- Transparent model selection in logs
 
-# 2. DETECT CHANGES
-changed_files=$(git diff --cached --name-only)
-affected_services=$(identify_services_from_files "$changed_files")
-
-# 3. LOAD SCENARIOS
-for service in $affected_services; do
-  load_scenarios ".traceability/scenarios/$service.scenarios.yaml"
-done
-
-# 4. ANALYZE TESTS
-for service in $affected_services; do
-  parse_tests "$service"
-done
-
-# 5. PERFORM MATCHING
-semantic_matching_engine
-calculate_coverage
-identify_gaps
-
-# 6. GENERATE REPORTS
-generate_html_report
-generate_json_report
-generate_markdown_report
-
-# 7. CHECK P0 GAPS
-if [ $p0_gaps -gt 0 ]; then
-  echo "❌ BLOCKING: P0 gaps found"
-  exit 1
-fi
-
-# 8. CHECK P1 GAPS (if configured)
-if [ $p1_gaps -gt 0 ] && [ $blockOnP1 == true ]; then
-  echo "❌ BLOCKING: P1 gaps found"
-  exit 1
-fi
-
-# 9. SUCCESS
-echo "✓ VALIDATION PASSED"
-exit 0
+**How It Works:**
 ```
+Codebase Analysis:
+  • Scans codebase size (KB)
+  • Counts services and APIs
+  • Evaluates complexity level
 
-### P0 vs P1 Behavior
-
-#### P0 (Critical Priority)
-
-**Behavior:** **BLOCKS commits**
-
-```yaml
-- id: CUST-AUTH
-  description: Request without auth token returns 401
-  priority: P0  # Critical
-  riskLevel: Critical
-```
-
-**If No Test Found:**
-```
-❌ CRITICAL GAP DETECTED
-Scenario: CUST-AUTH
-Priority: P0
-Status: No test found
-
-🚫 COMMIT BLOCKED
-
-Action Required:
-- Developer must write unit test
-- Test must achieve 75%+ match confidence
-- Re-run validation after adding test
-```
-
-#### P1 (High Priority)
-
-**Behavior:** **WARNING only** (doesn't block)
-
-```yaml
-- id: CUST-UPDATE
-  description: Update customer with valid data returns 200
-  priority: P1  # High
-  riskLevel: High
-```
-
-**If No Test Found:**
-```
-⚠️  HIGH PRIORITY GAP
-Scenario: CUST-UPDATE
-Priority: P1
-Status: No test found
-
-✅ COMMIT ALLOWED (warning only)
-
-Recommendation:
-- Add test in next sprint
-- Track in backlog
-- QA should create ticket
-```
-
-#### P2/P3 (Medium/Low Priority)
-
-**Behavior:** **Informational** (no blocking, no warnings)
-
-```
-ℹ️  Coverage Gap (P2)
-Status: Informational only
-Action: Optional - add when time permits
-```
-
-### Configuration
-
-**File:** `.traceability/config.json`
-
-```json
-{
-  "preCommit": {
-    "enabled": true,
-    "blockOnP0Gaps": true,       // Block commits for P0 gaps
-    "blockOnP1Gaps": false,      // Don't block for P1 (default)
-    "validateChangedServicesOnly": true  // Only validate changed services
-  }
-}
+Model Selection:
+  if (codebaseSize < 500KB && apiCount < 50)
+    → claude-3-5-sonnet (optimal for small-medium projects)
+  else
+    → claude-3-5-sonnet (handles any size)
 ```
 
 ---
 
-## 🚀 Manual Execution (QA Workflow)
+## 🔄 QA Workflow
 
-### Why Two Phases?
+### Daily Workflow
 
-**Important:** Even though pre-commit runs both phases automatically, they are separated for a specific reason:
-
-**Phase 1 is designed for QA to run independently!**
-
-| Phase | Command | Purpose | When QA Uses It |
-|-------|---------|---------|-----------------|
-| **Phase 1** | `npm run generate` | Generate AI test scenarios from APIs | **QA runs this separately** to get AI suggestions for baseline |
-| **Phase 2** | `npm run continue` | Analyze test coverage against baseline | After developers write tests |
-
-### QA Workflow Benefits
-
-**Phase 1 Separate Execution:**
-```bash
-# QA runs this when:
-# - New APIs are added
-# - Swagger specs are updated
-# - Need to refresh test scenario ideas
-npm run generate
-
-# Result: ai_cases/ folder has AI suggestions
-# QA Action: Review, add/update/remove scenarios in baseline/
+```
+1. Developer adds new API
+       ↓
+2. Pre-commit runs - AI generates scenarios
+       ↓
+3. QA Reviews AI suggestions
+       ↓
+4. Developer adds unit tests
+       ↓
+5. Pre-commit validation - AI analyzes coverage
+       ↓
+6. (If gaps exist) Fix issues
+       ↓
+7. Commit Successful ✅
 ```
 
-**Why This Matters:**
-- ✅ **QA Control:** QA team decides which AI suggestions to add to baseline
-- ✅ **Baseline Management:** Add, update, or remove scenarios independently
-- ✅ **Flexibility:** Don't wait for pre-commit - generate scenarios anytime
-- ✅ **Planning:** Use AI suggestions for test planning and sprint work
-
-**Pre-Commit Integration:**
-- Pre-commit automatically runs **both phases together**
-- But QA can still run Phase 1 separately whenever needed
-- This separation gives QA full control over baseline management
-
-### How to Use Phase 1 (QA Independent Generation)
-
-#### Running Phase 1 Separately
+### QA Daily Commands
 
 ```bash
-# Set Claude API key (one time setup)
-export CLAUDE_API_KEY="sk-ant-your-key"
+# Morning: Check current coverage
+npm run continue
+open .traceability/reports/customer-service-report.html
 
-# Run Phase 1 - Generate AI test scenarios
+# After baseline updates: Verify changes
+npm run continue
+
+# Before sprint planning: Generate fresh scenarios
 npm run generate
-
-# Output location
-.traceability/test-cases/ai_cases/{service}-ai.yml
+npm run continue
 ```
 
-#### When QA Should Run Phase 1
+---
 
-| Situation | Action | Benefit |
-|-----------|--------|---------|
-| New APIs added | Run `npm run generate` | Get AI suggestions for new endpoints |
-| Swagger updated | Run `npm run generate` | Refresh scenarios based on latest API specs |
-| Sprint planning | Run `npm run generate` | Use AI suggestions for test planning |
-| Baseline refresh needed | Run `npm run generate` | Get new scenario ideas from AI |
+## ✍️ Writing Business Scenarios
 
-#### Phase 1 QA Workflow
+### Scenario Format
 
-1. **Run Generation:** Execute `npm run generate`
-2. **Review AI Output:** Check `.traceability/test-cases/ai_cases/`
-3. **Evaluate Scenarios:** Decide which AI suggestions are valuable
-4. **Update Baseline:** Add/modify scenarios in `baseline/{service}.yml`
-5. **Commit Changes:** Push updated baseline to git
+Use "When...Then..." format:
 
-💡 **Key Point:** Phase 1 is **QA-driven**. You control what goes into the baseline. AI provides suggestions, but you make the final decisions based on your domain knowledge and testing strategy!
+```yaml
+service: customer-service
 
-### QA Commands Reference
+POST /api/customers:
+  happy_case:
+    - When customer created with valid data, return 201 with customer ID
+  error_case:
+    - When customer created with missing email, return 400 with validation error
+  security:
+    - When customer created without auth token, return 401
+```
 
-#### Command 0: Generate Test Cases for Single API (QA-Only Feature) ⭐ NEW!
+---
 
-**Use Case:** Quickly generate AI test scenarios for ONE specific API endpoint
+## 📊 Understanding Reports
 
+### Report Sections
+
+1. **Summary Cards** - Coverage %, critical gaps, orphan tests
+2. **Git Changes** - APIs added/modified/removed with warnings
+3. **API Coverage Breakdown** - Per-endpoint scenario status
+4. **Coverage Gaps** - P0/P1/P2/P3 gaps with AI suggestions
+5. **Orphan Tests** - Uncovered tests with categorization
+6. **Visual Analytics** - Charts and priority grids
+
+### Coverage Gaps with AI Suggestions
+
+```
+[P0] POST /api/customers/bulk
+  Reason: No test cases in baseline
+  Status: ORPHAN UNIT TEST
+
+  Test: createCustomerBulk_ShouldValidateInput()
+  File: CustomerControllerTest.java
+  💡 AI Suggestion: "When customers created in bulk with invalid format, return 400"
+  
+  Action: Add scenario to baseline or improve test documentation
+```
+
+---
+
+## 🔧 Manual Execution
+
+### Command 1: Generate AI Scenarios
 ```bash
-# Generate scenarios for a specific API
-npm run generate:api -- --service customer-service --endpoint "POST /api/customers"
+npm run generate
+# Or: node bin/ai-generate-api customer-service
+```
 
-# With custom output path
-npm run generate:api -- --service customer-service --endpoint "GET /api/customers/{id}" --output my-scenarios.json
+### Command 2: Analyze Coverage
+```bash
+npm run continue
+# Or: node bin/ai-continue customer-service
+```
+
+### Command 3: Combined Workflow
+```bash
+npm run generate && npm run continue
+```
+
+---
+
+## 🚀 Advanced Features
+
+### 1. Git Change Detection & Impact Analysis
+
+**What It Does:**
+- Detects APIs added/modified/removed in current commit
+- Identifies affected unit tests
+- Warns about APIs without tests
+- Shows impact on coverage
+
+**Implementation File:** `lib/core/GitChangeDetector.ts`
+
+**Example Output:**
+```
+Git Changes Detected:
+  • Added: POST /api/orders (5 new endpoints)
+  • Modified: POST /api/customers (signature changed)
+  • Removed: POST /api/legacy (deprecated)
+
+Impact Analysis:
+  ⚠️ WARNING: POST /api/orders has NO unit tests
+  ⚠️ WARNING: Modified endpoint - verify tests still valid
+  ✓ Deprecated endpoint removed successfully
+
+Recommendation:
+  → Add unit tests for 5 new /api/orders endpoints
+  → Verify POST /api/customers tests cover new signature
 ```
 
 **When to Use:**
-- New API endpoint added
-- Want to refresh scenarios for one specific endpoint
-- Need inspiration for test cases
-- Don't want to regenerate all APIs
+- Code review process
+- Pre-commit validation
+- Release planning
+- Risk assessment
 
-**Output:**
+---
+
+### 2. Bidirectional Scenario Completeness Detection (3-Layer)
+
+**3-Layer Architecture:**
+
+**Layer 1: API Spec → Baseline (Forward Check)**
+- Analyzes Swagger/OpenAPI specifications
+- Checks baseline for corresponding scenarios
+- Identifies missing scenario documentation
+- Reports gaps with priorities (P0-P3)
+
+**Layer 1b: Unit Tests → Baseline (Reverse Check - NEW)**
+- Finds unit tests WITHOUT baseline scenarios
+- Matches with AI-generated scenarios
+- Provides AI suggestions for missing scenarios
+- Categorizes as orphan tests
+
+**Layer 2: Baseline ↔ Unit Tests (Semantic Matching)**
+- AI-powered semantic matching using Claude
+- Maps scenarios to unit tests
+- Calculates coverage status per scenario
+- Detects partial coverage
+
+**Layer 3: Intelligent Status Adjustment**
+- Adjusts coverage based on API completeness
+- Determines FULLY_COVERED vs PARTIALLY_COVERED
+- Considers edge cases and error scenarios
+- Prioritizes by business impact
+
+**See Also:** `docs/SCENARIO-COMPLETENESS-DETECTION.md`
+
+---
+
+### 3. Orphan Test Categorization with AI Reasoning
+
+**Automatic Classification:**
+
+**Business Tests (Require Baseline Scenarios):**
+- Controller/API tests (HTTP endpoints)
+- Service tests (business logic)
+- Integration tests
+- Priority: P0-P2 (gaps need action)
+
+**Technical Tests (No Scenarios Needed):**
+- Entity/Model tests (data structures)
+- DTO tests (data transfer objects)
+- Mapper tests (model-to-DTO conversion)
+- Utility tests (helper functions)
+- Priority: P3 (no action required)
+
+**Example Categorization:**
 ```
-╔════════════════════════════════════════════════════════════╗
-║  🤖 AI Test Case Generator - Single API                   ║
-║  QA Tool for Generating Scenarios for One Endpoint        ║
-╚════════════════════════════════════════════════════════════╝
+BUSINESS TESTS (5) - Action Required:
+  P0 | CustomerController.getCustomer() → 💡 Suggestion available
+  P1 | CustomerService.validateEmail() → Create custom scenario
+  P2 | CustomerService.createBulk() → 💡 Suggestion available
 
-📋 Service: customer-service
-🔗 Endpoint: POST /api/customers
+TECHNICAL TESTS (3) - No Action Needed:
+  P3 | CustomerEntity.getId() → Entity test (skip)
+  P3 | CustomerMapper.toDTO() → Mapper test (skip)
+  P3 | CustomerDTO.validate() → DTO test (skip)
 
-✓ Service configuration loaded
-🔍 Analyzing endpoint: POST /api/customers
-✓ Found Swagger specification
-✓ Endpoint found in Swagger
-
-🤖 Generating test scenarios with AI...
-✓ Scenarios generated successfully
-
-✅ Success! Test scenarios generated
-📄 Output file: .traceability/test-cases/ai_cases/customer-service-POST__api_customers-ai.json
-
-📊 Summary:
-   Categories: 4
-   Total Scenarios: 15
-
-📝 Generated Scenarios:
-────────────────────────────────────────────────────────────
-
-  HAPPY CASE (4):
-    1. When customer created with valid data, return 201
-    2. When customer ID is generated and returned
-    3. When customer data is persisted to database
-    4. When response includes all required fields
-
-  EDGE CASE (3):
-    1. When created with only required fields
-    2. When name contains special characters
-    3. When email has international format
-
-  ERROR CASE (5):
-    1. When created with missing email, return 400
-    2. When created with invalid email format, return 400
-    3. When created with duplicate email, return 409
-    4. When created without required fields, return 422
-    5. When server error occurs, return 500
-
-  SECURITY (3):
-    1. When created without auth token, return 401
-    2. When created with invalid token, return 401
-    3. When SQL injection attempted, reject with 400
-
-────────────────────────────────────────────────────────────
-
-💡 Next Steps:
-   1. Review the generated scenarios
-   2. Add relevant scenarios to your baseline file
-   3. Baseline location: .traceability/test-cases/baseline/customer-service.yml
-```
-
-**Examples:**
-
-```bash
-# Different HTTP methods
-npm run generate:api -- --service customer-service --endpoint "GET /api/customers"
-npm run generate:api -- --service customer-service --endpoint "PUT /api/customers/{id}"
-npm run generate:api -- --service customer-service --endpoint "DELETE /api/customers/{id}"
-
-# With path parameters
-npm run generate:api -- --service identity-service --endpoint "GET /api/users/{id}"
-npm run generate:api -- --service payment-service --endpoint "POST /api/payments/{id}/refund"
+Summary:
+  Business Tests Needing Scenarios: 5
+  Technical Tests: 3
+  Total Orphan Tests: 8
 ```
 
-**Benefits:**
-- ✅ **Fast:** Only generates for one API (seconds vs minutes)
-- ✅ **Focused:** Get scenarios for exactly what you need
-- ✅ **Flexible:** Run anytime without affecting other APIs
-- ✅ **Independent:** Doesn't trigger full generation flow
+**How AI Determines Category:**
+- Analyzes test class name and location
+- Evaluates test purpose and assertions
+- Checks if test touches business logic
+- Determines if customer impact exists
 
-**Generated File Format:**
-```json
-{
-  "service": "customer-service",
-  "generated_at": "2025-12-10T04:05:00.000Z",
-  "generated_by": "AI Test Case Generator - Single API Tool",
-  "endpoint": {
-    "method": "POST",
-    "path": "/api/customers",
-    "full": "POST /api/customers"
-  },
-  "scenarios": {
-    "happy_case": [
-      "When customer created with valid data, return 201",
-      "Customer ID is generated and returned"
-    ],
-    "edge_case": [
-      "When created with only required fields"
-    ],
-    "error_case": [
-      "When created with missing email, return 400"
-    ],
-    "security": [
-      "When created without auth token, return 401"
-    ]
-  }
-}
+---
+
+### 4. Multi-Language Test Parser Support
+
+**Supported Languages:**
+- ✅ Java (JUnit 4/5, Mockito, Spring Test)
+- ✅ Python (pytest, unittest)
+- ✅ TypeScript/JavaScript (Jest, Mocha, Jasmine)
+- ✅ Go (testing package, testify)
+
+**Auto-Detection Process:**
+```
+1. Scan codebase directory
+2. Detect language by file extension (.java, .py, .ts, .go)
+3. Select appropriate parser from lib/parsers/
+4. Extract test methods and assertions
+5. Analyze test coverage
+6. Generate reports with language-specific insights
 ```
 
-#### Command 1: Validate All Services
+**Parser Details:**
 
-**Use Case:** Weekly/sprint validation, comprehensive check
+**Java Parser** (`lib/parsers/JavaTestParser.ts`):
+- Detects: `@Test`, `@ParameterizedTest` annotations
+- Frameworks: JUnit 4, JUnit 5, Mockito, Spring Test
+- Handles: Nested test classes, parameterized tests
 
-```bash
-# Run validation for all services
-npm run validate
+**Python Parser** (`lib/parsers/PythonTestParser.ts`):
+- Detects: `test_*` functions, `Test*` classes
+- Frameworks: pytest, unittest
+- Handles: Parameterized tests, fixtures
 
-# Or using script directly
-./scripts/pre-commit.sh --all
+**TypeScript Parser** (`lib/parsers/TypeScriptTestParser.ts`):
+- Detects: `test()`, `it()`, `describe()` blocks
+- Frameworks: Jest, Mocha, Jasmine
+- Handles: Async tests, snapshots
 
-# With verbose output
-npm run validate -- --all --verbose
+**Go Parser** (`lib/parsers/GoTestParser.ts`):
+- Detects: `Test*` functions
+- Frameworks: testing package, testify
+- Handles: Table-driven tests, subtests
+
+**Configuration Output:**
 ```
+📝 Multi-Language Test Analysis:
 
-**Output:**
-```
-╔════════════════════════════════════════════╗
-║  Unit-Test Traceability Validator          ║
-╚════════════════════════════════════════════╝
+Service: customer-service
+Primary Language: Java
+Secondary Language: TypeScript (UI tests)
 
-Validating 2 services...
-✓ customer-service (85% coverage)
-✓ identity-service (92% coverage)
+Java Configuration:
+  Test Framework: JUnit 5
+  Test Directory: src/test/java
+  Found Tests: 42 (35 unit, 7 integration)
 
-Overall Coverage: 88.5%
-Total Scenarios: 30
-Total Tests: 25
-Gaps: 5 (1 P0, 2 P1, 2 P2)
+TypeScript Configuration:
+  Test Framework: Jest
+  Test Directory: src/__tests__
+  Found Tests: 28 (20 unit, 8 E2E)
 
-📊 Reports generated:
-  .traceability/reports/traceability-report.html
-```
-
-#### Command 2: Validate Single Service
-
-**Use Case:** After QA adds scenarios for specific service
-
-```bash
-# Validate only customer-service
-npm run validate -- --service customer-service
-
-# Or
-./scripts/pre-commit.sh --service customer-service
-
-# With verbose matching details
-npm run validate -- --service customer-service --verbose
-```
-
-**Output:**
-```
-Validating: customer-service
-✓ Loaded 15 scenarios
-✓ Found 12 tests
-✓ Matching complete
-
-Coverage: 80%
-Fully Covered: 12
-Partially Covered: 1
-Not Covered: 2
-```
-
-#### Command 3: Dry-Run Mode
-
-**Use Case:** Test validation without affecting anything
-
-```bash
-# Dry run - won't fail/block, just reports
-npm run validate -- --dry-run
-
-# Useful for:
-# - Testing new scenarios before committing
-# - Checking coverage without blocking
-# - QA validation workflow
-```
-
-**Output:**
-```
-🔍 DRY RUN MODE (informational only)
-
-Validation Results:
-✓ Scenarios: 20
-✓ Tests: 18
-❌ P0 Gaps: 1
-
-Note: This is a dry run. No blocking occurs.
-```
-
-#### Command 4: Specific Format Output
-
-**Use Case:** Generate only HTML or JSON
-
-```bash
-# Generate only HTML report
-npm run validate -- --all --format html
-
-# Generate only JSON (for automation)
-npm run validate -- --all --format json
-
-# Generate multiple formats
-npm run validate -- --all --format html --format json
-```
-
-###Manual Execution Examples
-
-#### Example 1: QA Daily Workflow
-
-```bash
-# Morning: Check current state
-npm run validate --all
-
-# Open report
-open .traceability/reports/traceability-report.html
-
-# Review gaps and create JIRA tickets
-```
-
-#### Example 2: After Adding New Scenarios
-
-```bash
-# 1. QA adds scenarios to file
-vim .traceability/scenarios/customer-service.scenarios.yaml
-
-# 2. Validate to see gaps
-npm run validate -- --service customer-service
-
-# 3. Review report
-open .traceability/reports/traceability-report.html
-
-# 4. Create tickets for developers based on gaps
-```
-
-#### Example 3: Pre-Sprint Planning
-
-```bash
-# Generate comprehensive report
-npm run validate --all --verbose
-
-# Export to CSV for spreadsheet
-# File: .traceability/reports/traceability-report.csv
-
-# Share HTML report with stakeholders
+Cross-Language Coverage:
+  Total Tests: 70
+  Languages Analyzed: 2
+  Combined Coverage: 78%
 ```
 
 ---
 
 ## 📦 Onboarding a New Service
 
-### Step 1: Identify Service Details
+### Step 1: Add Service Configuration
 
-**Information Needed:**
-- Service name (e.g., "payment-service")
-- Programming language (Java, TypeScript, Python, Go)
-- Test framework (JUnit, Jest, Pytest, go-test)
-- Test directory path
-- Test file pattern
-
-### Step 2: Create Scenario File
-
-**Location:** `.traceability/scenarios/[service-name].scenarios.yaml`
-
-```bash
-# Create scenario file
-cat > .traceability/scenarios/payment-service.scenarios.yaml << 'EOF'
-scenarios:
-  - id: PAY-001
-    description: When user processes payment with valid card, returns 200
-    apiEndpoint: /api/payment
-    httpMethod: POST
-    priority: P0
-    riskLevel: Critical
-    category: Payment Processing
-    tags: [payment, card, transaction]
-    acceptanceCriteria:
-      - Payment is processed
-      - Transaction ID is returned
-      - Receipt is generated
-EOF
-```
-
-### Step 3: Add Service to Configuration
-
-**File:** `.traceability/config.json`
+**Edit:** `.traceability/config.json`
 
 ```json
 {
@@ -1051,300 +434,128 @@ EOF
       "language": "java",
       "testFramework": "junit",
       "testDirectory": "src/test/java",
-      "testPattern": "*Test.java",
-      "scenarioFile": ".traceability/scenarios/payment-service.scenarios.yaml",
-      "scenarioFormat": "yaml"
+      "testPattern": "*Test.java"
     }
   ]
 }
 ```
 
-**Configuration Parameters:**
-
-| Parameter | Description | Examples |
-|-----------|-------------|----------|
-| `name` | Unique service identifier | "payment-service", "auth-service" |
-| `enabled` | Enable/disable validation | `true` or `false` |
-| `path` | Relative path to service root | "services/payment-service", "./payment" |
-| `language` | Programming language | "java", "typescript", "python", "go" |
-| `testFramework` | Test framework used | "junit", "jest", "pytest", "go-test" |
-| `testDirectory` | Path to test files | "src/test/java", "test/", "__tests__" |
-| `testPattern` | File name pattern | "*Test.java", "*.test.ts", "test_*.py" |
-| `scenarioFile` | Path to scenario file | ".traceability/scenarios/payment.scenarios.yaml" |
-| `scenarioFormat` | Format of scenarios | "yaml", "json", "markdown", "txt" |
-
-### Step 4: Verify Configuration
+### Step 2: Generate AI Scenarios
 
 ```bash
-# Test configuration loads correctly
-npm run validate -- --service payment-service --dry-run
-
-# Expected output:
-# ✓ Configuration loaded
-# ✓ Service found: payment-service
-# ✓ Scenario file loaded
-# ✓ Tests parsed (X tests found)
+npm run generate
 ```
 
-### Step 5: Run First Validation
+Result: `.traceability/test-cases/ai_cases/payment-service-ai.yml`
+
+### Step 3: Create Baseline
+
+**Create:** `.traceability/test-cases/baseline/payment-service-baseline.yml`
+
+```yaml
+service: payment-service
+
+POST /api/payments:
+  happy_case:
+    - When payment processed with valid card, return 200
+  error_case:
+    - When payment processed with invalid card, return 400
+  security:
+    - When payment processed without auth, return 401
+```
+
+### Step 4: Verify Setup
 
 ```bash
-# Run full validation
-npm run validate -- --service payment-service
-
-# Check report
-open .traceability/reports/traceability-report.html
+npm run continue
+open .traceability/reports/payment-service-report.html
 ```
-
-### Onboarding Checklist
-
-- [ ] Service name decided
-- [ ] Scenario file created in `.traceability/scenarios/`
-- [ ] At least 3 example scenarios added
-- [ ] Service added to `.traceability/config.json`
-- [ ] Configuration parameters verified
-- [ ] Test directory path confirmed
-- [ ] Test pattern matches files
-- [ ] Dry-run validation successful
-- [ ] Full validation run
-- [ ] Report reviewed
-- [ ] Team notified of new service
 
 ---
 
-## ✍️ Writing Business Scenarios
+## 🎯 Quick Reference
 
-### Scenario Format Options
+### File Locations
 
-The system supports **4 formats**:
-
-#### Format 1: YAML (Recommended)
-
-**Best For:** Structured data with rich metadata
-
-**File:** `service-name.scenarios.yaml`
-
-```yaml
-scenarios:
-  - id: CUST-001
-    description: When user creates customer with valid email, system returns 201 and customer ID
-    apiEndpoint: /api/customer
-    httpMethod: POST
-    priority: P1
-    riskLevel: High
-    category: Happy Path
-    tags: [api, create, customer, email]
-    acceptanceCriteria:
-      - Response status is 201
-      - Customer ID is returned in response
-      - Customer is saved to database
-      - Email validation is performed
-    testData:
-      validEmail: "test@example.com"
-      validName: "John Doe"
-    preconditions:
-      - Database is accessible
-      - Email service is running
-    postconditions:
-      - Customer exists in database
-      - Welcome email is sent
-
-  - id: CUST-002
-    description: When user creates customer with duplicate email, returns 409 conflict
-    apiEndpoint: /api/customer
-    httpMethod: POST
-    priority: P0
-    riskLevel: Critical
-    category: Error Handling
-    tags: [api, create, customer, duplicate, error]
+```
+.traceability/
+├── config.json                          # Service configuration
+├── test-cases/
+│   ├── baseline/                        # QA-managed scenarios
+│   │   ├── customer-service-baseline.yml
+│   │   └── payment-service-baseline.yml
+│   └── ai_cases/                        # AI-generated suggestions
+│       ├── customer-service-ai.yml
+│       └── payment-service-ai.yml
+└── reports/                             # Generated reports
+    ├── customer-service-report.html
+    ├── customer-service-report.json
+    └── customer-service-report.csv
 ```
 
-#### Format 2: JSON
+### Common Commands
 
-**Best For:** Programmatic generation, tool integration
-
-**File:** `service-name.scenarios.json`
-
-```json
-{
-  "scenarios": [
-    {
-      "id": "CUST-001",
-      "description": "When user creates customer with valid email, returns 201",
-      "apiEndpoint": "/api/customer",
-      "httpMethod": "POST",
-      "priority": "P1",
-      "riskLevel": "High",
-      "category": "Happy Path",
-      "tags": ["api", "create", "customer"],
-      "acceptanceCriteria": [
-        "Response status is 201",
-        "Customer ID is returned"
-      ]
-    }
-  ]
-}
+```bash
+npm run generate              # Generate AI scenarios
+npm run continue              # Analyze coverage
+npm run generate && npm run continue  # Combined workflow
+npm run install:hooks         # Install pre-commit hook
 ```
 
-#### Format 3: Markdown
+### Priority Guidelines
 
-**Best For:** Documentation-style scenarios
-
-**File:** `service-name.scenarios.md`
-
-```markdown
-## Scenario: CUST-001
-
-**Priority:** P1  
-**Risk Level:** High  
-**API Endpoint:** /api/customer  
-**HTTP Method:** POST  
-**Category:** Happy Path
-
-### Description
-When user creates customer with valid email, system returns 201 and customer ID
-
-### Acceptance Criteria
-- Response status is 201
-- Customer ID is returned in response
-- Customer is saved to database
-
-### Tags
-`api` `create` `customer` `email`
+| Priority | Blocks | Example |
+|----------|--------|---------|
+| P0 | YES | Auth, payments, security |
+| P1 | Configurable | CRUD operations, core features |
+| P2 | NO | Edge cases, validation |
+| P3 | NO | UI formatting, nice-to-have |
 
 ---
 
-## Scenario: CUST-002
+## 📚 Additional Resources
 
-**Priority:** P0  
-**Risk Level:** Critical  
-**API Endpoint:** /api/customer  
-**HTTP Method:** POST
-
-### Description
-When user creates customer with duplicate email, returns 409 conflict
-
-### Acceptance Criteria
-- Response status is 409
-- Error message indicates duplicate email
-- No data is saved
-```
-
-#### Format 4: Plain Text
-
-**Best For:** Simple, QA-friendly format
-
-**File:** `service-name.scenarios.txt`
-
-```
-Scenario ID: CUST-001
-Priority: P1
-Risk Level: High
-Category: Happy Path
-
-Description:
-When user creates customer with valid email
-Then system validates email format
-And system returns 201 status code
-And system returns customer ID
+- **Developer Guide:** `docs/DEV_GUIDE.md`
+- **Testing Guide:** `docs/TESTING-GUIDE.md`
+- **Completeness Detection:** `docs/SCENARIO-COMPLETENESS-DETECTION.md`
+- **Implementation Summary:** `IMPLEMENTATION_SUMMARY.md`
 
 ---
 
-Scenario ID: CUST-002
-Priority: P0
-Risk Level: Critical
-Category: Error Handling
+## 📜 Version History
 
-Description:
-When user creates customer with duplicate email
-Then system returns 409 conflict
-And system returns error message
-And no data is saved
-```
+### v6.0.0 (December 10, 2025) - Current Release
+**Major Features:**
+- Orphan Unit Test Detection with AI-suggested scenarios
+- Orphan API Detection for completely untracked endpoints
+- Visual Analytics Dashboard with interactive charts
+- Enhanced 3-Layer Completeness Detection with reverse check
+- Improved Git Change Detection with impact analysis
 
-### Best Practices for Writing Scenarios
+### v5.0.0
+**Features:**
+- 3-Layer Scenario Completeness Detection
+- Bidirectional gap analysis
+- Change Impact Analysis with affected tests tracking
 
-#### 1. Use Clear, Descriptive Language
+### v4.0.0
+**Features:**
+- Multi-format reporting (HTML, JSON, CSV, Markdown)
+- Git integration for change detection
+- Orphan test categorization (Technical vs Business)
 
-**❌ Bad Example:**
-```yaml
-description: Test customer stuff
-```
+### v3.0.0
+**Features:**
+- Claude AI integration for coverage analysis
+- Pre-commit hook validation
+- Automated scenario-to-test mapping
 
-**✅ Good Example:**
-```yaml
-description: When user creates customer with valid data, system validates input and returns 201 with customer ID
-```
+---
 
-#### 2. Include Specific HTTP Details
+**Version:** 6.0.0  
+**Powered By:** Claude AI (Anthropic)  
+**Status:** Production Ready
 
-**✅ Good Example:**
-```yaml
-apiEndpoint: /api/customer/:id
-httpMethod: GET
-expectedStatus: 200
-```
+---
 
-#### 3. Use Given-When-Then Format
-
-**✅ Good Example:**
-```yaml
-description: >
-  Given user is authenticated
-  When user requests customer with valid ID
-  Then system returns 200 with customer data
-```
-
-#### 4. Add Comprehensive Acceptance Criteria
-
-**✅ Good Example:**
-```yaml
-acceptanceCriteria:
-  - Response status is 200
-  - Response includes customer ID
-  - Response includes name and email
-  - Response time is under 500ms
-  - Data is fetched from database
-```
-
-#### 5. Set Appropriate Priorities
-
-**Priority Guidelines:**
-
-| Priority | When to Use | Blocks Commits? |
-|----------|-------------|-----------------|
-| **P0** | Core functionality, security, data integrity | YES |
-| **P1** | Important features, common workflows | Configurable |
-| **P2** | Nice-to-have features, edge cases | NO |
-| **P3** | Optional features, UI polish | NO |
-
-**Examples:**
-```yaml
-# P0 - Authentication (blocks commits)
-- id: AUTH-001
-  description: Request without token returns 401
-  priority: P0
-  riskLevel: Critical
-
-# P1 - Main feature (warning)
-- id: FEAT-001
-  description: User can update profile
-  priority: P1
-  riskLevel: High
-
-# P2 - Edge case (informational)
-- id: EDGE-001
-  description: Handles malformed input gracefully
-  priority: P2
-  riskLevel: Medium
-
-# P3 - Nice-to-have (informational)
-- id: UX-001
-  description: Returns friendly error messages
-  priority: P3
-  riskLevel: Low
-```
-
-#### 6. Use Meaningful Tags
-
-**✅
+**Key Takeaway for QA:** This system uses Claude AI to understand scenarios and tests through natural language, not manual pattern matching. Focus on writing clear, descriptive scenarios in "When...then..." format, and let the AI handle the intelligent matching and analysis.

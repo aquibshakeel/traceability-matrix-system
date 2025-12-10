@@ -1,6 +1,6 @@
 {
   "name": "@universal/ai-test-coverage",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "description": "AI-Driven Test Coverage System - Bidirectional scenario completeness detection, change impact analysis, orphan categorization, Git change detection, multi-format reporting (HTML/JSON/CSV/MD), comprehensive pre-commit validation",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

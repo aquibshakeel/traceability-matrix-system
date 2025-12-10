@@ -291,6 +291,8 @@ export interface DiscoveredAPI {
   serviceName: string;
   hasScenario: boolean;
   hasTest: boolean;
+  isOrphan: boolean;
+  riskLevel?: RiskLevel;
 }
 
 export interface OrphanTestAnalysis {
@@ -305,9 +307,11 @@ export interface OrphanTestAnalysis {
 
 export interface OrphanCategorization {
   category: string;
+  subtype: string;
   count: number;
   tests: UnitTest[];
   actionRequired: boolean;
+  priority: Priority;
 }
 
 export interface ValidationSummary {

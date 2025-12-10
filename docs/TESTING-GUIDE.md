@@ -7,13 +7,15 @@
 3. [Test Case 1: Fresh Start - No Tests](#test-case-1-fresh-start---no-tests)
 4. [Test Case 2: Partial Coverage](#test-case-2-partial-coverage)
 5. [Test Case 3: Orphan Tests Detection](#test-case-3-orphan-tests-detection)
-6. [Test Case 4: Scenario Completeness Check](#test-case-4-scenario-completeness-check)
-7. [Test Case 5: Code Change Impact](#test-case-5-code-change-impact)
-8. [Test Case 6: New API Added](#test-case-6-new-api-added)
-9. [Test Case 7: API Removed](#test-case-7-api-removed)
-10. [Test Case 8: Full Coverage Success](#test-case-8-full-coverage-success)
-11. [Testing Checklist](#testing-checklist)
-12. [Common Issues & Solutions](#common-issues--solutions)
+6. [Test Case 4: Orphan Unit Tests - NEW](#test-case-4-orphan-unit-tests---new)
+7. [Test Case 5: Orphan APIs - NEW](#test-case-5-orphan-apis---new)
+8. [Test Case 6: Scenario Completeness Check](#test-case-6-scenario-completeness-check)
+9. [Test Case 7: Code Change Impact](#test-case-7-code-change-impact)
+10. [Test Case 8: New API Added](#test-case-8-new-api-added)
+11. [Test Case 9: API Removed](#test-case-9-api-removed)
+12. [Test Case 10: Full Coverage Success](#test-case-10-full-coverage-success)
+13. [Testing Checklist](#testing-checklist)
+14. [Common Issues & Solutions](#common-issues--solutions)
 
 ---
 
@@ -26,6 +28,7 @@
 - ✅ Analyzes Swagger/OpenAPI documentation
 - ✅ Scans code for API endpoints
 - ✅ Suggests comprehensive test coverage
+- ✅ **NEW**: Provides AI-suggested scenarios for orphan unit tests
 
 **Scenario Types Generated:**
 - **Happy Case**: Valid inputs, successful responses (201, 200)
@@ -39,12 +42,15 @@
 - ✅ AI-powered semantic matching (not just string matching)
 - ✅ Identifies gaps (scenarios without tests)
 - ✅ Categorizes orphan tests (tests without scenarios)
+- ✅ **NEW**: Detects orphan unit tests (unit tests without baseline scenarios)
+- ✅ **NEW**: Detects orphan APIs (APIs with NO scenarios AND NO tests)
 
 #### 3. **Scenario Completeness Detection**
 - ✅ Compares QA baseline vs AI suggestions
 - ✅ Detects missing scenarios based on API spec
 - ✅ Suggests additional test cases
 - ✅ Prevents incomplete test coverage
+- ✅ **NEW**: Detects when unit tests exist but scenarios are missing
 
 #### 4. **Change Impact Analysis**
 - ✅ Detects code changes via Git
@@ -56,14 +62,21 @@
 - ✅ **Technical Tests** (P3): Infrastructure tests (DTOs, Entities, Mappers)
 - ✅ **Business Tests** (P0-P2): Controller/Service tests requiring scenarios
 - ✅ Priority-based recommendations
+- ✅ **NEW**: AI-powered scenario suggestions for business tests
 
-#### 6. **Multi-Format Reporting**
-- ✅ **HTML**: Visual, interactive dashboard
+#### 6. **Visual Analytics - NEW**
+- ✅ **Coverage Distribution**: Progress bars for covered/partial/not covered
+- ✅ **Gap Priority Breakdown**: Visual P0/P1/P2/P3 metrics
+- ✅ **Orphan Test Priority**: Priority-based orphan test distribution
+- ✅ **Coverage Trends**: Historical tracking (extensible)
+
+#### 7. **Multi-Format Reporting**
+- ✅ **HTML**: Visual, interactive dashboard with analytics
 - ✅ **JSON**: Machine-readable for CI/CD
 - ✅ **CSV**: Spreadsheet analysis
 - ✅ **Markdown**: Documentation
 
-#### 7. **Pre-Commit Validation**
+#### 8. **Pre-Commit Validation**
 - ✅ Blocks commits with P0/P1 gaps
 - ✅ Allows commits with only P2/P3 gaps
 - ✅ Provides actionable recommendations
@@ -104,7 +117,7 @@ traceability-matrix-system/
 │   ├── config.json                    # Configuration
 │   ├── test-cases/
 │   │   ├── baseline/                  # QA-managed scenarios
-│   │   │   └── customer-service.yml   # 25 scenarios
+│   │   │   └── customer-service.yml   # Baseline scenarios
 │   │   └── ai_cases/                  # AI-generated (auto-created)
 │   └── reports/                       # Generated reports (auto-created)
 ├── services/
@@ -124,8 +137,8 @@ Test the system with baseline scenarios but NO unit tests to validate gap detect
 
 ```bash
 # 1. Ensure baseline exists
-cat .traceability/test-cases/baseline/customer-service.yml
-# Should show 25 scenarios
+cat .traceability/test-cases/baseline/customer-service-baseline.yml
+# Should show scenarios
 
 # 2. Verify NO unit tests exist
 ls services/customer-service/src/test/
@@ -139,84 +152,34 @@ rm -rf .traceability/test-cases/ai_cases/*
 ### Execute
 
 ```bash
-# Phase 1: Generate AI scenarios
-npm run generate
-
-# Phase 2: Analyze coverage
-npm run continue
+# Run analysis
+node bin/ai-continue customer-service
 ```
 
 ### Expected Output
 
 #### Console Output:
 ```
-🤖 AI-Driven Pre-Commit Validation System
-
-Phase 1: AI Test Case Generation
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✓ Discovered 4 APIs
-✓ Generated scenarios
-✓ Comparing with baseline (25 scenarios)
-✅ Phase 1 Complete
-
-Phase 2: Coverage Analysis
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 Analyzing: customer-service
 ✓ Baseline: 25 scenarios
 ✓ Unit tests: 0 found
+
+🤖 AI analyzing coverage...
 📈 Coverage: 0.0%
 ✅ Covered: 0/25
 ⚠️  Gaps: P0=5, P1=8, P2=12
-
-❌ Phase 2 FAILED - COMMIT BLOCKED
-⛔ Critical gaps detected
-```
-
-#### Files Generated:
-```bash
-# 1. AI cases file
-cat .traceability/test-cases/ai_cases/customer-service-ai.yml
-# Should show all scenarios marked with ✅
-
-# 2. HTML Report (auto-opened)
-open .traceability/reports/customer-service-report.html
 ```
 
 ### Verification Checklist
 
-- [ ] Phase 1 completed successfully
-- [ ] ai_cases file created with ✅ markers
-- [ ] Phase 2 detects 0 unit tests
+- [ ] System detects 0 unit tests
 - [ ] Coverage shows 0%
-- [ ] All 25 scenarios marked as gaps
-- [ ] P0/P1 gaps present → Commit BLOCKED
+- [ ] All scenarios marked as gaps
+- [ ] P0/P1 gaps present
 - [ ] HTML report shows:
   - Coverage: 0%
-  - Coverage Gaps: 25
+  - Coverage Gaps section with all scenarios
   - Recommendations for each gap
-- [ ] JSON/CSV/MD reports generated
-
-### Expected Report Sections
-
-#### HTML Report Should Show:
-```
-╔══════════════════════════════════════╗
-║  Coverage: 0%                        ║
-║  Total Scenarios: 25                 ║
-║  Covered: 0 | Gaps: 25              ║
-║  P0 Gaps: 5 | P1 Gaps: 8           ║
-╚══════════════════════════════════════╝
-
-Coverage Gaps (25):
-  ❌ CUST-001: When customer created with valid data, return 201
-     Priority: P1
-     Recommendation: Create unit test
-  
-  ❌ CUST-002: When created without auth token, return 401
-     Priority: P0
-     Recommendation: Create unit test
-  
-  ... (23 more)
-```
 
 ---
 
@@ -228,88 +191,24 @@ Test with some scenarios covered by tests, some not.
 ### Setup
 
 ```bash
-# 1. Create sample unit test file
+# Create sample unit test file with 10 tests
 mkdir -p services/customer-service/src/test/java/com/pulse/customerservice/controller
-
-# 2. Create a test file with 10 tests
-cat > services/customer-service/src/test/java/com/pulse/customerservice/controller/CustomerControllerTest.java << 'EOF'
-package com.pulse.customerservice.controller;
-
-import org.junit.jupiter.api.Test;
-
-public class CustomerControllerTest {
-    
-    @Test
-    public void createCustomer_ShouldReturn201_WhenValidData() {
-        // Test implementation
-    }
-    
-    @Test
-    public void createCustomer_ShouldReturn400_WhenInvalidEmail() {
-        // Test implementation
-    }
-    
-    @Test
-    public void createCustomer_ShouldReturn409_WhenDuplicateEmail() {
-        // Test implementation
-    }
-    
-    @Test
-    public void getCustomer_ShouldReturn200_WhenValidId() {
-        // Test implementation
-    }
-    
-    @Test
-    public void getCustomer_ShouldReturn404_WhenNotFound() {
-        // Test implementation
-    }
-    
-    @Test
-    public void updateCustomer_ShouldReturn200_WhenValidData() {
-        // Test implementation
-    }
-    
-    @Test
-    public void updateCustomer_ShouldReturn404_WhenNotFound() {
-        // Test implementation
-    }
-    
-    @Test
-    public void deleteCustomer_ShouldReturn204_WhenValidId() {
-        // Test implementation
-    }
-    
-    @Test
-    public void deleteCustomer_ShouldReturn404_WhenNotFound() {
-        // Test implementation
-    }
-    
-    @Test
-    public void createCustomer_ShouldReturn401_WhenNoAuth() {
-        // Test implementation
-    }
-}
-EOF
 ```
 
 ### Execute
 
 ```bash
-# Run analysis
-npm run continue
+node bin/ai-continue customer-service
 ```
 
 ### Expected Output
 
 ```
-Phase 2: Coverage Analysis
 ✓ Baseline: 25 scenarios
 ✓ Unit tests: 10 found
 📈 Coverage: 40.0%
 ✅ Covered: 10/25
 ⚠️  Gaps: P0=3, P1=5, P2=7
-
-❌ COMMIT BLOCKED (P0/P1 gaps exist)
 ```
 
 ### Verification Checklist
@@ -318,79 +217,39 @@ Phase 2: Coverage Analysis
 - [ ] Coverage: ~40% (10/25)
 - [ ] 10 scenarios marked as FULLY_COVERED
 - [ ] 15 scenarios marked as gaps
-- [ ] Commit blocked due to remaining P0/P1 gaps
 - [ ] Report shows which scenarios are covered vs not
-- [ ] Clear recommendations for missing tests
 
 ---
 
 ## Test Case 3: Orphan Tests Detection
 
 ### Objective
-Test with tests that don't have corresponding scenarios (orphans).
+Test with tests that don't have corresponding scenarios (traditional orphans).
 
 ### Setup
 
 ```bash
-# Add orphan tests to the test file
-cat >> services/customer-service/src/test/java/com/pulse/customerservice/controller/CustomerControllerTest.java << 'EOF'
-
-    // Technical orphan tests (should be P3)
-    @Test
-    public void customerEntity_Builder_ShouldWork() {
-        // Entity test
-    }
-    
-    @Test
-    public void customerMapper_ToDto_ShouldMap() {
-        // Mapper test
-    }
-    
-    @Test
-    public void customerRequest_Validation_ShouldPass() {
-        // DTO test
-    }
-    
-    // Business orphan tests (should require scenarios)
-    @Test
-    public void getCustomersByAge_ShouldReturnList() {
-        // No scenario exists for this
-    }
-    
-    @Test
-    public void updateCustomer_WithPartialData_ShouldWork() {
-        // No scenario exists for this
-    }
-EOF
-```
-
-### Execute
-
-```bash
-npm run continue
+# Add orphan tests to the test file (tests without any matching scenario)
 ```
 
 ### Expected Output
 
 ```
-Phase 2: Coverage Analysis
 ✓ Baseline: 25 scenarios
 ✓ Unit tests: 15 found
-🔍 Orphans: 5 tests
-
-Categorizing orphan tests...
-✅ Technical: 3 (Entity, Mapper, DTO tests)
-⚠️  Business: 2 (require QA scenarios)
+🔍 Categorizing orphan tests...
+  Found 5 orphan tests, categorizing...
+  ✅ Technical: 3, Business: 2
 ```
 
 ### Verification Checklist
 
 - [ ] System finds all 15 tests
-- [ ] Identifies 5 orphan tests
+- [ ] Identifies 5 orphan tests (tests without scenarios)
 - [ ] **Categorizes orphans:**
   - [ ] Technical (P3): 3 tests → No action needed
   - [ ] Business (P0-P2): 2 tests → QA should add scenarios
-- [ ] Report shows orphan tests section
+- [ ] Report shows "Orphan Tests" section
 - [ ] Recommendations for business orphans
 
 #### Expected Report Section:
@@ -398,46 +257,235 @@ Categorizing orphan tests...
 ```
 Orphan Tests (5):
 
-Technical Tests (P3) - No Action Needed:
-  ✅ customerEntity_Builder_ShouldWork
-  ✅ customerMapper_ToDto_ShouldMap
-  ✅ customerRequest_Validation_ShouldPass
+Tests without corresponding business scenarios. 2 require QA action, 3 are infrastructure tests.
 
-Business Tests (P2) - QA Action Required:
-  ⚠️ getCustomersByAge_ShouldReturnList
-     Recommendation: Add scenario to baseline
-  ⚠️ updateCustomer_WithPartialData_ShouldWork
-     Recommendation: Add scenario to baseline
+Technical Tests: 3 (no action needed)
+Business Tests: 2 (need scenarios)
+
+Categorization:
+  - TECHNICAL - Entity Test: 1 test (P3)
+  - TECHNICAL - DTO Test: 1 test (P3)
+  - TECHNICAL - Mapper Test: 1 test (P3)
+  - BUSINESS - Controller Test: 2 tests (P2) [Action Required]
 ```
 
 ---
 
-## Test Case 4: Scenario Completeness Check
+## Test Case 4: Orphan Unit Tests - NEW ⭐
 
 ### Objective
-Test detection of missing scenarios when baseline is incomplete.
+**NEW FEATURE**: Test detection of unit tests that exist but have NO corresponding baseline scenarios (reverse orphan detection).
+
+### What This Detects
+- Unit tests that developers wrote
+- But QA hasn't added scenarios to baseline yet
+- Different from traditional orphan tests (tests without ANY scenario)
+- This finds tests that should have baseline scenarios but don't
 
 ### Setup
 
 ```bash
-# 1. Create minimal baseline (only 1 happy case)
-cat > .traceability/test-cases/baseline/customer-service-minimal.yml << 'EOF'
-service: customer-service
+# 1. Create unit tests that match API patterns
+cat > services/customer-service/src/test/java/com/pulse/customerservice/controller/NewFeatureTest.java << 'EOF'
+package com.pulse.customerservice.controller;
 
-POST /api/customers:
-  happy_case:
-    - When customer is created with valid data, return 201 and customer ID
+import org.junit.jupiter.api.Test;
+
+public class NewFeatureTest {
+    
+    @Test
+    public void getCustomer_ByEmail_ShouldReturn200() {
+        // This is a real API test but NO scenario exists in baseline
+    }
+    
+    @Test
+    public void getCustomer_ByPhone_ShouldReturn200() {
+        // Another API test without baseline scenario
+    }
+}
 EOF
 
-# 2. Update config to use minimal baseline
-# (For this test, we'll keep the full baseline and see completeness gaps)
+# 2. Ensure these tests are NOT in baseline
+grep "ByEmail" .traceability/test-cases/baseline/customer-service-baseline.yml
+# Should return nothing
 ```
 
 ### Execute
 
 ```bash
-npm run generate
-npm run continue
+node bin/ai-continue customer-service
+```
+
+### Expected Output
+
+```
+/api/customer/{id}:
+  🔍 Checking for unit tests without test cases...
+  ⚠️  Found 2 unit tests without baseline scenarios
+     - No test case for: "getCustomer_ByEmail_ShouldReturn200"
+       💡 AI Suggestion: "When user fetches customer by email with valid format, then return 200 with customer details"
+     - No test case for: "getCustomer_ByPhone_ShouldReturn200"
+       💡 AI Suggestion: "When user fetches customer by phone number, then return 200 with customer details"
+```
+
+### Verification Checklist
+
+- [ ] System detects unit tests without baseline scenarios
+- [ ] Shows console message: "🔍 Checking for unit tests without test cases..."
+- [ ] For each orphan unit test:
+  - [ ] Shows test name
+  - [ ] **Provides AI-suggested scenario** (💡 AI Suggestion)
+  - [ ] Shows file location
+- [ ] Creates P2 gaps for these tests
+- [ ] Report shows in "Coverage Gaps" section with label "ORPHAN UNIT TEST"
+
+#### Expected Report Gap Entry:
+
+```
+Coverage Gaps:
+  
+  P2 | /api/customer/{id} | Unit test: getCustomer_ByEmail_ShouldReturn200
+  
+  Reason: Unit test exists but NO corresponding test case in baseline
+  
+  Recommendations:
+    ⚠️ ORPHAN UNIT TEST: Test exists without baseline scenario
+    Test: getCustomer_ByEmail_ShouldReturn200
+    File: NewFeatureTest.java
+    💡 AI-Suggested Scenario: "When user fetches customer by email with valid format, then return 200 with customer details"
+    Action: QA should add this AI-suggested scenario to baseline
+    If not suitable, create custom scenario based on test intent
+```
+
+### Key Differences from Test Case 3
+
+**Test Case 3 (Traditional Orphan Tests):**
+- Tests that don't match ANY scenario at all
+- Usually technical tests (Entity, DTO, Mapper)
+- System categorizes them as Technical vs Business
+
+**Test Case 4 (Orphan Unit Tests - NEW):**
+- Tests that SHOULD have baseline scenarios but don't
+- Detected per-API during coverage analysis
+- **System provides AI-suggested scenarios**
+- QA should add these scenarios to baseline
+
+---
+
+## Test Case 5: Orphan APIs - NEW ⭐
+
+### Objective
+**NEW FEATURE**: Test detection of APIs that have NO scenarios AND NO tests (completely untracked).
+
+### What This Detects
+- APIs that exist in code
+- But have NO baseline scenarios
+- AND have NO unit tests
+- These are "forgotten" or "undocumented" APIs
+
+### Setup
+
+```bash
+# 1. Create baseline with empty scenario sections
+cat > .traceability/test-cases/baseline/customer-service-baseline.yml << 'EOF'
+service: customer-service
+
+POST /api/customers:
+  happy_case: []
+  edge_case: []
+  error_case: []
+  security: []
+
+GET /api/customers/{id}:
+  happy_case: []
+  error_case: []
+
+DELETE /api/customers/{id}:
+  happy_case: []
+  error_case: []
+EOF
+
+# 2. Ensure NO unit tests exist
+rm -rf services/customer-service/src/test/
+```
+
+### Execute
+
+```bash
+node bin/ai-continue customer-service
+```
+
+### Expected Output
+
+```
+✓ Baseline: 0 scenarios
+✓ Unit tests: 0 found
+
+ℹ️  Baseline and unit tests are both empty - skipping coverage analysis
+
+📊 API Coverage Summary:
+   Found 3 API endpoint(s) without test cases or unit tests:
+   - POST /api/customers (no baseline, no unit tests)
+   - GET /api/customers/{id} (no baseline, no unit tests)
+   - DELETE /api/customers/{id} (no baseline, no unit tests)
+
+⚠️  Orphan APIs: 3 APIs with no scenarios AND no tests
+
+✅ No blocking issues - proceed with development
+```
+
+### Verification Checklist
+
+- [ ] System detects 0 baseline scenarios
+- [ ] System detects 0 unit tests
+- [ ] Shows message: "Baseline and unit tests are both empty"
+- [ ] Lists all orphan APIs with "(no baseline, no unit tests)"
+- [ ] Shows: "⚠️ Orphan APIs: X APIs with no scenarios AND no tests"
+- [ ] Does NOT block development (allows to proceed)
+- [ ] Report includes "Orphan APIs" section
+
+#### Expected Report Section:
+
+```
+Orphan APIs (3)
+
+⚠️ Critical: These APIs were discovered but have NO scenarios or tests. 
+They are completely untracked and represent gaps in test coverage.
+
+Method | Endpoint                  | Controller | Line | Scenario | Test
+-------|---------------------------|------------|------|----------|-----
+POST   | /api/customers           | Unknown    | N/A  | ❌       | ❌
+GET    | /api/customers/{id}      | Unknown    | N/A  | ❌       | ❌
+DELETE | /api/customers/{id}      | Unknown    | N/A  | ❌       | ❌
+
+📋 Recommended Actions:
+  • Create scenarios to document expected behavior for each API
+  • Add unit tests to verify API functionality
+  • If APIs are deprecated, remove them from code
+  • Ensure all new APIs are created with tests
+```
+
+### When This is NOT an Error
+
+This situation is acceptable during:
+- **Initial development** when starting fresh
+- **Proof of concept** phases
+- **API scaffolding** before implementation
+
+The system allows development to proceed but provides visibility.
+
+---
+
+## Test Case 6: Scenario Completeness Check
+
+### Objective
+Test detection of missing scenarios when baseline is incomplete compared to AI suggestions.
+
+### Execute
+
+```bash
+node bin/ai-generate-api customer-service
+node bin/ai-continue customer-service
 ```
 
 ### Expected Output
@@ -445,41 +493,22 @@ npm run continue
 ```
 Phase 1: AI Generation
 ✓ AI generating scenarios from API spec
-✓ Detected 4 APIs with responses: 201, 400, 401, 409
 
 Phase 2: Coverage Analysis
-⚠️  Scenario completeness: 12 potentially missing scenarios
-✓ Baseline has 1 scenario
-✓ AI suggests 13 total scenarios
-⚠️  Missing: 12 scenarios
+⚠️  API Completeness: 12 additional scenarios suggested by API spec
 ```
 
 ### Verification Checklist
 
 - [ ] AI generates comprehensive scenarios from API spec
 - [ ] System compares baseline vs AI suggestions
-- [ ] Detects missing scenarios (e.g., 400, 401, 409)
+- [ ] Detects missing scenarios
 - [ ] Creates "Completeness Gaps" in report
-- [ ] Recommendations for QA to review
 - [ ] AI cases file shows 🆕 for missing scenarios
-
-#### Expected ai_cases Output:
-
-```yaml
-# POST /api/customers
-POST /api/customers:
-  happy_case:
-    - When customer created with valid data, return 201  ✅
-  
-  error_case:
-    - When created with invalid email format, return 400  🆕
-    - When created without authentication token, return 401  🆕
-    - When created with duplicate email, return 409  🆕
-```
 
 ---
 
-## Test Case 5: Code Change Impact
+## Test Case 7: Code Change Impact
 
 ### Objective
 Test change detection when developer modifies code.
@@ -487,130 +516,44 @@ Test change detection when developer modifies code.
 ### Setup
 
 ```bash
-# 1. Make sure you're in a git repository
-git status
-
-# 2. Modify the controller file
-nano services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java
-
-# Add a comment or modify a method:
-# Example: Add email validation in createCustomer method
-
-# 3. Stage the changes
+# Modify the controller file
 git add services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java
 ```
 
 ### Execute
 
 ```bash
-npm run generate
+node bin/ai-generate-api customer-service
 ```
 
 ### Expected Output
 
 ```
-Phase 1: AI Test Case Generation
 🔍 Detecting Git changes...
 ✓ Detected 1 API changes
   - Modified: POST /api/customers (CustomerController.java)
-  - Lines changed: 15
-  - Affected tests: 3
-
-✓ Change impact tracked in ai_cases/
 ```
 
 ### Verification Checklist
 
 - [ ] Git change detected
 - [ ] Modified API identified
-- [ ] Affected tests found
-- [ ] Change details captured (lines changed)
+- [ ] Change details captured
 - [ ] ai_cases file shows change markers
-
-#### Expected ai_cases Output:
-
-```yaml
-# POST /api/customers
-# 🔧 CHANGE DETECTED - MODIFIED
-# File: CustomerController.java
-# Lines changed: 15
-# ⚠️ Affected tests (3):
-#   - createCustomer_ShouldReturn201_WhenValidData
-#   - createCustomer_ShouldReturn400_WhenInvalidEmail
-#   - createCustomer_ShouldReturn409_WhenDuplicateEmail
-# Action: Verify affected tests still pass, update if needed
-#
-POST /api/customers:
-  happy_case:
-    - When customer created with valid data, return 201  ✅ ⚠️
-  error_case:
-    - When created with invalid email, return 400  ✅ ⚠️
-```
-
-### Test Variations
-
-#### 5a. Multiple Files Changed
-```bash
-# Modify multiple controller files
-git add services/customer-service/src/main/java/com/pulse/customerservice/controller/*.java
-npm run generate
-```
-
-#### 5b. New Method Added
-```bash
-# Add a new method in controller
-# Expected: Detect new API, mark as ADDED
-```
-
-#### 5c. Method Removed
-```bash
-# Delete a method
-# Expected: Detect removed API, recommend cleanup
-```
 
 ---
 
-## Test Case 6: New API Added
+## Test Case 8: New API Added
 
 ### Objective
 Test detection when developer adds a new API endpoint.
 
-### Setup
-
-```bash
-# Add new API method to controller
-cat >> services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java << 'EOF'
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<CustomerResponse> partialUpdateCustomer(
-            @PathVariable String id,
-            @RequestBody Map<String, Object> updates) {
-        // Implementation
-        return ResponseEntity.ok(null);
-    }
-EOF
-
-# Stage changes
-git add services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java
-```
-
-### Execute
-
-```bash
-npm run generate
-npm run continue
-```
-
 ### Expected Output
 
 ```
-Phase 1: AI Generation
 ✓ Detected 1 API changes
   - Added: PATCH /api/customers/{id}
-  - New API without tests
-  - New API without scenarios
 
-Phase 2: Coverage Analysis
 ⚠️  Orphan APIs: 1
   - PATCH /api/customers/{id}
     Status: No scenarios, No tests
@@ -620,100 +563,44 @@ Phase 2: Coverage Analysis
 ### Verification Checklist
 
 - [ ] New API detected
-- [ ] Marked as ADDED in change detection
+- [ ] Marked as "Orphan API"
 - [ ] AI generates scenarios for new API
-- [ ] All scenarios marked with 🆕
-- [ ] Report shows "Orphan API" section
 - [ ] Critical priority assigned
-- [ ] Recommendations: Add scenarios + tests
 
 ---
 
-## Test Case 7: API Removed
+## Test Case 9: API Removed
 
 ### Objective
 Test detection when developer removes an API endpoint.
 
-### Setup
-
-```bash
-# 1. Note current APIs in baseline
-grep "^[A-Z]" .traceability/test-cases/baseline/customer-service.yml
-
-# 2. Remove DELETE endpoint from controller
-# Comment out or delete the DELETE method
-
-# 3. Stage changes
-git add services/customer-service/src/main/java/com/pulse/customerservice/controller/CustomerController.java
-```
-
-### Execute
-
-```bash
-npm run generate
-npm run continue
-```
-
 ### Expected Output
 
 ```
-Phase 1: AI Generation
 ✓ Detected 1 API changes
   - Removed: DELETE /api/customers/{id}
 
-Phase 2: Coverage Analysis
 ⚠️  Stale scenarios detected
   - DELETE /api/customers/{id} (3 scenarios)
   - Recommendation: Remove from baseline
-  - Recommendation: Archive/remove tests
 ```
 
 ### Verification Checklist
 
 - [ ] Removed API detected
-- [ ] Marked as REMOVED in change detection
 - [ ] System identifies stale scenarios
 - [ ] Recommendations to cleanup baseline
-- [ ] Recommendations to remove/archive tests
-- [ ] Report shows API removal section
 
 ---
 
-## Test Case 8: Full Coverage Success
+## Test Case 10: Full Coverage Success
 
 ### Objective
 Test successful scenario with 100% coverage and no issues.
 
-### Setup
-
-```bash
-# 1. Ensure baseline has all scenarios (25)
-cat .traceability/test-cases/baseline/customer-service.yml | grep "^    -" | wc -l
-# Should show: 25
-
-# 2. Create complete test file with all 25 tests
-# Each test should match a baseline scenario
-
-# 3. No orphan tests
-# 4. No code changes
-```
-
-### Execute
-
-```bash
-npm run generate
-npm run continue
-```
-
 ### Expected Output
 
 ```
-Phase 1: AI Generation
-✓ Generated scenarios
-✓ All marked ✅ (in baseline)
-✅ Phase 1 Complete
-
-Phase 2: Coverage Analysis
 ✓ Baseline: 25 scenarios
 ✓ Unit tests: 25 found
 📈 Coverage: 100%
@@ -721,22 +608,18 @@ Phase 2: Coverage Analysis
 ⚠️  Gaps: 0
 🔍 Orphans: 0
 
-╔══════════════════════════════════════╗
-║     ✅ VALIDATION SUCCESSFUL         ║
-║  🚀 Proceeding with commit...        ║
-╚══════════════════════════════════════╝
+✅ VALIDATION SUCCESSFUL
 ```
 
 ### Verification Checklist
 
 - [ ] Coverage: 100%
-- [ ] All 25 scenarios covered
+- [ ] All scenarios covered
 - [ ] 0 gaps
 - [ ] 0 orphan tests
-- [ ] No P0/P1 issues
-- [ ] **Commit ALLOWED** ✅
+- [ ] 0 orphan unit tests
+- [ ] 0 orphan APIs
 - [ ] Report shows success status
-- [ ] All indicators green
 
 ---
 
@@ -749,18 +632,32 @@ Phase 2: Coverage Analysis
 - [ ] Config file present
 - [ ] Baseline file exists
 
-### Phase 1: AI Generation Tests
+### Core Features Tests
 - [ ] Discovers APIs from Swagger
 - [ ] Discovers APIs from code scan
 - [ ] Generates comprehensive scenarios
 - [ ] Compares with baseline correctly
-- [ ] Marks ✅ for existing scenarios
-- [ ] Marks 🆕 for new suggestions
 - [ ] Detects git changes
 - [ ] Identifies affected tests
-- [ ] Saves to ai_cases/
 
-### Phase 2: Coverage Analysis Tests
+### NEW Features Tests ⭐
+- [ ] **Orphan Unit Test Detection**
+  - [ ] Detects unit tests without baseline scenarios
+  - [ ] Provides AI-suggested scenarios (💡)
+  - [ ] Shows in Coverage Gaps with "ORPHAN UNIT TEST" label
+  - [ ] Recommendations include suggested scenario
+- [ ] **Orphan API Detection**
+  - [ ] Detects APIs with NO scenarios AND NO tests
+  - [ ] Shows in console output
+  - [ ] Creates "Orphan APIs" section in report
+  - [ ] Allows development to proceed (non-blocking)
+- [ ] **Visual Analytics**
+  - [ ] Coverage Distribution with progress bars
+  - [ ] Gap Priority Breakdown (P0/P1/P2/P3)
+  - [ ] Orphan Test Priority Breakdown
+  - [ ] Displays in HTML report
+
+### Coverage Analysis Tests
 - [ ] Loads baseline scenarios correctly
 - [ ] Parses Java unit tests
 - [ ] Matches tests to scenarios (semantic matching)
@@ -770,28 +667,21 @@ Phase 2: Coverage Analysis
   - [ ] Technical tests (P3)
   - [ ] Business tests (P0-P2)
 - [ ] Checks scenario completeness
-- [ ] Detects orphan APIs
 
 ### Reporting Tests
 - [ ] HTML report generated
 - [ ] JSON report generated
 - [ ] CSV report generated
 - [ ] Markdown report generated
-- [ ] HTML report auto-opens
 - [ ] Reports contain all sections:
   - [ ] Coverage overview
   - [ ] Coverage gaps
   - [ ] Orphan tests
-  - [ ] Orphan APIs
+  - [ ] **NEW**: Orphan unit tests (in gaps)
+  - [ ] **NEW**: Orphan APIs
+  - [ ] **NEW**: Visual Analytics
   - [ ] Change impact
   - [ ] Recommendations
-
-### Blocking Logic Tests
-- [ ] Blocks commit with P0 gaps
-- [ ] Blocks commit with P1 gaps
-- [ ] Allows commit with only P2 gaps
-- [ ] Allows commit with only P3 gaps
-- [ ] Allows commit with 100% coverage
 
 ---
 
@@ -807,76 +697,34 @@ Phase 2: Coverage Analysis
 **Solution:**
 ```bash
 export CLAUDE_API_KEY="sk-ant-your-key-here"
-# OR
-export ANTHROPIC_API_KEY="sk-ant-your-key-here"
 ```
 
-### Issue 2: Baseline Not Found
+### Issue 2: No AI Suggestions for Orphan Unit Tests
 
-**Error:**
+**Expected Behavior:**
+When AI cases file doesn't exist or has no matching scenarios, system shows:
 ```
-❌ ERROR: Baseline not found: .traceability/test-cases/baseline/customer-service-baseline.yml
+- No test case for: "testName" (no AI suggestion available)
 ```
+
+**To Get AI Suggestions:**
+```bash
+# Generate AI cases first
+node bin/ai-generate-api customer-service
+
+# Then run coverage analysis
+node bin/ai-continue customer-service
+```
+
+### Issue 3: Orphan APIs Always Showing
+
+**Expected:** Orphan APIs appear when baseline has empty scenario sections AND no unit tests.
 
 **Solution:**
-```bash
-# Check if file exists
-ls .traceability/test-cases/baseline/
-
-# Ensure correct filename
-mv customer-service-baseline.yml customer-service.yml
-```
-
-### Issue 3: No Unit Tests Found
-
-**Expected (Test Case 1):**
-```
-✓ Unit tests: 0 found
-```
-
-**If unexpected:**
-```bash
-# Check test directory
-ls services/customer-service/src/test/
-
-# Ensure Java test files exist
-find services/customer-service/src/test -name "*Test.java"
-```
-
-### Issue 4: Service Won't Start
-
-**Error:**
-```
-⚠️ Service failed to start
-```
-
-**Solution:**
-```bash
-# Check if ports are already in use
-lsof -i :8080
-
-# Update config.json with correct health check URL
-nano .traceability/config.json
-```
-
-### Issue 5: Git Changes Not Detected
-
-**Expected:**
-```
-✓ Detected 0 API changes
-```
-
-**Solution:**
-```bash
-# Make changes and stage them
-git add services/customer-service/src/main/java/com/pulse/customerservice/controller/*.java
-
-# Verify git status
-git status
-
-# Re-run
-npm run generate
-```
+This is informational, not an error. Either:
+1. Add scenarios to baseline
+2. Create unit tests
+3. Remove unused API endpoints from code
 
 ---
 
@@ -885,82 +733,69 @@ npm run generate
 ### Run Commands
 ```bash
 # Generate AI scenarios
-npm run generate
+node bin/ai-generate-api <service-name>
 
 # Analyze coverage
-npm run continue
+node bin/ai-continue <service-name>
 
-# Full pre-commit validation
-git commit -m "test"
-# (pre-commit hook runs automatically)
+# Full workflow
+node bin/ai-generate-api customer-service
+node bin/ai-continue customer-service
 ```
 
 ### File Locations
 ```
 Baseline (QA-managed):
-  .traceability/test-cases/baseline/customer-service.yml
+  .traceability/test-cases/baseline/<service>-baseline.yml
 
 AI Cases (Auto-generated):
-  .traceability/test-cases/ai_cases/customer-service-ai.yml
+  .traceability/test-cases/ai_cases/<service>-ai.yml
 
 Reports:
-  .traceability/reports/customer-service-report.html
-  .traceability/reports/customer-service-report.json
-  .traceability/reports/customer-service-report.csv
-  .traceability/reports/customer-service-report.md
+  .traceability/reports/<service>-report.html
+  .traceability/reports/<service>-report.json
+  .traceability/reports/<service>-report.csv
+  .traceability/reports/<service>-report.md
 ```
 
-### Marker Meanings
-- ✅ = Scenario in baseline (covered)
-- 🆕 = New AI suggestion (QA review)
-- 🔧 = API modified (code changed)
-- ⚠️ = Verify needed (test may be affected)
+### NEW Features Quick Ref ⭐
 
----
+**Orphan Unit Test Detection:**
+- Checks: Unit tests exist but NO baseline scenario
+- Output: "🔍 Checking for unit tests without test cases..."
+- AI Help: "💡 AI Suggestion: ..."
+- Action: QA adds suggested scenario to baseline
 
-## Testing Timeline
+**Orphan API Detection:**
+- Checks: API has NO scenarios AND NO tests
+- Output: "⚠️ Orphan APIs: X APIs..."
+- Report: Dedicated "Orphan APIs" section
+- Action: Add scenarios + tests, or remove API
 
-### Day 1: Basic Tests
-- [ ] Test Case 1: Fresh Start
-- [ ] Test Case 2: Partial Coverage
-- [ ] Test Case 8: Full Coverage
-
-### Day 2: Advanced Tests
-- [ ] Test Case 3: Orphan Tests
-- [ ] Test Case 4: Scenario Completeness
-- [ ] Test Case 5: Code Changes
-
-### Day 3: Edge Cases
-- [ ] Test Case 6: New API
-- [ ] Test Case 7: API Removed
-- [ ] Multiple simultaneous changes
+**Visual Analytics:**
+- Coverage Distribution (progress bars)
+- Gap Priority Breakdown (P0/P1/P2/P3 grid)
+- Orphan Test Priority Breakdown
+- Located in: HTML report "Visual Analytics" section
 
 ---
 
 ## Success Criteria
 
 ✅ **System is working correctly if:**
-1. All 8 test cases pass
+1. All 10 test cases pass (including new Test Cases 4 & 5)
 2. Reports generated in all formats
 3. Correct blocking/allowing behavior
 4. Change detection works
 5. Orphan categorization accurate
-6. Scenario completeness detection works
-7. AI generates meaningful suggestions
-8. Coverage calculations accurate
-
----
-
-## Support
-
-For issues or questions:
-1. Check this testing guide
-2. Review system documentation
-3. Check generated reports for details
-4. Review console output for errors
+6. **NEW**: Orphan unit test detection works with AI suggestions
+7. **NEW**: Orphan API detection works
+8. **NEW**: Visual analytics display in HTML report
+9. Scenario completeness detection works
+10. Coverage calculations accurate
 
 ---
 
 **Last Updated:** December 10, 2025  
-**Version:** 1.0  
+**Version:** 2.0 (Added Orphan Unit Tests, Orphan APIs, Visual Analytics)  
 **System:** AI-Driven Traceability Matrix

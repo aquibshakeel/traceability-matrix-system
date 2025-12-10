@@ -28,9 +28,45 @@ export interface CoverageAnalysis {
   unitTestsFound: number;
   apis: APIAnalysis[];
   orphanTests: OrphanTestAnalysis;
+  orphanAPIs: OrphanAPIInfo[];
   gaps: GapAnalysis[];
   coveragePercent: number;
   summary: AnalysisSummary;
+  visualAnalytics: VisualAnalytics;
+}
+
+export interface OrphanAPIInfo {
+  method: string;
+  endpoint: string;
+  controller: string;
+  lineNumber: number;
+  hasScenario: boolean;
+  hasTest: boolean;
+  riskLevel: 'Critical' | 'High' | 'Medium' | 'Low';
+}
+
+export interface VisualAnalytics {
+  coverageDistribution: {
+    fullyCovered: number;
+    partiallyCovered: number;
+    notCovered: number;
+  };
+  gapPriorityBreakdown: {
+    p0: number;
+    p1: number;
+    p2: number;
+    p3: number;
+  };
+  orphanTestPriorityBreakdown: {
+    p0: number;
+    p1: number;
+    p2: number;
+    p3: number;
+  };
+  coverageTrend: Array<{
+    date: string;
+    coverage: number;
+  }>;
 }
 
 export interface APIAnalysis {
@@ -152,6 +188,16 @@ export class EnhancedCoverageAnalyzer {
       
       console.log(`\n✅ No blocking issues - proceed with development`);
       
+      const orphanAPIs = apiList.map(api => ({
+        method: this.extractHttpMethod(api),
+        endpoint: api,
+        controller: 'Unknown',
+        lineNumber: 0,
+        hasScenario: false,
+        hasTest: false,
+        riskLevel: 'Critical' as 'Critical' | 'High' | 'Medium' | 'Low'
+      }));
+      
       return {
         service: service.name,
         timestamp: new Date(),
@@ -172,6 +218,7 @@ export class EnhancedCoverageAnalyzer {
           businessTests: [],
           categorization: []
         },
+        orphanAPIs,
         gaps: [],
         coveragePercent: 0,
         summary: {
@@ -184,6 +231,26 @@ export class EnhancedCoverageAnalyzer {
           p1Gaps: 0,
           p2Gaps: 0,
           criticalIssues: [`No baseline scenarios and no unit tests for ${apiList.length} API(s)`]
+        },
+        visualAnalytics: {
+          coverageDistribution: {
+            fullyCovered: 0,
+            partiallyCovered: 0,
+            notCovered: 0
+          },
+          gapPriorityBreakdown: {
+            p0: 0,
+            p1: 0,
+            p2: 0,
+            p3: 0
+          },
+          orphanTestPriorityBreakdown: {
+            p0: 0,
+            p1: 0,
+            p2: 0,
+            p3: 0
+          },
+          coverageTrend: []
         }
       };
     }
@@ -209,12 +276,21 @@ export class EnhancedCoverageAnalyzer {
 
     // Calculate summary
     const summary = this.calculateSummary(apiAnalyses, gaps);
+    
+    // Calculate visual analytics
+    const visualAnalytics = this.calculateVisualAnalytics(apiAnalyses, gaps, orphanAnalysis);
+    
+    // Detect orphan APIs (APIs with no scenarios AND no tests)
+    const orphanAPIs = this.detectOrphanAPIs(baseline, unitTests, apiAnalyses);
 
     console.log('\n' + '='.repeat(70));
     console.log(`📈 Coverage: ${summary.coveragePercent.toFixed(1)}%`);
     console.log(`✅ Covered: ${summary.fullyCovered}/${summary.totalScenarios}`);
     console.log(`⚠️  Gaps: P0=${summary.p0Gaps}, P1=${summary.p1Gaps}, P2=${summary.p2Gaps}`);
     console.log(`🔍 Orphans: ${orphanAnalysis.totalOrphans} tests (${orphanAnalysis.businessTests.length} need scenarios)`);
+    if (orphanAPIs.length > 0) {
+      console.log(`⚠️  Orphan APIs: ${orphanAPIs.length} APIs with no scenarios AND no tests`);
+    }
 
     return {
       service: service.name,
@@ -223,9 +299,11 @@ export class EnhancedCoverageAnalyzer {
       unitTestsFound: unitTests.length,
       apis: apiAnalyses,
       orphanTests: orphanAnalysis,
+      orphanAPIs,
       gaps,
       coveragePercent: summary.coveragePercent,
-      summary
+      summary,
+      visualAnalytics
     };
   }
 
@@ -284,23 +362,47 @@ export class EnhancedCoverageAnalyzer {
     
     // Step 1b: Reverse check - Find unit tests without test cases
     console.log(`  🔍 Checking for unit tests without test cases...`);
+    const aiScenariosFlat = aiSuggestions ? this.flattenScenarios(aiSuggestions) : [];
     const unscenarioedTests = this.findUnscenarioedTests(scenarios, unitTests, api);
     if (unscenarioedTests.length > 0) {
       console.log(`  ⚠️  Found ${unscenarioedTests.length} unit tests without baseline scenarios`);
       for (const test of unscenarioedTests) {
-        console.log(`     - No test case for: "${test.description}"`);
-        completenessGaps.push({
-          api,
-          scenario: `Unit test: ${test.description}`,
-          priority: 'P2',
-          reason: 'Unit test exists but NO corresponding test case in baseline',
-          recommendations: [
-            `⚠️ Unit test without baseline scenario detected`,
-            `Test: ${test.description}`,
-            `Action: QA should review and add scenario to baseline if this is a business test`,
-            `Or categorize as technical test if it doesn't need a scenario`
-          ]
-        });
+        // Try to find AI-suggested scenario that matches this test
+        const suggestedScenario = this.findMatchingAIScenario(test, aiScenariosFlat);
+        
+        if (suggestedScenario) {
+          console.log(`     - No test case for: "${test.description}"`);
+          console.log(`       💡 AI Suggestion: "${suggestedScenario.substring(0, 80)}..."`);
+          completenessGaps.push({
+            api,
+            scenario: `Unit test: ${test.description}`,
+            priority: 'P2',
+            reason: 'Unit test exists but NO corresponding test case in baseline',
+            recommendations: [
+              `⚠️ ORPHAN UNIT TEST: Test exists without baseline scenario`,
+              `Test: ${test.description}`,
+              `File: ${test.file}`,
+              `💡 AI-Suggested Scenario: "${suggestedScenario}"`,
+              `Action: QA should add this AI-suggested scenario to baseline`,
+              `If not suitable, create custom scenario based on test intent`
+            ]
+          });
+        } else {
+          console.log(`     - No test case for: "${test.description}" (no AI suggestion available)`);
+          completenessGaps.push({
+            api,
+            scenario: `Unit test: ${test.description}`,
+            priority: 'P2',
+            reason: 'Unit test exists but NO corresponding test case in baseline',
+            recommendations: [
+              `⚠️ ORPHAN UNIT TEST: Test exists without baseline scenario`,
+              `Test: ${test.description}`,
+              `File: ${test.file}`,
+              `Action: QA should review test and create appropriate baseline scenario`,
+              `Or categorize as technical test if it doesn't need a scenario`
+            ]
+          });
+        }
       }
     }
     
@@ -708,5 +810,147 @@ Respond in JSON:
     }
     
     return unscenarioed;
+  }
+
+  /**
+   * Calculate visual analytics data for charts and graphs
+   */
+  private calculateVisualAnalytics(
+    apiAnalyses: APIAnalysis[],
+    gaps: GapAnalysis[],
+    orphanAnalysis: OrphanTestAnalysis
+  ): VisualAnalytics {
+    // Coverage distribution
+    const fullyCovered = apiAnalyses.reduce((sum, a) => sum + a.coveredScenarios, 0);
+    const partiallyCovered = apiAnalyses.reduce((sum, a) => sum + a.partiallyCoveredScenarios, 0);
+    const notCovered = apiAnalyses.reduce((sum, a) => sum + a.uncoveredScenarios, 0);
+
+    // Gap priority breakdown
+    const p0 = gaps.filter(g => g.priority === 'P0').length;
+    const p1 = gaps.filter(g => g.priority === 'P1').length;
+    const p2 = gaps.filter(g => g.priority === 'P2').length;
+    const p3 = gaps.filter(g => g.priority === 'P3').length;
+
+    // Orphan test priority breakdown
+    const orphanP0 = orphanAnalysis.categorization.filter(c => c.priority === 'P0').reduce((sum, c) => sum + c.count, 0);
+    const orphanP1 = orphanAnalysis.categorization.filter(c => c.priority === 'P1').reduce((sum, c) => sum + c.count, 0);
+    const orphanP2 = orphanAnalysis.categorization.filter(c => c.priority === 'P2').reduce((sum, c) => sum + c.count, 0);
+    const orphanP3 = orphanAnalysis.categorization.filter(c => c.priority === 'P3').reduce((sum, c) => sum + c.count, 0);
+
+    // Coverage trend (placeholder - could be extended to track history)
+    const totalScenarios = fullyCovered + partiallyCovered + notCovered;
+    const currentCoverage = totalScenarios > 0 ? (fullyCovered / totalScenarios) * 100 : 0;
+    const coverageTrend = [
+      {
+        date: new Date().toISOString().split('T')[0],
+        coverage: currentCoverage
+      }
+    ];
+
+    return {
+      coverageDistribution: {
+        fullyCovered,
+        partiallyCovered,
+        notCovered
+      },
+      gapPriorityBreakdown: {
+        p0,
+        p1,
+        p2,
+        p3
+      },
+      orphanTestPriorityBreakdown: {
+        p0: orphanP0,
+        p1: orphanP1,
+        p2: orphanP2,
+        p3: orphanP3
+      },
+      coverageTrend
+    };
+  }
+
+  /**
+   * Detect orphan APIs - APIs that have NO scenarios AND NO tests
+   */
+  private detectOrphanAPIs(
+    baseline: any,
+    unitTests: UnitTest[],
+    apiAnalyses: APIAnalysis[]
+  ): OrphanAPIInfo[] {
+    const orphanAPIs: OrphanAPIInfo[] = [];
+
+    for (const [api, categories] of Object.entries(baseline)) {
+      if (api === 'service') continue;
+
+      const scenarios = this.flattenScenarios(categories);
+      const hasScenarios = scenarios.length > 0;
+
+      // Check if any unit tests cover this API
+      const apiAnalysis = apiAnalyses.find(a => a.api === api);
+      const hasTests = apiAnalysis && apiAnalysis.matchedTests.some(m => m.tests.length > 0);
+
+      // If no scenarios AND no tests, it's an orphan API
+      if (!hasScenarios && !hasTests) {
+        orphanAPIs.push({
+          method: this.extractHttpMethod(api),
+          endpoint: api,
+          controller: 'Unknown',
+          lineNumber: 0,
+          hasScenario: false,
+          hasTest: false,
+          riskLevel: 'Critical'
+        });
+      }
+    }
+
+    return orphanAPIs;
+  }
+
+  /**
+   * Extract HTTP method from API string
+   */
+  private extractHttpMethod(api: string): string {
+    const upper = api.toUpperCase();
+    if (upper.startsWith('GET ')) return 'GET';
+    if (upper.startsWith('POST ')) return 'POST';
+    if (upper.startsWith('PUT ')) return 'PUT';
+    if (upper.startsWith('DELETE ')) return 'DELETE';
+    if (upper.startsWith('PATCH ')) return 'PATCH';
+    if (upper.includes('/POST')) return 'POST';
+    if (upper.includes('/GET')) return 'GET';
+    if (upper.includes('/PUT')) return 'PUT';
+    if (upper.includes('/DELETE')) return 'DELETE';
+    return 'GET'; // Default
+  }
+
+  /**
+   * Find matching AI-suggested scenario for an orphan unit test
+   * Uses semantic matching to find the best AI suggestion
+   */
+  private findMatchingAIScenario(test: UnitTest, aiScenarios: string[]): string | null {
+    if (aiScenarios.length === 0) {
+      return null;
+    }
+
+    const testWords = test.description.toLowerCase().split(/\s+/);
+    let bestMatch: string | null = null;
+    let bestScore = 0;
+
+    for (const aiScenario of aiScenarios) {
+      // Remove markers from AI scenario
+      const cleanScenario = aiScenario.replace(/\s*(✅|🆕)\s*$/, '').trim();
+      const scenarioWords = cleanScenario.toLowerCase().split(/\s+/);
+      
+      // Calculate word overlap score
+      const commonWords = testWords.filter(w => scenarioWords.includes(w)).length;
+      
+      // If this is the best match so far and has at least 3 common words
+      if (commonWords > bestScore && commonWords >= 3) {
+        bestScore = commonWords;
+        bestMatch = cleanScenario;
+      }
+    }
+
+    return bestMatch;
   }
 }

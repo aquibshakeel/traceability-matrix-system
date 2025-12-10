@@ -3,784 +3,1153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Developer Guide - AI Test Coverage Analyzer</title>
+    <title>Developer Guide - AI-Driven Test Coverage System</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --sidebar-width: 280px;
         }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
-            color: #1a202c;
-            background: #f7fafc;
+            color: #1e293b;
+            background: #f8fafc;
         }
-
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-gradient);
             color: white;
-            padding: 40px 20px;
-            text-align: center;
+            padding: 2rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-
-        .container {
-            display: flex;
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-        }
-
-        .sidebar {
-            width: 280px;
-            background: #2d3748;
-            color: white;
-            padding: 20px;
             position: sticky;
             top: 0;
-            height: 100vh;
+            z-index: 100;
+        }
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; font-weight: 700; }
+        .header-meta { display: flex; gap: 2rem; font-size: 0.9rem; opacity: 0.95; flex-wrap: wrap; }
+        .container { display: flex; max-width: 1600px; margin: 0 auto; }
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            padding: 2rem 1rem;
+            position: sticky;
+            top: 140px;
+            height: calc(100vh - 140px);
             overflow-y: auto;
+            border-right: 1px solid #e2e8f0;
         }
-
         .sidebar h3 {
-            color: #fff;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 1rem;
+            font-weight: 600;
         }
-
-        .sidebar ul {
-            list-style: none;
-        }
-
-        .sidebar li {
-            margin: 8px 0;
-        }
-
-        .sidebar a {
-            color: #cbd5e0;
+        .sidebar nav ul { list-style: none; }
+        .sidebar nav li { margin-bottom: 0.5rem; }
+        .sidebar nav a {
+            color: #1e293b;
             text-decoration: none;
             display: block;
-            padding: 8px 12px;
-            border-radius: 5px;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        .sidebar nav a:hover { background: var(--primary-gradient); color: white; transform: translateX(4px); }
+        .main-content { flex: 1; padding: 2rem; max-width: calc(100% - var(--sidebar-width)); }
+        .content-wrapper {
+            background: white;
+            padding: 3rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        h2 {
+            font-size: 2rem;
+            margin: 2rem 0 1rem;
+            color: #1e293b;
+            border-bottom: 3px solid transparent;
+            border-image: var(--primary-gradient);
+            border-image-slice: 1;
+            padding-bottom: 0.5rem;
+        }
+        h3 { font-size: 1.5rem; margin: 1.5rem 0 1rem; color: #1e293b; }
+        h4 { font-size: 1.25rem; margin: 1.25rem 0 0.75rem; color: #1e293b; }
+        p { margin-bottom: 1rem; color: #1e293b; }
+        .alert {
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .alert-info { background: #dbeafe; border-color: var(--info-color); color: #1e40af; }
+        .alert-success { background: #d1fae5; border-color: var(--success-color); color: #065f46; }
+        .alert-warning { background: #fef3c7; border-color: var(--warning-color); color: #92400e; }
+        .alert-danger { background: #fee2e2; border-color: var(--danger-color); color: #991b1b; }
+        .alert h4 { margin: 0 0 0.5rem; font-size: 1rem; }
+        ul, ol { margin: 1rem 0 1rem 2rem; }
+        li { margin-bottom: 0.5rem; }
+        code {
+            background: #f1f5f9;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: #dc2626;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        pre code { background: none; padding: 0; color: inherit; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        thead { background: var(--primary-gradient); color: white; }
+        th, td { padding: 1rem; text-align: left; border: 1px solid #e2e8f0; }
+        tbody tr:nth-child(even) { background: #f8fafc; }
+        tbody tr:hover { background: #f1f5f9; }
+        .feature-box {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid #667eea;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .feature-box h3 { margin-top: 0; color: #667eea; }
+        .workflow-step {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            position: relative;
+        }
+        .workflow-step::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -2rem;
+            width: 2px;
+            height: 2rem;
+            background: #cbd5e1;
+        }
+        .workflow-step:last-child::before { display: none; }
+        .workflow-step h4 { margin: 0 0 0.5rem; color: #667eea; }
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .benefit-item {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
             transition: all 0.3s;
         }
-
-        .sidebar a:hover {
-            background: #4a5568;
-            color: #fff;
-            transform: translateX(5px);
+        .benefit-item:hover {
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
         }
-
-        .content {
-            flex: 1;
-            padding: 40px 60px;
-            max-width: 900px;
+        .benefit-item h4 { margin: 0 0 0.5rem; color: #667eea; font-size: 1rem; }
+        .command-box {
+            background: #f8fafc;
+            border-left: 4px solid #667eea;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.25rem;
         }
-
-        .content h2 {
-            color: #667eea;
-            font-size: 2em;
-            margin: 40px 0 20px 0;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #667eea;
-        }
-
-        .content h3 {
-            color: #764ba2;
-            font-size: 1.5em;
-            margin: 30px 0 15px 0;
-        }
-
-        .content h4 {
-            color: #667eea;
-            font-size: 1.2em;
-            margin: 20px 0 10px 0;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: bold;
-            margin: 5px 5px 5px 0;
-        }
-
-        .badge-ai { background: #667eea; color: white; }
-        .badge-success { background: #10b981; color: white; }
-        .badge-info { background: #3b82f6; color: white; }
-        .badge-warning { background: #f59e0b; color: white; }
-
-        .code-block {
-            background: #1a202c;
-            color: #e2e8f0;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 15px 0;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-        }
-
-        .info-box {
-            background: #eff6ff;
-            border-left: 4px solid #3b82f6;
-            padding: 15px 20px;
-            margin: 15px 0;
-            border-radius: 5px;
-        }
-
-        .warning-box {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 15px 20px;
-            margin: 15px 0;
-            border-radius: 5px;
-        }
-
-        .success-box {
-            background: #d1fae5;
-            border-left: 4px solid #10b981;
-            padding: 15px 20px;
-            margin: 15px 0;
-            border-radius: 5px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        table th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .command-box h4 { margin: 0 0 0.5rem; font-size: 1rem; color: #667eea; }
+        .scroll-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 3rem;
+            height: 3rem;
+            background: var(--primary-gradient);
             color: white;
-            padding: 12px;
-            text-align: left;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: all 0.3s;
         }
-
-        table td {
-            padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        table tr:hover {
-            background: #f7fafc;
-        }
-
-        ul, ol {
-            margin: 15px 0 15px 25px;
-        }
-
-        li {
-            margin: 8px 0;
-        }
-
-        code {
-            background: #edf2f7;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            color: #d63384;
-        }
-
-        @media print {
+        .scroll-top:hover { transform: translateY(-4px); }
+        .scroll-top.visible { display: flex; }
+        @media (max-width: 768px) {
             .sidebar { display: none; }
-            .content { max-width: 100%; padding: 20px; }
-            .code-block { page-break-inside: avoid; }
-        }
-
-        @media (max-width: 1024px) {
-            .container { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: relative; }
-            .content { padding: 20px; }
+            .main-content { max-width: 100%; }
+            .content-wrapper { padding: 1.5rem; }
+            .header h1 { font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🛠️ Developer Guide</h1>
-        <p>AI Test Coverage Analyzer v3.0.0</p>
+        <h1>🛠️ Developer Guide - AI-Driven Test Coverage System</h1>
+        <div class="header-meta">
+            <span><strong>Version:</strong> 6.0.0</span>
+            <span><strong>Last Updated:</strong> December 10, 2025</span>
+            <span><strong>Audience:</strong> Developers, DevOps Engineers, Tech Leads</span>
+        </div>
     </div>
 
     <div class="container">
-        <nav class="sidebar">
-            <h3>📑 Table of Contents</h3>
-            <ul>
-                <li><a href="#overview">1. System Overview</a></li>
-                <li><a href="#quick-start">2. Quick Start</a></li>
-                <li><a href="#integration">3. Integration Guide</a></li>
-                <li><a href="#how-it-works">4. How It Works</a></li>
-                <li><a href="#commands">5. CLI Commands</a></li>
-                <li><a href="#baseline">6. Managing Baselines</a></li>
-                <li><a href="#architecture">7. System Architecture</a></li>
-                <li><a href="#troubleshooting">8. Troubleshooting</a></li>
-            </ul>
-        </nav>
-
-        <main class="content">
-            <section id="overview">
-                <h2>1. System Overview 🎯</h2>
-                
-                <h3>What is it?</h3>
-                <p>The <strong>AI Test Coverage Analyzer</strong> is a pure AI-driven system that uses Claude AI to analyze test coverage by comparing baseline test scenarios against actual unit tests in your codebase.</p>
-
-                <div class="info-box">
-                    <strong>💡 Key Innovation:</strong> 100% AI-powered analysis - no complex rules, no regex patterns, just intelligent AI understanding of your tests.
-                </div>
-
-                <h3>Core Capabilities</h3>
-                <table>
-                    <tr>
-                        <th>Feature</th>
-                        <th>Description</th>
-                    </tr>
-                    <tr>
-                        <td>🤖 AI Analysis</td>
-                        <td>Claude AI analyzes coverage with human-like understanding</td>
-                    </tr>
-                    <tr>
-                        <td>📊 Coverage Reports</td>
-                        <td>Detailed analysis of what's covered and what's missing</td>
-                    </tr>
-                    <tr>
-                        <td>🔍 Test Discovery</td>
-                        <td>Automatically finds unit tests (Java, TypeScript, Python, Go)</td>
-                    </tr>
-                    <tr>
-                        <td>📝 Baseline Management</td>
-                        <td>Simple YAML format for expected test scenarios</td>
-                    </tr>
-                    <tr>
-                        <td>🎨 Swagger Integration</td>
-                        <td>Generates test cases from OpenAPI/Swagger specs</td>
-                    </tr>
-                </table>
-
-                <h3>Two-Phase System</h3>
-                <ol>
-                    <li><strong>Phase 1 (ai-generate):</strong> AI generates comprehensive test cases from Swagger specs</li>
-                    <li><strong>Phase 2 (ai-continue):</strong> AI analyzes coverage by comparing baseline vs actual unit tests</li>
-                </ol>
-            </section>
-
-            <section id="quick-start">
-                <h2>2. Quick Start (5 Minutes) ⚡</h2>
-
-                <h3>Prerequisites</h3>
+        <aside class="sidebar">
+            <h3>📋 Contents</h3>
+            <nav>
                 <ul>
-                    <li>Node.js >= 18.x</li>
-                    <li>npm >= 9.x</li>
-                    <li>Claude API key (from Anthropic)</li>
+                    <li><a href="#what-is-this">What is This System?</a></li>
+                    <li><a href="#quick-setup">Quick Setup</a></li>
+                    <li><a href="#how-ai-works">How Claude AI Works</a></li>
+                    <li><a href="#architecture">Architecture Overview</a></li>
+                    <li><a href="#running-locally">Running Locally</a></li>
+                    <li><a href="#pre-commit">Pre-Commit Hook</a></li>
+                    <li><a href="#reports">Interpreting Reports</a></li>
+                    <li><a href="#advanced-features">Advanced Features</a></li>
+                    <li><a href="#implementation">Implementation Details</a></li>
+                    <li><a href="#unit-tests">Writing Unit Tests</a></li>
+                    <li><a href="#examples">Real-World Examples</a></li>
+                    <li><a href="#best-practices">Best Practices</a></li>
+                    <li><a href="#troubleshooting">Troubleshooting</a></li>
+                    <li><a href="#quick-reference">Quick Reference</a></li>
                 </ul>
+            </nav>
+        </aside>
 
-                <h3>Installation</h3>
-                <div class="code-block">
-# Clone or navigate to your project
-cd /path/to/your/project
+        <main class="main-content">
+            <div class="content-wrapper">
+                <section id="what-is-this">
+                    <h2>🎯 What is This System?</h2>
+                    
+                    <h3>Purpose</h3>
+                    <p>An <strong>AI-powered test coverage validation system</strong> that uses <strong>Claude AI</strong> to automatically verify whether business scenarios have corresponding unit test coverage. It runs on every commit via pre-commit hooks and blocks commits when critical scenarios lack tests.</p>
 
-# Install dependencies
-npm install
+                    <div class="feature-box">
+                        <h3>🤖 Powered by Claude AI (Anthropic)</h3>
+                        <ul>
+                            <li>Uses Claude 4.5 Sonnet (auto-detected)</li>
+                            <li>Natural language understanding</li>
+                            <li>No manual fuzzy matching or pattern matching</li>
+                            <li>100% AI-driven analysis</li>
+                        </ul>
+                    </div>
 
-# Set up Claude API key
-export CLAUDE_API_KEY="sk-ant-your-key-here"
-                </div>
+                    <h3>Key Capabilities</h3>
+                    <div class="benefits-grid">
+                        <div class="benefit-item">
+                            <h4>✅ AI-Powered Analysis</h4>
+                            <p>Claude AI analyzes scenarios and tests using natural language</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h4>✅ Auto Model Detection</h4>
+                            <p>Automatically selects best available Claude model</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h4>✅ Language Agnostic</h4>
+                            <p>Supports Java, TypeScript, Python, Go</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h4>✅ Intelligent Categorization</h4>
+                            <p>AI categorizes orphan tests as Technical vs Business</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h4>✅ Smart Recommendations</h4>
+                            <p>Context-aware suggestions</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h4>✅ Pre-Commit Integration</h4>
+                            <p>Automatic validation, blocks P0 gaps</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h4>✅ Visual Analytics</h4>
+                            <p>Interactive charts and dashboards</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h4>✅ Rich Reports</h4>
+                            <p>HTML, JSON, Markdown, CSV outputs</p>
+                        </div>
+                    </div>
 
-                <h3>First Run - Generate Test Cases</h3>
-                <div class="code-block">
-# Generate test cases from Swagger/OpenAPI specs
-npm run generate
+                    <h3>What Problems Does It Solve?</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Before</th>
+                                <th>After</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>❌ Manual verification of scenario coverage</td>
+                                <td>✅ AI automatically maps scenarios to tests</td>
+                            </tr>
+                            <tr>
+                                <td>❌ No automated way to ensure requirements are tested</td>
+                                <td>✅ Real-time coverage validation on every commit</td>
+                            </tr>
+                            <tr>
+                                <td>❌ Features ship without corresponding tests</td>
+                                <td>✅ P0 scenarios MUST have tests (enforced)</td>
+                            </tr>
+                            <tr>
+                                <td>❌ Unclear which tests cover which scenarios</td>
+                                <td>✅ Clear AI-powered recommendations</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
 
-# Output: .traceability/test-cases/ai_cases/
-                </div>
+                <section id="quick-setup">
+                    <h2>⚡ Quick Setup</h2>
 
-                <h3>Second Run - Analyze Coverage</h3>
-                <div class="code-block">
-# Analyze coverage against baseline
-npm run continue
+                    <h3>Prerequisites</h3>
+                    <pre><code># Check Node.js (>= 18 required)
+node --version
 
-# AI will analyze each API and provide detailed feedback
-                </div>
+# Check npm
+npm --version
 
-                <div class="success-box">
-                    <strong>✅ Success!</strong> The AI will provide detailed console output showing coverage analysis for each API endpoint.
-                </div>
-            </section>
+# Get Claude API key from https://console.anthropic.com/</code></pre>
 
-            <section id="integration">
-                <h2>3. Service Integration Guide 🔌</h2>
+                    <h3>Installation</h3>
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <div class="workflow-step">
+                            <h4>1. Install dependencies</h4>
+                            <pre><code>npm install</code></pre>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>2. Build TypeScript</h4>
+                            <pre><code>npm run build</code></pre>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>3. Set Claude API key</h4>
+                            <pre><code>export CLAUDE_API_KEY="sk-ant-your-key-here"
+# OR
+export ANTHROPIC_API_KEY="sk-ant-your-key-here"</code></pre>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>4. Install pre-commit hook</h4>
+                            <pre><code>npm run install:hooks</code></pre>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>5. Verify setup</h4>
+                            <pre><code>npm run generate   # Phase 1: AI generates scenarios
+npm run continue   # Phase 2: AI analyzes coverage</code></pre>
+                        </div>
+                    </div>
 
-                <h3>Step 1: Add Service Configuration</h3>
-                <p>Edit <code>.traceability/config.json</code>:</p>
-                <div class="code-block">
-{
-  "services": [
-    {
-      "name": "your-service",
-      "enabled": true,
-      "path": "services/your-service",
-      "language": "java",
-      "testFramework": "junit",
-      "testDirectory": "src/test/java",
-      "testPattern": "**/*Test.java",
-      "swaggerFile": "path/to/swagger.json"
-    }
-  ],
-  "ai": {
-    "model": "claude-3-5-sonnet-20241022",
-    "temperature": 0.2,
-    "maxTokens": 2000
-  }
-}
-                </div>
+                    <div class="alert alert-success">
+                        <h4>✅ Setup Complete!</h4>
+                        <p>The system is now ready to use. Every commit will trigger automatic coverage analysis.</p>
+                    </div>
+                </section>
 
-                <h3>Step 2: Create Baseline File</h3>
-                <p>Create <code>.traceability/test-cases/baseline/your-service-baseline.yml</code>:</p>
-                <div class="code-block">
-service: your-service
+                <section id="how-ai-works">
+                    <h2>🤖 How Claude AI Works</h2>
 
-POST /api/orders:
-  happy_case:
-    - "Create order with valid payload returns 201"
-    - "Order ID is returned in response"
-  edge_case:
-    - "Create order with minimal required fields"
-    - "Create order with maximum allowed items"
-  error_case:
-    - "Invalid payload returns 400"
-    - "Missing required fields returns 400"
-  security:
-    - "Unauthenticated request returns 401"
-    - "Insufficient permissions returns 403"
+                    <div class="alert alert-info">
+                        <h4>Key Innovation</h4>
+                        <p>This system uses Claude AI with natural language understanding, NOT manual fuzzy matching or pattern matching. 100% AI-driven analysis.</p>
+                    </div>
 
-GET /api/orders/{id}:
-  happy_case:
-    - "Retrieve existing order returns 200"
-    - "Order details are complete and correct"
-  error_case:
-    - "Non-existent order returns 404"
-    - "Invalid order ID format returns 400"
-                </div>
+                    <h3>AI Model Selection</h3>
+                    <pre><code>🔍 Auto-detecting best available Claude model...
+   1. Query Anthropic Models API
+   2. Check availability of preferred models:
+      - claude-sonnet-4-5-20250929 (Claude 4.5 Sonnet)
+      - claude-3-5-sonnet-20241022 (Claude 3.5 Sonnet latest)
+      - claude-3-5-sonnet-20240620 (Claude 3.5 Sonnet fallback)
+   3. Select first available
+   4. Cache for session
+   5. Fallback to Claude 3.5 Sonnet if API unavailable
 
-                <h3>Step 3: Run Analysis</h3>
-                <div class="code-block">
-# Generate test cases (optional, if you have Swagger)
-npm run generate
+   ✓ Using: claude-sonnet-4-5-20250929 (Claude Sonnet 4.5)</code></pre>
 
-# Analyze coverage
-npm run continue
-                </div>
+                    <h3>Phase 1: AI Scenario Generation</h3>
+                    <pre><code>// System discovers APIs (Swagger + Code Scan)
+APIs discovered: POST /api/customers, GET /api/customers/{id}, ...
 
-                <div class="warning-box">
-                    <strong>⚠️ Important:</strong> The AI reads your existing tests - no code changes required!
-                </div>
-            </section>
+// Sends to Claude AI
+Prompt: "Generate test scenarios for API: POST /api/customers
+         Generate scenarios in categories: happy_case, edge_case, error_case, security"
 
-            <section id="how-it-works">
-                <h2>4. How the AI System Works 🧠</h2>
+// Claude AI responds with scenarios
+Response: {
+  "happy_case": ["When customer created with valid data, return 201"],
+  "error_case": ["When created with missing email, return 400"]
+}</code></pre>
 
-                <h3>Phase 1: Test Case Generation (ai-generate)</h3>
-                <ol>
-                    <li><strong>Swagger Parsing:</strong> Reads OpenAPI/Swagger specifications</li>
-                    <li><strong>AI Generation:</strong> Claude generates comprehensive test scenarios</li>
-                    <li><strong>Categorization:</strong> Organizes into happy_case, edge_case, error_case, security</li>
-                    <li><strong>Output:</strong> Saves to <code>.traceability/test-cases/ai_cases/</code></li>
-                </ol>
+                    <h3>Phase 2: AI Coverage Analysis</h3>
+                    <pre><code>// Sends baseline + unit tests to Claude AI
+Prompt: "Analyze coverage for POST /api/customers
+         Determine coverage status for each scenario"
 
-                <h3>Phase 2: Coverage Analysis (ai-continue)</h3>
-                <ol>
-                    <li><strong>Load Baseline:</strong> Reads QA-defined expected scenarios</li>
-                    <li><strong>Parse Tests:</strong> Discovers all unit tests in codebase</li>
-                    <li><strong>AI Analysis:</strong> Claude analyzes which tests cover which scenarios</li>
-                    <li><strong>Report:</strong> Provides detailed coverage feedback per API</li>
-                </ol>
+// Claude AI responds with analysis
+Response: {
+  "matches": [{
+    "scenario": "When customer created with valid data, return 201",
+    "status": "FULLY_COVERED",
+    "testNumbers": [1],
+    "explanation": "Test fully covers this scenario"
+  }]
+}</code></pre>
 
-                <h3>AI Analysis Example</h3>
-                <div class="code-block">
-📊 Analyzing: customer-service
+                    <h3>Coverage Status Indicators</h3>
+                    <div class="alert alert-success">
+                        <h4>✅ FULLY_COVERED</h4>
+                        <p>Claude AI confirmed unit test fully covers the scenario</p>
+                    </div>
+                    <div class="alert alert-warning">
+                        <h4>⚠️ PARTIALLY_COVERED</h4>
+                        <p>Test exists but doesn't fully cover all aspects</p>
+                    </div>
+                    <div class="alert alert-danger">
+                        <h4>❌ NOT_COVERED</h4>
+                        <p>No unit test found - action required</p>
+                    </div>
+                </section>
 
-✓ Baseline: 24 scenarios
-✓ Unit tests: 58 found
+                <section id="architecture">
+                    <h2>🏗️ Architecture Overview</h2>
+
+                    <h3>System Architecture</h3>
+                    <pre><code>┌─────────────────────────────────────────────────────────────┐
+│                     User Interface Layer                     │
+│  • CLI Commands (bin/ai-generate, bin/ai-continue)          │
+│  • Pre-commit Hook (scripts/pre-commit.sh)                  │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Orchestration Layer                        │
+│  • ServiceManager - Service lifecycle management            │
+│  • Main workflow coordination                                │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     Core Engine Layer                        │
+│  • AITestCaseGenerator - Scenario generation                │
+│  • EnhancedCoverageAnalyzer - Coverage analysis             │
+│  • GitChangeDetector - Change detection                     │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Utility Layer                              │
+│  • SwaggerParser - API spec parsing                         │
+│  • APIScanner - Code-based API discovery                    │
+│  • TestParserFactory - Multi-language test parsing          │
+│  • ModelDetector - Auto Claude model selection              │
+│  • ReportGenerator - Multi-format report generation         │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+
+                    <h3>Core Modules</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Module</th>
+                                <th>File</th>
+                                <th>Responsibility</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>AITestCaseGenerator</strong></td>
+                                <td>lib/core/AITestCaseGenerator.ts</td>
+                                <td>Generate test cases using Claude AI</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EnhancedCoverageAnalyzer</strong></td>
+                                <td>lib/core/EnhancedCoverageAnalyzer.ts</td>
+                                <td>AI-based coverage analysis</td>
+                            </tr>
+                            <tr>
+                                <td><strong>GitChangeDetector</strong></td>
+                                <td>lib/core/GitChangeDetector.ts</td>
+                                <td>Git diff analysis</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SwaggerParser</strong></td>
+                                <td>lib/core/SwaggerParser.ts</td>
+                                <td>Parse OpenAPI/Swagger specifications</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TestParserFactory</strong></td>
+                                <td>lib/core/TestParserFactory.ts</td>
+                                <td>Multi-language test parsing</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ServiceManager</strong></td>
+                                <td>lib/core/ServiceManager.ts</td>
+                                <td>Service configuration management</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ModelDetector</strong></td>
+                                <td>lib/core/ModelDetector.ts</td>
+                                <td>Auto Claude model selection</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ReportGenerator</strong></td>
+                                <td>lib/core/ReportGenerator.ts</td>
+                                <td>Multi-format report generation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Supported Languages & Frameworks</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Language</th>
+                                <th>Frameworks</th>
+                                <th>Test Patterns</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Java</td>
+                                <td>JUnit 4, JUnit 5, TestNG</td>
+                                <td>*Test.java, *Tests.java</td>
+                            </tr>
+                            <tr>
+                                <td>TypeScript/JavaScript</td>
+                                <td>Jest, Mocha, Jasmine</td>
+                                <td>*.test.ts, *.spec.ts</td>
+                            </tr>
+                            <tr>
+                                <td>Python</td>
+                                <td>Pytest, Unittest</td>
+                                <td>test_*.py, *_test.py</td>
+                            </tr>
+                            <tr>
+                                <td>Go</td>
+                                <td>Go Test</td>
+                                <td>*_test.go</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="running-locally">
+                    <h2>🚀 Running Locally</h2>
+
+                    <h3>Basic Commands</h3>
+                    <div class="command-box">
+                        <h4>Phase 1: Generate AI test scenarios</h4>
+                        <pre><code>npm run generate</code></pre>
+                    </div>
+
+                    <div class="command-box">
+                        <h4>Phase 2: Analyze coverage with AI</h4>
+                        <pre><code>npm run continue</code></pre>
+                    </div>
+
+                    <div class="command-box">
+                        <h4>Combined: Generate + Analyze</h4>
+                        <pre><code>npm run generate && npm run continue</code></pre>
+                    </div>
+
+                    <h3>Advanced Usage</h3>
+                    <pre><code># Generate for specific service
+node bin/ai-generate customer-service
+
+# Analyze specific service
+node bin/ai-continue customer-service
+
+# Generate scenarios for single API
+npm run generate:api -- --service customer-service --endpoint "POST /api/customers"
+
+# Build TypeScript
+npm run build</code></pre>
+
+                    <h3>Output Examples</h3>
+                    <div class="alert alert-info">
+                        <h4>npm run generate:</h4>
+                        <pre><code>🤖 Generating AI test cases: customer-service
+📡 Discovering APIs...
+   ✓ Found 10 APIs
+
+🤖 AI generating scenarios...
+   Processing: POST /api/customers
+   Processing: GET /api/customers/{id}
+
+📋 Comparing with baseline (25 scenarios)...
+   ✓ Saved: .traceability/test-cases/ai_cases/customer-service-ai.yml
+
+✅ Generation complete!</code></pre>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <h4>npm run continue:</h4>
+                        <pre><code>📊 Analyzing: customer-service
+✓ Baseline: 25 scenarios
+✓ Unit tests: 42 found
 
 🤖 AI analyzing coverage...
-
 POST /api/customers:
+  ✅ Covered: 8/10
+  ⚠️  Gaps: 2 not covered
 
-Scenario 1: "Create customer with valid data returns 201"
-  ✅ COVERED by: CustomerControllerTest.createCustomer_Success
-  Coverage: COMPLETE - Tests valid creation, status code, response
+🔍 Categorizing orphan tests...
+  ✅ Technical: 10, Business: 2
 
-Scenario 2: "Invalid email format returns 400"
-  ⚠️ PARTIAL - Found validation test but doesn't check error message
-  Missing: Verify error message contains "invalid email format"
+📈 Coverage: 82.5%
+📄 Generating reports...
+  ✅ HTML: .traceability/reports/customer-service-report.html</code></pre>
+                    </div>
+                </section>
 
-Scenario 3: "Duplicate email returns 409"
-  ❌ NOT COVERED - No test found for duplicate email scenario
-  Action: Add test for duplicate email conflict
-                </div>
+                <section id="pre-commit">
+                    <h2>🔗 Pre-Commit Hook</h2>
 
-                <h3>Key Advantages</h3>
-                <ul>
-                    <li><strong>No Rules:</strong> AI understands context naturally</li>
-                    <li><strong>Smart Analysis:</strong> Identifies partial coverage and gaps</li>
-                    <li><strong>Actionable Feedback:</strong> Tells you exactly what's missing</li>
-                    <li><strong>Language Agnostic:</strong> Works with any test framework</li>
-                </ul>
-            </section>
+                    <h3>How It Works</h3>
+                    <p>When you commit, the pre-commit hook automatically:</p>
+                    <ol>
+                        <li>Runs <code>npm run generate</code> (AI generates scenarios)</li>
+                        <li>Runs <code>npm run continue</code> (AI analyzes coverage)</li>
+                        <li>Checks for P0 gaps</li>
+                        <li><strong>BLOCKS</strong> commit if P0 gaps found</li>
+                        <li><strong>ALLOWS</strong> commit if no P0 gaps</li>
+                        <li>Shows report location</li>
+                    </ol>
 
-            <section id="commands">
-                <h2>5. CLI Commands 🚀</h2>
+                    <h3>Configuration</h3>
+                    <p>Edit <code>.traceability/config.json</code>:</p>
+                    <pre><code>{
+  "preCommit": {
+    "enabled": true,
+    "blockOnP0Gaps": true,
+    "blockOnP1Gaps": false
+  }
+}</code></pre>
 
-                <h3>Available Commands</h3>
-                <table>
-                    <tr>
-                        <th>Command</th>
-                        <th>Description</th>
-                        <th>Use Case</th>
-                    </tr>
-                    <tr>
-                        <td><code>npm run generate</code></td>
-                        <td>Generate test cases from Swagger</td>
-                        <td>When you have new/updated APIs</td>
-                    </tr>
-                    <tr>
-                        <td><code>npm run continue</code></td>
-                        <td>Analyze coverage vs baseline</td>
-                        <td>After writing unit tests</td>
-                    </tr>
-                    <tr>
-                        <td><code>npm run clean</code></td>
-                        <td>Remove generated files</td>
-                        <td>Fresh start, clean slate</td>
-                    </tr>
-                    <tr>
-                        <td><code>npm run build</code></td>
-                        <td>Compile TypeScript</td>
-                        <td>After making code changes</td>
-                    </tr>
-                </table>
+                    <h3>Bypassing (Emergency Only)</h3>
+                    <div class="alert alert-warning">
+                        <h4>⚠️ Use Sparingly</h4>
+                        <pre><code># Skip validation for this commit
+git commit --no-verify -m "Emergency fix"
 
-                <h3>Environment Variables</h3>
-                <div class="code-block">
-# Required: Claude API key
+# Or temporarily disable
+export SKIP_VALIDATION=true
+git commit -m "Skip validation"</code></pre>
+                    </div>
+                </section>
+
+                <section id="reports">
+                    <h2>📊 Interpreting Reports</h2>
+
+                    <h3>HTML Report (Interactive Dashboard)</h3>
+                    <p><strong>Location:</strong> <code>.traceability/reports/&lt;service&gt;-report.html</code></p>
+
+                    <h4>Summary Cards</h4>
+                    <pre><code>┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│  Coverage: 85%  │  │  P0 Gaps: 0     │  │  Orphans: 12    │
+└─────────────────┘  └─────────────────┘  └─────────────────┘</code></pre>
+
+                    <h4>Visual Analytics (NEW)</h4>
+                    <ul>
+                        <li>Coverage Distribution: Progress bars</li>
+                        <li>Gap Priority Breakdown: P0/P1/P2/P3 visual grid</li>
+                        <li>Orphan Test Priority: Technical vs Business chart</li>
+                    </ul>
+
+                    <h4>Coverage Gaps</h4>
+                    <div class="alert alert-danger">
+                        <pre><code>🚨 P0 GAP
+API: POST /api/customers
+Scenario: When created with duplicate email, return 409
+Status: NOT_COVERED
+Recommendation: Create unit test to cover this critical scenario</code></pre>
+                    </div>
+
+                    <h4>Orphan Unit Tests (NEW)</h4>
+                    <div class="alert alert-warning">
+                        <pre><code>⚠️ ORPHAN UNIT TEST [P2]
+Test: createCustomer_ShouldValidateEmail
+File: CustomerControllerTest.java
+
+💡 AI Suggestion: "When customer created with invalid email format,
+                    return 400 with validation error"
+
+Action: QA should add this AI-suggested scenario to baseline</code></pre>
+                    </div>
+
+                    <h4>Orphan APIs (NEW)</h4>
+                    <div class="alert alert-warning">
+                        <pre><code>⚠️ ORPHAN API [Critical]
+POST /api/customers/bulk
+Status: No baseline scenarios, No unit tests
+Action: Add scenarios and tests, or remove if deprecated</code></pre>
+                    </div>
+
+                    <h3>JSON Report (CI/CD)</h3>
+                    <p><strong>Location:</strong> <code>.traceability/reports/&lt;service&gt;-report.json</code></p>
+                    <pre><code>{
+  "service": "customer-service",
+  "timestamp": "2025-12-10T01:30:00.000Z",
+  "summary": {
+    "totalScenarios": 25,
+    "fullyCovered": 20,
+    "coveragePercent": 80.0,
+    "p0Gaps": 1,
+    "p1Gaps": 2
+  },
+  "gaps": [...],
+  "orphanAPIs": [...]
+}</code></pre>
+                </section>
+
+                <section id="advanced-features">
+                    <h2>🚀 Advanced Features Deep Dive</h2>
+
+                    <h3>Feature 1: Git Change Detection</h3>
+                    <p><strong>Implementation:</strong> <code>lib/core/GitChangeDetector.ts</code></p>
+
+                    <h4>How It Works</h4>
+                    <ol>
+                        <li>Executes <code>git diff</code> to get changed files</li>
+                        <li>Filters service-related files</li>
+                        <li>Analyzes each file's diff for API patterns</li>
+                        <li>Extracts HTTP methods, endpoints, line numbers</li>
+                        <li>Correlates with unit tests in test directories</li>
+                    </ol>
+
+                    <h4>Detection Patterns</h4>
+                    <ul>
+                        <li><strong>Java Spring:</strong> <code>@GetMapping</code>, <code>@PostMapping</code>, <code>@PutMapping</code>, <code>@DeleteMapping</code></li>
+                        <li><strong>TypeScript/Express:</strong> <code>router.get()</code>, <code>app.post()</code></li>
+                        <li><strong>Python/Flask:</strong> <code>@app.route()</code></li>
+                        <li><strong>Python/FastAPI:</strong> <code>@router.get()</code></li>
+                    </ul>
+
+                    <h3>Feature 2: 3-Layer Completeness Detection</h3>
+                    <p><strong>Implementation:</strong> <code>lib/core/EnhancedCoverageAnalyzer.ts</code></p>
+
+                    <h4>Layer 1: Forward Check (API Spec → Baseline)</h4>
+                    <pre><code>// Find scenarios suggested by API spec but missing from baseline
+const missingScenarios = findMissingScenarios(baselineScenarios, aiScenarios);
+
+// For each missing scenario, check if unit test exists
+const hasTest = checkIfUnitTestExists(scenario, unitTests);</code></pre>
+
+                    <h4>Layer 1b: Reverse Check (Unit Tests → Baseline)</h4>
+                    <pre><code>// NEW: Find unit tests without baseline scenarios
+const unscenarioedTests = findUnscenarioedTests(baselineScenarios, unitTests, api);
+
+// For each orphan unit test, find AI-suggested scenario
+for (const test of unscenarioedTests) {
+  const aiSuggestion = findMatchingAIScenario(test, aiScenarios);
+}</code></pre>
+
+                    <h4>Layer 2: AI Coverage Analysis</h4>
+                    <pre><code>// Send to Claude AI for semantic matching
+const prompt = `Analyze test coverage for ${api}
+Expected Scenarios: ${baselineScenarios}
+Available Tests: ${unitTests}
+Determine coverage status for each scenario.`;
+
+const response = await anthropic.messages.create({
+  model: detectedModel,
+  messages: [{ role: 'user', content: prompt }]
+});</code></pre>
+
+                    <h3>Feature 3: Orphan Test Categorization</h3>
+                    <p><strong>Implementation:</strong> <code>lib/core/EnhancedCoverageAnalyzer.ts</code></p>
+
+                    <h4>AI Categorization Process</h4>
+                    <pre><code>const prompt = `Categorize these unit tests as:
+- TECHNICAL: Infrastructure tests (Entity, DTO, Mapper) - no scenario needed
+- BUSINESS: Business logic tests (Controller, Service) - needs scenario
+
+Tests: ${JSON.stringify(orphanTests)}`;
+
+// Claude AI responds:
+{
+  "categorizations": [
+    {
+      "testNumber": 1,
+      "category": "TECHNICAL",
+      "subtype": "Entity Test",
+      "priority": "P3",
+      "action": "none"
+    },
+    {
+      "testNumber": 2,
+      "category": "BUSINESS",
+      "subtype": "Controller Test",
+      "priority": "P1",
+      "action": "qa_add_scenario"
+    }
+  ]
+}</code></pre>
+                </section>
+
+                <section id="implementation">
+                    <h2>💻 Implementation Details</h2>
+
+                    <h3>Core Classes</h3>
+
+                    <h4>1. AITestCaseGenerator</h4>
+                    <p><strong>File:</strong> <code>lib/core/AITestCaseGenerator.ts</code></p>
+                    <p>Generates comprehensive test scenarios from API specifications using Claude AI.</p>
+
+                    <h4>2. EnhancedCoverageAnalyzer</h4>
+                    <p><strong>File:</strong> <code>lib/core/EnhancedCoverageAnalyzer.ts</code></p>
+                    <p>AI-powered coverage analysis with orphan detection and visual analytics.</p>
+
+                    <h4>3. GitChangeDetector</h4>
+                    <p><strong>File:</strong> <code>lib/core/GitChangeDetector.ts</code></p>
+                    <p>Detects code changes and API modifications via Git.</p>
+
+                    <h4>4. ReportGenerator</h4>
+                    <p><strong>File:</strong> <code>lib/core/ReportGenerator.ts</code></p>
+                    <p>Generates multi-format reports with visual analytics.</p>
+
+                    <div class="alert alert-info">
+                        <h4>📚 For Full Implementation Details</h4>
+                        <p>See the Developer Guide markdown: <code>docs/DEV_GUIDE.md</code></p>
+                        <p>Includes detailed method signatures, code flows, and examples for all core classes.</p>
+                    </div>
+                </section>
+
+                <section id="unit-tests">
+                    <h2>✍️ Writing Unit Tests</h2>
+
+                    <h3>Best Practices for AI Matching</h3>
+
+                    <h4>✅ Good Test Names (AI-friendly)</h4>
+                    <pre><code>@Test
+public void testCreateCustomerWithValidDataReturns201() { }
+
+@Test
+@DisplayName("When user creates customer with valid email, return 201")
+public void testCreateCustomer() { }</code></pre>
+
+                    <h4>❌ Bad Test Names (Hard for AI)</h4>
+                    <pre><code>@Test
+public void test1() { }
+
+@Test
+public void testMethod() { }</code></pre>
+
+                    <h3>Test Structure (AAA Pattern)</h3>
+                    <pre><code>@Test
+@DisplayName("When customer created with valid data, return 201")
+public void testCreateCustomer() {
+    // ARRANGE - Setup
+    CustomerRequest request = new CustomerRequest();
+    request.setEmail("test@example.com");
+    
+    // ACT - Execute
+    CustomerResponse response = service.createCustomer(request);
+    
+    // ASSERT - Verify
+    assertNotNull(response);
+    assertEquals(201, response.getStatusCode());
+    verify(repository).save(any());
+}</code></pre>
+
+                    <h3>Keywords for Better AI Matching</h3>
+                    <p>Include these in test names/descriptions:</p>
+                    <ul>
+                        <li><strong>HTTP Methods:</strong> GET, POST, PUT, DELETE, PATCH</li>
+                        <li><strong>Status Codes:</strong> 200, 201, 400, 401, 403, 404, 409, 500</li>
+                        <li><strong>Actions:</strong> create, get, update, delete, validate, process</li>
+                        <li><strong>Conditions:</strong> valid, invalid, missing, empty, duplicate</li>
+                        <li><strong>Entities:</strong> customer, order, user, product, payment</li>
+                    </ul>
+                </section>
+
+                <section id="examples">
+                    <h2>💡 Real-World Examples</h2>
+
+                    <h3>Example 1: New Feature Development</h3>
+                    <p><strong>Scenario:</strong> Developer adds a new customer search API</p>
+
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <div class="workflow-step">
+                            <h4>1. Developer implements API endpoint</h4>
+                            <p>GET /api/customers/search</p>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>2. Developer writes unit tests</h4>
+                            <p>testSearchByEmail, testSearchByPhone</p>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>3. Pre-commit hook runs</h4>
+                            <p>System detects new API</p>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>4. System detects orphan tests</h4>
+                            <p>Tests exist but no baseline scenarios</p>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>5. AI suggests scenarios</h4>
+                            <p>QA reviews and adds to baseline</p>
+                        </div>
+                    </div>
+
+                    <h3>Example 2: Refactoring Existing Code</h3>
+                    <p><strong>Scenario:</strong> Developer refactors customer validation logic</p>
+
+                    <div class="alert alert-success">
+                        <h4>System Output:</h4>
+                        <pre><code>🔍 Git changes detected:
+  ~ Modified: CustomerService.java (45 lines changed)
+  
+📋 Affected Tests:
+  - testValidateEmail
+  - testValidatePhoneNumber
+  
+📊 Coverage Analysis:
+  ✅ All scenarios still covered
+  No action required</code></pre>
+                    </div>
+                </section>
+
+                <section id="best-practices">
+                    <h2>🎯 Best Practices</h2>
+
+                    <h3>For Developers</h3>
+                    <ol>
+                        <li><strong>Write Descriptive Test Names</strong> - Include HTTP method and status code</li>
+                        <li><strong>Use @DisplayName Annotations</strong> - Makes AI matching more accurate</li>
+                        <li><strong>Group Related Tests</strong> - Use test classes for each API endpoint</li>
+                        <li><strong>Run Analysis Before Pushing</strong> - <code>npm run continue</code> before commit</li>
+                        <li><strong>Don't Fight the Pre-Commit Hook</strong> - Fix gaps properly instead of skipping</li>
+                    </ol>
+
+                    <h3>For QA Engineers</h3>
+                    <ol>
+                        <li><strong>Keep Baseline Updated</strong> - Review AI suggestions regularly</li>
+                        <li><strong>Use Proper Priority Levels</strong> - P0: Critical, P1: Important, P2: Edge cases, P3: Nice-to-have</li>
+                        <li><strong>Write Clear Scenarios</strong> - Use "When...then..." format</li>
+                        <li><strong>Review Orphan Unit Tests</strong> - Check AI suggestions weekly</li>
+                        <li><strong>Monitor Visual Analytics</strong> - Track coverage trends over time</li>
+                    </ol>
+
+                    <h3>For Team Leads</h3>
+                    <ol>
+                        <li><strong>Set Coverage Standards</strong> - Define acceptable coverage thresholds</li>
+                        <li><strong>Review Reports Regularly</strong> - Weekly coverage dashboard reviews</li>
+                        <li><strong>Facilitate Dev-QA Collaboration</strong> - Use AI suggestions as discussion starters</li>
+                        <li><strong>Leverage CI/CD Integration</strong> - Parse JSON reports in pipeline</li>
+                    </ol>
+                </section>
+
+                <section id="troubleshooting">
+                    <h2>🐛 Troubleshooting</h2>
+
+                    <h3>Error: "Claude API key not found"</h3>
+                    <pre><code># Set API key
 export CLAUDE_API_KEY="sk-ant-your-key-here"
-# or
+# OR
 export ANTHROPIC_API_KEY="sk-ant-your-key-here"
 
-# Optional: Configure AI model
-# (set in .traceability/config.json instead)
-                </div>
+# Verify
+echo $CLAUDE_API_KEY</code></pre>
 
-                <h3>Command Examples</h3>
-                <div class="code-block">
-# Full workflow
-npm run clean          # Start fresh
-npm run generate       # Generate from Swagger
-npm run continue       # Analyze coverage
+                    <h3>Error: "No tests found"</h3>
+                    <p><strong>Check Configuration:</strong></p>
+                    <pre><code>{
+  "services": [{
+    "testDirectory": "src/test/java",  // Check this path
+    "testPattern": "*Test.java"         // Check this pattern
+  }]
+}</code></pre>
 
-# Just analyze (if baseline already exists)
-npm run continue
+                    <pre><code># Verify tests exist
+ls -la services/customer-service/src/test/java
 
-# Verbose output (debug mode)
-DEBUG=* npm run continue
-                </div>
-            </section>
+# Find test files
+find services/customer-service -name "*Test.java"</code></pre>
 
-            <section id="baseline">
-                <h2>6. Managing Baselines 📝</h2>
+                    <h3>Low Coverage Scores</h3>
+                    <p><strong>Solutions:</strong></p>
+                    <ol>
+                        <li><strong>Improve Test Naming</strong> - Use descriptive names that match scenario language</li>
+                        <li><strong>Check Scenario Descriptions</strong> - Make scenarios clear and specific</li>
+                        <li><strong>Review AI Analysis</strong> - Check the JSON report for AI explanations</li>
+                    </ol>
 
-                <h3>Baseline File Structure</h3>
-                <p>Location: <code>.traceability/test-cases/baseline/{service}-baseline.yml</code></p>
+                    <h3>Pre-Commit Hook Not Running</h3>
+                    <pre><code># Re-install hooks
+npm run install:hooks
 
-                <h4>Format Specification</h4>
-                <div class="code-block">
-service: service-name
+# Check if hook exists
+ls -la .git/hooks/pre-commit
 
-{HTTP_METHOD} {API_PATH}:
-  happy_case:
-    - "Scenario description 1"
-    - "Scenario description 2"
-  edge_case:
-    - "Edge case scenario 1"
-  error_case:
-    - "Error scenario 1"
-    - "Error scenario 2"
-  security:
-    - "Security test scenario 1"
-                </div>
+# Make executable
+chmod +x .git/hooks/pre-commit</code></pre>
 
-                <h3>Category Guidelines</h3>
-                <table>
-                    <tr>
-                        <th>Category</th>
-                        <th>Purpose</th>
-                        <th>Examples</th>
-                    </tr>
-                    <tr>
-                        <td><strong>happy_case</strong></td>
-                        <td>Normal, expected flows</td>
-                        <td>Valid input returns 200, Data saved correctly</td>
-                    </tr>
-                    <tr>
-                        <td><strong>edge_case</strong></td>
-                        <td>Boundary conditions</td>
-                        <td>Empty list, Maximum items, Minimum values</td>
-                    </tr>
-                    <tr>
-                        <td><strong>error_case</strong></td>
-                        <td>Error handling</td>
-                        <td>Invalid input returns 400, Not found returns 404</td>
-                    </tr>
-                    <tr>
-                        <td><strong>security</strong></td>
-                        <td>Security concerns</td>
-                        <td>Unauthorized returns 401, Forbidden returns 403</td>
-                    </tr>
-                </table>
+                    <div class="alert alert-info">
+                        <h4>📚 More Troubleshooting</h4>
+                        <p>For detailed troubleshooting steps, see: <code>docs/DEV_GUIDE.md</code></p>
+                    </div>
+                </section>
 
-                <h3>Best Practices</h3>
-                <ul>
-                    <li><strong>Be Specific:</strong> Write clear, testable scenario descriptions</li>
-                    <li><strong>Include Status Codes:</strong> Mention expected HTTP status codes</li>
-                    <li><strong>One Concept Per Scenario:</strong> Each scenario should test one thing</li>
-                    <li><strong>Use Action Verbs:</strong> "Create", "Retrieve", "Update", "Delete", "Validate"</li>
-                    <li><strong>Version Control:</strong> Keep baseline files in git</li>
-                </ul>
+                <section id="quick-reference">
+                    <h2>🎯 Quick Reference</h2>
 
-                <h3>Example: Complete Baseline</h3>
-                <div class="code-block">
-service: customer-service
-
-POST /api/customers:
-  happy_case:
-    - "Create customer with valid data returns 201"
-    - "Customer ID is generated and returned"
-    - "Customer data is saved to database"
-  edge_case:
-    - "Create customer with minimal required fields only"
-    - "Create customer with all optional fields populated"
-  error_case:
-    - "Missing required field (email) returns 400"
-    - "Invalid email format returns 400"
-    - "Duplicate email returns 409"
-  security:
-    - "Unauthenticated request returns 401"
-    - "Missing required permissions returns 403"
-
-GET /api/customers/{id}:
-  happy_case:
-    - "Retrieve existing customer returns 200"
-    - "All customer fields are populated correctly"
-  error_case:
-    - "Non-existent customer ID returns 404"
-    - "Invalid UUID format returns 400"
-
-PUT /api/customers/{id}:
-  happy_case:
-    - "Update customer with valid data returns 200"
-    - "Updated fields are persisted to database"
-  error_case:
-    - "Update non-existent customer returns 404"
-    - "Invalid field values return 400"
-    - "Attempt to update email to duplicate returns 409"
-
-DELETE /api/customers/{id}:
-  happy_case:
-    - "Delete existing customer returns 204"
-    - "Customer is soft-deleted (not hard deleted)"
-  error_case:
-    - "Delete non-existent customer returns 404"
-                </div>
-            </section>
-
-            <section id="architecture">
-                <h2>7. System Architecture 🏗️</h2>
-
-                <h3>Core Modules</h3>
-                <table>
-                    <tr>
-                        <th>Module</th>
-                        <th>File</th>
-                        <th>Responsibility</th>
-                    </tr>
-                    <tr>
-                        <td><strong>SwaggerParser</strong></td>
-                        <td>lib/core/SwaggerParser.ts</td>
-                        <td>Parse OpenAPI/Swagger specifications</td>
-                    </tr>
-                    <tr>
-                        <td><strong>AITestCaseGenerator</strong></td>
-                        <td>lib/core/AITestCaseGenerator.ts</td>
-                        <td>Generate test cases using Claude AI</td>
-                    </tr>
-                    <tr>
-                        <td><strong>SimpleCoverageAnalyzer</strong></td>
-                        <td>lib/core/SimpleCoverageAnalyzer.ts</td>
-                        <td>AI-based coverage analysis</td>
-                    </tr>
-                    <tr>
-                        <td><strong>TestParserFactory</strong></td>
-                        <td>lib/core/TestParserFactory.ts</td>
-                        <td>Multi-language test parsing</td>
-                    </tr>
-                    <tr>
-                        <td><strong>ServiceManager</strong></td>
-                        <td>lib/core/ServiceManager.ts</td>
-                        <td>Service configuration management</td>
-                    </tr>
-                </table>
-
-                <h3>Supported Languages & Frameworks</h3>
-                <table>
-                    <tr>
-                        <th>Language</th>
-                        <th>Frameworks</th>
-                        <th>Test Patterns</th>
-                    </tr>
-                    <tr>
-                        <td>Java</td>
-                        <td>JUnit 4, JUnit 5, TestNG</td>
-                        <td>*Test.java, *Tests.java</td>
-                    </tr>
-                    <tr>
-                        <td>TypeScript/JavaScript</td>
-                        <td>Jest, Mocha, Jasmine</td>
-                        <td>*.test.ts, *.spec.ts</td>
-                    </tr>
-                    <tr>
-                        <td>Python</td>
-                        <td>Pytest, Unittest</td>
-                        <td>test_*.py, *_test.py</td>
-                    </tr>
-                    <tr>
-                        <td>Go</td>
-                        <td>Go Test</td>
-                        <td>*_test.go</td>
-                    </tr>
-                </table>
-
-                <h3>Folder Structure</h3>
-                <div class="code-block">
-.traceability/
-├── config.json                      # System configuration
+                    <h3>File Locations</h3>
+                    <pre><code>.traceability/
+├── config.json                          # Configuration
 ├── test-cases/
-│   ├── baseline/                    # QA-managed (git tracked)
-│   │   ├── customer-service-baseline.yml
-│   │   └── identity-service-baseline.yml
-│   ├── ai_cases/                    # AI-generated (git ignored)
-│   │   ├── customer-service-ai.json
-│   │   └── identity-service-ai.json
-│   └── reports/                     # Coverage reports (git ignored)
-│       └── coverage-analysis.txt
-                </div>
+│   ├── baseline/                        # QA-managed scenarios
+│   │   └── customer-service-baseline.yml
+│   └── ai_cases/                        # AI-generated (auto)
+│       └── customer-service-ai.yml      # ✅ in baseline, 🆕 new
+└── reports/                             # Generated reports
+    ├── customer-service-report.html     # Interactive dashboard
+    ├── customer-service-report.json     # CI/CD data
+    ├── customer-service-report.md       # Documentation
+    └── customer-service-report.csv      # Spreadsheet</code></pre>
 
-                <h3>Data Flow</h3>
-                <div class="code-block">
-1. GENERATE PHASE:
-   Swagger Spec → SwaggerParser → AITestCaseGenerator → ai_cases/
+                    <h3>Common Commands</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>npm run generate</code></td>
+                                <td>Generate AI scenarios</td>
+                            </tr>
+                            <tr>
+                                <td><code>npm run continue</code></td>
+                                <td>Analyze coverage with AI</td>
+                            </tr>
+                            <tr>
+                                <td><code>npm run generate:api</code></td>
+                                <td>Generate for single API</td>
+                            </tr>
+                            <tr>
+                                <td><code>npm run build</code></td>
+                                <td>Build TypeScript</td>
+                            </tr>
+                            <tr>
+                                <td><code>npm run install:hooks</code></td>
+                                <td>Install pre-commit hook</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-2. ANALYZE PHASE:
-   Baseline + Unit Tests → SimpleCoverageAnalyzer → AI Analysis → Console Output
-                </div>
-            </section>
+                    <h3>Priority Levels</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Priority</th>
+                                <th>Purpose</th>
+                                <th>Blocks?</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>P0</td>
+                                <td>Security, critical flows</td>
+                                <td>YES</td>
+                                <td>Auth, payments</td>
+                            </tr>
+                            <tr>
+                                <td>P1</td>
+                                <td>Important features</td>
+                                <td>Configurable</td>
+                                <td>CRUD operations</td>
+                            </tr>
+                            <tr>
+                                <td>P2</td>
+                                <td>Edge cases</td>
+                                <td>NO</td>
+                                <td>Long inputs</td>
+                            </tr>
+                            <tr>
+                                <td>P3</td>
+                                <td>Technical tests</td>
+                                <td>NO</td>
+                                <td>DTO mapping</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-            <section id="troubleshooting">
-                <h2>8. Troubleshooting 🔍</h2>
-
-                <h3>Common Issues</h3>
-
-                <h4>Error: "Claude API key required"</h4>
-                <div class="code-block">
-Solution: Set environment variable
-export CLAUDE_API_KEY="sk-ant-your-key-here"
-
-# Or set in your shell profile (.bashrc, .zshrc)
-echo 'export CLAUDE_API_KEY="sk-ant-your-key"' >> ~/.zshrc
-                </div>
-
-                <h4>Error: "Config not found"</h4>
-                <div class="code-block">
-Solution: Ensure you're in project root
-cd /path/to/project-root
-ls .traceability/config.json  # Should exist
-
-# If missing, check .traceability/ directory exists
-                </div>
-
-                <h4>Error: "File not found: baseline"</h4>
-                <div class="code-block">
-Solution: Create baseline file
-mkdir -p .traceability/test-cases/baseline
-touch .traceability/test-cases/baseline/your-service-baseline.yml
-
-# Then populate with scenarios (see section 6)
-                </div>
-
-                <h4>Issue: No tests found</h4>
-                <div class="code-block">
-Solution: Check testPattern in config.json
-- Java: "**/*Test.java" or "**/*Tests.java"
-- TypeScript: "**/*.test.ts" or "**/*.spec.ts"
-- Python: "**/test_*.py" or "**/*_test.py"
-- Go: "**/*_test.go"
-                </div>
-
-                <h4>Issue: AI analysis seems incomplete</h4>
-                <div class="code-block">
-Solution: Adjust AI parameters in config.json
-{
-  "ai": {
-    "model": "claude-3-5-sonnet-20241022",
-    "temperature": 0.2,      # Lower = more focused
-    "maxTokens": 3000        # Increase for more detail
-  }
-}
-                </div>
-
-                <h3>Debug Mode</h3>
-                <div class="code-block">
-# Enable verbose logging
-DEBUG=* npm run continue
-
-# Check TypeScript compilation
-npm run build
-
-# Verify test parsing
-node -e "const {TestParserFactory} = require('./lib/core/TestParserFactory'); console.log('OK')"
-                </div>
-
-                <h3>Getting Help</h3>
-                <div class="warning-box">
-                    <strong>📧 Need Support?</strong>
-                    <ul style="margin-top: 10px;">
-                        <li>Check documentation: <code>docs/QA_GUIDE.html</code></li>
-                        <li>Review examples: <code>.traceability/test-cases/baseline/example-baseline.yml</code></li>
-                        <li>Contact team: QA Automation Team</li>
+                    <h3>Key Technologies</h3>
+                    <ul>
+                        <li><strong>AI Engine:</strong> Claude AI (Anthropic)</li>
+                        <li><strong>Model:</strong> Claude 4.5 Sonnet (auto-detected)</li>
+                        <li><strong>Languages:</strong> Java, TypeScript, Python, Go</li>
+                        <li><strong>Reports:</strong> HTML, JSON, Markdown, CSV</li>
+                        <li><strong>Hook:</strong> Git pre-commit (automatic)</li>
                     </ul>
-                </div>
-            </section>
 
-            <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid #e2e8f0; text-align: center; color: #718096;">
-                <p>AI Test Coverage Analyzer v3.0.0 | Developer Guide</p>
-                <p>Powered by Claude AI | Generated: December 2025</p>
-            </footer>
+                    <div class="alert alert-info" style="margin-top: 2rem;">
+                        <h4>📚 Additional Resources</h4>
+                        <ul>
+                            <li><strong>QA Guide:</strong> <code>docs/QA_GUIDE.html</code></li>
+                            <li><strong>Testing Guide:</strong> <code>docs/TESTING-GUIDE.md</code></li>
+                            <li><strong>Completeness Detection:</strong> <code>docs/SCENARIO-COMPLETENESS-DETECTION.md</code></li>
+                            <li><strong>Implementation Summary:</strong> <code>IMPLEMENTATION_SUMMARY.md</code></li>
+                            <li><strong>Features:</strong> <code>FEATURES.md</code></li>
+                        </ul>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 0.5rem;">
+                        <p style="font-size: 1.1rem; margin: 0;"><strong>Version 6.0.0</strong> | <strong>Powered By:</strong> Claude AI (Anthropic) | <strong>Status:</strong> Production Ready</p>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: #64748b;">100% AI-driven analysis - No manual fuzzy matching or pattern matching</p>
+                    </div>
+                </section>
+
+            </div>
         </main>
     </div>
+
+    <button class="scroll-top" id="scrollTopBtn">↑</button>
+
+    <script>
+        // Scroll to top button visibility and click handler
+        window.addEventListener('scroll', function() {
+            const scrollTop = document.querySelector('.scroll-top');
+            if (window.pageYOffset > 300) {
+                scrollTop.classList.add('visible');
+            } else {
+                scrollTop.classList.remove('visible');
+            }
+        });
+
+        // Scroll to top on button click
+        document.getElementById('scrollTopBtn').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Smooth scroll for sidebar links
+        document.querySelectorAll('.sidebar a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

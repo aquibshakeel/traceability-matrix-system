@@ -93,7 +93,7 @@ export class ReportGenerator {
   }
 
   private generateHTML(analysis: CoverageAnalysis, gitChanges: GitChangeAnalysis, serviceName: string): string {
-    const { summary, apis, orphanTests, gaps } = analysis;
+    const { summary, apis, orphanTests, orphanAPIs, gaps, visualAnalytics } = analysis;
     
     return `<!DOCTYPE html>
 <html lang="en">
@@ -357,9 +357,54 @@ export class ReportGenerator {
         </div>
         ` : ''}
 
+        ${orphanAPIs && orphanAPIs.length > 0 ? `
+        <div class="section">
+            <h2 class="section-title"><span class="icon">⚠️</span> Orphan APIs (${orphanAPIs.length})</h2>
+            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 20px;">
+                <strong>⚠️ Critical: These APIs were discovered but have NO scenarios or tests.</strong> They are completely untracked and represent gaps in test coverage.
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Endpoint</th>
+                        <th>Controller</th>
+                        <th>Line</th>
+                        <th>Scenario</th>
+                        <th>Test</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${orphanAPIs.map(api => `
+                    <tr>
+                        <td><span class="badge badge-info">${api.method}</span></td>
+                        <td><code>${api.endpoint}</code></td>
+                        <td>${api.controller}</td>
+                        <td>${api.lineNumber || 'N/A'}</td>
+                        <td><span style="color: #dc3545;">❌</span></td>
+                        <td><span style="color: #dc3545;">❌</span></td>
+                    </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            <div style="background: #e7f3ff; padding: 15px; border-radius: 4px; margin-top: 20px;">
+                <strong>📋 Recommended Actions:</strong>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li>Create scenarios to document expected behavior for each API</li>
+                    <li>Add unit tests to verify API functionality</li>
+                    <li>If APIs are deprecated, remove them from code</li>
+                    <li>Ensure all new APIs are created with tests</li>
+                </ul>
+            </div>
+        </div>
+        ` : ''}
+
         ${orphanTests.totalOrphans > 0 ? `
         <div class="section">
-            <h2 class="section-title"><span class="icon">🔍</span> Orphan Tests Analysis</h2>
+            <h2 class="section-title"><span class="icon">🔍</span> Orphan Tests (${orphanTests.totalOrphans})</h2>
+            <div style="background: #fff8dc; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                Tests without corresponding business scenarios. <strong>${orphanTests.businessTests.length}</strong> require QA action, <strong>${orphanTests.technicalTests.length}</strong> are infrastructure tests.
+            </div>
             <div class="orphan-section">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div>
@@ -382,6 +427,7 @@ export class ReportGenerator {
                             <th>Count</th>
                             <th>Priority</th>
                             <th>Action Required</th>
+                            <th>Suggested Fix</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -391,12 +437,101 @@ export class ReportGenerator {
                             <td>${cat.subtype}</td>
                             <td>${cat.count}</td>
                             <td><span class="badge badge-${cat.priority.toLowerCase()}">${cat.priority}</span></td>
-                            <td>${cat.actionRequired ? '✅ QA Add Scenario' : '❌ None'}</td>
+                            <td>${cat.actionRequired ? '✅ Yes' : '❌ No'}</td>
+                            <td>${cat.actionRequired ? `QA Action: Create scenario for ${cat.category} tests` : 'No action needed'}</td>
                         </tr>
                         `).join('')}
                     </tbody>
                 </table>
+                
+                ${orphanTests.businessTests.length > 0 ? `
+                <div style="background: #fff3cd; padding: 15px; border-radius: 4px; margin-top: 20px; border-left: 4px solid #ffc107;">
+                    <strong>⚠️ Priority Action:</strong> ${orphanTests.businessTests.length} business test(s) need scenarios to be added to baseline for traceability.
+                </div>
                 ` : ''}
+                ` : ''}
+            </div>
+        </div>
+        ` : ''}
+
+        ${visualAnalytics ? `
+        <div class="section">
+            <h2 class="section-title"><span class="icon">📊</span> Visual Analytics</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                    <h4 style="margin-bottom: 15px;">Coverage Distribution</h4>
+                    <div style="margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>✅ Fully Covered:</span>
+                            <strong>${visualAnalytics.coverageDistribution.fullyCovered}</strong>
+                        </div>
+                        <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px;">
+                            <div style="width: ${visualAnalytics.coverageDistribution.fullyCovered > 0 ? (visualAnalytics.coverageDistribution.fullyCovered / (visualAnalytics.coverageDistribution.fullyCovered + visualAnalytics.coverageDistribution.partiallyCovered + visualAnalytics.coverageDistribution.notCovered)) * 100 : 0}%; background: #28a745; height: 100%; border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>⚠️ Partially Covered:</span>
+                            <strong>${visualAnalytics.coverageDistribution.partiallyCovered}</strong>
+                        </div>
+                        <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px;">
+                            <div style="width: ${visualAnalytics.coverageDistribution.partiallyCovered > 0 ? (visualAnalytics.coverageDistribution.partiallyCovered / (visualAnalytics.coverageDistribution.fullyCovered + visualAnalytics.coverageDistribution.partiallyCovered + visualAnalytics.coverageDistribution.notCovered)) * 100 : 0}%; background: #ffc107; height: 100%; border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>❌ Not Covered:</span>
+                            <strong>${visualAnalytics.coverageDistribution.notCovered}</strong>
+                        </div>
+                        <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px;">
+                            <div style="width: ${visualAnalytics.coverageDistribution.notCovered > 0 ? (visualAnalytics.coverageDistribution.notCovered / (visualAnalytics.coverageDistribution.fullyCovered + visualAnalytics.coverageDistribution.partiallyCovered + visualAnalytics.coverageDistribution.notCovered)) * 100 : 0}%; background: #dc3545; height: 100%; border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                    <h4 style="margin-bottom: 15px;">Gap Priority Breakdown</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
+                            <div style="font-size: 2em; color: #dc3545;">${visualAnalytics.gapPriorityBreakdown.p0}</div>
+                            <div style="color: #666;">P0 - Critical</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
+                            <div style="font-size: 2em; color: #fd7e14;">${visualAnalytics.gapPriorityBreakdown.p1}</div>
+                            <div style="color: #666;">P1 - High</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
+                            <div style="font-size: 2em; color: #ffc107;">${visualAnalytics.gapPriorityBreakdown.p2}</div>
+                            <div style="color: #666;">P2 - Medium</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
+                            <div style="font-size: 2em; color: #6c757d;">${visualAnalytics.gapPriorityBreakdown.p3}</div>
+                            <div style="color: #666;">P3 - Low</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                    <h4 style="margin-bottom: 15px;">Orphan Test Priority Breakdown</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
+                            <div style="font-size: 2em; color: #dc3545;">${visualAnalytics.orphanTestPriorityBreakdown.p0}</div>
+                            <div style="color: #666;">P0</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
+                            <div style="font-size: 2em; color: #fd7e14;">${visualAnalytics.orphanTestPriorityBreakdown.p1}</div>
+                            <div style="color: #666;">P1</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
+                            <div style="font-size: 2em; color: #ffc107;">${visualAnalytics.orphanTestPriorityBreakdown.p2}</div>
+                            <div style="color: #666;">P2</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
+                            <div style="font-size: 2em; color: #6c757d;">${visualAnalytics.orphanTestPriorityBreakdown.p3}</div>
+                            <div style="color: #666;">P3</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         ` : ''}
