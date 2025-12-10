@@ -344,6 +344,14 @@ export class ReportGenerator {
   private buildGapsSection(gaps: any[]): string {
     if (gaps.length === 0) return '';
     
+    // Sort gaps by priority: P0 → P1 → P2 → P3
+    const priorityOrder = { 'P0': 0, 'P1': 1, 'P2': 2, 'P3': 3 };
+    const sortedGaps = [...gaps].sort((a, b) => {
+      const priorityA = priorityOrder[a.priority as keyof typeof priorityOrder] ?? 999;
+      const priorityB = priorityOrder[b.priority as keyof typeof priorityOrder] ?? 999;
+      return priorityA - priorityB;
+    });
+    
     return `
 <div class="section">
   <h2>
@@ -351,7 +359,7 @@ export class ReportGenerator {
     <span class="section-toggle" onclick="toggleSection('gaps')">▼</span>
   </h2>
   <div class="section-content" id="gaps-content">
-    ${gaps.map(gap => `
+    ${sortedGaps.map(gap => `
     <div class="gap-item ${gap.priority.toLowerCase()}" data-priority="${gap.priority.toLowerCase()}" data-status="not-covered">
       <div class="gap-header">
         <span class="gap-id">${gap.api}</span>
