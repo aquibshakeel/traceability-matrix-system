@@ -101,6 +101,7 @@ export class ReportGenerator {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coverage Report - ${serviceName}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -494,76 +495,22 @@ export class ReportGenerator {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                 <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
                     <h4 style="margin-bottom: 15px;">Coverage Distribution</h4>
-                    <div style="margin-bottom: 10px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span>✅ Fully Covered:</span>
-                            <strong>${visualAnalytics.coverageDistribution.fullyCovered}</strong>
-                        </div>
-                        <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px;">
-                            <div style="width: ${visualAnalytics.coverageDistribution.fullyCovered > 0 ? (visualAnalytics.coverageDistribution.fullyCovered / (visualAnalytics.coverageDistribution.fullyCovered + visualAnalytics.coverageDistribution.partiallyCovered + visualAnalytics.coverageDistribution.notCovered)) * 100 : 0}%; background: #28a745; height: 100%; border-radius: 4px;"></div>
-                        </div>
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span>⚠️ Partially Covered:</span>
-                            <strong>${visualAnalytics.coverageDistribution.partiallyCovered}</strong>
-                        </div>
-                        <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px;">
-                            <div style="width: ${visualAnalytics.coverageDistribution.partiallyCovered > 0 ? (visualAnalytics.coverageDistribution.partiallyCovered / (visualAnalytics.coverageDistribution.fullyCovered + visualAnalytics.coverageDistribution.partiallyCovered + visualAnalytics.coverageDistribution.notCovered)) * 100 : 0}%; background: #ffc107; height: 100%; border-radius: 4px;"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span>❌ Not Covered:</span>
-                            <strong>${visualAnalytics.coverageDistribution.notCovered}</strong>
-                        </div>
-                        <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px;">
-                            <div style="width: ${visualAnalytics.coverageDistribution.notCovered > 0 ? (visualAnalytics.coverageDistribution.notCovered / (visualAnalytics.coverageDistribution.fullyCovered + visualAnalytics.coverageDistribution.partiallyCovered + visualAnalytics.coverageDistribution.notCovered)) * 100 : 0}%; background: #dc3545; height: 100%; border-radius: 4px;"></div>
-                        </div>
+                    <div style="position: relative; height: 250px;">
+                        <canvas id="coverageChart"></canvas>
                     </div>
                 </div>
                 
                 <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
                     <h4 style="margin-bottom: 15px;">Gap Priority Breakdown</h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
-                            <div style="font-size: 2em; color: #dc3545;">${visualAnalytics.gapPriorityBreakdown.p0}</div>
-                            <div style="color: #666;">P0 - Critical</div>
-                        </div>
-                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
-                            <div style="font-size: 2em; color: #fd7e14;">${visualAnalytics.gapPriorityBreakdown.p1}</div>
-                            <div style="color: #666;">P1 - High</div>
-                        </div>
-                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
-                            <div style="font-size: 2em; color: #ffc107;">${visualAnalytics.gapPriorityBreakdown.p2}</div>
-                            <div style="color: #666;">P2 - Medium</div>
-                        </div>
-                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
-                            <div style="font-size: 2em; color: #6c757d;">${visualAnalytics.gapPriorityBreakdown.p3}</div>
-                            <div style="color: #666;">P3 - Low</div>
-                        </div>
+                    <div style="position: relative; height: 250px;">
+                        <canvas id="gapChart"></canvas>
                     </div>
                 </div>
                 
                 <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
                     <h4 style="margin-bottom: 15px;">Orphan Test Priority Breakdown</h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
-                            <div style="font-size: 2em; color: #dc3545;">${visualAnalytics.orphanTestPriorityBreakdown.p0}</div>
-                            <div style="color: #666;">P0</div>
-                        </div>
-                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
-                            <div style="font-size: 2em; color: #fd7e14;">${visualAnalytics.orphanTestPriorityBreakdown.p1}</div>
-                            <div style="color: #666;">P1</div>
-                        </div>
-                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
-                            <div style="font-size: 2em; color: #ffc107;">${visualAnalytics.orphanTestPriorityBreakdown.p2}</div>
-                            <div style="color: #666;">P2</div>
-                        </div>
-                        <div style="text-align: center; padding: 15px; background: white; border-radius: 4px;">
-                            <div style="font-size: 2em; color: #6c757d;">${visualAnalytics.orphanTestPriorityBreakdown.p3}</div>
-                            <div style="color: #666;">P3</div>
-                        </div>
+                    <div style="position: relative; height: 250px;">
+                        <canvas id="orphanChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -574,6 +521,173 @@ export class ReportGenerator {
             Generated by AI-Driven Coverage System | ${new Date().toLocaleDateString()}
         </div>
     </div>
+    
+    <script>
+        // Initialize Chart.js visualizations
+        window.addEventListener('DOMContentLoaded', function() {
+            const visualData = ${visualAnalytics ? JSON.stringify(visualAnalytics) : 'null'};
+            
+            if (!visualData) return;
+            
+            // Coverage Distribution Doughnut Chart
+            const coverageCtx = document.getElementById('coverageChart');
+            if (coverageCtx) {
+                new Chart(coverageCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Fully Covered', 'Partially Covered', 'Not Covered'],
+                        datasets: [{
+                            data: [
+                                visualData.coverageDistribution.fullyCovered,
+                                visualData.coverageDistribution.partiallyCovered,
+                                visualData.coverageDistribution.notCovered
+                            ],
+                            backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    font: { size: 12 },
+                                    generateLabels: function(chart) {
+                                        const data = chart.data;
+                                        if (data.labels.length && data.datasets.length) {
+                                            return data.labels.map((label, i) => {
+                                                const value = data.datasets[0].data[i];
+                                                return {
+                                                    text: label + ': ' + value,
+                                                    fillStyle: data.datasets[0].backgroundColor[i],
+                                                    hidden: false,
+                                                    index: i
+                                                };
+                                            });
+                                        }
+                                        return [];
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return label + ': ' + value + ' (' + percentage + '%)';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Gap Priority Bar Chart
+            const gapCtx = document.getElementById('gapChart');
+            if (gapCtx) {
+                new Chart(gapCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['P0 (Critical)', 'P1 (High)', 'P2 (Medium)', 'P3 (Low)'],
+                        datasets: [{
+                            label: 'Number of Gaps',
+                            data: [
+                                visualData.gapPriorityBreakdown.p0,
+                                visualData.gapPriorityBreakdown.p1,
+                                visualData.gapPriorityBreakdown.p2,
+                                visualData.gapPriorityBreakdown.p3
+                            ],
+                            backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#6c757d'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: function(context) {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        if (total === 0) return '';
+                                        const percentage = ((context.parsed.y / total) * 100).toFixed(1);
+                                        return percentage + '% of total gaps';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 },
+                                grid: { color: '#e5e7eb' }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Orphan Test Priority Bar Chart
+            const orphanCtx = document.getElementById('orphanChart');
+            if (orphanCtx) {
+                new Chart(orphanCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['P0 (Critical)', 'P1 (High)', 'P2 (Medium)', 'P3 (Low)'],
+                        datasets: [{
+                            label: 'Orphan Tests',
+                            data: [
+                                visualData.orphanTestPriorityBreakdown.p0,
+                                visualData.orphanTestPriorityBreakdown.p1,
+                                visualData.orphanTestPriorityBreakdown.p2,
+                                visualData.orphanTestPriorityBreakdown.p3
+                            ],
+                            backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#6c757d'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: function(context) {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        if (total === 0) return '';
+                                        const percentage = ((context.parsed.y / total) * 100).toFixed(1);
+                                        return percentage + '% of orphan tests';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 },
+                                grid: { color: '#e5e7eb' }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>`;
   }
