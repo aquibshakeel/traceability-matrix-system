@@ -468,7 +468,7 @@ export class ReportGenerator {
             </div>
             
             ${[...orphanTests.businessTests, ...orphanTests.technicalTests].length > 0 ? `
-            <table>
+            <table id="orphans-content">
                 <thead>
                     <tr>
                         <th>Service</th>
@@ -481,7 +481,7 @@ export class ReportGenerator {
                 </thead>
                 <tbody>
                     ${[...orphanTests.businessTests, ...orphanTests.technicalTests].map(test => `
-                    <tr>
+                    <tr data-priority="${(test.orphanCategory?.priority || 'p3').toLowerCase()}">
                         <td><strong>${serviceName}</strong></td>
                         <td>${test.description}</td>
                         <td><code style="font-size: 0.85em;">${test.file}</code></td>
