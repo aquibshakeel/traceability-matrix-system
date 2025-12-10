@@ -436,6 +436,42 @@ export class ReportGenerator {
     
     const allTests = [...orphanTests.businessTests, ...orphanTests.technicalTests];
     
+    // Generate copy-ready YAML format grouped by API endpoint
+    const generateYAMLFormat = () => {
+      const businessTests = orphanTests.businessTests;
+      if (businessTests.length === 0) return '';
+      
+      // Group tests by inferred API (from test description)
+      const grouped: any = {};
+      businessTests.forEach((test: any) => {
+        // Try to extract API from test description
+        let api = 'Unknown API';
+        const desc = test.description.toLowerCase();
+        
+        if (desc.includes('get customer by id')) api = 'GET /api/customers/{id}';
+        else if (desc.includes('post') || desc.includes('create customer')) api = 'POST /api/customers';
+        else if (desc.includes('put') || desc.includes('update customer')) api = 'PUT /api/customers/{id}';
+        else if (desc.includes('delete customer')) api = 'DELETE /api/customers/{id}';
+        
+        if (!grouped[api]) grouped[api] = [];
+        grouped[api].push(test.description);
+      });
+      
+      let yaml = 'service: ' + serviceName + '\\n\\n';
+      Object.keys(grouped).forEach(api => {
+        yaml += api + ':\\n';
+        yaml += '  happy_case:\\n';
+        grouped[api].forEach((desc: string) => {
+          yaml += '    - ' + desc + '\\n';
+        });
+        yaml += '\\n';
+      });
+      
+      return yaml;
+    };
+    
+    const yamlFormat = generateYAMLFormat();
+    
     return `
 <div class="section">
   <h2>
@@ -451,30 +487,85 @@ export class ReportGenerator {
       </ul>
     </div>
     
+    ${orphanTests.businessTests.length > 0 && yamlFormat ? `
+    <div style="background: linear-gradient(135deg, #e7f3ff 0%, #f0f7ff 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <div>
+          <strong style="color: #667eea; font-size: 1.1em;">📋 Copy-Ready YAML Format for QA</strong>
+          <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9em;">Add these scenarios to your baseline YAML file</p>
+        </div>
+        <button onclick="copyYAMLToClipboard()" style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+          📋 Copy YAML
+        </button>
+      </div>
+      <pre id="yaml-content" style="background: white; padding: 15px; border-radius: 6px; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 0.9em; line-height: 1.6; color: #333; max-height: 400px; overflow-y: auto;">${yamlFormat}</pre>
+    </div>
+    <script>
+    function copyYAMLToClipboard() {
+      const yaml = document.getElementById('yaml-content').textContent;
+      navigator.clipboard.writeText(yaml).then(() => {
+        const btn = event.target;
+        btn.textContent = '✓ Copied!';
+        btn.style.background = '#10b981';
+        setTimeout(() => {
+          btn.textContent = '📋 Copy YAML';
+          btn.style.background = '#667eea';
+        }, 2000);
+      });
+    }
+    </script>
+    ` : ''}
+    
     ${allTests.length > 0 ? `
-    <table id="orphans-table">
+    <table id="orphans-table" style="border-collapse: separate; border-spacing: 0 8px;">
       <thead>
         <tr>
-          <th>Service</th>
-          <th>Test Description</th>
-          <th>Test File Path</th>
-          <th>Category</th>
-          <th>Priority</th>
-          <th>Suggested Fix</th>
+          <th style="background: #f8f9fa; padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Service</th>
+          <th style="background: #f8f9fa; padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Test Description</th>
+          <th style="background: #f8f9fa; padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Category</th>
+          <th style="background: #f8f9fa; padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Priority</th>
+          <th style="background: #f8f9fa; padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #e5e7eb;">Action</th>
         </tr>
       </thead>
       <tbody>
-        ${allTests.map((test: any) => `
-        <tr data-priority="${(test.orphanCategory?.priority || 'p3').toLowerCase()}">
-          <td><strong>${serviceName}</strong></td>
-          <td>${test.description}</td>
-          <td><code style="font-size: 0.85em;">${test.file}</code></td>
-          <td><span class="badge badge-${test.orphanCategory?.type === 'technical' ? 'info' : 'warning'}">${(test.orphanCategory?.type || 'unknown').toUpperCase()}</span></td>
-          <td><span class="badge badge-${(test.orphanCategory?.priority || 'p3').toLowerCase()}">${test.orphanCategory?.priority || 'P3'}</span></td>
-          <td style="font-size: 0.9em;">
+        ${allTests.map((test: any, index: number) => `
+        <tr data-priority="${(test.orphanCategory?.priority || 'p3').toLowerCase()}" style="background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.2s;">
+          <td style="padding: 15px; border-left: 4px solid ${test.orphanCategory?.priority === 'P0' ? '#dc2626' : test.orphanCategory?.priority === 'P1' ? '#f59e0b' : test.orphanCategory?.priority === 'P2' ? '#3b82f6' : '#6b7280'}; vertical-align: top;">
+            <strong style="color: #667eea;">${serviceName}</strong>
+          </td>
+          <td style="padding: 15px; vertical-align: top;">
+            <div style="margin-bottom: 8px;">
+              <strong style="color: #333; font-size: 1.05em;">${test.description}</strong>
+            </div>
+            <details style="margin-top: 8px;">
+              <summary style="cursor: pointer; color: #667eea; font-size: 0.9em; user-select: none;">
+                📄 Show details
+              </summary>
+              <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; font-size: 0.9em;">
+                <div><strong>File:</strong> <code style="background: #e9ecef; padding: 2px 6px; border-radius: 3px;">${test.file}</code></div>
+                ${test.orphanCategory?.actionRequired === 'qa_add_scenario' ? `
+                <div style="margin-top: 8px; padding: 10px; background: #fff3cd; border-radius: 4px; border-left: 3px solid #f59e0b;">
+                  <strong style="color: #856404;">QA Action:</strong> Add this scenario to baseline YAML:
+                  <pre style="margin-top: 5px; padding: 8px; background: white; border-radius: 3px; overflow-x: auto; font-size: 0.85em;">  happy_case:\\n    - ${test.description}</pre>
+                </div>
+                ` : ''}
+              </div>
+            </details>
+          </td>
+          <td style="padding: 15px; vertical-align: top;">
+            <span class="badge badge-${test.orphanCategory?.type === 'technical' ? 'info' : 'warning'}" style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; background: ${test.orphanCategory?.type === 'technical' ? '#d1ecf1' : '#fff3cd'}; color: ${test.orphanCategory?.type === 'technical' ? '#0c5460' : '#856404'};">
+              ${(test.orphanCategory?.type || 'unknown').toUpperCase()}
+            </span>
+          </td>
+          <td style="padding: 15px; vertical-align: top;">
+            <span class="badge badge-${(test.orphanCategory?.priority || 'p3').toLowerCase()}" style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; ${test.orphanCategory?.priority === 'P0' ? 'background: #dc2626; color: white;' : test.orphanCategory?.priority === 'P1' ? 'background: #f59e0b; color: white;' : test.orphanCategory?.priority === 'P2' ? 'background: #3b82f6; color: white;' : 'background: #6b7280; color: white;'}">
+              ${test.orphanCategory?.priority || 'P3'}
+            </span>
+          </td>
+          <td style="padding: 15px; font-size: 0.9em; vertical-align: top;">
             ${test.orphanCategory?.actionRequired === 'qa_add_scenario' 
-              ? `<strong style="color: #dc3545;">QA Action:</strong> Add "${test.description}" scenario to baseline for traceability`
-              : 'No action needed - infrastructure/utility test'}
+              ? `<span style="color: #dc3545; font-weight: 600;">Required</span><br><span style="color: #666;">Add to baseline</span>`
+              : '<span style="color: #10b981;">✓ No action needed</span>'}
           </td>
         </tr>
         `).join('')}
