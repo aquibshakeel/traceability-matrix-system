@@ -1,5 +1,5 @@
 /**
- * Multi-Format Report Generator
+ * Multi-Format Report Generator  
  * Generates comprehensive coverage reports in HTML, JSON, CSV, and Markdown formats
  */
 
@@ -93,646 +93,205 @@ export class ReportGenerator {
   }
 
   private generateHTML(analysis: CoverageAnalysis, gitChanges: GitChangeAnalysis, serviceName: string): string {
+    // Load the enhanced template
+    const templatePath = path.join(__dirname, '../templates/enhanced-report.html');
+    let template = fs.readFileSync(templatePath, 'utf-8');
+    
     const { summary, apis, orphanTests, orphanAPIs, gaps, visualAnalytics } = analysis;
     
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coverage Report - ${serviceName}</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
-        }
-        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
-        .header .timestamp { opacity: 0.9; font-size: 0.9em; }
-        .summary-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 40px;
-            background: #f8f9fa;
-        }
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,0,0,0.15); }
-        .card-title { font-size: 0.85em; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-        .card-value { font-size: 2.5em; font-weight: bold; color: #333; }
-        .card-footer { font-size: 0.9em; color: #888; margin-top: 10px; }
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: #e0e0e0;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 15px;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            transition: width 0.5s ease;
-        }
-        .section {
-            padding: 40px;
-            border-bottom: 1px solid #eee;
-        }
-        .section:last-child { border-bottom: none; }
-        .section-title {
-            font-size: 1.8em;
-            margin-bottom: 25px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .icon { font-size: 1.2em; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        thead {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        th, td {
-            padding: 15px;
-            text-align: left;
-        }
-        tbody tr:hover { background: #f8f9fa; }
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-        .badge-success { background: #d4edda; color: #155724; }
-        .badge-warning { background: #fff3cd; color: #856404; }
-        .badge-danger { background: #f8d7da; color: #721c24; }
-        .badge-info { background: #d1ecf1; color: #0c5460; }
-        .badge-p0 { background: #dc3545; color: white; }
-        .badge-p1 { background: #fd7e14; color: white; }
-        .badge-p2 { background: #ffc107; color: #333; }
-        .badge-p3 { background: #6c757d; color: white; }
-        .status-covered { color: #28a745; font-weight: bold; }
-        .status-partial { color: #ffc107; font-weight: bold; }
-        .status-missing { color: #dc3545; font-weight: bold; }
-        .orphan-section {
-            background: #fff8dc;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-        .git-changes {
-            background: #e7f3ff;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-        .api-box {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #667eea;
-        }
-        .api-box h4 { color: #667eea; margin-bottom: 15px; }
-        .scenario-item {
-            padding: 10px;
-            margin: 5px 0;
-            background: white;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .footer {
-            background: #f8f9fa;
-            padding: 30px 40px;
-            text-align: center;
-            color: #666;
-            font-size: 0.9em;
-        }
-        @media print {
-            body { background: white; padding: 0; }
-            .container { box-shadow: none; }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>📊 Coverage Report</h1>
-            <div class="timestamp">Service: <strong>${serviceName}</strong> | Generated: ${analysis.timestamp.toLocaleString()}</div>
-        </div>
+    // Build dynamic sections
+    const gapsSection = this.buildGapsSection(gaps);
+    const orphanAPIsSection = this.buildOrphanAPIsSection(orphanAPIs, analysis.orphanAPISummary);
+    const orphanTestsSection = this.buildOrphanTestsSection(orphanTests, serviceName);
+    
+    // Replace placeholders
+    template = template
+      .replace('{{TIMESTAMP}}', analysis.timestamp.toLocaleString())
+      .replace('{{DURATION}}', '0')
+      .replace('{{STATUS_CLASS}}', summary.p0Gaps > 0 ? 'failure' : 'success')
+      .replace('{{STATUS_TEXT}}', summary.p0Gaps > 0 ? '❌ P0 Gaps Detected' : '✅ All Tests Passing')
+      .replace(/{{COVERAGE_PERCENT}}/g, summary.coveragePercent.toFixed(1))
+      .replace('{{FULLY_COVERED}}', summary.fullyCovered.toString())
+      .replace('{{TOTAL_SCENARIOS}}', summary.totalScenarios.toString())
+      .replace('{{SERVICES_ANALYZED}}', '1')
+      .replace('{{TOTAL_TESTS}}', analysis.unitTestsFound.toString())
+      .replace('{{ORPHAN_TESTS}}', orphanTests.totalOrphans.toString())
+      .replace('{{P0_GAPS}}', summary.p0Gaps.toString())
+      .replace('{{PARTIALLY_COVERED}}', summary.partiallyCovered.toString())
+      .replace('{{NOT_COVERED}}', summary.notCovered.toString())
+      .replace('{{COVERAGE_TREND_CLASS}}', 'up')
+      .replace('{{COVERAGE_TREND_ICON}}', '📈')
+      .replace('{{COVERAGE_TREND_TEXT}}', 'Baseline')
+      .replace('{{P0_TREND_CLASS}}', summary.p0Gaps > 0 ? 'up' : 'down')
+      .replace('{{P0_TREND_ICON}}', summary.p0Gaps > 0 ? '⬆️' : '⬇️')
+      .replace('{{P0_TREND_TEXT}}', summary.p0Gaps > 0 ? `${summary.p0Gaps} critical` : '0 critical')
+      .replace('{{REPORT_DATA_JSON}}', JSON.stringify({
+        summary,
+        apis,
+        orphanTests: orphanTests.businessTests.concat(orphanTests.technicalTests)
+      }))
+      .replace('{{TREND_DATA_JSON}}', JSON.stringify({
+        snapshots: visualAnalytics?.coverageTrend || []
+      }))
+      .replace('{{GAPS_SECTION}}', gapsSection)
+      .replace('{{ORPHAN_APIS_SECTION}}', orphanAPIsSection)
+      .replace('{{ORPHAN_TESTS_SECTION}}', orphanTestsSection)
+      .replace('{{RECOMMENDATIONS_SECTION}}', '')
+      .replace('{{ERRORS_SECTION}}', '')
+      .replace('{{GENERATION_DATE}}', new Date().toLocaleDateString());
+    
+    return template;
+  }
 
-        <div class="summary-cards">
-            <div class="card">
-                <div class="card-title">Scenario Coverage</div>
-                <div class="card-value">${summary.coveragePercent.toFixed(1)}%</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${summary.coveragePercent}%"></div>
-                </div>
-                <div class="card-footer">${summary.fullyCovered} of ${summary.totalScenarios} baseline scenarios have unit tests</div>
-            </div>
-            <div class="card">
-                <div class="card-title">Critical Issues (P0)</div>
-                <div class="card-value" style="color: ${summary.p0Gaps > 0 ? '#dc3545' : '#28a745'}">${summary.p0Gaps}</div>
-                <div class="card-footer">Critical baseline scenarios missing unit tests</div>
-            </div>
-            <div class="card">
-                <div class="card-title">High Priority Issues (P1)</div>
-                <div class="card-value" style="color: ${summary.p1Gaps > 0 ? '#fd7e14' : '#28a745'}">${summary.p1Gaps}</div>
-                <div class="card-footer">High-priority baseline scenarios missing unit tests</div>
-            </div>
-            <div class="card">
-                <div class="card-title">Orphan Unit Tests</div>
-                <div class="card-value" style="color: ${orphanTests.businessTests.length > 0 ? '#ffc107' : '#28a745'}">${orphanTests.totalOrphans}</div>
-                <div class="card-footer">${orphanTests.businessTests.length} business tests require baseline scenarios</div>
-            </div>
-        </div>
+  private buildGapsSection(gaps: any[]): string {
+    if (gaps.length === 0) return '';
+    
+    return `
+<div class="section">
+  <h2>
+    ⚠️ Coverage Gaps (${gaps.length})
+    <span class="section-toggle" onclick="toggleSection('gaps')">▼</span>
+  </h2>
+  <div class="section-content" id="gaps-content">
+    ${gaps.map(gap => `
+    <div class="gap-item ${gap.priority.toLowerCase()}" data-priority="${gap.priority.toLowerCase()}" data-status="not-covered">
+      <div class="gap-header">
+        <span class="gap-id">${gap.api}</span>
+        <span class="priority-badge priority-${gap.priority.toLowerCase()}">${gap.priority}</span>
+      </div>
+      <div class="gap-description">${gap.scenario}</div>
+      <div class="gap-recommendations">
+        <h4>📋 Recommendations:</h4>
+        <ul>
+          ${gap.recommendations.map((r: string) => `<li>${r}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+    `).join('')}
+  </div>
+</div>`;
+  }
 
-        ${gitChanges.summary.apisAdded > 0 || gitChanges.summary.apisModified > 0 || gitChanges.summary.apisRemoved > 0 ? `
-        <div class="section">
-            <h2 class="section-title"><span class="icon">🔄</span> Git Changes Detected</h2>
-            <div class="git-changes">
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                    <div>
-                        <strong style="color: #28a745;">+${gitChanges.summary.apisAdded}</strong> APIs Added
-                    </div>
-                    <div>
-                        <strong style="color: #fd7e14;">~${gitChanges.summary.apisModified}</strong> APIs Modified
-                    </div>
-                    <div>
-                        <strong style="color: #dc3545;">-${gitChanges.summary.apisRemoved}</strong> APIs Removed
-                    </div>
-                </div>
-                ${gitChanges.summary.apisWithoutTests > 0 ? `
-                <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 4px; border-left: 4px solid #ffc107;">
-                    <strong>⚠️ Action Required:</strong> ${gitChanges.summary.apisWithoutTests} new API(s) without tests detected!
-                </div>
-                ` : ''}
-            </div>
-        </div>
-        ` : ''}
+  private buildOrphanAPIsSection(orphanAPIs: any[], aiSummary?: string): string {
+    if (!orphanAPIs || orphanAPIs.length === 0) return '';
+    
+    return `
+<div class="section">
+  <h2>
+    ⚠️ Orphan APIs (${orphanAPIs.length})
+    <span class="section-toggle" onclick="toggleSection('orphan-apis')">▼</span>
+  </h2>
+  <div class="section-content" id="orphan-apis-content">
+    <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 20px;">
+      <strong>⚠️ Critical: These APIs were discovered but have NO scenarios or tests.</strong> They are completely untracked and represent gaps in test coverage.
+    </div>
+    ${aiSummary ? `
+    <div style="background: linear-gradient(135deg, #e7f3ff 0%, #f0f7ff 100%); padding: 25px; border-radius: 10px; border-left: 5px solid #667eea; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+        <span style="font-size: 1.5em;">🤖</span>
+        <h4 style="margin: 0; color: #667eea; font-size: 1.2em;">AI Analysis</h4>
+      </div>
+      <div style="color: #333; line-height: 1.8; font-size: 0.95em;">
+        ${aiSummary.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #667eea;">$1</strong>')
+          .replace(/\n/g, '<br>')}
+      </div>
+    </div>
+    ` : ''}
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Endpoint</th>
+          <th>Controller</th>
+          <th>Line</th>
+          <th>Scenario</th>
+          <th>Test</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${orphanAPIs.map(api => `
+        <tr>
+          <td><span class="badge badge-info">${api.method}</span></td>
+          <td><code>${api.endpoint}</code></td>
+          <td>${api.controller}</td>
+          <td>${api.lineNumber || 'N/A'}</td>
+          <td><span style="color: #dc3545;">❌</span></td>
+          <td><span style="color: #dc3545;">❌</span></td>
+        </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>`;
+  }
 
-        <div class="section">
-            <h2 class="section-title"><span class="icon">🎯</span> API Coverage Analysis</h2>
-            ${apis.map(api => `
-            <div class="api-box">
-                <h4>${api.api}</h4>
-                <div style="margin-bottom: 15px;">
-                    <span class="badge badge-success">${api.coveredScenarios} Covered</span>
-                    <span class="badge badge-warning">${api.partiallyCoveredScenarios} Partial</span>
-                    <span class="badge badge-danger">${api.uncoveredScenarios} Missing</span>
-                </div>
-                ${api.matchedTests.slice(0, 10).map(match => `
-                <div class="scenario-item">
-                    <span>${match.scenario}</span>
-                    <span class="status-${match.status === 'FULLY_COVERED' ? 'covered' : match.status === 'PARTIALLY_COVERED' ? 'partial' : 'missing'}">
-                        ${match.status.replace('_', ' ')} (${match.tests.length} test${match.tests.length !== 1 ? 's' : ''})
-                    </span>
-                </div>
-                `).join('')}
-                ${api.matchedTests.length > 10 ? `<div style="text-align: center; padding: 10px; color: #666;">... and ${api.matchedTests.length - 10} more scenarios</div>` : ''}
-            </div>
-            `).join('')}
-        </div>
-
-        ${apis.some(api => api.matchedTests.some(m => m.matchDetails && m.matchDetails.length > 0)) ? `
-        <div class="section">
-            <h2 class="section-title"><span class="icon">🔗</span> Traceability Matrix - Scenario to Test Mapping</h2>
-            <div style="background: linear-gradient(135deg, #f0f7ff 0%, #e7f3ff 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; margin-bottom: 20px;">
-                <p style="margin: 0; color: #333;"><strong>📋 Traceability Confidence:</strong> This section shows exact mapping between baseline scenarios and unit tests, including file locations and match confidence levels for verification.</p>
-            </div>
-            ${apis.map(api => `
-                ${api.matchedTests.filter(m => m.matchDetails && m.matchDetails && m.matchDetails.length > 0).length > 0 ? `
-                <div class="api-box">
-                    <h4>${api.api}</h4>
-                    ${api.matchedTests.filter(m => m.matchDetails && m.matchDetails && m.matchDetails.length > 0).map(match => `
-                    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid ${match.status === 'FULLY_COVERED' ? '#28a745' : match.status === 'PARTIALLY_COVERED' ? '#ffc107' : '#dc3545'};">
-                        <div style="margin-bottom: 15px;">
-                            <strong style="color: #333; font-size: 1.05em;">📝 Scenario:</strong>
-                            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px; margin-top: 8px;">
-                                ${match.scenario}
-                            </div>
-                        </div>
-                        <div>
-                            <strong style="color: #333;">✅ Matched Unit Tests (${match.matchDetails?.length || 0}):</strong>
-                            <div style="margin-top: 10px;">
-                                ${(match.matchDetails || []).map(detail => `
-                                <div style="padding: 12px; background: #f8f9fa; border-radius: 4px; margin-top: 8px; border-left: 3px solid #667eea;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                        <span style="font-weight: 600; color: #333;">${detail.testDescription}</span>
-                                        <span class="badge badge-${detail.matchConfidence === 'HIGH' ? 'success' : detail.matchConfidence === 'MEDIUM' ? 'warning' : 'danger'}">${detail.matchConfidence} Confidence</span>
-                                    </div>
-                                    <div style="font-size: 0.9em; color: #666;">
-                                        <code style="background: #e9ecef; padding: 2px 6px; border-radius: 3px;">${detail.file}</code>
-                                        ${detail.lineNumber ? `<span style="margin-left: 10px;">Line: ${detail.lineNumber}</span>` : ''}
-                                    </div>
-                                </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                    `).join('')}
-                </div>
-                ` : ''}
-            `).join('')}
-        </div>
-        ` : ''}
-
-        ${gaps.length > 0 ? `
-        <div class="section">
-            <h2 class="section-title"><span class="icon">⚠️</span> Coverage Gaps (${gaps.length})</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Priority</th>
-                        <th>API</th>
-                        <th>Scenario</th>
-                        <th>Reason</th>
-                        <th>Recommendation</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${gaps.slice(0, 50).map(gap => `
-                    <tr>
-                        <td><span class="badge badge-${gap.priority.toLowerCase()}">${gap.priority}</span></td>
-                        <td><code>${gap.api}</code></td>
-                        <td>${gap.scenario}</td>
-                        <td>${gap.reason}</td>
-                        <td>${gap.recommendations[0] || 'Review and fix'}</td>
-                    </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-            ${gaps.length > 50 ? `<div style="text-align: center; padding: 20px; color: #666;">Showing 50 of ${gaps.length} gaps</div>` : ''}
-        </div>
-        ` : ''}
-
-        ${orphanAPIs && orphanAPIs.length > 0 ? `
-        <div class="section">
-            <h2 class="section-title"><span class="icon">⚠️</span> Orphan APIs (${orphanAPIs.length})</h2>
-            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 20px;">
-                <strong>⚠️ Critical: These APIs were discovered but have NO scenarios or tests.</strong> They are completely untracked and represent gaps in test coverage.
-            </div>
-            ${analysis.orphanAPISummary ? `
-            <div style="background: linear-gradient(135deg, #e7f3ff 0%, #f0f7ff 100%); padding: 25px; border-radius: 10px; border-left: 5px solid #667eea; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                    <span style="font-size: 1.5em;">🤖</span>
-                    <h4 style="margin: 0; color: #667eea; font-size: 1.2em;">AI Analysis</h4>
-                </div>
-                <div style="color: #333; line-height: 1.8; font-size: 0.95em;">
-                    ${analysis.orphanAPISummary.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #667eea;">$1</strong>')
-                        .replace(/## (.*?)\n/g, '<div style="font-weight: 600; color: #667eea; margin-top: 12px; margin-bottom: 8px;">$1</div>')
-                        .replace(/\n/g, '<br>')}
-                </div>
-            </div>
-            ` : ''}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Method</th>
-                        <th>Endpoint</th>
-                        <th>Controller</th>
-                        <th>Line</th>
-                        <th>Scenario</th>
-                        <th>Test</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${orphanAPIs.map(api => `
-                    <tr>
-                        <td><span class="badge badge-info">${api.method}</span></td>
-                        <td><code>${api.endpoint}</code></td>
-                        <td>${api.controller}</td>
-                        <td>${api.lineNumber || 'N/A'}</td>
-                        <td><span style="color: #dc3545;">❌</span></td>
-                        <td><span style="color: #dc3545;">❌</span></td>
-                    </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-            <div style="background: #e7f3ff; padding: 15px; border-radius: 4px; margin-top: 20px;">
-                <strong>📋 Recommended Actions:</strong>
-                <ul style="margin: 10px 0 0 20px;">
-                    <li>Create scenarios to document expected behavior for each API</li>
-                    <li>Add unit tests to verify API functionality</li>
-                    <li>If APIs are deprecated, remove them from code</li>
-                    <li>Ensure all new APIs are created with tests</li>
-                </ul>
-            </div>
-        </div>
-        ` : ''}
-
-        ${orphanTests.totalOrphans > 0 ? `
-        <div class="section">
-            <h2 class="section-title"><span class="icon">🔍</span> Orphan Unit Tests (${orphanTests.totalOrphans})</h2>
-            <div style="background: #fff8dc; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <p style="margin: 0 0 10px 0;"><strong>Orphan Unit Tests:</strong> ${orphanTests.totalOrphans} unit tests exist in the codebase but are not linked to baseline test scenarios.</p>
-                <ul style="margin: 0; padding-left: 20px;">
-                    <li><strong>${orphanTests.businessTests.length} Business Tests:</strong> Cover business logic and require QA to add corresponding baseline scenarios for traceability</li>
-                    <li><strong>${orphanTests.technicalTests.length} Technical Tests:</strong> Infrastructure/utility tests that don't require baseline scenarios (no action needed)</li>
-                </ul>
-            </div>
-            
-            ${[...orphanTests.businessTests, ...orphanTests.technicalTests].length > 0 ? `
-            <table id="orphans-content">
-                <thead>
-                    <tr>
-                        <th>Service</th>
-                        <th>Test Description</th>
-                        <th>Test File Path</th>
-                        <th>Category</th>
-                        <th>Priority</th>
-                        <th>Suggested Fix</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${[...orphanTests.businessTests, ...orphanTests.technicalTests].map(test => `
-                    <tr data-priority="${(test.orphanCategory?.priority || 'p3').toLowerCase()}">
-                        <td><strong>${serviceName}</strong></td>
-                        <td>${test.description}</td>
-                        <td><code style="font-size: 0.85em;">${test.file}</code></td>
-                        <td><span class="badge badge-${test.orphanCategory?.type === 'technical' ? 'info' : 'warning'}">${(test.orphanCategory?.type || 'unknown').toUpperCase()}</span></td>
-                        <td><span class="badge badge-${(test.orphanCategory?.priority || 'p3').toLowerCase()}">${test.orphanCategory?.priority || 'P3'}</span></td>
-                        <td style="font-size: 0.9em;">
-                            ${test.orphanCategory?.actionRequired === 'qa_add_scenario' 
-                                ? `<strong style="color: #dc3545;">QA Action:</strong> Add "${test.description}" scenario to baseline for traceability`
-                                : 'No action needed - infrastructure/utility test'}
-                        </td>
-                    </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-            ` : ''}
-            
-            ${orphanTests.businessTests.filter(t => t.orphanCategory?.priority === 'P0').length > 0 ? `
-            <div style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 25px; border-radius: 10px; margin-top: 30px; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                    <span style="font-size: 1.8em;">🚨</span>
-                    <h3 style="margin: 0; font-size: 1.3em;">Critical P0 Orphan Tests - Immediate Action Required</h3>
-                </div>
-                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; margin-bottom: 15px;">
-                    <p style="margin: 0 0 15px 0; font-size: 1.05em; line-height: 1.7;">
-                        <strong>${orphanTests.businessTests.filter(t => t.orphanCategory?.priority === 'P0').length} critical test(s)</strong> cover essential business logic but lack baseline scenarios. 
-                        This creates a <strong>traceability gap</strong> where core functionality is tested but not documented.
-                    </p>
-                    <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 6px; border-left: 4px solid white;">
-                        <strong style="display: block; margin-bottom: 10px; font-size: 1.1em;">📋 Immediate Actions:</strong>
-                        <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
-                            <li><strong>QA Team:</strong> Review each P0 test below and add corresponding scenarios to baseline YAML file</li>
-                            <li><strong>Priority:</strong> Complete within 24 hours - these tests verify critical business requirements</li>
-                            <li><strong>Impact:</strong> Without baseline scenarios, we cannot track requirement coverage or generate proper test reports</li>
-                        </ul>
-                    </div>
-                </div>
-                <div style="background: rgba(255,255,255,0.95); color: #333; padding: 15px; border-radius: 8px;">
-                    <strong style="color: #dc3545; display: block; margin-bottom: 10px;">P0 Tests Requiring Baseline Scenarios:</strong>
-                    <ol style="margin: 0; padding-left: 20px; line-height: 2;">
-                        ${orphanTests.businessTests
-                            .filter(t => t.orphanCategory?.priority === 'P0')
-                            .map(test => `<li><code>${test.description}</code> <span style="color: #666; font-size: 0.9em;">(${test.file})</span></li>`)
-                            .join('')}
-                    </ol>
-                </div>
-            </div>
-            ` : ''}
-        </div>
-        ` : ''}
-
-        ${visualAnalytics ? `
-        <div class="section">
-            <h2 class="section-title"><span class="icon">📊</span> Visual Analytics</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
-                    <h4 style="margin-bottom: 15px;">Coverage Distribution</h4>
-                    <div style="position: relative; height: 250px;">
-                        <canvas id="coverageChart"></canvas>
-                    </div>
-                </div>
-                
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
-                    <h4 style="margin-bottom: 15px;">Gap Priority Breakdown</h4>
-                    <div style="position: relative; height: 250px;">
-                        <canvas id="gapChart"></canvas>
-                    </div>
-                </div>
-                
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
-                    <h4 style="margin-bottom: 15px;">Orphan Test Priority Breakdown</h4>
-                    <div style="position: relative; height: 250px;">
-                        <canvas id="orphanChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        ` : ''}
-
-        <div class="footer">
-            Generated by AI-Driven Coverage System | ${new Date().toLocaleDateString()}
-        </div>
+  private buildOrphanTestsSection(orphanTests: any, serviceName: string): string {
+    if (orphanTests.totalOrphans === 0) return '';
+    
+    const allTests = [...orphanTests.businessTests, ...orphanTests.technicalTests];
+    
+    return `
+<div class="section">
+  <h2>
+    🔍 Orphan Unit Tests (${orphanTests.totalOrphans})
+    <span class="section-toggle" onclick="toggleSection('orphans')">▼</span>
+  </h2>
+  <div class="section-content" id="orphans-content">
+    <div style="background: #fff8dc; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+      <p style="margin: 0 0 10px 0;"><strong>Orphan Unit Tests:</strong> ${orphanTests.totalOrphans} unit tests exist in the codebase but are not linked to baseline test scenarios.</p>
+      <ul style="margin: 0; padding-left: 20px;">
+        <li><strong>${orphanTests.businessTests.length} Business Tests:</strong> Cover business logic and require QA to add corresponding baseline scenarios for traceability</li>
+        <li><strong>${orphanTests.technicalTests.length} Technical Tests:</strong> Infrastructure/utility tests that don't require baseline scenarios (no action needed)</li>
+      </ul>
     </div>
     
-    <script>
-        // Initialize Chart.js visualizations
-        window.addEventListener('DOMContentLoaded', function() {
-            const visualData = ${visualAnalytics ? JSON.stringify(visualAnalytics) : 'null'};
-            
-            if (!visualData) return;
-            
-            // Coverage Distribution Doughnut Chart
-            const coverageCtx = document.getElementById('coverageChart');
-            if (coverageCtx) {
-                new Chart(coverageCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Fully Covered', 'Partially Covered', 'Not Covered'],
-                        datasets: [{
-                            data: [
-                                visualData.coverageDistribution.fullyCovered,
-                                visualData.coverageDistribution.partiallyCovered,
-                                visualData.coverageDistribution.notCovered
-                            ],
-                            backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
-                            borderWidth: 2,
-                            borderColor: '#fff'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 15,
-                                    font: { size: 12 },
-                                    generateLabels: function(chart) {
-                                        const data = chart.data;
-                                        if (data.labels.length && data.datasets.length) {
-                                            return data.labels.map((label, i) => {
-                                                const value = data.datasets[0].data[i];
-                                                return {
-                                                    text: label + ': ' + value,
-                                                    fillStyle: data.datasets[0].backgroundColor[i],
-                                                    hidden: false,
-                                                    index: i
-                                                };
-                                            });
-                                        }
-                                        return [];
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.parsed || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = ((value / total) * 100).toFixed(1);
-                                        return label + ': ' + value + ' (' + percentage + '%)';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Gap Priority Bar Chart
-            const gapCtx = document.getElementById('gapChart');
-            if (gapCtx) {
-                new Chart(gapCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['P0 (Critical)', 'P1 (High)', 'P2 (Medium)', 'P3 (Low)'],
-                        datasets: [{
-                            label: 'Number of Gaps',
-                            data: [
-                                visualData.gapPriorityBreakdown.p0,
-                                visualData.gapPriorityBreakdown.p1,
-                                visualData.gapPriorityBreakdown.p2,
-                                visualData.gapPriorityBreakdown.p3
-                            ],
-                            backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#6c757d'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    afterLabel: function(context) {
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        if (total === 0) return '';
-                                        const percentage = ((context.parsed.y / total) * 100).toFixed(1);
-                                        return percentage + '% of total gaps';
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: { stepSize: 1 },
-                                grid: { color: '#e5e7eb' }
-                            },
-                            x: {
-                                grid: { display: false }
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Orphan Test Priority Bar Chart
-            const orphanCtx = document.getElementById('orphanChart');
-            if (orphanCtx) {
-                new Chart(orphanCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['P0 (Critical)', 'P1 (High)', 'P2 (Medium)', 'P3 (Low)'],
-                        datasets: [{
-                            label: 'Orphan Tests',
-                            data: [
-                                visualData.orphanTestPriorityBreakdown.p0,
-                                visualData.orphanTestPriorityBreakdown.p1,
-                                visualData.orphanTestPriorityBreakdown.p2,
-                                visualData.orphanTestPriorityBreakdown.p3
-                            ],
-                            backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#6c757d'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    afterLabel: function(context) {
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        if (total === 0) return '';
-                                        const percentage = ((context.parsed.y / total) * 100).toFixed(1);
-                                        return percentage + '% of orphan tests';
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: { stepSize: 1 },
-                                grid: { color: '#e5e7eb' }
-                            },
-                            x: {
-                                grid: { display: false }
-                            }
-                        }
-                    }
-                });
-            }
-        });
-    </script>
-</body>
-</html>`;
+    ${allTests.length > 0 ? `
+    <table id="orphans-table">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Test Description</th>
+          <th>Test File Path</th>
+          <th>Category</th>
+          <th>Priority</th>
+          <th>Suggested Fix</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${allTests.map((test: any) => `
+        <tr data-priority="${(test.orphanCategory?.priority || 'p3').toLowerCase()}">
+          <td><strong>${serviceName}</strong></td>
+          <td>${test.description}</td>
+          <td><code style="font-size: 0.85em;">${test.file}</code></td>
+          <td><span class="badge badge-${test.orphanCategory?.type === 'technical' ? 'info' : 'warning'}">${(test.orphanCategory?.type || 'unknown').toUpperCase()}</span></td>
+          <td><span class="badge badge-${(test.orphanCategory?.priority || 'p3').toLowerCase()}">${test.orphanCategory?.priority || 'P3'}</span></td>
+          <td style="font-size: 0.9em;">
+            ${test.orphanCategory?.actionRequired === 'qa_add_scenario' 
+              ? `<strong style="color: #dc3545;">QA Action:</strong> Add "${test.description}" scenario to baseline for traceability`
+              : 'No action needed - infrastructure/utility test'}
+          </td>
+        </tr>
+        `).join('')}
+      </tbody>
+    </table>
+    ` : ''}
+    
+    ${orphanTests.businessTests.filter((t: any) => t.orphanCategory?.priority === 'P0').length > 0 ? `
+    <div style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 25px; border-radius: 10px; margin-top: 30px; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+        <span style="font-size: 1.8em;">🚨</span>
+        <h3 style="margin: 0; font-size: 1.3em;">Critical P0 Orphan Tests - Immediate Action Required</h3>
+      </div>
+      <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+        <p style="margin: 0 0 15px 0; font-size: 1.05em; line-height: 1.7;">
+          <strong>${orphanTests.businessTests.filter((t: any) => t.orphanCategory?.priority === 'P0').length} critical test(s)</strong> cover essential business logic but lack baseline scenarios. 
+          This creates a <strong>traceability gap</strong> where core functionality is tested but not documented.
+        </p>
+      </div>
+    </div>
+    ` : ''}
+  </div>
+</div>`;
   }
 
   private generateJSON(analysis: CoverageAnalysis, gitChanges: GitChangeAnalysis): string {
