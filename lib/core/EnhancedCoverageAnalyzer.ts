@@ -885,15 +885,29 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
       const hasScenarios = baseline[apiKey] || baseline[discoveredAPI.endpoint] || baseline[`${discoveredAPI.endpoint}`];
       const scenarioCount = hasScenarios ? this.flattenScenarios(hasScenarios).length : 0;
 
-      // Check if any unit tests cover this API
+      // Check if any unit tests cover this API - improved matching
       const apiEndpoint = discoveredAPI.endpoint.toLowerCase();
       const hasTests = unitTests.some(test => {
         const testDesc = test.description.toLowerCase();
         const testFile = test.file.toLowerCase();
         
-        // Extract endpoint parts for matching
-        const endpointParts = apiEndpoint.split('/').filter((p: string) => p);
-        return endpointParts.some((part: string) => testDesc.includes(part) || testFile.includes(part));
+        // Extract meaningful parts (skip path parameters like {id})
+        const endpointParts = apiEndpoint
+          .split('/')
+          .filter((p: string) => p && !p.startsWith('{') && p !== 'api' && p !== 'v1');
+        
+        // Check if test mentions the API endpoint or controller
+        const matchesEndpoint = endpointParts.some((part: string) => 
+          testDesc.includes(part) || testFile.includes(part)
+        );
+        
+        // Check if test mentions the HTTP method
+        const method = discoveredAPI.method.toLowerCase();
+        const matchesMethod = testDesc.includes(method) || 
+                             testDesc.includes(method === 'get' ? 'get' : method);
+        
+        // Test must match both endpoint and method for positive match
+        return matchesEndpoint && matchesMethod;
       });
 
       // If no scenarios AND no tests, it's an orphan API

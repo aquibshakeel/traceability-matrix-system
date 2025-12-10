@@ -257,27 +257,27 @@ export class ReportGenerator {
 
         <div class="summary-cards">
             <div class="card">
-                <div class="card-title">Coverage</div>
+                <div class="card-title">Scenario Coverage</div>
                 <div class="card-value">${summary.coveragePercent.toFixed(1)}%</div>
                 <div class="progress-bar">
                     <div class="progress-fill" style="width: ${summary.coveragePercent}%"></div>
                 </div>
-                <div class="card-footer">${summary.fullyCovered}/${summary.totalScenarios} scenarios covered</div>
+                <div class="card-footer">${summary.fullyCovered} of ${summary.totalScenarios} baseline scenarios have unit tests</div>
             </div>
             <div class="card">
-                <div class="card-title">Critical Gaps</div>
+                <div class="card-title">Critical Issues (P0)</div>
                 <div class="card-value" style="color: ${summary.p0Gaps > 0 ? '#dc3545' : '#28a745'}">${summary.p0Gaps}</div>
-                <div class="card-footer">P0 scenarios without tests</div>
+                <div class="card-footer">Critical baseline scenarios missing unit tests</div>
             </div>
             <div class="card">
-                <div class="card-title">High Priority Gaps</div>
+                <div class="card-title">High Priority Issues (P1)</div>
                 <div class="card-value" style="color: ${summary.p1Gaps > 0 ? '#fd7e14' : '#28a745'}">${summary.p1Gaps}</div>
-                <div class="card-footer">P1 scenarios need attention</div>
+                <div class="card-footer">High-priority baseline scenarios missing unit tests</div>
             </div>
             <div class="card">
-                <div class="card-title">Orphan Tests</div>
+                <div class="card-title">Orphan Unit Tests</div>
                 <div class="card-value" style="color: ${orphanTests.businessTests.length > 0 ? '#ffc107' : '#28a745'}">${orphanTests.totalOrphans}</div>
-                <div class="card-footer">${orphanTests.businessTests.length} need scenarios</div>
+                <div class="card-footer">${orphanTests.businessTests.length} business tests require baseline scenarios</div>
             </div>
         </div>
 
@@ -416,7 +416,11 @@ export class ReportGenerator {
         <div class="section">
             <h2 class="section-title"><span class="icon">🔍</span> Orphan Unit Tests (${orphanTests.totalOrphans})</h2>
             <div style="background: #fff8dc; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <strong>Unit tests without baseline scenarios.</strong> ${orphanTests.businessTests.length} business tests require QA action, ${orphanTests.technicalTests.length} are infrastructure tests (no action needed).
+                <p style="margin: 0 0 10px 0;"><strong>Orphan Unit Tests:</strong> ${orphanTests.totalOrphans} unit tests exist in the codebase but are not linked to baseline test scenarios.</p>
+                <ul style="margin: 0; padding-left: 20px;">
+                    <li><strong>${orphanTests.businessTests.length} Business Tests:</strong> Cover business logic and require QA to add corresponding baseline scenarios for traceability</li>
+                    <li><strong>${orphanTests.technicalTests.length} Technical Tests:</strong> Infrastructure/utility tests that don't require baseline scenarios (no action needed)</li>
+                </ul>
             </div>
             
             ${[...orphanTests.businessTests, ...orphanTests.technicalTests].length > 0 ? `
