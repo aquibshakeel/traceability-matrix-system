@@ -401,7 +401,8 @@ Respond in JSON format:
       let partialCount = matchedTests.filter((m: any) => m.status === 'PARTIALLY_COVERED').length;
       let uncoveredCount = matchedTests.filter((m: any) => m.status === 'NOT_COVERED').length;
 
-      // Baseline vs unit test gaps
+      // Baseline vs unit test gaps ONLY
+      // Do NOT include AI suggestions (completeness gaps) in coverage report
       const gaps: GapAnalysis[] = analysis.matches
         .filter((m: any) => m.status === 'NOT_COVERED' || m.status === 'PARTIALLY_COVERED')
         .map((m: any) => ({
@@ -412,9 +413,8 @@ Respond in JSON format:
           recommendations: [`Create/update unit test to cover: ${m.scenario}`]
         }));
 
-      // Add completeness gaps (from API spec) as informational only
-      // These are reported but don't change coverage status
-      gaps.push(...completenessGaps);
+      // AI suggestions are logged to console for informational purposes only
+      // They are NOT added to coverage gaps
 
       console.log(`  ✅ Covered: ${coveredCount}/${scenarios.length}`);
       console.log(`  ⚠️  Gaps: ${uncoveredCount} not covered, ${partialCount} partial`);
