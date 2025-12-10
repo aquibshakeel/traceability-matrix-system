@@ -77,7 +77,17 @@ export interface APIAnalysis {
   coveredScenarios: number;
   partiallyCoveredScenarios: number;
   uncoveredScenarios: number;
-  matchedTests: Array<{scenario: string; tests: UnitTest[]; status: string}>;
+  matchedTests: Array<{
+    scenario: string; 
+    tests: UnitTest[]; 
+    status: string;
+    matchDetails?: {
+      testDescription: string;
+      file: string;
+      lineNumber?: number;
+      matchConfidence: string;
+    }[];
+  }>;
   gaps: GapAnalysis[];
 }
 
@@ -103,6 +113,8 @@ export interface GapAnalysis {
   priority: Priority;
   reason: string;
   recommendations: string[];
+  aiSuggestions?: string[];
+  context?: 'gap' | 'orphan_test' | 'orphan_api';
 }
 
 export interface AnalysisSummary {
@@ -407,13 +419,26 @@ Respond in JSON format:
       const content = response.content[0].type === 'text' ? response.content[0].text : '{}';
       const analysis = this.parseAIResponse(content);
       
-      // Build result - keep original status from baseline vs unit test matching
-      // DO NOT override status based on API spec completeness
-      const matchedTests = analysis.matches.map((m: any) => ({
-        scenario: m.scenario,
-        tests: m.testNumbers.map((n: number) => unitTests[n - 1]).filter((t: UnitTest) => t),
-        status: m.status, // Keep original status
-      }));
+      // Build result with match details for traceability
+      const matchedTests = analysis.matches.map((m: any) => {
+        const tests = m.testNumbers.map((n: number) => unitTests[n - 1]).filter((t: UnitTest) => t);
+        
+        // Build detailed match info for each test
+        const matchDetails = tests.map((test: UnitTest) => ({
+          testDescription: test.description,
+          file: test.file,
+          lineNumber: test.lineNumber,
+          matchConfidence: m.status === 'FULLY_COVERED' ? 'HIGH' : 
+                          m.status === 'PARTIALLY_COVERED' ? 'MEDIUM' : 'LOW'
+        }));
+        
+        return {
+          scenario: m.scenario,
+          tests,
+          status: m.status,
+          matchDetails
+        };
+      });
 
       let coveredCount = matchedTests.filter((m: any) => m.status === 'FULLY_COVERED').length;
       let partialCount = matchedTests.filter((m: any) => m.status === 'PARTIALLY_COVERED').length;

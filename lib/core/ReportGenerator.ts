@@ -329,6 +329,49 @@ export class ReportGenerator {
             `).join('')}
         </div>
 
+        ${apis.some(api => api.matchedTests.some(m => m.matchDetails && m.matchDetails.length > 0)) ? `
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🔗</span> Traceability Matrix - Scenario to Test Mapping</h2>
+            <div style="background: linear-gradient(135deg, #f0f7ff 0%, #e7f3ff 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; margin-bottom: 20px;">
+                <p style="margin: 0; color: #333;"><strong>📋 Traceability Confidence:</strong> This section shows exact mapping between baseline scenarios and unit tests, including file locations and match confidence levels for verification.</p>
+            </div>
+            ${apis.map(api => `
+                ${api.matchedTests.filter(m => m.matchDetails && m.matchDetails && m.matchDetails.length > 0).length > 0 ? `
+                <div class="api-box">
+                    <h4>${api.api}</h4>
+                    ${api.matchedTests.filter(m => m.matchDetails && m.matchDetails && m.matchDetails.length > 0).map(match => `
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid ${match.status === 'FULLY_COVERED' ? '#28a745' : match.status === 'PARTIALLY_COVERED' ? '#ffc107' : '#dc3545'};">
+                        <div style="margin-bottom: 15px;">
+                            <strong style="color: #333; font-size: 1.05em;">📝 Scenario:</strong>
+                            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px; margin-top: 8px;">
+                                ${match.scenario}
+                            </div>
+                        </div>
+                        <div>
+                            <strong style="color: #333;">✅ Matched Unit Tests (${match.matchDetails?.length || 0}):</strong>
+                            <div style="margin-top: 10px;">
+                                ${(match.matchDetails || []).map(detail => `
+                                <div style="padding: 12px; background: #f8f9fa; border-radius: 4px; margin-top: 8px; border-left: 3px solid #667eea;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <span style="font-weight: 600; color: #333;">${detail.testDescription}</span>
+                                        <span class="badge badge-${detail.matchConfidence === 'HIGH' ? 'success' : detail.matchConfidence === 'MEDIUM' ? 'warning' : 'danger'}">${detail.matchConfidence} Confidence</span>
+                                    </div>
+                                    <div style="font-size: 0.9em; color: #666;">
+                                        <code style="background: #e9ecef; padding: 2px 6px; border-radius: 3px;">${detail.file}</code>
+                                        ${detail.lineNumber ? `<span style="margin-left: 10px;">Line: ${detail.lineNumber}</span>` : ''}
+                                    </div>
+                                </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    `).join('')}
+                </div>
+                ` : ''}
+            `).join('')}
+        </div>
+        ` : ''}
+
         ${gaps.length > 0 ? `
         <div class="section">
             <h2 class="section-title"><span class="icon">⚠️</span> Coverage Gaps (${gaps.length})</h2>
