@@ -885,7 +885,7 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
       const hasScenarios = baseline[apiKey] || baseline[discoveredAPI.endpoint] || baseline[`${discoveredAPI.endpoint}`];
       const scenarioCount = hasScenarios ? this.flattenScenarios(hasScenarios).length : 0;
 
-      // Check if any unit tests cover this API - improved matching
+      // Check if any unit tests cover this API - improved matching with singular/plural support
       const apiEndpoint = discoveredAPI.endpoint.toLowerCase();
       const hasTests = unitTests.some(test => {
         const testDesc = test.description.toLowerCase();
@@ -896,10 +896,13 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
           .split('/')
           .filter((p: string) => p && !p.startsWith('{') && p !== 'api' && p !== 'v1');
         
-        // Check if test mentions the API endpoint or controller
-        const matchesEndpoint = endpointParts.some((part: string) => 
-          testDesc.includes(part) || testFile.includes(part)
-        );
+        // Check if test mentions the API endpoint (handle singular/plural)
+        const matchesEndpoint = endpointParts.some((part: string) => {
+          // Remove trailing 's' for plural matching (e.g., "customers" -> "customer")
+          const singular = part.endsWith('s') ? part.slice(0, -1) : part;
+          return testDesc.includes(singular) || testFile.includes(singular) ||
+                 testDesc.includes(part) || testFile.includes(part);
+        });
         
         // Check if test mentions the HTTP method
         const method = discoveredAPI.method.toLowerCase();
