@@ -99,10 +99,10 @@ export class ReportGenerator {
     
     const { summary, apis, orphanTests, orphanAPIs, gaps, visualAnalytics } = analysis;
     
-    // Build dynamic sections
+    // Build dynamic sections - REORDERED: Gaps first!
+    const gapsSection = this.buildGapsSection(gaps);
     const apiCoverageSection = this.buildAPICoverageSection(apis);
     const traceabilitySection = this.buildTraceabilitySection(apis);
-    const gapsSection = this.buildGapsSection(gaps);
     const orphanAPIsSection = this.buildOrphanAPIsSection(orphanAPIs, analysis.orphanAPISummary);
     const orphanTestsSection = this.buildOrphanTestsSection(orphanTests, serviceName);
     const gitChangesSection = this.buildGitChangesSection(gitChanges);
@@ -152,14 +152,21 @@ export class ReportGenerator {
   private buildAPICoverageSection(apis: any[]): string {
     if (apis.length === 0) return '';
     
+    // Filter out APIs with no data (0 covered, 0 partial, 0 missing)
+    const apisWithData = apis.filter(api => 
+      api.coveredScenarios > 0 || api.partiallyCoveredScenarios > 0 || api.uncoveredScenarios > 0
+    );
+    
+    if (apisWithData.length === 0) return '';
+    
     return `
 <div class="section">
   <h2>
-    🎯 API Coverage Analysis
+    🎯 API Coverage Analysis (Unit Tests vs Baseline)
     <span class="section-toggle" onclick="toggleSection('api-coverage')">▼</span>
   </h2>
   <div class="section-content" id="api-coverage-content">
-    ${apis.map(api => {
+    ${apisWithData.map(api => {
       const hasMissing = api.uncoveredScenarios > 0;
       const hasAIAnalysis = api.completenessAnalysis && api.completenessAnalysis.length > 0;
       
@@ -173,10 +180,10 @@ export class ReportGenerator {
           <span style="font-size: 1.2em;">✅</span>
           <strong style="color: #333;">Actual Coverage (Baseline vs Unit Tests)</strong>
         </div>
-        <div style="margin-bottom: 15px;">
-          <span class="badge badge-success">${api.coveredScenarios} Covered</span>
-          <span class="badge badge-warning">${api.partiallyCoveredScenarios} Partial</span>
-          <span class="badge badge-danger">${api.uncoveredScenarios} Missing</span>
+        <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+          <span style="background: #d1fae5; color: #065f46; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.95em;">${api.coveredScenarios} Fully covered</span>
+          <span style="background: #fef3c7; color: #92400e; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.95em;">${api.partiallyCoveredScenarios} Partially covered</span>
+          <span style="background: #fee2e2; color: #991b1b; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.95em;">${api.uncoveredScenarios} Missing unit tests</span>
         </div>
         ${api.matchedTests.map((match: any) => `
         <div style="padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
@@ -229,17 +236,12 @@ export class ReportGenerator {
       
       ${hasMissing && !hasAIAnalysis ? `
       <!-- Action Items for Missing Coverage -->
-      <div style="background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 3px solid #ffc107;">
-        <strong style="color: #856404; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-          <span>⚠️</span> Action Required:
-        </strong>
-        <div style="color: #856404;">
-          <strong>👨‍💻 DEV:</strong> Implement unit tests for these ${api.uncoveredScenarios} baseline scenarios:
-          <ul style="margin: 8px 0 0 20px; padding: 0; line-height: 1.8;">
-            ${api.matchedTests.filter((m: any) => m.status === 'NOT_COVERED').map((m: any) => `
-            <li style="margin: 4px 0;">• ${m.scenario}</li>
-            `).join('')}
-          </ul>
+      <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626; margin-top: 15px;">
+        <div style="color: #7f1d1d; background: white; padding: 15px; border-radius: 6px; text-align: center;">
+          <strong style="color: #991b1b; font-size: 1.2em;">⚠️ Action Required</strong>
+          <div style="margin-top: 10px; font-size: 1.05em;">
+            <strong>👨‍💻 DEV Team:</strong> Implement unit tests for the <strong>${api.uncoveredScenarios} missing baseline scenarios</strong> listed above
+          </div>
         </div>
       </div>
       ` : ''}
@@ -260,7 +262,7 @@ export class ReportGenerator {
     return `
 <div class="section">
   <h2>
-    🔗 Traceability Matrix - Scenario to Test Mapping
+    🔗 Traceability Matrix (Unit Tests vs Baseline Scenarios)
     <span class="section-toggle" onclick="toggleSection('traceability')">▼</span>
   </h2>
   <div class="section-content" id="traceability-content">
@@ -391,21 +393,9 @@ export class ReportGenerator {
     <span class="section-toggle" onclick="toggleSection('orphan-apis')">▼</span>
   </h2>
   <div class="section-content" id="orphan-apis-content">
-    <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 20px;">
-      <strong>⚠️ Critical: These APIs were discovered but have NO scenarios or tests.</strong> They are completely untracked and represent gaps in test coverage.
+    <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626; margin-bottom: 20px;">
+      <strong style="color: #991b1b; font-size: 1.1em;">⚠️ Critical:</strong> These APIs were discovered but have <strong>NO scenarios or tests</strong>. They are completely untracked and represent gaps in test coverage.
     </div>
-    ${aiSummary ? `
-    <div style="background: linear-gradient(135deg, #e7f3ff 0%, #f0f7ff 100%); padding: 25px; border-radius: 10px; border-left: 5px solid #667eea; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);">
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-        <span style="font-size: 1.5em;">🤖</span>
-        <h4 style="margin: 0; color: #667eea; font-size: 1.2em;">AI Analysis</h4>
-      </div>
-      <div style="color: #333; line-height: 1.8; font-size: 0.95em;">
-        ${aiSummary.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #667eea;">$1</strong>')
-          .replace(/\n/g, '<br>')}
-      </div>
-    </div>
-    ` : ''}
     <table>
       <thead>
         <tr>
@@ -430,6 +420,19 @@ export class ReportGenerator {
         `).join('')}
       </tbody>
     </table>
+    
+    ${aiSummary ? `
+    <div style="background: linear-gradient(135deg, #e7f3ff 0%, #f0f7ff 100%); padding: 25px; border-radius: 10px; border-left: 5px solid #667eea; margin-top: 30px; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+        <span style="font-size: 1.5em;">🤖</span>
+        <h4 style="margin: 0; color: #667eea; font-size: 1.2em;">AI Analysis</h4>
+      </div>
+      <div style="color: #333; line-height: 1.8; font-size: 0.95em;">
+        ${aiSummary.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #667eea;">$1</strong>')
+          .replace(/\n/g, '<br>')}
+      </div>
+    </div>
+    ` : ''}
   </div>
 </div>`;
   }
@@ -452,10 +455,11 @@ export class ReportGenerator {
           .replace(/Test$/i, '')
           .trim();
         
-        // Convert from camelCase/PascalCase to sentence
+        // Convert from camelCase/PascalCase to sentence, remove extra spaces
         scenario = scenario
           .replace(/([A-Z])/g, ' $1')
           .toLowerCase()
+          .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
           .trim();
         
         // Try to format as "When X, then Y"
