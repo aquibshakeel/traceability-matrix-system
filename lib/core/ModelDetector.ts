@@ -34,7 +34,8 @@ export class ModelDetector {
       // so we'll try models in order of preference
       
       const modelsToTry = [
-        'claude-4-5-sonnet-20250929',
+        'claude-4-5-20250929',           // Latest Claude 4.5 (correct format)
+        'claude-4-5-sonnet-20250929',    // Alternative format
         'claude-3-7-sonnet-20250219',
         'claude-3-5-sonnet-20241022',
         'claude-3-5-sonnet-20240620',
