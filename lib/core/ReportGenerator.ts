@@ -100,31 +100,34 @@ export class ReportGenerator {
     const { summary, apis, orphanTests, orphanAPIs, gaps, visualAnalytics } = analysis;
     
     // Build dynamic sections
+    const apiCoverageSection = this.buildAPICoverageSection(apis);
+    const traceabilitySection = this.buildTraceabilitySection(apis);
     const gapsSection = this.buildGapsSection(gaps);
     const orphanAPIsSection = this.buildOrphanAPIsSection(orphanAPIs, analysis.orphanAPISummary);
     const orphanTestsSection = this.buildOrphanTestsSection(orphanTests, serviceName);
+    const gitChangesSection = this.buildGitChangesSection(gitChanges);
     
-    // Replace placeholders
+    // Replace placeholders (using global regex for multiple occurrences)
     template = template
-      .replace('{{TIMESTAMP}}', analysis.timestamp.toLocaleString())
-      .replace('{{DURATION}}', '0')
-      .replace('{{STATUS_CLASS}}', summary.p0Gaps > 0 ? 'failure' : 'success')
-      .replace('{{STATUS_TEXT}}', summary.p0Gaps > 0 ? '❌ P0 Gaps Detected' : '✅ All Tests Passing')
+      .replace(/{{TIMESTAMP}}/g, analysis.timestamp.toLocaleString())
+      .replace(/{{DURATION}}/g, '0')
+      .replace(/{{STATUS_CLASS}}/g, summary.p0Gaps > 0 ? 'failure' : 'success')
+      .replace(/{{STATUS_TEXT}}/g, summary.p0Gaps > 0 ? '❌ P0 Gaps Detected' : '✅ All Tests Passing')
       .replace(/{{COVERAGE_PERCENT}}/g, summary.coveragePercent.toFixed(1))
-      .replace('{{FULLY_COVERED}}', summary.fullyCovered.toString())
-      .replace('{{TOTAL_SCENARIOS}}', summary.totalScenarios.toString())
-      .replace('{{SERVICES_ANALYZED}}', '1')
-      .replace('{{TOTAL_TESTS}}', analysis.unitTestsFound.toString())
-      .replace('{{ORPHAN_TESTS}}', orphanTests.totalOrphans.toString())
-      .replace('{{P0_GAPS}}', summary.p0Gaps.toString())
-      .replace('{{PARTIALLY_COVERED}}', summary.partiallyCovered.toString())
-      .replace('{{NOT_COVERED}}', summary.notCovered.toString())
-      .replace('{{COVERAGE_TREND_CLASS}}', 'up')
-      .replace('{{COVERAGE_TREND_ICON}}', '📈')
-      .replace('{{COVERAGE_TREND_TEXT}}', 'Baseline')
-      .replace('{{P0_TREND_CLASS}}', summary.p0Gaps > 0 ? 'up' : 'down')
-      .replace('{{P0_TREND_ICON}}', summary.p0Gaps > 0 ? '⬆️' : '⬇️')
-      .replace('{{P0_TREND_TEXT}}', summary.p0Gaps > 0 ? `${summary.p0Gaps} critical` : '0 critical')
+      .replace(/{{FULLY_COVERED}}/g, summary.fullyCovered.toString())
+      .replace(/{{TOTAL_SCENARIOS}}/g, summary.totalScenarios.toString())
+      .replace(/{{SERVICES_ANALYZED}}/g, '1')
+      .replace(/{{TOTAL_TESTS}}/g, analysis.unitTestsFound.toString())
+      .replace(/{{ORPHAN_TESTS}}/g, orphanTests.totalOrphans.toString())
+      .replace(/{{P0_GAPS}}/g, summary.p0Gaps.toString())
+      .replace(/{{PARTIALLY_COVERED}}/g, summary.partiallyCovered.toString())
+      .replace(/{{NOT_COVERED}}/g, summary.notCovered.toString())
+      .replace(/{{COVERAGE_TREND_CLASS}}/g, 'up')
+      .replace(/{{COVERAGE_TREND_ICON}}/g, '📈')
+      .replace(/{{COVERAGE_TREND_TEXT}}/g, 'Baseline')
+      .replace(/{{P0_TREND_CLASS}}/g, summary.p0Gaps > 0 ? 'up' : 'down')
+      .replace(/{{P0_TREND_ICON}}/g, summary.p0Gaps > 0 ? '⬆️' : '⬇️')
+      .replace(/{{P0_TREND_TEXT}}/g, summary.p0Gaps > 0 ? `${summary.p0Gaps} critical` : '0 critical')
       .replace('{{REPORT_DATA_JSON}}', JSON.stringify({
         summary,
         apis,
@@ -138,9 +141,139 @@ export class ReportGenerator {
       .replace('{{ORPHAN_TESTS_SECTION}}', orphanTestsSection)
       .replace('{{RECOMMENDATIONS_SECTION}}', '')
       .replace('{{ERRORS_SECTION}}', '')
+      .replace('{{API_COVERAGE_SECTION}}', apiCoverageSection)
+      .replace('{{TRACEABILITY_SECTION}}', traceabilitySection)
+      .replace('{{GIT_CHANGES_SECTION}}', gitChangesSection)
       .replace('{{GENERATION_DATE}}', new Date().toLocaleDateString());
     
     return template;
+  }
+
+  private buildAPICoverageSection(apis: any[]): string {
+    if (apis.length === 0) return '';
+    
+    return `
+<div class="section">
+  <h2>
+    🎯 API Coverage Analysis
+    <span class="section-toggle" onclick="toggleSection('api-coverage')">▼</span>
+  </h2>
+  <div class="section-content" id="api-coverage-content">
+    ${apis.map(api => `
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+      <h4 style="color: #667eea; margin-bottom: 15px;">${api.api}</h4>
+      <div style="margin-bottom: 15px;">
+        <span class="badge badge-success">${api.coveredScenarios} Covered</span>
+        <span class="badge badge-warning">${api.partiallyCoveredScenarios} Partial</span>
+        <span class="badge badge-danger">${api.uncoveredScenarios} Missing</span>
+      </div>
+      ${api.matchedTests.slice(0, 10).map((match: any) => `
+      <div style="padding: 10px; margin: 5px 0; background: white; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+        <span>${match.scenario}</span>
+        <span style="color: ${match.status === 'FULLY_COVERED' ? '#28a745' : match.status === 'PARTIALLY_COVERED' ? '#ffc107' : '#dc3545'}; font-weight: bold;">
+          ${match.status.replace('_', ' ')} (${match.tests.length} test${match.tests.length !== 1 ? 's' : ''})
+        </span>
+      </div>
+      `).join('')}
+      ${api.matchedTests.length > 10 ? `<div style="text-align: center; padding: 10px; color: #666;">... and ${api.matchedTests.length - 10} more scenarios</div>` : ''}
+    </div>
+    `).join('')}
+  </div>
+</div>`;
+  }
+
+  private buildTraceabilitySection(apis: any[]): string {
+    const hasTraceability = apis.some((api: any) => 
+      api.matchedTests.some((m: any) => m.matchDetails && m.matchDetails.length > 0)
+    );
+    
+    if (!hasTraceability) return '';
+    
+    return `
+<div class="section">
+  <h2>
+    🔗 Traceability Matrix - Scenario to Test Mapping
+    <span class="section-toggle" onclick="toggleSection('traceability')">▼</span>
+  </h2>
+  <div class="section-content" id="traceability-content">
+    <div style="background: linear-gradient(135deg, #f0f7ff 0%, #e7f3ff 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; margin-bottom: 20px;">
+      <p style="margin: 0; color: #333;"><strong>📋 Traceability Confidence:</strong> This section shows exact mapping between baseline scenarios and unit tests, including file locations and match confidence levels for verification.</p>
+    </div>
+    ${apis.map(api => {
+      const matches = api.matchedTests.filter((m: any) => m.matchDetails && m.matchDetails.length > 0);
+      if (matches.length === 0) return '';
+      
+      return `
+      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+        <h4 style="color: #667eea; margin-bottom: 15px;">${api.api}</h4>
+        ${matches.map((match: any) => `
+        <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid ${match.status === 'FULLY_COVERED' ? '#28a745' : match.status === 'PARTIALLY_COVERED' ? '#ffc107' : '#dc3545'};">
+          <div style="margin-bottom: 15px;">
+            <strong style="color: #333; font-size: 1.05em;">📝 Scenario:</strong>
+            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px; margin-top: 8px;">
+              ${match.scenario}
+            </div>
+          </div>
+          <div>
+            <strong style="color: #333;">✅ Matched Unit Tests (${match.matchDetails?.length || 0}):</strong>
+            <div style="margin-top: 10px;">
+              ${(match.matchDetails || []).map((detail: any) => `
+              <div style="padding: 12px; background: #f8f9fa; border-radius: 4px; margin-top: 8px; border-left: 3px solid #667eea;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-weight: 600; color: #333;">${detail.testDescription}</span>
+                  <span class="badge badge-${detail.matchConfidence === 'HIGH' ? 'success' : detail.matchConfidence === 'MEDIUM' ? 'warning' : 'danger'}">${detail.matchConfidence} Confidence</span>
+                </div>
+                <div style="font-size: 0.9em; color: #666;">
+                  <code style="background: #e9ecef; padding: 2px 6px; border-radius: 3px;">${detail.file}</code>
+                  ${detail.lineNumber ? `<span style="margin-left: 10px;">Line: ${detail.lineNumber}</span>` : ''}
+                </div>
+              </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+        `).join('')}
+      </div>
+      `;
+    }).join('')}
+  </div>
+</div>`;
+  }
+
+  private buildGitChangesSection(gitChanges: GitChangeAnalysis): string {
+    if (gitChanges.summary.apisAdded === 0 && 
+        gitChanges.summary.apisModified === 0 && 
+        gitChanges.summary.apisRemoved === 0) {
+      return '';
+    }
+    
+    return `
+<div class="section">
+  <h2>
+    🔄 Git Changes Detected
+    <span class="section-toggle" onclick="toggleSection('git-changes')">▼</span>
+  </h2>
+  <div class="section-content" id="git-changes-content">
+    <div style="background: #e7f3ff; padding: 20px; border-radius: 8px;">
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+        <div>
+          <strong style="color: #28a745;">+${gitChanges.summary.apisAdded}</strong> APIs Added
+        </div>
+        <div>
+          <strong style="color: #fd7e14;">~${gitChanges.summary.apisModified}</strong> APIs Modified
+        </div>
+        <div>
+          <strong style="color: #dc3545;">-${gitChanges.summary.apisRemoved}</strong> APIs Removed
+        </div>
+      </div>
+      ${gitChanges.summary.apisWithoutTests > 0 ? `
+      <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 4px; border-left: 4px solid #ffc107;">
+        <strong>⚠️ Action Required:</strong> ${gitChanges.summary.apisWithoutTests} new API(s) without tests detected!
+      </div>
+      ` : ''}
+    </div>
+  </div>
+</div>`;
   }
 
   private buildGapsSection(gaps: any[]): string {
