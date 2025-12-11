@@ -550,7 +550,7 @@ Respond in JSON format:
         scenarios.length, 
         uncoveredCount, 
         partialCount,
-        missingScenarios.length,
+        missingScenarios,  // Pass the full array, not just length
         hasUntestedSuggestions
       );
 
@@ -740,10 +740,11 @@ Respond in JSON:
     totalScenarios: number,
     uncoveredCount: number,
     partialCount: number,
-    missingCount: number,
+    missingScenarios: string[],  // Changed from number to string[]
     hasMissingScenarios: boolean
-  ): { coverageStatus: 'excellent' | 'good' | 'needs_improvement' | 'critical'; message: string; missingScenarios?: number } {
+  ): { coverageStatus: 'excellent' | 'good' | 'needs_improvement' | 'critical'; message: string; missingScenarios?: number; suggestedScenarios?: string[] } {
     const coveragePercent = totalScenarios > 0 ? (coveredCount / totalScenarios) * 100 : 0;
+    const missingCount = missingScenarios.length;
     
     // Determine coverage status
     let coverageStatus: 'excellent' | 'good' | 'needs_improvement' | 'critical';
@@ -769,7 +770,8 @@ Respond in JSON:
     return {
       coverageStatus,
       message,
-      missingScenarios: hasMissingScenarios ? missingCount : undefined
+      missingScenarios: hasMissingScenarios ? missingCount : undefined,
+      suggestedScenarios: hasMissingScenarios ? missingScenarios : undefined
     };
   }
 

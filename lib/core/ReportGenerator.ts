@@ -168,8 +168,8 @@ export class ReportGenerator {
   <div class="section-content" id="api-coverage-content">
     ${apisWithData.map(api => {
       const hasMissing = api.uncoveredScenarios > 0;
-      const hasAIAnalysis = api.completenessAnalysis && api.completenessAnalysis.length > 0;
       const aiAnalysis = api.aiAnalysis || {};
+      const hasAIAnalysis = aiAnalysis.suggestedScenarios && aiAnalysis.suggestedScenarios.length > 0;
       
       return `
     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
@@ -245,14 +245,14 @@ export class ReportGenerator {
         ${hasAIAnalysis ? `
         <details open style="background: white; padding: 12px; border-radius: 6px; margin-top: 10px;">
           <summary style="cursor: pointer; font-weight: 600; color: #333; user-select: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-            <span>📋 Additional Scenarios Suggested by AI (${api.completenessAnalysis.length})</span>
+            <span>📋 Additional Scenarios Suggested by AI (${aiAnalysis.suggestedScenarios.length})</span>
             <span style="color: #667eea; font-size: 0.9em;">▼</span>
           </summary>
           <p style="margin: 10px 0; color: #666; font-size: 0.85em; font-style: italic;">
             ⚠️ These are AI-generated suggestions based on API specification analysis to achieve comprehensive coverage.
           </p>
           <ul style="margin: 8px 0 0 20px; padding: 0; color: #555; line-height: 1.8;">
-            ${api.completenessAnalysis.map((suggestion: string) => `
+            ${aiAnalysis.suggestedScenarios.map((suggestion: string) => `
             <li style="margin-bottom: 5px;"><span style="color: #667eea; font-weight: 600;">🆕</span> ${suggestion}</li>
             `).join('')}
           </ul>
@@ -314,7 +314,7 @@ export class ReportGenerator {
             ` : api.uncoveredScenarios === 0 && api.coveredScenarios > 0 ? `
             <div style="background: white; padding: 12px; border-radius: 6px; border-left: 3px solid #10b981; display: flex; align-items: start; gap: 8px;">
               <span style="color: #10b981; font-weight: bold; min-width: 80px;">✅ Status:</span>
-              <span style="color: #555;">Baseline fully covered! ${hasAIAnalysis ? `Consider adding ${Math.min(5, api.completenessAnalysis.length)} AI-suggested edge cases for production readiness` : 'Consider adding edge case scenarios for production readiness'}</span>
+              <span style="color: #555;">Baseline fully covered! ${hasAIAnalysis ? `Consider adding ${Math.min(5, aiAnalysis.suggestedScenarios.length)} AI-suggested edge cases for production readiness` : 'Consider adding edge case scenarios for production readiness'}</span>
             </div>
             ` : ''}
           </div>
