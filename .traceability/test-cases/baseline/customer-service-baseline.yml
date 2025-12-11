@@ -89,4 +89,4 @@ PATCH_UpdateCustomerEmail:
     - When updating email with invalid format, return 400
     - When updating email that already exists for another customer, return 409
 
-#test-cases-end,,//....ol
+#test-cases-end,,//....ol=
