@@ -24,6 +24,7 @@ POST /identity/login:
   happy_case:
     - When login with valid credentials, return 200 with JWT token
     - When login generates OTP, send to registered contact
+    - When login with valid credentials, return success message and user details
   error_case:
     - When email doesn't exist, return 401 Unauthorized
     - When password is incorrect, return 401 Unauthorized
@@ -34,13 +35,12 @@ POST /identity/login:
 
 # POST /identity/verify-otp
 POST /identity/verify-otp:
-#  happy_case:
-#    - When OTP is correct and not expired, verify successfully
-#    - When OTP verified, return auth token
-#  error_case:
-#    - When OTP is incorrect, return 401 Unauthorized
-#    - When OTP is expired, return 401 with expired message
-#    - When OTP attempts exceeded, lock verification
+  happy_case:
+    - When OTP is correct and not expired, verify successfully
+    - When OTP verified, return auth token
+  error_case:
+    - When OTP is incorrect, return 401 Unauthorized
+    - When OTP is expired, return 401 with expired message
+    - When OTP attempts exceeded, lock verification
 #  edge_case:
 #    - When OTP is at expiry boundary, handle gracefully
-##......

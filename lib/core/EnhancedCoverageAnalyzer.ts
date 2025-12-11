@@ -12,6 +12,7 @@ import { ServiceConfig, UnitTest, OrphanTestCategory, Priority } from '../types'
 import { ModelDetector } from './ModelDetector';
 import { APIScanner } from './APIScanner';
 import { BaselineValidator } from '../validation/BaselineSchema';
+import { HistoryTracker } from './HistoryTracker';
 
 export interface APIScenario {
   api: string;
