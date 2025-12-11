@@ -133,6 +133,7 @@ export interface AnalysisSummary {
   p0Gaps: number;
   p1Gaps: number;
   p2Gaps: number;
+  p3Gaps: number; // CRITICAL FIX: P3 was missing!
   criticalIssues: string[];
 }
 
@@ -362,7 +363,7 @@ export class EnhancedCoverageAnalyzer {
     console.log('\n' + '='.repeat(70));
     console.log(`📈 Coverage: ${summary.coveragePercent.toFixed(1)}%`);
     console.log(`✅ Covered: ${summary.fullyCovered}/${summary.totalScenarios}`);
-    console.log(`⚠️  Gaps: P0=${summary.p0Gaps}, P1=${summary.p1Gaps}, P2=${summary.p2Gaps}`);
+    console.log(`⚠️  Gaps: P0=${summary.p0Gaps}, P1=${summary.p1Gaps}, P2=${summary.p2Gaps}, P3=${summary.p3Gaps}`); // CRITICAL FIX: Added P3!
     console.log(`🔍 Orphans: ${orphanAnalysis.totalOrphans} tests (${orphanAnalysis.businessTests.length} need scenarios)`);
     if (orphanAPIs.length > 0) {
       console.log(`⚠️  Orphan APIs: ${orphanAPIs.length} APIs with no scenarios AND no tests`);
@@ -387,7 +388,6 @@ export class EnhancedCoverageAnalyzer {
   private async analyzeAPI(api: string, categories: any, unitTests: UnitTest[], aiSuggestions: any = null): Promise<APIAnalysis> {
     // Handle null/undefined categories (empty baseline entry)
     if (!categories || categories === null) {
-      // CRITICAL FIX: Check if tests exist even when baseline is empty!
       const relevantTests = this.filterTestsByEndpoint(api, unitTests);
       
       if (relevantTests.length === 0) {
@@ -396,33 +396,15 @@ export class EnhancedCoverageAnalyzer {
         console.log(`  ⚠️  0 scenarios but ${relevantTests.length} unit tests exist - tests will be flagged as orphans`);
       }
       
-      // Create matchedTests entries so report shows them
-      const matchedTests = relevantTests.map(test => ({
-        scenario: `Orphan test: ${test.description}`,
-        tests: [test],
-        status: 'NOT_COVERED',
-        matchDetails: [{
-          testDescription: test.description,
-          file: test.file,
-          lineNumber: test.lineNumber,
-          matchConfidence: 'HIGH' as const
-        }]
-      }));
-      
+      // Don't add to matchedTests - let them be detected as orphans naturally
       return {
         api,
         scenarios: [],
         coveredScenarios: 0,
         partiallyCoveredScenarios: 0,
-        uncoveredScenarios: relevantTests.length, // CRITICAL: Show as uncovered!
-        matchedTests,
-        gaps: [],
-        aiAnalysis: relevantTests.length > 0 ? {
-          coverageStatus: 'critical',
-          message: `⚠️ Found ${relevantTests.length} unit tests but NO baseline scenarios. QA must add baseline to document what these tests cover.`,
-          suggestedScenarios: [],
-          missingScenarios: 0
-        } : undefined
+        uncoveredScenarios: 0,
+        matchedTests: [],
+        gaps: []
       };
     }
     
@@ -909,6 +891,7 @@ Respond in JSON:
     const p0Gaps = gaps.filter(g => g.priority === 'P0').length;
     const p1Gaps = gaps.filter(g => g.priority === 'P1').length;
     const p2Gaps = gaps.filter(g => g.priority === 'P2').length;
+    const p3Gaps = gaps.filter(g => g.priority === 'P3').length; // CRITICAL FIX: Added P3!
 
     const criticalIssues: string[] = [];
     if (p0Gaps > 0) {
@@ -924,6 +907,7 @@ Respond in JSON:
       p0Gaps,
       p1Gaps,
       p2Gaps,
+      p3Gaps, // CRITICAL FIX: Return P3!
       criticalIssues
     };
   }
