@@ -149,15 +149,14 @@ export class ReportGenerator {
     return template;
   }
 
-  private buildAPICoverageSection(apis: any[]): string {
-    if (apis.length === 0) return '';
+  private buildAPICoverageSection(apis: any[], orphanAPIs?: any[]): string {
+    if (apis.length === 0 && (!orphanAPIs || orphanAPIs.length === 0)) return '';
     
-    // Filter out APIs with no data (0 covered, 0 partial, 0 missing)
-    const apisWithData = apis.filter(api => 
-      api.coveredScenarios > 0 || api.partiallyCoveredScenarios > 0 || api.uncoveredScenarios > 0
-    );
+    // CRITICAL FIX: Include ALL APIs in report (with baseline AND without baseline)
+    // All APIs from baseline analysis (includes those with 0 scenarios)
+    const allAPIsToShow = apis;
     
-    if (apisWithData.length === 0) return '';
+    if (allAPIsToShow.length === 0) return '';
     
     return `
 <div class="section">
@@ -166,7 +165,7 @@ export class ReportGenerator {
     <span class="section-toggle" onclick="toggleSection('api-coverage')">▼</span>
   </h2>
   <div class="section-content" id="api-coverage-content">
-    ${apisWithData.map(api => {
+    ${allAPIsToShow.map(api => {
       const hasMissing = api.uncoveredScenarios > 0;
       const aiAnalysis = api.aiAnalysis || {};
       const hasAIAnalysis = aiAnalysis.suggestedScenarios && aiAnalysis.suggestedScenarios.length > 0;

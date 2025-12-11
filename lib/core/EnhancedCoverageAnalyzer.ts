@@ -259,6 +259,9 @@ export class EnhancedCoverageAnalyzer {
     const apiAnalyses: APIAnalysis[] = [];
     const gaps: GapAnalysis[] = [];
     
+    // Track which APIs we've analyzed from baseline
+    const analyzedAPIs = new Set<string>();
+    
     for (const [apiKey, categories] of Object.entries(baseline)) {
       if (apiKey === 'service' || apiKey === 'api_mapping') continue;
       
@@ -270,6 +273,67 @@ export class EnhancedCoverageAnalyzer {
       const analysis = await this.analyzeAPI(actualAPI, categories as any, unitTests, aiSuggestions);
       apiAnalyses.push(analysis);
       gaps.push(...analysis.gaps);
+      analyzedAPIs.add(actualAPI);
+    }
+    
+    // CRITICAL FIX: Add any discovered APIs that are NOT in baseline
+    // This ensures ALL APIs appear in the report (customer service shows all 4 APIs)
+    for (const discoveredAPI of discoveredAPIs) {
+      const actualAPIKey = `${discoveredAPI.method} ${discoveredAPI.endpoint}`;
+      
+      if (!analyzedAPIs.has(actualAPIKey)) {
+        // This API was discovered but not in baseline
+        console.log(`\n${actualAPIKey}:`);
+        console.log(`  ℹ️  API discovered in code but not in baseline`);
+        
+        // Check if it has tests
+        const relevantTests = this.filterTestsByEndpoint(actualAPIKey, unitTests);
+        
+        if (relevantTests.length > 0) {
+          console.log(`  ⚠️  Found ${relevantTests.length} unit tests but NO baseline scenarios`);
+          console.log(`  📋 Action: QA should add baseline scenarios for these tests`);
+        } else {
+          console.log(`  ⚠️  No baseline scenarios AND no unit tests - will be flagged as Orphan API`);
+        }
+        
+        // Create analysis entry with 0 scenarios
+        // CRITICAL: If tests exist, add them to matchedTests so report shows them
+        const matchedTests = relevantTests.length > 0 ? relevantTests.map(test => ({
+          scenario: `Orphan test: ${test.description}`,
+          tests: [test],
+          status: 'NOT_COVERED',
+          matchDetails: [{
+            testDescription: test.description,
+            file: test.file,
+            lineNumber: test.lineNumber,
+            matchConfidence: 'HIGH' as const
+          }]
+        })) : [];
+        
+        const analysis: APIAnalysis = {
+          api: actualAPIKey,
+          scenarios: [],
+          coveredScenarios: 0,
+          partiallyCoveredScenarios: 0,
+          uncoveredScenarios: 0,
+          matchedTests,
+          gaps: [],
+          aiAnalysis: relevantTests.length > 0 ? {
+            coverageStatus: 'critical',
+            message: `⚠️ Found ${relevantTests.length} unit tests but NO baseline scenarios. QA must add baseline to document what these tests cover.`,
+            suggestedScenarios: [],
+            missingScenarios: 0
+          } : {
+            coverageStatus: 'critical',
+            message: '❌ No baseline scenarios AND no unit tests. This API is completely untested and undocumented.',
+            suggestedScenarios: [],
+            missingScenarios: 0
+          }
+        };
+        
+        apiAnalyses.push(analysis);
+        analyzedAPIs.add(actualAPIKey);
+      }
     }
 
     // Categorize orphan tests
@@ -323,15 +387,42 @@ export class EnhancedCoverageAnalyzer {
   private async analyzeAPI(api: string, categories: any, unitTests: UnitTest[], aiSuggestions: any = null): Promise<APIAnalysis> {
     // Handle null/undefined categories (empty baseline entry)
     if (!categories || categories === null) {
-      console.log(`  ⚠️  0 scenarios, 0 unit tests - will be flagged as Orphan API`);
+      // CRITICAL FIX: Check if tests exist even when baseline is empty!
+      const relevantTests = this.filterTestsByEndpoint(api, unitTests);
+      
+      if (relevantTests.length === 0) {
+        console.log(`  ⚠️  0 scenarios, 0 unit tests - will be flagged as Orphan API`);
+      } else {
+        console.log(`  ⚠️  0 scenarios but ${relevantTests.length} unit tests exist - tests will be flagged as orphans`);
+      }
+      
+      // Create matchedTests entries so report shows them
+      const matchedTests = relevantTests.map(test => ({
+        scenario: `Orphan test: ${test.description}`,
+        tests: [test],
+        status: 'NOT_COVERED',
+        matchDetails: [{
+          testDescription: test.description,
+          file: test.file,
+          lineNumber: test.lineNumber,
+          matchConfidence: 'HIGH' as const
+        }]
+      }));
+      
       return {
         api,
         scenarios: [],
         coveredScenarios: 0,
         partiallyCoveredScenarios: 0,
-        uncoveredScenarios: 0,
-        matchedTests: [],
-        gaps: []
+        uncoveredScenarios: relevantTests.length, // CRITICAL: Show as uncovered!
+        matchedTests,
+        gaps: [],
+        aiAnalysis: relevantTests.length > 0 ? {
+          coverageStatus: 'critical',
+          message: `⚠️ Found ${relevantTests.length} unit tests but NO baseline scenarios. QA must add baseline to document what these tests cover.`,
+          suggestedScenarios: [],
+          missingScenarios: 0
+        } : undefined
       };
     }
     
