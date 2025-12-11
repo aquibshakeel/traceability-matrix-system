@@ -1179,7 +1179,7 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
     // Also detect commented APIs in baseline (APIs that exist in mapping but are commented out)
     // CRITICAL: Commented baseline entries are ALWAYS orphan, regardless of whether tests exist
     // This is because a commented baseline means incomplete documentation
-    const commentedAPIs = this.detectCommentedBaseline();
+    const commentedAPIs = this.detectCommentedBaseline(baseline.service || 'customer-service');
     for (const commentedKey of commentedAPIs) {
       // Get actual endpoint from mapping
       const actualEndpoint = apiMapping[commentedKey];
@@ -1267,8 +1267,8 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
    * Detect commented API keys in baseline YAML
    * Returns list of API keys that are commented out
    */
-  private detectCommentedBaseline(): string[] {
-    const baselinePath = path.join(this.projectRoot, '.traceability/test-cases/baseline', `customer-service-baseline.yml`);
+  private detectCommentedBaseline(serviceName: string): string[] {
+    const baselinePath = path.join(this.projectRoot, '.traceability/test-cases/baseline', `${serviceName}-baseline.yml`);
     if (!fs.existsSync(baselinePath)) {
       return [];
     }
