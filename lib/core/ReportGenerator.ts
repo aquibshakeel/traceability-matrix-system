@@ -482,7 +482,7 @@ export class ReportGenerator {
   </h2>
   <div class="section-content" id="orphan-apis-content">
     <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626; margin-bottom: 20px;">
-      <strong style="color: #991b1b; font-size: 1.1em;">⚠️ Critical:</strong> These APIs were discovered but have <strong>NO scenarios or tests</strong>. They are completely untracked and represent gaps in test coverage.
+      <strong style="color: #991b1b; font-size: 1.1em;">⚠️ Critical:</strong> These APIs were discovered in code but have <strong>NO baseline scenarios AND NO unit tests</strong>. They are completely untracked and represent critical gaps in test coverage.
     </div>
     <table>
       <thead>
