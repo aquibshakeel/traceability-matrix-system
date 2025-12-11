@@ -1211,6 +1211,54 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
         }
       }
     }
+    
+    // REVERSE CHECK: Check baseline entries that have no code implementation
+    // These are documented APIs (in baseline) but not found in actual code
+    for (const [uniqueKey, categories] of Object.entries(baseline)) {
+      if (uniqueKey === 'service' || uniqueKey === 'api_mapping') continue;
+      
+      const actualAPIKey = apiMapping[uniqueKey];
+      if (!actualAPIKey) continue; // Skip if no mapping
+      
+      // Parse method and endpoint
+      const parts = actualAPIKey.split(/\s+/);
+      const method = parts.length === 2 ? parts[0] : 'GET';
+      const endpoint = parts.length === 2 ? parts[1] : actualAPIKey;
+      
+      // Check if this API was already added (from discoveredAPIs or commented loop)
+      const alreadyAdded = orphanAPIs.some(o => o.method === method && o.endpoint === endpoint);
+      if (alreadyAdded) continue;
+      
+      // Count scenarios
+      let scenarioCount = 0;
+      if (categories && categories !== null && typeof categories === 'object') {
+        scenarioCount = this.flattenScenarios(categories).length;
+      }
+      
+      // Check if API has tests
+      const hasTests = unitTests.some(test => {
+        const testDesc = test.description.toLowerCase();
+        const testFile = test.file.toLowerCase();
+        const endpointLower = endpoint.toLowerCase();
+        
+        // Simple check: does test mention endpoint?
+        const endpointParts = endpointLower.split('/').filter((p: string) => p && p !== 'api' && !p.includes('{'));
+        return endpointParts.some((part: string) => testDesc.includes(part) || testFile.includes(part));
+      });
+      
+      // If baseline entry has 0 scenarios AND 0 tests, it's orphan
+      if (scenarioCount === 0 && !hasTests) {
+        orphanAPIs.push({
+          method,
+          endpoint,
+          controller: 'Baseline entry only',
+          lineNumber: 0,
+          hasScenario: false,
+          hasTest: false,
+          riskLevel: 'Critical'
+        });
+      }
+    }
 
     return orphanAPIs;
   }

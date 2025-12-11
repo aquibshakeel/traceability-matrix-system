@@ -169,6 +169,7 @@ export class ReportGenerator {
     ${apisWithData.map(api => {
       const hasMissing = api.uncoveredScenarios > 0;
       const hasAIAnalysis = api.completenessAnalysis && api.completenessAnalysis.length > 0;
+      const aiAnalysis = api.aiAnalysis || {};
       
       return `
     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
@@ -185,52 +186,139 @@ export class ReportGenerator {
           <span style="background: #fef3c7; color: #92400e; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.95em;">${api.partiallyCoveredScenarios} Partially covered</span>
           <span style="background: #fee2e2; color: #991b1b; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.95em;">${api.uncoveredScenarios} Missing unit tests</span>
         </div>
-        ${api.matchedTests.map((match: any) => `
-        <div style="padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
-          <span>${match.scenario}</span>
-          <span style="color: ${match.status === 'FULLY_COVERED' ? '#28a745' : match.status === 'PARTIALLY_COVERED' ? '#ffc107' : '#dc3545'}; font-weight: bold;">
-            ${match.status.replace('_', ' ')} (${match.tests.length} test${match.tests.length !== 1 ? 's' : ''})
-          </span>
+        ${api.matchedTests.map((match: any) => {
+          const testCount = match.tests ? match.tests.length : 0;
+          const hasTests = testCount > 0;
+          
+          return `
+        <div style="padding: 15px; margin: 5px 0; background: #f8f9fa; border-radius: 4px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="flex: 1;">${match.scenario}</span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="color: ${match.status === 'FULLY_COVERED' ? '#28a745' : match.status === 'PARTIALLY_COVERED' ? '#ffc107' : '#dc3545'}; font-weight: bold;">
+                ${match.status.replace('_', ' ')}
+              </span>
+              ${hasTests ? `
+              <details style="display: inline-block;">
+                <summary style="cursor: pointer; color: #667eea; font-weight: 600; user-select: none; list-style: none;">
+                  (${testCount} test${testCount !== 1 ? 's' : ''}) ▼
+                </summary>
+                <div style="margin-top: 10px; padding: 10px; background: white; border-radius: 4px; border: 1px solid #e5e7eb;">
+                  ${(match.matchDetails || []).map((detail: any) => `
+                  <div style="padding: 8px; margin: 5px 0; background: #f8f9fa; border-radius: 3px;">
+                    <div style="font-weight: 600; color: #333; margin-bottom: 4px;">${detail.testDescription}</div>
+                    <div style="font-size: 0.85em; color: #666;">
+                      <code style="background: #e9ecef; padding: 2px 6px; border-radius: 3px;">${detail.file}</code>
+                      ${detail.lineNumber ? `<span style="margin-left: 8px;">Line: ${detail.lineNumber}</span>` : ''}
+                      <span style="margin-left: 8px; color: ${detail.matchConfidence === 'HIGH' ? '#28a745' : detail.matchConfidence === 'MEDIUM' ? '#ffc107' : '#dc3545'};">
+                        ${detail.matchConfidence} Confidence
+                      </span>
+                    </div>
+                  </div>
+                  `).join('')}
+                </div>
+              </details>
+              ` : `<span style="color: #999;">(0 tests)</span>`}
+            </div>
+          </div>
         </div>
-        `).join('')}
+        `;
+        }).join('')}
       </div>
       
-      ${hasAIAnalysis ? `
+      ${hasAIAnalysis || aiAnalysis.message ? `
       <!-- AI-Powered Analysis & Recommendations -->
-      <div style="background: linear-gradient(135deg, #e7f3ff 0%, #f0f7ff 100%); padding: 15px; border-radius: 8px; border-left: 3px solid #667eea;">
+      <div style="background: linear-gradient(135deg, #e7f3ff 0%, #f0f7ff 100%); padding: 15px; border-radius: 8px; border-left: 3px solid #667eea; margin-top: 15px;">
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
           <span style="font-size: 1.2em;">🤖</span>
           <strong style="color: #667eea;">AI-Powered Analysis (from API Spec)</strong>
-          <span class="badge badge-info" style="font-size: 0.75em;">AI SUGGESTION</span>
+          <span class="badge badge-info" style="font-size: 0.75em; background: #667eea; color: white; padding: 4px 8px; border-radius: 12px;">AI SUGGESTION</span>
         </div>
-        <p style="margin: 0 0 10px 0; color: #666; font-size: 0.9em;">
-          ⚠️ These are AI-generated suggestions based on API specification analysis, not actual test results.
-        </p>
-        <div style="background: white; padding: 12px; border-radius: 6px; margin-top: 10px;">
-          <strong style="color: #333; margin-bottom: 8px; display: block;">📋 Additional Scenarios Suggested (${api.completenessAnalysis.length}):</strong>
+        
+        ${aiAnalysis.message ? `
+        <div style="padding: 12px; background: rgba(102, 126, 234, 0.1); border-radius: 6px; margin-bottom: 12px; border-left: 3px solid #667eea;">
+          <strong style="color: #667eea;">📊 Coverage Assessment:</strong>
+          <div style="margin-top: 6px; color: #333; line-height: 1.6;">${aiAnalysis.message}</div>
+        </div>
+        ` : ''}
+        
+        ${hasAIAnalysis ? `
+        <details open style="background: white; padding: 12px; border-radius: 6px; margin-top: 10px;">
+          <summary style="cursor: pointer; font-weight: 600; color: #333; user-select: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+            <span>📋 Additional Scenarios Suggested by AI (${api.completenessAnalysis.length})</span>
+            <span style="color: #667eea; font-size: 0.9em;">▼</span>
+          </summary>
+          <p style="margin: 10px 0; color: #666; font-size: 0.85em; font-style: italic;">
+            ⚠️ These are AI-generated suggestions based on API specification analysis to achieve comprehensive coverage.
+          </p>
           <ul style="margin: 8px 0 0 20px; padding: 0; color: #555; line-height: 1.8;">
             ${api.completenessAnalysis.map((suggestion: string) => `
             <li style="margin-bottom: 5px;"><span style="color: #667eea; font-weight: 600;">🆕</span> ${suggestion}</li>
             `).join('')}
           </ul>
-        </div>
+        </details>
+        ` : ''}
         
-        <!-- Action Items -->
-        <div style="background: rgba(102, 126, 234, 0.1); padding: 12px; border-radius: 6px; margin-top: 12px; border-left: 3px solid #667eea;">
-          <strong style="color: #667eea; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-            <span>⚡</span> Recommended Actions:
-          </strong>
-          <div style="display: grid; gap: 8px;">
-            <div style="display: flex; align-items: start; gap: 8px;">
-              <span style="color: #667eea; font-weight: bold; min-width: 80px;">👥 For QA:</span>
-              <span style="color: #555;">Review AI suggestions and add relevant scenarios to baseline YAML file for traceability</span>
+        <!-- Intelligent Action Items -->
+        <details open style="background: rgba(102, 126, 234, 0.1); padding: 15px; border-radius: 8px; margin-top: 12px; border-left: 3px solid #667eea;">
+          <summary style="cursor: pointer; user-select: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+            <strong style="color: #667eea; display: flex; align-items: center; gap: 6px;">
+              <span>⚡</span> Recommended Actions:
+            </strong>
+            <span style="color: #667eea; font-size: 0.9em;">▼</span>
+          </summary>
+          <div style="margin-top: 12px; display: grid; gap: 12px;">
+            ${api.uncoveredScenarios > 0 ? `
+            <details style="background: white; padding: 12px; border-radius: 6px; border-left: 3px solid #dc3545;">
+              <summary style="cursor: pointer; user-select: none; list-style: none; display: flex; align-items: center; gap: 8px; font-weight: 600; color: #dc3545;">
+                <span>🚨 URGENT:</span>
+                <span>${api.uncoveredScenarios} baseline scenarios have NO unit tests</span>
+                <span style="margin-left: auto; font-size: 0.9em;">▼</span>
+              </summary>
+              <div style="margin-top: 12px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                <strong style="display: block; margin-bottom: 8px; color: #333;">Missing Tests for These Scenarios:</strong>
+                <ul style="margin: 0; padding-left: 20px; line-height: 1.8; color: #555;">
+                  ${api.matchedTests.filter((m: any) => m.status === 'NOT_COVERED').map((m: any) => `
+                  <li><span style="color: #dc3545;">❌</span> ${m.scenario}</li>
+                  `).join('')}
+                </ul>
+                <div style="margin-top: 12px; padding: 10px; background: #fff3cd; border-radius: 4px; border-left: 3px solid #ffc107;">
+                  <strong style="color: #856404;">👨‍💻 DEV Action:</strong>
+                  <p style="margin: 5px 0 0 0; color: #555;">Implement unit tests for all ${api.uncoveredScenarios} scenarios listed above. Focus on P0 (auth, security) and P1 (error handling) cases first.</p>
+                </div>
+              </div>
+            </details>
+            ` : ''}
+            ${hasAIAnalysis && aiAnalysis.missingScenarios && aiAnalysis.missingScenarios > 0 ? `
+            <details style="background: white; padding: 12px; border-radius: 6px; border-left: 3px solid #667eea;">
+              <summary style="cursor: pointer; user-select: none; list-style: none; display: flex; align-items: center; gap: 8px; font-weight: 600; color: #667eea;">
+                <span>💡 RECOMMENDED:</span>
+                <span>${aiAnalysis.missingScenarios} AI-suggested scenarios for comprehensive coverage</span>
+                <span style="margin-left: auto; font-size: 0.9em;">▼</span>
+              </summary>
+              <div style="margin-top: 12px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                <div style="margin-bottom: 12px; padding: 10px; background: #e7f3ff; border-radius: 4px; border-left: 3px solid #667eea;">
+                  <strong style="color: #667eea;">👥 QA Action:</strong>
+                  <p style="margin: 5px 0 0 0; color: #555;">Review the ${aiAnalysis.missingScenarios} AI-suggested scenarios in the "Additional Scenarios" section above. Add approximately ${Math.ceil(aiAnalysis.missingScenarios / 2)} high-priority ones to baseline (focus on security, edge cases, and error handling).</p>
+                </div>
+                <div style="padding: 10px; background: #fff3cd; border-radius: 4px; border-left: 3px solid #ffc107;">
+                  <strong style="color: #856404;">👨‍💻 DEV Action:</strong>
+                  <p style="margin: 5px 0 0 0; color: #555;">After QA adds scenarios to baseline, implement unit tests prioritizing:
+                    <br>1. Authentication & authorization checks
+                    <br>2. SQL injection & XSS validation
+                    <br>3. Error handling & edge cases
+                  </p>
+                </div>
+              </div>
+            </details>
+            ` : api.uncoveredScenarios === 0 && api.coveredScenarios > 0 ? `
+            <div style="background: white; padding: 12px; border-radius: 6px; border-left: 3px solid #10b981; display: flex; align-items: start; gap: 8px;">
+              <span style="color: #10b981; font-weight: bold; min-width: 80px;">✅ Status:</span>
+              <span style="color: #555;">Baseline fully covered! ${hasAIAnalysis ? `Consider adding ${Math.min(5, api.completenessAnalysis.length)} AI-suggested edge cases for production readiness` : 'Consider adding edge case scenarios for production readiness'}</span>
             </div>
-            <div style="display: flex; align-items: start; gap: 8px;">
-              <span style="color: #667eea; font-weight: bold; min-width: 80px;">👨‍💻 For DEV:</span>
-              <span style="color: #555;">Implement unit tests for missing baseline scenarios and consider AI-suggested edge cases</span>
-            </div>
+            ` : ''}
           </div>
-        </div>
+        </details>
       </div>
       ` : ''}
       
