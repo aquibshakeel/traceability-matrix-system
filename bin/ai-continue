@@ -160,20 +160,95 @@ async function main() {
     console.log(`\n⚠️  WARNING: ${gitChanges.summary.apisWithoutTests} new APIs without tests!`);
   }
 
-  // Exit with appropriate code
-  if (hasP0Gaps) {
-    console.log('\n❌ ANALYSIS FAILED: P0 gaps detected!');
-    console.log('   Fix critical gaps before committing.');
-    process.exit(1);
+  // CRITICAL: Check for orphan unit tests (tests without baseline scenarios)
+  let totalOrphanBusinessTests = 0;
+  let criticalOrphanTests = 0;
+  let orphanAPIs = 0;
+  
+  for (const analysis of allAnalyses) {
+    totalOrphanBusinessTests += analysis.orphanTests.businessTests.length;
+    orphanAPIs += analysis.orphanAPIs.length;
+    
+    // Count P0/P1 orphan tests
+    criticalOrphanTests += analysis.orphanTests.businessTests.filter(
+      t => t.orphanCategory?.priority === 'P0' || t.orphanCategory?.priority === 'P1'
+    ).length;
   }
 
+  // Build failure reasons
+  const failures = [];
+  
+  if (hasP0Gaps) {
+    failures.push(`❌ P0 Gaps: ${totalP0Gaps} critical baseline scenarios have NO unit tests`);
+  }
+  
   if (hasP1Gaps && config.preCommit?.blockOnP1Gaps) {
-    console.log('\n❌ ANALYSIS FAILED: P1 gaps detected!');
-    console.log('   Fix high-priority gaps before committing.');
+    failures.push(`❌ P1 Gaps: ${totalP1Gaps} high-priority baseline scenarios have NO unit tests`);
+  }
+  
+  if (criticalOrphanTests > 0) {
+    failures.push(`❌ Orphan Tests: ${criticalOrphanTests} P0/P1 unit tests exist but have NO baseline scenarios`);
+  }
+  
+  if (orphanAPIs > 0) {
+    failures.push(`❌ Orphan APIs: ${orphanAPIs} API endpoint(s) have NO baseline scenarios AND NO unit tests`);
+  }
+
+  // Exit with appropriate code
+  if (failures.length > 0) {
+    console.log('\n' + '='.repeat(70));
+    console.log('❌ VALIDATION FAILED - COMMIT BLOCKED');
+    console.log('='.repeat(70));
+    console.log('');
+    
+    failures.forEach(failure => console.log(failure));
+    
+    console.log('\n📋 Required Actions:');
+    console.log('');
+    
+    if (hasP0Gaps || hasP1Gaps) {
+      console.log('1. 🔴 Coverage Gaps:');
+      console.log('   - Review baseline scenarios marked as "NOT_COVERED"');
+      console.log('   - Implement unit tests for each scenario');
+      console.log('   - Prioritize P0 (auth, security) and P1 (error handling)');
+      console.log('');
+    }
+    
+    if (criticalOrphanTests > 0) {
+      console.log('2. 🔍 Orphan Unit Tests:');
+      console.log('   - Review "Orphan Tests" section in HTML report');
+      console.log('   - QA Action: Add missing scenarios to baseline YAML');
+      console.log('   - Use the "Copy-Ready YAML Format" in report for easy addition');
+      console.log('   - These tests cover business logic but lack documentation');
+      console.log('');
+    }
+    
+    if (orphanAPIs > 0) {
+      console.log('3. ⚠️  Orphan APIs:');
+      console.log('   - Review "Orphan APIs" section in HTML report');
+      console.log('   - QA Action: Create baseline scenarios for these endpoints');
+      console.log('   - Dev Action: Implement unit tests after scenarios are added');
+      console.log('   - These are discovered APIs with zero coverage');
+      console.log('');
+    }
+    
+    console.log('💡 Tips:');
+    console.log('   • Open HTML report (auto-opened) for detailed analysis');
+    console.log('   • Check .traceability/reports/ for all report formats');
+    console.log('   • Use git commit --no-verify to skip (NOT recommended)');
+    console.log('');
+    
     process.exit(1);
   }
 
   console.log('\n✅ Analysis complete! All reports generated.');
+  
+  // Success message with warnings if any non-critical issues
+  if (totalOrphanBusinessTests > criticalOrphanTests && totalOrphanBusinessTests > 0) {
+    console.log(`\n⚠️  Note: ${totalOrphanBusinessTests - criticalOrphanTests} P2/P3 orphan tests detected (not blocking)`);
+    console.log('   Consider adding scenarios for better traceability');
+  }
+  
   process.exit(0);
 }
 

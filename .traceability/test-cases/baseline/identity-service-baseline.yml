@@ -1,10 +1,10 @@
-## Identity Service Test Cases Baseline
-## QA-curated test scenarios for identity-service APIs
-#
-#service: identity-service
-#
-## POST /identity/register
-#POST /identity/register:
+# Identity Service Test Cases Baseline
+# QA-curated test scenarios for identity-service APIs
+
+service: identity-service
+
+# POST /identity/register
+POST /identity/register:
 #  happy_case:
 #    - When user registers with valid email and password, return 201 with user ID
 #    - When user registers with all optional fields, store complete profile
@@ -18,22 +18,22 @@
 #  security:
 #    - When password contains SQL injection, sanitize and store safely
 #    - When XSS in name field, sanitize before storage
-#
-## POST /identity/login
-#POST /identity/login:
-#  happy_case:
-#    - When login with valid credentials, return 200 with JWT token
-#    - When login generates OTP, send to registered contact
-#  error_case:
-#    - When email doesn't exist, return 401 Unauthorized
-#    - When password is incorrect, return 401 Unauthorized
-#    - When account is locked, return 403 Forbidden
-#  security:
-#    - When multiple failed attempts, implement rate limiting
-#    - When login from new device, trigger additional verification
-#
-## POST /identity/verify-otp
-#POST /identity/verify-otp:
+
+# POST /identity/login
+POST /identity/login:
+  happy_case:
+    - When login with valid credentials, return 200 with JWT token
+    - When login generates OTP, send to registered contact
+  error_case:
+    - When email doesn't exist, return 401 Unauthorized
+    - When password is incorrect, return 401 Unauthorized
+    - When account is locked, return 403 Forbidden
+  security:
+    - When multiple failed attempts, implement rate limiting
+    - When login from new device, trigger additional verification
+
+# POST /identity/verify-otp
+POST /identity/verify-otp:
 #  happy_case:
 #    - When OTP is correct and not expired, verify successfully
 #    - When OTP verified, return auth token
@@ -43,3 +43,4 @@
 #    - When OTP attempts exceeded, lock verification
 #  edge_case:
 #    - When OTP is at expiry boundary, handle gracefully
+##

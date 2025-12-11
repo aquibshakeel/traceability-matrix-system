@@ -337,10 +337,17 @@ export class EnhancedCoverageAnalyzer {
     
     const scenarios = this.flattenScenarios(categories);
     
-    // If baseline has 0 scenarios, return empty analysis immediately
-    // Do NOT analyze with AI when baseline is empty
+    // If baseline has 0 scenarios, check if tests exist before returning
     if (scenarios.length === 0) {
-      console.log(`  ⚠️  0 scenarios, 0 unit tests - will be flagged as Orphan API`);
+      // Filter tests to see if any exist for this API
+      const relevantTests = this.filterTestsByEndpoint(api, unitTests);
+      
+      if (relevantTests.length === 0) {
+        console.log(`  ⚠️  0 scenarios, 0 unit tests - will be flagged as Orphan API`);
+      } else {
+        console.log(`  ⚠️  0 scenarios but ${relevantTests.length} unit tests exist - tests will be flagged as orphans`);
+      }
+      
       return {
         api,
         scenarios: [],
@@ -1344,6 +1351,8 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
   /**
    * Filter unit tests to only include tests relevant to a specific API endpoint
    * Prevents cross-endpoint matching (e.g., GET /{id} tests matching POST scenarios)
+   * 
+   * CRITICAL FIX: Path segment matching is PRIMARY, method keywords are SECONDARY
    */
   private filterTestsByEndpoint(api: string, unitTests: UnitTest[]): UnitTest[] {
     // Extract endpoint and method from API string
@@ -1374,6 +1383,13 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
     const normalizedEndpoint = normalizeEndpoint(endpoint);
     const pathSegments = normalizedEndpoint.split('/').filter(s => s.length > 0);
     
+    // Extract the main resource/action from endpoint (last segment)
+    // This is the MOST SPECIFIC part (e.g., "login" in "/identity/login")
+    const mainResource = pathSegments[pathSegments.length - 1] || '';
+    
+    // Get the second-to-last segment (often the resource type)
+    const parentResource = pathSegments.length > 1 ? pathSegments[pathSegments.length - 2] : '';
+    
     // Define method keywords for each HTTP method
     const methodKeywords: { [key: string]: string[] } = {
       'GET': ['get', 'fetch', 'retrieve', 'find', 'list'],
@@ -1386,10 +1402,26 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
     return unitTests.filter(test => {
       const testDesc = test.description.toLowerCase();
       const testFile = test.file.toLowerCase();
+      const testId = test.id.toLowerCase();
       
-      // RULE 1: Path segment matching (required)
-      // Test MUST mention at least one path segment (singular or plural)
-      const matchesPathSegment = pathSegments.some(segment => {
+      // RULE 1: Path segment matching (PRIMARY filter - most important)
+      // CRITICAL: Prioritize the MOST SPECIFIC segment (last one) to distinguish
+      // between similar endpoints like /identity/login vs /identity/register
+      
+      // Check if test mentions the MAIN RESOURCE (most specific - e.g., "login" or "register")
+      const matchesMainResource = mainResource && (
+        testDesc.includes(mainResource) || 
+        testFile.includes(mainResource)
+      );
+      
+      // Check if test mentions the parent resource (e.g., "identity")
+      const matchesParentResource = parentResource && (
+        testDesc.includes(parentResource) || 
+        testFile.includes(parentResource)
+      );
+      
+      // Check if test mentions ANY path segment (fallback)
+      const matchesAnySegment = pathSegments.some(segment => {
         if (testDesc.includes(segment) || testFile.includes(segment)) {
           return true;
         }
@@ -1400,14 +1432,36 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
         return false;
       });
       
-      if (!matchesPathSegment && pathSegments.length > 0) {
-        return false; // Test doesn't mention any path segments
+      // CRITICAL LOGIC:
+      // 1. If MAIN resource matches (e.g., "login"), INCLUDE (most specific match)
+      // 2. If ONLY parent matches (e.g., "identity") but NO main resource, EXCLUDE
+      //    (test is for different endpoint under same parent)
+      // 3. If neither matches, exclude
+      
+      if (mainResource) {
+        // Main resource exists (e.g., "login" in "/identity/login")
+        if (matchesMainResource) {
+          // Test mentions "login" - definitely for this endpoint
+          return true;
+        } else if (matchesParentResource && !matchesMainResource) {
+          // Test mentions "identity" but NOT "login"
+          // This is likely a test for a different endpoint (e.g., /identity/register)
+          return false;
+        } else if (!matchesAnySegment) {
+          // Test doesn't mention any segments - exclude
+          return false;
+        }
+      } else {
+        // No main resource, use generic matching
+        if (!matchesAnySegment && pathSegments.length > 0) {
+          return false;
+        }
       }
       
-      // RULE 2: Method-specific keyword matching (if method is specified)
+      // RULE 2: Method-specific filtering (SECONDARY - only to prevent cross-method pollution)
+      // This rule should ENHANCE filtering, not BLOCK valid tests
       if (method) {
         const expectedKeywords = methodKeywords[method] || [];
-        const testId = test.id.toLowerCase();
         
         // Special handling for PATCH - check file name for "patch" or "email" patterns
         if (method === 'PATCH') {
@@ -1418,74 +1472,92 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
             testDesc.includes('email');
           
           if (hasPatchIndicator) {
-            // Strong indication this is a PATCH test - include it
-            return true;
+            return true; // Strong indication this is a PATCH test
           }
         }
         
-        // Check test description, file name, AND test ID (method name)
+        // Check if test file name indicates this is for the right endpoint
+        // e.g., "IdentityControllerLoginTest.java" for POST /identity/login
+        const endpointFileName = mainResource ? mainResource.replace(/-/g, '') : '';
+        const matchesFileName = endpointFileName && testFile.includes(endpointFileName);
+        
+        // If test file name matches endpoint AND main resource matches, include it
+        // This handles cases like "LoginTest" for "/identity/login"
+        if (matchesFileName && matchesMainResource) {
+          return true; // File name indicates this is the right test file
+        }
+        
+        // Check if test has method-specific keywords
         const hasExpectedKeyword = expectedKeywords.some(kw => 
           testDesc.includes(kw) || testFile.includes(kw) || testId.includes(kw)
         );
         
         // Check if test has keywords from OTHER methods (conflicting)
-        // BUT: For PATCH/PUT ambiguity, give preference to endpoint structure
         const otherMethods = Object.keys(methodKeywords).filter(m => m !== method);
         const hasConflictingKeyword = otherMethods.some(otherMethod => {
           const otherKeywords = methodKeywords[otherMethod];
           return otherKeywords.some(kw => testDesc.includes(kw) || testId.includes(kw));
         });
         
-        // If test has expected keyword, include it
+        // CRITICAL FIX: If path segments match but no method keywords found,
+        // INCLUDE the test (don't exclude it) - method keywords are optional
+        if (!hasExpectedKeyword && !hasConflictingKeyword) {
+          // Path matches, no conflicting keywords - INCLUDE IT
+          return true;
+        }
+        
+        // If test has expected keyword, include it (unless strong conflict)
         if (hasExpectedKeyword) {
-          // Unless it also has conflicting keywords (ambiguous)
           if (hasConflictingKeyword) {
-            // For ambiguous cases, check which keyword is more prominent
-            // Count occurrences of each method's keywords
+            // Check which keyword is more prominent
             const expectedCount = expectedKeywords.filter(kw => testDesc.includes(kw)).length;
             const conflictCount = otherMethods.reduce((sum, m) => {
               return sum + methodKeywords[m].filter(kw => testDesc.includes(kw)).length;
             }, 0);
             
-            // Include if expected keywords are more prominent
-            if (expectedCount <= conflictCount) {
+            // Exclude only if conflicts are MORE prominent
+            if (expectedCount < conflictCount) {
               return false;
             }
           }
-          // Has expected keyword and no/fewer conflicts - include
           return true;
         }
         
-        // Test doesn't have expected keyword
-        // Exclude if it has conflicting keywords
+        // Test has conflicting keyword but no expected keyword
+        // Only exclude if conflict is strong (not just one keyword)
         if (hasConflictingKeyword) {
-          return false;
-        }
-        
-        // No expected keyword, no conflicting keyword
-        // Check for parameterized paths
-        if (endpoint.includes('{id}')) {
-          const hasByIdPattern = 
-            testDesc.includes('by id') || 
-            testDesc.includes('byid') ||
-            testDesc.includes('by_id') ||
-            testFile.includes('byid');
+          const conflictCount = otherMethods.reduce((sum, m) => {
+            return sum + methodKeywords[m].filter(kw => testDesc.includes(kw) || testId.includes(kw)).length;
+          }, 0);
           
-          if (!hasByIdPattern) {
-            // Not a "by id" test - exclude unless it's a general list test
-            const isGeneralTest = 
-              testDesc.includes('all') || 
-              testDesc.includes('list') ||
-              testDesc.includes('filter');
-            return isGeneralTest;
+          // Strong conflict (2+ conflicting keywords) - exclude
+          if (conflictCount >= 2) {
+            return false;
           }
-          // Has "by id" pattern - could be for this endpoint
-          // But since no method keyword, it's ambiguous - exclude to be safe
+          
+          // Weak conflict (1 keyword) - check parameterized paths
+          if (endpoint.includes('{id}')) {
+            const hasByIdPattern = 
+              testDesc.includes('by id') || 
+              testDesc.includes('byid') ||
+              testDesc.includes('by_id') ||
+              testFile.includes('byid');
+            
+            // If this is a "by id" test and we have a {id} path param, include it
+            if (hasByIdPattern) {
+              return true;
+            }
+            
+            // Not a "by id" test - exclude if conflict present
+            return false;
+          }
+          
+          // No {id} param, weak conflict - exclude to be safe
           return false;
         }
         
-        // No {id}, no method keywords - marginal case, exclude
-        return false;
+        // No conflicts, path matches - INCLUDE
+        return true;
       }
       
       // No method specified in API - less strict filtering
