@@ -1,5 +1,5 @@
 # AI-Generated Test Scenarios
-# Generated: 2025-12-12T23:17:36.349Z
+# Generated: 2025-12-12T23:19:49.394Z
 # (✅ = in baseline, 🆕 = new suggestion, 🔧 = modified, ⚠️ = verify)
 # DO NOT EDIT - regenerated automatically
 # Copy relevant 🆕 scenarios to baseline/customer-service-baseline.yml
@@ -170,30 +170,29 @@ DELETE /v1/customers/{id}:
     - When id contains leading zeros (e.g., 00123), process correctly or reject  🆕
     - When id is UUID format instead of integer, handle based on system design  🆕
     - When deleting same customer twice consecutively, second request returns 404  🆕
-    - When id has special characters (e.g., #, %, &), return 400 or 404  🆕
-    - When id is extremely long string, return 400 or 414  🆕
+    - When id has trailing/leading whitespace, trim and process or reject  🆕
 
   error_case:
-    - When id is non-existent, return 404  🆕
-    - When id is invalid format (e.g., letters instead of numbers), return 400  🆕
+    - When id does not exist, return 404  🆕
+    - When id is invalid format (non-numeric for integer id), return 400  🆕
+    - When id is negative number, return 400  🆕
     - When id is empty string, return 400 or 404  🆕
-    - When id is null, return 400  🆕
     - When authentication token is missing, return 401  🆕
     - When authentication token is invalid or expired, return 401  🆕
     - When user lacks permission to delete customer, return 403  🆕
-    - When customer has dependent records (e.g., orders), return 409 or 422  🆕
+    - When customer has dependent records (orders, invoices), return 409 or 422  🆕
     - When database connection fails, return 500  🆕
-    - When customer is already soft-deleted, return 404 or 410  🆕
+    - When id exceeds maximum integer value, return 400  🆕
 
   security:
-    - When id contains SQL injection (e.g., '1 OR 1=1--'), reject with 400 and prevent execution  🆕
-    - When id contains XSS payload (e.g., '<script>alert(1)</script>'), sanitize and return 400  🆕
+    - When id contains SQL injection payload (e.g., '1 OR 1=1'), reject with 400 and prevent execution  🆕
+    - When id contains XSS script tags, sanitize and reject with 400  🆕
     - When attempting to delete without valid JWT token, return 401  🆕
     - When attempting to delete customer belonging to different tenant, return 403  🆕
-    - When using another user's valid token, prevent unauthorized deletion with 403  🆕
-    - When id contains path traversal (e.g., '../admin/1'), reject with 400  🆕
+    - When using deleted/revoked authentication token, return 401  🆕
+    - When id contains path traversal characters (../, ../../), reject with 400  🆕
+    - When attempting CSRF attack without proper token, reject request  🆕
     - When rate limit exceeded for delete operations, return 429  🆕
-    - When id contains NoSQL injection payload, sanitize and reject with 400  🆕
 
 # PATCH /v1/customers/{id}/email
 PATCH /v1/customers/{id}/email:

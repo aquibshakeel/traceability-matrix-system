@@ -545,6 +545,9 @@
                 </button>
             </div>
             <h1>🎯 Unit-Test Traceability Report</h1>
+            <div class="subtitle" style="font-size: 1.3em; font-weight: 600; margin-bottom: 8px;">
+                Service: <span style="color: #fbbf24;">{{SERVICE_NAME}}</span>
+            </div>
             <div class="subtitle">Generated on <span id="timestamp">{{TIMESTAMP}}</span></div>
             <div class="subtitle">Duration: <span id="duration">{{DURATION}}</span>ms</div>
             <div class="subtitle">Mode: Full Suite Analysis</div>
@@ -673,12 +676,8 @@
                         <div class="summary-label">Baseline Scenarios</div>
                     </div>
                     <div class="summary-item">
-                        <div class="summary-value" style="font-size: 1.2em; font-weight: 600;">{{SERVICE_NAME}}</div>
-                        <div class="summary-label">Service</div>
-                    </div>
-                    <div class="summary-item">
                         <div class="summary-value">{{TOTAL_APIS}}</div>
-                        <div class="summary-label">APIs</div>
+                        <div class="summary-label">Total APIs</div>
                     </div>
                 </div>
                 <span class="card-toggle" id="scenarios-card-toggle">▼</span>
@@ -689,10 +688,6 @@
                         <div class="stat-box">
                             <div class="value">{{TOTAL_SCENARIOS}}</div>
                             <div class="label">Total Baseline Scenarios</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="value" style="font-size: 1.4em;">{{SERVICE_NAME}}</div>
-                            <div class="label">Service Name</div>
                         </div>
                         <div class="stat-box">
                             <div class="value">{{TOTAL_APIS}}</div>
@@ -728,16 +723,16 @@
                 </div>
                 <div class="card-summary">
                     <div class="summary-item">
-                        <div class="summary-value" id="journeys-covered">0</div>
-                        <div class="summary-label">Covered</div>
+                        <div class="summary-value" style="color: var(--success);" id="journeys-covered">0</div>
+                        <div class="summary-label">Fully Covered Journeys</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-value" id="journeys-total">0</div>
-                        <div class="summary-label">Total</div>
+                        <div class="summary-label">Total Journeys</div>
                     </div>
                     <div class="summary-item">
-                        <div class="summary-value" id="journeys-atrisk">0</div>
-                        <div class="summary-label">At Risk</div>
+                        <div class="summary-value" style="color: var(--danger);" id="journeys-atrisk">0</div>
+                        <div class="summary-label">Not Covered (Need Tests)</div>
                     </div>
                 </div>
                 <span class="card-toggle" id="journeys-card-toggle">▼</span>
