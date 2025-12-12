@@ -1,0 +1,73 @@
+service: customer-service
+
+business_journeys:
+  - id: customer-onboarding-flow
+    name: "Complete Customer Onboarding"
+    description: "Create customer → Validate email → Profile completion → Account activation"
+    priority: P0
+    steps:
+      - api: "POST /v1/customers"
+        description: "Create new customer record"
+        required: true
+      - api: "GET /v1/customers/{id}"
+        description: "Retrieve customer details"
+        required: true
+      - api: "PUT /v1/customers/{id}"
+        description: "Update customer profile"
+        required: true
+    e2e_tests:
+      - file: "CustomerOnboardingE2ETest.java"
+        methods:
+          - "testCompleteOnboardingFlow"
+          - "testOnboardingWithInvalidEmail"
+    tags: ["onboarding", "customer-management"]
+    
+  - id: customer-profile-management
+    name: "Customer Profile Management"
+    description: "View → Update → Verify customer profile information"
+    priority: P1
+    steps:
+      - api: "GET /v1/customers/{id}"
+        description: "View customer profile"
+        required: true
+      - api: "PUT /v1/customers/{id}"
+        description: "Update customer information"
+        required: true
+    e2e_tests:
+      - file: "CustomerProfileE2ETest.java"
+        methods:
+          - "testProfileUpdate"
+          - "testProfileUpdateValidation"
+    tags: ["profile-management", "customer-management"]
+    
+  - id: customer-search-and-retrieve
+    name: "Customer Search & Retrieval"
+    description: "Search customers by various criteria → View details"
+    priority: P2
+    steps:
+      - api: "GET /v1/customers"
+        description: "Search/list all customers"
+        required: true
+      - api: "GET /v1/customers/{id}"
+        description: "Get specific customer details"
+        required: true
+    e2e_tests: []
+    tags: ["search", "customer-management"]
+    
+  - id: customer-deletion-flow
+    name: "Customer Account Deletion"
+    description: "Verify customer exists → Delete account → Confirm deletion"
+    priority: P1
+    steps:
+      - api: "GET /v1/customers/{id}"
+        description: "Verify customer exists"
+        required: true
+      - api: "DELETE /v1/customers/{id}"
+        description: "Delete customer account"
+        required: true
+    e2e_tests:
+      - file: "CustomerDeletionE2ETest.java"
+        methods:
+          - "testSuccessfulDeletion"
+          - "testDeletionOfNonExistentCustomer"
+    tags: ["account-management", "data-deletion"]

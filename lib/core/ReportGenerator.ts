@@ -154,6 +154,7 @@ export class ReportGenerator {
         summary,
         apis,
         service: serviceName,
+        journeyAnalysis: analysis.journeyAnalysis || null,
         orphanTests: orphanTests.businessTests.concat(orphanTests.technicalTests).map(test => ({
           ...test,
           serviceName: serviceName
@@ -803,52 +804,67 @@ void test${gap.scenario.replace(/\W+/g, '_').replace(/^_+|_+$/g, '')}() {
     if (!orphanAPIs || orphanAPIs.length === 0) return '';
     
     return `
-<div class="section">
-  <h2>
-    ⚠️ Orphan APIs (${orphanAPIs.length})
-    <span class="section-toggle" onclick="toggleSection('orphan-apis')">▶</span>
-  </h2>
-  <div class="section-content collapsed" id="orphan-apis-content">
-    <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626; margin-bottom: 20px;">
-      <strong style="color: #991b1b; font-size: 1.1em;">⚠️ Critical:</strong> These APIs were discovered in code but have <strong>NO baseline scenarios AND NO unit tests</strong>. They are completely untracked and represent critical gaps in test coverage.
+<!-- Orphan APIs Card -->
+<div class="expandable-card">
+  <div class="card-header" onclick="toggleCard('orphan-apis-card')">
+    <div class="card-header-left">
+      <span class="card-icon">⚠️</span>
+      <span class="card-title">Orphan APIs</span>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Method</th>
-          <th>Endpoint</th>
-          <th>Controller</th>
-          <th>Line</th>
-          <th>Scenario</th>
-          <th>Test</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${orphanAPIs.map(api => `
-        <tr>
-          <td><span class="badge badge-info">${api.method}</span></td>
-          <td><code>${api.endpoint}</code></td>
-          <td>${api.controller}</td>
-          <td>${api.lineNumber || 'N/A'}</td>
-          <td><span style="color: #dc3545;">❌</span></td>
-          <td><span style="color: #dc3545;">❌</span></td>
-        </tr>
-        `).join('')}
-      </tbody>
-    </table>
-    
-    ${aiSummary ? `
-    <div style="background: linear-gradient(135deg, #e7f3ff 0%, #f0f7ff 100%); padding: 25px; border-radius: 10px; border-left: 5px solid #667eea; margin-top: 30px; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);">
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-        <span style="font-size: 1.5em;">🤖</span>
-        <h4 style="margin: 0; color: #667eea; font-size: 1.2em;">AI Analysis</h4>
-      </div>
-      <div style="color: #333; line-height: 1.8; font-size: 0.95em;">
-        ${aiSummary.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #667eea;">$1</strong>')
-          .replace(/\n/g, '<br>')}
+    <div class="card-summary">
+      <div class="summary-item">
+        <div class="summary-value" style="color: var(--danger);">${orphanAPIs.length}</div>
+        <div class="summary-label">Untracked APIs</div>
       </div>
     </div>
-    ` : ''}
+    <span class="card-toggle" id="orphan-apis-card-toggle">▼</span>
+  </div>
+  <div class="card-content" id="orphan-apis-card-content">
+    <div class="card-content-inner">
+      <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626; margin-bottom: 20px;">
+        <strong style="color: #991b1b; font-size: 1.1em;">⚠️ Critical:</strong> These APIs were discovered in code but have <strong>NO baseline scenarios AND NO unit tests</strong>. They are completely untracked and represent critical gaps in test coverage.
+      </div>
+      
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Endpoint</th>
+              <th>Controller</th>
+              <th>Line</th>
+              <th>Scenario</th>
+              <th>Test</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${orphanAPIs.map(api => `
+            <tr>
+              <td><span class="badge badge-info">${api.method}</span></td>
+              <td><code>${api.endpoint}</code></td>
+              <td>${api.controller}</td>
+              <td>${api.lineNumber || 'N/A'}</td>
+              <td><span style="color: #dc3545;">❌</span></td>
+              <td><span style="color: #dc3545;">❌</span></td>
+            </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      
+      ${aiSummary ? `
+      <div style="background: linear-gradient(135deg, #e7f3ff 0%, #f0f7ff 100%); padding: 25px; border-radius: 10px; border-left: 5px solid #667eea; margin-top: 30px; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+          <span style="font-size: 1.5em;">🤖</span>
+          <h4 style="margin: 0; color: #667eea; font-size: 1.2em;">AI Analysis</h4>
+        </div>
+        <div style="color: #333; line-height: 1.8; font-size: 0.95em;">
+          ${aiSummary.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #667eea;">$1</strong>')
+            .replace(/\n/g, '<br>')}
+        </div>
+      </div>
+      ` : ''}
+    </div>
   </div>
 </div>`;
   }

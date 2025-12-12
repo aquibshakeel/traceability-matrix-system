@@ -102,6 +102,20 @@ export class GitChangeDetector {
       affectedServices.add(serviceName);
       console.log(`  ✓ Baseline changed: ${serviceName}`);
     }
+    
+    // Also check for journey file changes - these should trigger service analysis
+    const journeyFiles = changedFiles.filter(f => 
+      f.includes('.traceability/test-cases/journeys/') && f.endsWith('.yml')
+    );
+    
+    for (const journeyFile of journeyFiles) {
+      // Extract service name from journey file
+      // e.g., customer-service-journeys.yml -> customer-service
+      const fileName = path.basename(journeyFile, '.yml');
+      const serviceName = fileName.replace('-journeys', '');
+      affectedServices.add(serviceName);
+      console.log(`  ✓ Journey changed: ${serviceName}`);
+    }
 
     const summary = {
       apisAdded: apiChanges.filter(c => c.type === 'added').length,

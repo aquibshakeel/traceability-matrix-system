@@ -719,6 +719,42 @@
             </div>
         </div>
 
+        <!-- Business Journeys Card (NEW) -->
+        <div class="expandable-card" id="journeys-card-wrapper" style="display: none;">
+            <div class="card-header" onclick="toggleCard('journeys-card')">
+                <div class="card-header-left">
+                    <span class="card-icon">🚀</span>
+                    <span class="card-title">Business Journeys (E2E)</span>
+                </div>
+                <div class="card-summary">
+                    <div class="summary-item">
+                        <div class="summary-value" id="journeys-covered">0</div>
+                        <div class="summary-label">Covered</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="journeys-total">0</div>
+                        <div class="summary-label">Total</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="journeys-atrisk">0</div>
+                        <div class="summary-label">At Risk</div>
+                    </div>
+                </div>
+                <span class="card-toggle" id="journeys-card-toggle">▼</span>
+            </div>
+            <div class="card-content" id="journeys-card-content">
+                <div class="card-content-inner">
+                    <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 1.05em;">
+                        End-to-end business journeys represent complete user workflows across multiple API steps.
+                    </p>
+                    
+                    <div id="journeys-content">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Orphan Unit Tests Card -->
         <div class="expandable-card">
             <div class="card-header" onclick="toggleCard('tests-card')">
@@ -928,6 +964,9 @@
             
             // Populate orphan tests table
             populateOrphanTestsTable();
+            
+            // Populate Business Journeys
+            populateBusinessJourneys();
         });
         
         // Populate Orphan Tests Table with expandable details
@@ -1154,6 +1193,127 @@
             }, 2000);
         }
 
+        // Populate Business Journeys Card
+        function populateBusinessJourneys() {
+            if (!reportData || !reportData.journeyAnalysis) {
+                return; // No journey data - keep card hidden
+            }
+            
+            const journeys = reportData.journeyAnalysis;
+            const wrapper = document.getElementById('journeys-card-wrapper');
+            const content = document.getElementById('journeys-content');
+            
+            if (!wrapper || !content) return;
+            
+            // Show the card
+            wrapper.style.display = 'block';
+            
+            // Update summary
+            document.getElementById('journeys-covered').textContent = journeys.coveredJourneys || 0;
+            document.getElementById('journeys-total').textContent = journeys.totalJourneys || 0;
+            document.getElementById('journeys-atrisk').textContent = journeys.atRiskJourneys || 0;
+            
+            // Build journey list HTML
+            let html = '';
+            
+            if (!journeys.journeys || journeys.journeys.length === 0) {
+                html = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">No journey data available</p>';
+            } else {
+                journeys.journeys.forEach((journey, idx) => {
+                    const statusIcon = {
+                        'FULLY_COVERED': '✅',
+                        'PARTIAL_COVERAGE': '🟡',
+                        'NOT_COVERED': '❌',
+                        'AT_RISK': '⚠️'
+                    }[journey.status] || '❓';
+                    
+                    const statusColor = {
+                        'FULLY_COVERED': 'var(--success)',
+                        'PARTIAL_COVERAGE': 'var(--warning)',
+                        'NOT_COVERED': 'var(--danger)',
+                        'AT_RISK': '#ff6b00'
+                    }[journey.status] || 'var(--text-secondary)';
+                    
+                    html += `<div style="margin-bottom: 20px; padding: 20px; background: var(--bg-secondary); border-radius: 8px; border-left: 4px solid ${statusColor};">`;
+                    
+                    // Journey Header
+                    html += `<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">`;
+                    html += `<div>`;
+                    html += `<h4 style="color: var(--text-primary); margin: 0 0 5px 0; display: flex; align-items: center; gap: 10px;">`;
+                    html += `<span style="font-size: 1.5em;">${statusIcon}</span>`;
+                    html += `<span>${journey.journey.name}</span>`;
+                    html += `</h4>`;
+                    html += `<p style="color: var(--text-secondary); margin: 0; font-size: 0.9em;">${journey.journey.description || ''}</p>`;
+                    html += `</div>`;
+                    html += `<span style="background: ${statusColor}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; white-space: nowrap;">${journey.journey.priority}</span>`;
+                    html += `</div>`;
+                    
+                    // Journey Stats
+                    html += `<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px;">`;
+                    html += `<div style="text-align: center; padding: 10px; background: var(--bg-primary); border-radius: 6px;">`;
+                    html += `<div style="font-size: 1.5em; font-weight: bold; color: var(--text-primary);">${journey.journey.steps.length}</div>`;
+                    html += `<div style="font-size: 0.75em; color: var(--text-secondary); text-transform: uppercase;">Steps</div>`;
+                    html += `</div>`;
+                    html += `<div style="text-align: center; padding: 10px; background: var(--bg-primary); border-radius: 6px;">`;
+                    html += `<div style="font-size: 1.5em; font-weight: bold; color: var(--text-primary);">${journey.overallCoverage}%</div>`;
+                    html += `<div style="font-size: 0.75em; color: var(--text-secondary); text-transform: uppercase;">Unit Tests</div>`;
+                    html += `</div>`;
+                    html += `<div style="text-align: center; padding: 10px; background: var(--bg-primary); border-radius: 6px;">`;
+                    html += `<div style="font-size: 1.5em; font-weight: bold; color: ${journey.e2eTestsFound ? 'var(--success)' : 'var(--danger)'};">${journey.e2eTestsFound ? '✓' : '✗'}</div>`;
+                    html += `<div style="font-size: 0.75em; color: var(--text-secondary); text-transform: uppercase;">E2E Test</div>`;
+                    html += `</div>`;
+                    html += `<div style="text-align: center; padding: 10px; background: var(--bg-primary); border-radius: 6px;">`;
+                    html += `<div style="font-size: 1.5em; font-weight: bold; color: var(--text-primary);">${journey.weakSteps.length}</div>`;
+                    html += `<div style="font-size: 0.75em; color: var(--text-secondary); text-transform: uppercase;">Weak Points</div>`;
+                    html += `</div>`;
+                    html += `</div>`;
+                    
+                    // Expandable Steps
+                    html += `<details style="margin-top: 10px;">`;
+                    html += `<summary style="cursor: pointer; color: var(--accent-primary); font-weight: 600; user-select: none;">`;
+                    html += `View ${journey.journey.steps.length} Steps →`;
+                    html += `</summary>`;
+                    html += `<div style="margin-top: 15px;">`;
+                    
+                    journey.stepCoverage.forEach((stepCov, stepIdx) => {
+                        const stepIcon = stepCov.status === 'COVERED' ? '✅' : stepCov.status === 'PARTIAL' ? '⚠️' : '❌';
+                        const stepColor = stepCov.status === 'COVERED' ? 'var(--success)' : stepCov.status === 'PARTIAL' ? 'var(--warning)' : 'var(--danger)';
+                        
+                        html += `<div style="padding: 12px; margin-bottom: 10px; background: var(--bg-tertiary); border-radius: 6px; border-left: 3px solid ${stepColor};">`;
+                        html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">`;
+                        html += `<strong style="color: var(--text-primary);">${stepIcon} Step ${stepIdx + 1}: ${stepCov.step.api}</strong>`;
+                        html += `<span style="font-size: 0.85em; color: ${stepColor}; font-weight: 600;">${stepCov.unitTestCoverage}% Coverage</span>`;
+                        html += `</div>`;
+                        html += `<p style="color: var(--text-secondary); font-size: 0.9em; margin: 5px 0;">${stepCov.step.description}</p>`;
+                        html += `<div style="font-size: 0.85em; color: var(--text-secondary); margin-top: 5px;">`;
+                        html += `${stepCov.unitTestCount} unit test(s) | ${stepCov.coveredScenarios}/${stepCov.baselineScenarios} scenarios`;
+                        html += `</div>`;
+                        html += `</div>`;
+                    });
+                    
+                    html += `</div></details>`;
+                    
+                    // Recommendations
+                    if (journey.recommendations && journey.recommendations.length > 0) {
+                        html += `<details style="margin-top: 10px;">`;
+                        html += `<summary style="cursor: pointer; color: var(--info); font-weight: 600; user-select: none;">`;
+                        html += `📋 View ${journey.recommendations.length} Recommendation(s)`;
+                        html += `</summary>`;
+                        html += `<div style="margin-top: 10px; padding: 15px; background: var(--info-light); border-radius: 6px;">`;
+                        html += `<ul style="margin: 0; padding-left: 20px;">`;
+                        journey.recommendations.forEach(rec => {
+                            html += `<li style="margin: 8px 0; color: var(--text-primary);">${rec}</li>`;
+                        });
+                        html += `</ul></div></details>`;
+                    }
+                    
+                    html += `</div>`;
+                });
+            }
+            
+            content.innerHTML = html;
+        }
+        
         // Create Charts
         function createCharts() {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';

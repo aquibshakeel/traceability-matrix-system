@@ -584,3 +584,88 @@ export interface GitInfo {
   author: string;
   commitMessage?: string;
 }
+
+// ============================================================================
+// E2E BUSINESS JOURNEY TYPES
+// ============================================================================
+
+export interface BusinessJourney {
+  id: string;
+  name: string;
+  description: string;
+  priority: Priority;
+  steps: JourneyStep[];
+  e2e_tests?: E2ETestReference[];
+  tags?: string[];
+}
+
+export interface JourneyStep {
+  api: string;
+  description: string;
+  required: boolean;
+}
+
+export interface E2ETestReference {
+  file: string;
+  methods: string[];
+}
+
+export interface E2ETestFile {
+  file: string;
+  filePath: string;
+  methods: E2ETestMethod[];
+  exists: boolean;
+  language: SupportedLanguage;
+}
+
+export interface E2ETestMethod {
+  name: string;
+  description?: string;
+  lineNumber?: number;
+}
+
+export interface JourneyCoverageAnalysis {
+  service: string;
+  totalJourneys: number;
+  coveredJourneys: number;
+  partialJourneys: number;
+  notCoveredJourneys: number;
+  atRiskJourneys: number;
+  journeys: JourneyAnalysis[];
+  overallCoverage: number;
+}
+
+export interface JourneyAnalysis {
+  journey: BusinessJourney;
+  e2eTestsFound: boolean;
+  e2eTestDetails: E2ETestFile[];
+  stepCoverage: StepCoverage[];
+  overallCoverage: number;
+  status: JourneyStatus;
+  missingSteps: string[];
+  weakSteps: JourneyStep[];
+  recommendations: string[];
+}
+
+export interface StepCoverage {
+  step: JourneyStep;
+  apiFound: boolean;
+  unitTestCoverage: number;
+  unitTestCount: number;
+  baselineScenarios: number;
+  coveredScenarios: number;
+  missingScenarios: number;
+  status: 'COVERED' | 'PARTIAL' | 'NOT_COVERED';
+  gap?: Gap;
+}
+
+export type JourneyStatus = 
+  | 'FULLY_COVERED'      // Has E2E tests + all steps have unit tests
+  | 'PARTIAL_COVERAGE'   // Has E2E tests but some steps lack unit tests
+  | 'NOT_COVERED'        // No E2E tests for this journey
+  | 'AT_RISK';           // E2E test exists but critical unit test gaps
+
+export interface JourneyBaselineFile {
+  service: string;
+  business_journeys: BusinessJourney[];
+}

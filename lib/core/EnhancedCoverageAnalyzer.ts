@@ -8,7 +8,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { TestParserFactory } from './TestParserFactory';
-import { ServiceConfig, UnitTest, OrphanTestCategory, Priority } from '../types';
+import { ServiceConfig, UnitTest, OrphanTestCategory, Priority, JourneyCoverageAnalysis } from '../types';
 import { ModelDetector } from './ModelDetector';
 import { APIScanner } from './APIScanner';
 import { BaselineValidator } from '../validation/BaselineSchema';
@@ -37,6 +37,7 @@ export interface CoverageAnalysis {
   coveragePercent: number;
   summary: AnalysisSummary;
   visualAnalytics: VisualAnalytics;
+  journeyAnalysis?: JourneyCoverageAnalysis | null; // Optional - E2E business journey coverage
 }
 
 export interface OrphanAPIInfo {
@@ -361,6 +362,22 @@ export class EnhancedCoverageAnalyzer {
       orphanAPISummary = await this.generateOrphanAPISummary(orphanAPIs);
     }
 
+    // Analyze E2E business journeys (optional - only if journey file exists)
+    let journeyAnalysis = null;
+    try {
+      const { JourneyCoverageAnalyzer } = await import('./JourneyCoverageAnalyzer');
+      const journeyAnalyzer = new JourneyCoverageAnalyzer(this.projectRoot);
+      
+      journeyAnalysis = await journeyAnalyzer.analyzeServiceJourneys(
+        service.name,
+        service.path,
+        apiAnalyses
+      );
+    } catch (error) {
+      // Silently skip journey analysis if it fails - feature is optional
+      console.log(`  ℹ️  Journey analysis skipped (optional feature)`);
+    }
+
     console.log('\n' + '='.repeat(70));
     console.log(`📈 Coverage: ${summary.coveragePercent.toFixed(1)}%`);
     console.log(`✅ Covered: ${summary.fullyCovered}/${summary.totalScenarios}`);
@@ -368,6 +385,9 @@ export class EnhancedCoverageAnalyzer {
     console.log(`🔍 Orphans: ${orphanAnalysis.totalOrphans} tests (${orphanAnalysis.businessTests.length} need scenarios)`);
     if (orphanAPIs.length > 0) {
       console.log(`⚠️  Orphan APIs: ${orphanAPIs.length} APIs with no scenarios AND no tests`);
+    }
+    if (journeyAnalysis) {
+      console.log(`🚀 Business Journeys: ${journeyAnalysis.coveredJourneys}/${journeyAnalysis.totalJourneys} covered`);
     }
 
     return {
@@ -382,7 +402,8 @@ export class EnhancedCoverageAnalyzer {
       gaps,
       coveragePercent: summary.coveragePercent,
       summary,
-      visualAnalytics
+      visualAnalytics,
+      journeyAnalysis
     };
   }
 
