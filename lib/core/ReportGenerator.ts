@@ -93,19 +93,29 @@ export class ReportGenerator {
   }
 
   private generateHTML(analysis: CoverageAnalysis, gitChanges: GitChangeAnalysis, serviceName: string): string {
-    // Load the enhanced template
-    const templatePath = path.join(__dirname, '../templates/enhanced-report.html');
+    // Load the enhanced template v2 (card-based layout)
+    const templatePath = path.join(__dirname, '../templates/enhanced-report-v2.html');
     let template = fs.readFileSync(templatePath, 'utf-8');
     
     const { summary, apis, orphanTests, orphanAPIs, gaps, visualAnalytics } = analysis;
     
-    // Build dynamic sections - REORDERED: Gaps first!
-    const gapsSection = this.buildGapsSection(gaps);
+    // Build dynamic sections - REORDERED: Priority sections first!
+    const executiveSummary = this.buildExecutiveSummary(analysis, serviceName);
+    const gapsSection = this.buildGapsSection(gaps);  // #1 Priority
+    const orphanAPIsSection = this.buildOrphanAPIsSection(orphanAPIs, analysis.orphanAPISummary);  // #2 Priority
     const apiCoverageSection = this.buildAPICoverageSection(apis);
-    const traceabilitySection = this.buildTraceabilitySection(apis);
-    const orphanAPIsSection = this.buildOrphanAPIsSection(orphanAPIs, analysis.orphanAPISummary);
     const orphanTestsSection = this.buildOrphanTestsSection(orphanTests, serviceName);
+    const traceabilitySection = this.buildTraceabilitySection(apis);
     const gitChangesSection = this.buildGitChangesSection(gitChanges);
+    
+    // Generate YAML content for orphan tests
+    const orphanYamlContent = this.generateOrphanYAML(orphanTests.businessTests, serviceName);
+    
+    // Generate table rows for orphan tests
+    const orphanTableRows = this.generateOrphanTableRows([...orphanTests.businessTests, ...orphanTests.technicalTests], serviceName);
+    
+    // Generate gaps list HTML
+    const gapsList = this.generateGapsList(gaps);
     
     // Replace placeholders (using global regex for multiple occurrences)
     template = template
@@ -117,9 +127,18 @@ export class ReportGenerator {
       .replace(/{{FULLY_COVERED}}/g, summary.fullyCovered.toString())
       .replace(/{{TOTAL_SCENARIOS}}/g, summary.totalScenarios.toString())
       .replace(/{{SERVICES_ANALYZED}}/g, '1')
+      .replace(/{{TOTAL_APIS}}/g, apis.length.toString())
+      .replace(/{{SERVICE_NAME}}/g, serviceName)
+      .replace(/{{TOTAL_UNIT_TESTS}}/g, analysis.unitTestsFound.toString())
       .replace(/{{TOTAL_TESTS}}/g, analysis.unitTestsFound.toString())
+      .replace(/{{BUSINESS_TESTS}}/g, orphanTests.businessTests.length.toString())
+      .replace(/{{TECHNICAL_TESTS}}/g, orphanTests.technicalTests.length.toString())
       .replace(/{{ORPHAN_TESTS}}/g, orphanTests.totalOrphans.toString())
       .replace(/{{P0_GAPS}}/g, summary.p0Gaps.toString())
+      .replace(/{{P1_GAPS}}/g, summary.p1Gaps.toString())
+      .replace(/{{P2_GAPS}}/g, summary.p2Gaps.toString())
+      .replace(/{{P3_GAPS}}/g, summary.p3Gaps.toString())
+      .replace(/{{TOTAL_GAPS}}/g, gaps.length.toString())
       .replace(/{{PARTIALLY_COVERED}}/g, summary.partiallyCovered.toString())
       .replace(/{{NOT_COVERED}}/g, summary.notCovered.toString())
       .replace(/{{COVERAGE_TREND_CLASS}}/g, 'up')
@@ -128,14 +147,22 @@ export class ReportGenerator {
       .replace(/{{P0_TREND_CLASS}}/g, summary.p0Gaps > 0 ? 'up' : 'down')
       .replace(/{{P0_TREND_ICON}}/g, summary.p0Gaps > 0 ? '⬆️' : '⬇️')
       .replace(/{{P0_TREND_TEXT}}/g, summary.p0Gaps > 0 ? `${summary.p0Gaps} critical` : '0 critical')
+      .replace(/{{ORPHAN_YAML_CONTENT}}/g, orphanYamlContent)
+      .replace(/{{ORPHAN_TESTS_TABLE_ROWS}}/g, orphanTableRows)
+      .replace(/{{GAPS_LIST}}/g, gapsList)
       .replace('{{REPORT_DATA_JSON}}', JSON.stringify({
         summary,
         apis,
-        orphanTests: orphanTests.businessTests.concat(orphanTests.technicalTests)
+        service: serviceName,
+        orphanTests: orphanTests.businessTests.concat(orphanTests.technicalTests).map(test => ({
+          ...test,
+          serviceName: serviceName
+        }))
       }))
       .replace('{{TREND_DATA_JSON}}', JSON.stringify({
         snapshots: visualAnalytics?.coverageTrend || []
       }))
+      .replace('{{EXECUTIVE_SUMMARY}}', executiveSummary)
       .replace('{{GAPS_SECTION}}', gapsSection)
       .replace('{{ORPHAN_APIS_SECTION}}', orphanAPIsSection)
       .replace('{{ORPHAN_TESTS_SECTION}}', orphanTestsSection)
@@ -147,6 +174,309 @@ export class ReportGenerator {
       .replace('{{GENERATION_DATE}}', new Date().toLocaleDateString());
     
     return template;
+  }
+
+  private buildExecutiveSummary(analysis: CoverageAnalysis, serviceName: string): string {
+    const { summary, apis } = analysis;
+    
+    // Count P0 and P1 gaps for AI recommendations
+    const p0p1Gaps = summary.p0Gaps + summary.p1Gaps;
+    
+    // Calculate total APIs discovered
+    const totalAPIs = apis.length;
+    
+    return `
+<div class="exec-summary">
+  <h2>📊 EXECUTIVE SUMMARY</h2>
+  
+  <!-- Quick Actions Required (Merged with AI Recommendations) -->
+  ${summary.p0Gaps > 0 || p0p1Gaps > 0 ? `
+  <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.3em;">⚡</span>
+        <strong style="font-size: 1.2em;">Quick Actions Required (${p0p1Gaps} items)</strong>
+      </div>
+      <button onclick="toggleQuickActions()" id="quick-actions-btn" style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3); color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight: 600;">
+        Show Details ▼
+      </button>
+    </div>
+    
+    <!-- Summary -->
+    <ul style="margin: 0; padding-left: 20px; line-height: 2;">
+      ${summary.p0Gaps > 0 ? `
+      <li><strong>${summary.p0Gaps} P0 scenarios</strong> need unit tests <em>(Critical Priority)</em></li>
+      ` : ''}
+      ${summary.p1Gaps > 0 ? `
+      <li><strong>${summary.p1Gaps} P1 scenarios</strong> need attention <em>(High Priority)</em></li>
+      ` : ''}
+    </ul>
+    
+    <!-- Detailed Breakdown (Initially Hidden) -->
+    <div id="quick-actions-details" style="max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out;">
+      <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.2);">
+        ${this.buildQuickActionsDetails(analysis)}
+      </div>
+    </div>
+  </div>
+  ` : `
+  <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;">
+    <div style="font-size: 2em; margin-bottom: 10px;">🎉</div>
+    <strong style="font-size: 1.2em;">Excellent Coverage!</strong>
+    <div style="margin-top: 10px; opacity: 0.9;">All critical scenarios are covered with unit tests</div>
+  </div>
+  `}
+  
+  <!-- Expand Button -->
+  <button class="exec-expand-btn" id="exec-expand-btn" onclick="toggleExecutiveSummary()">
+    <span>Show Detailed Breakdown</span>
+    <span class="arrow">▼</span>
+  </button>
+  
+  <!-- Expanded Details -->
+  <div class="exec-details" id="exec-details">
+    <div class="exec-details-content">
+      
+      <!-- Unit Test Summary -->
+      <div class="exec-section">
+        <h3>📝 Unit Test Summary</h3>
+        <div class="exec-section-content">
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div>
+              <strong>Total Unit Tests:</strong> ${analysis.unitTestsFound}
+            </div>
+            <div>
+              <strong>Orphan Tests:</strong> ${analysis.orphanTests.totalOrphans}
+            </div>
+            <div>
+              <strong>Business Tests:</strong> ${analysis.orphanTests.businessTests.length}
+            </div>
+            <div>
+              <strong>Technical Tests:</strong> ${analysis.orphanTests.technicalTests.length}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- AI Recommendations (P0/P1 Only) -->
+      ${this.buildAIRecommendationsSection(apis, summary)}
+      
+      <!-- API-by-API Breakdown (Clickable) -->
+      <div class="exec-section">
+        <h3>📊 API-by-API Breakdown</h3>
+        <div class="exec-section-content">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr>
+                <th style="text-align: left; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.2);">API</th>
+                <th style="text-align: center; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.2);">Covered</th>
+                <th style="text-align: center; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.2);">Partial</th>
+                <th style="text-align: center; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.2);">Missing</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${apis.map(api => `
+              <tr onclick="jumpToSection('api-coverage')" style="cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                <td style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">${api.api}</td>
+                <td style="text-align: center; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #d1fae5;">${api.coveredScenarios}</td>
+                <td style="text-align: center; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #fef3c7;">${api.partiallyCoveredScenarios}</td>
+                <td style="text-align: center; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #fee2e2;">${api.uncoveredScenarios}</td>
+              </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div style="margin-top: 10px; text-align: center; opacity: 0.8; font-size: 0.85em;">
+            💡 Click any row to jump to detailed API coverage analysis
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quick Links -->
+      <div class="exec-section">
+        <h3>🔗 Quick Navigation</h3>
+        <div class="exec-section-content">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+            <a href="#api-coverage-content" onclick="jumpToSection('api-coverage')" style="display: block; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; text-decoration: none; color: white; font-weight: 600; transition: all 0.2s; border-left: 3px solid #667eea;">
+              🎯 API Coverage
+            </a>
+            <a href="#gaps-content" onclick="jumpToSection('gaps')" style="display: block; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; text-decoration: none; color: white; font-weight: 600; transition: all 0.2s; border-left: 3px solid #dc2626;">
+              ⚠️ Coverage Gaps
+            </a>
+            <a href="#orphans-content" onclick="jumpToSection('orphans')" style="display: block; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; text-decoration: none; color: white; font-weight: 600; transition: all 0.2s; border-left: 3px solid #f59e0b;">
+              🔍 Orphan Tests
+            </a>
+            <a href="#traceability-content" onclick="jumpToSection('traceability')" style="display: block; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; text-decoration: none; color: white; font-weight: 600; transition: all 0.2s; border-left: 3px solid #3b82f6;">
+              🔗 Traceability
+            </a>
+            <a href="#analytics-content" onclick="jumpToSection('analytics')" style="display: block; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; text-decoration: none; color: white; font-weight: 600; transition: all 0.2s; border-left: 3px solid #10b981;">
+              📈 Analytics
+            </a>
+            <a href="#orphan-apis-content" onclick="jumpToSection('orphan-apis')" style="display: block; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; text-decoration: none; color: white; font-weight: 600; transition: all 0.2s; border-left: 3px solid #ef4444;">
+              ⚠️ Orphan APIs
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Business Summary (E2E Placeholder) -->
+      <div class="exec-section">
+        <h3>📈 Business Summary</h3>
+        <div class="exec-section-content">
+          <div style="text-align: center; padding: 20px; opacity: 0.7;">
+            <div style="font-size: 1.5em; margin-bottom: 10px;">🚧</div>
+            <strong>E2E Test Integration: Coming Soon</strong>
+            <div style="margin-top: 10px; font-size: 0.9em;">
+              This section will include:
+              <ul style="text-align: left; margin-top: 10px; padding-left: 20px;">
+                <li>End-to-end test coverage metrics</li>
+                <li>Business flow validation status</li>
+                <li>Integration test results</li>
+                <li>User journey completion rates</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>`;
+  }
+
+  private buildQuickActionsDetails(analysis: CoverageAnalysis): string {
+    const { apis, gaps } = analysis;
+    
+    // Get P0 and P1 gaps with details
+    const priorityGaps = gaps.filter(g => g.priority === 'P0' || g.priority === 'P1');
+    
+    if (priorityGaps.length === 0) {
+      return '<div style="text-align: center; opacity: 0.8; padding: 20px;">No P0/P1 gaps found</div>';
+    }
+    
+    // CRITICAL FIX: Sort P0 FIRST, then P1 (P0 must always appear at top)
+    const sortedGaps = priorityGaps.sort((a, b) => {
+      const priorityOrder: { [key: string]: number } = { 'P0': 0, 'P1': 1 };
+      return (priorityOrder[a.priority] ?? 999) - (priorityOrder[b.priority] ?? 999);
+    });
+    
+    return sortedGaps.map(gap => {
+      const api = apis.find(a => a.api === gap.api);
+      const testFile = gap.api.includes('identity') ? 'IdentityControllerTest.java' 
+                     : gap.api.includes('customer') ? 'CustomerControllerTest.java'
+                     : 'ApiControllerTest.java';
+      
+      return `
+      <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid ${gap.priority === 'P0' ? '#dc2626' : '#f59e0b'};">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.2em;">${gap.priority === 'P0' ? '🔴' : '🟡'}</span>
+            <strong style="font-size: 1.1em;">${gap.priority}</strong>
+            <span style="opacity: 0.8;">-</span>
+            <code style="background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px;">${gap.api}</code>
+          </div>
+        </div>
+        
+        <div style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 6px; margin-bottom: 12px;">
+          <div style="margin-bottom: 8px;">
+            <strong style="display: block; margin-bottom: 6px; opacity: 0.9;">📝 Missing Scenario:</strong>
+            <div style="font-style: italic;">"${gap.scenario}"</div>
+          </div>
+        </div>
+        
+        <div style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 6px; margin-bottom: 12px;">
+          <strong style="display: block; margin-bottom: 8px; opacity: 0.9;">📂 Test File Location:</strong>
+          <code style="background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px; display: inline-block;">
+            src/test/java/.../controller/${testFile}
+          </code>
+        </div>
+        
+        <details style="background: rgba(0,0,0,0.1); padding: 15px; border-radius: 6px;">
+          <summary style="cursor: pointer; font-weight: 600; user-select: none; list-style: none; display: flex; align-items: center; gap: 8px;">
+            <span>💡</span>
+            <span>Suggested Test Structure</span>
+            <span style="margin-left: auto; font-size: 0.9em;">▼</span>
+          </summary>
+          <pre style="margin: 15px 0 0 0; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 4px; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 0.85em; line-height: 1.5;">@Test
+void test${gap.scenario.replace(/\W+/g, '_').replace(/^_+|_+$/g, '')}() {
+    // Arrange: Set up test data
+    
+    // Act: Call the API endpoint
+    
+    // Assert: Verify expected behavior
+    // For ${gap.priority} priority: Focus on ${gap.priority === 'P0' ? 'security, authentication, critical business logic' : 'error handling, validation, edge cases'}
+}</pre>
+        </details>
+        
+        <div style="margin-top: 12px; padding: 12px; background: rgba(220, 38, 38, 0.1); border-radius: 6px; border-left: 3px solid ${gap.priority === 'P0' ? '#dc2626' : '#f59e0b'};">
+          <strong style="color: #fee2e2;">⚡ Action Required:</strong>
+          <div style="margin-top: 6px; opacity: 0.9; line-height: 1.6;">
+            Implement unit test covering this scenario. ${gap.priority === 'P0' ? 'This is CRITICAL priority - must be completed immediately.' : 'This is HIGH priority - should be completed soon.'}
+          </div>
+        </div>
+      </div>
+      `;
+    }).join('');
+  }
+
+  private buildAIRecommendationsSection(apis: any[], summary: any): string {
+    // Collect all P0 and P1 AI suggestions
+    const highPriorityRecommendations: string[] = [];
+    
+    apis.forEach(api => {
+      if (api.aiAnalysis && api.aiAnalysis.suggestedScenarios) {
+        // For now, treat all AI suggestions as potentially P0/P1
+        // In a real implementation, you'd have priority tags
+        highPriorityRecommendations.push(...api.aiAnalysis.suggestedScenarios.slice(0, 3));
+      }
+    });
+    
+    // Limit to top 10 recommendations
+    const topRecommendations = highPriorityRecommendations.slice(0, 10);
+    
+    if (topRecommendations.length === 0 && summary.p0Gaps === 0 && summary.p1Gaps === 0) {
+      return `
+      <div class="exec-section">
+        <h3>🤖 AI Recommendations (P0/P1 Only)</h3>
+        <div class="exec-section-content">
+          <div style="text-align: center; padding: 20px;">
+            <div style="font-size: 1.5em; margin-bottom: 10px;">✅</div>
+            <strong>No critical recommendations at this time</strong>
+            <div style="margin-top: 10px; opacity: 0.8;">
+              All high-priority scenarios are covered. Review lower-priority gaps for comprehensive coverage.
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }
+    
+    return `
+      <div class="exec-section">
+        <h3>🤖 AI Recommendations (P0/P1 Only)</h3>
+        <div class="exec-section-content">
+          ${summary.p0Gaps > 0 || summary.p1Gaps > 0 ? `
+          <div style="background: rgba(239, 68, 68, 0.1); padding: 15px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid #ef4444;">
+            <strong style="color: #fee2e2;">⚠️ Priority Actions:</strong>
+            <ul style="margin: 10px 0 0 20px; padding: 0;">
+              ${summary.p0Gaps > 0 ? `<li><strong>${summary.p0Gaps} P0 scenarios</strong> require immediate unit test implementation</li>` : ''}
+              ${summary.p1Gaps > 0 ? `<li><strong>${summary.p1Gaps} P1 scenarios</strong> need unit tests for comprehensive coverage</li>` : ''}
+            </ul>
+          </div>
+          ` : ''}
+          ${topRecommendations.length > 0 ? `
+          <div>
+            <strong style="display: block; margin-bottom: 10px;">📋 AI-Suggested Scenarios (High Priority):</strong>
+            <ul style="margin: 0; padding-left: 20px; line-height: 1.8;">
+              ${topRecommendations.map(rec => `<li>${rec}</li>`).join('')}
+            </ul>
+            ${highPriorityRecommendations.length > 10 ? `
+            <div style="margin-top: 10px; opacity: 0.8; font-size: 0.9em;">
+              <em>... and ${highPriorityRecommendations.length - 10} more recommendations in detailed sections below</em>
+            </div>
+            ` : ''}
+          </div>
+          ` : ''}
+        </div>
+      </div>`;
   }
 
   private buildAPICoverageSection(apis: any[], orphanAPIs?: any[]): string {
@@ -162,9 +492,9 @@ export class ReportGenerator {
 <div class="section">
   <h2>
     🎯 API Coverage Analysis (Unit Tests vs Baseline)
-    <span class="section-toggle" onclick="toggleSection('api-coverage')">▼</span>
+    <span class="section-toggle" onclick="toggleSection('api-coverage')">▶</span>
   </h2>
-  <div class="section-content" id="api-coverage-content">
+  <div class="section-content collapsed" id="api-coverage-content">
     ${allAPIsToShow.map(api => {
       const hasMissing = api.uncoveredScenarios > 0;
       const aiAnalysis = api.aiAnalysis || {};
@@ -177,7 +507,6 @@ export class ReportGenerator {
       <!-- Actual Coverage Results (Baseline vs Unit Tests) -->
       <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid #28a745;">
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-          <span style="font-size: 1.2em;">✅</span>
           <strong style="color: #333;">Actual Coverage (Baseline vs Unit Tests)</strong>
         </div>
         <div style="margin-bottom: 15px; display: flex; gap: 10px;">
@@ -244,14 +573,14 @@ export class ReportGenerator {
         ${hasAIAnalysis ? `
         <details open style="background: white; padding: 12px; border-radius: 6px; margin-top: 10px;">
           <summary style="cursor: pointer; font-weight: 600; color: #333; user-select: none; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-            <span>📋 Additional Scenarios Suggested by AI (${aiAnalysis.suggestedScenarios.length})</span>
+            <span>📋 P0/P1 Scenarios Suggested by AI (${this.filterHighPriorityScenarios(aiAnalysis.suggestedScenarios).length})</span>
             <span style="color: #667eea; font-size: 0.9em;">▼</span>
           </summary>
           <p style="margin: 10px 0; color: #666; font-size: 0.85em; font-style: italic;">
-            ⚠️ These are AI-generated suggestions based on API specification analysis to achieve comprehensive coverage.
+            ⚠️ These are critical AI-generated suggestions (P0/P1 only) based on API specification analysis.
           </p>
           <ul style="margin: 8px 0 0 20px; padding: 0; color: #555; line-height: 1.8;">
-            ${aiAnalysis.suggestedScenarios.map((suggestion: string) => `
+            ${this.filterHighPriorityScenarios(aiAnalysis.suggestedScenarios).map((suggestion: string) => `
             <li style="margin-bottom: 5px;"><span style="color: #667eea; font-weight: 600;">🆕</span> ${suggestion}</li>
             `).join('')}
           </ul>
@@ -292,20 +621,20 @@ export class ReportGenerator {
             <details style="background: white; padding: 12px; border-radius: 6px; border-left: 3px solid #667eea;">
               <summary style="cursor: pointer; user-select: none; list-style: none; display: flex; align-items: center; gap: 8px; font-weight: 600; color: #667eea;">
                 <span>💡 RECOMMENDED:</span>
-                <span>${aiAnalysis.missingScenarios} AI-suggested scenarios for comprehensive coverage</span>
+                <span>${this.filterHighPriorityScenarios(aiAnalysis.suggestedScenarios).length} AI-suggested P0/P1 scenarios for comprehensive coverage</span>
                 <span style="margin-left: auto; font-size: 0.9em;">▼</span>
               </summary>
               <div style="margin-top: 12px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
                 <div style="margin-bottom: 12px; padding: 10px; background: #e7f3ff; border-radius: 4px; border-left: 3px solid #667eea;">
                   <strong style="color: #667eea;">👥 QA Action:</strong>
-                  <p style="margin: 5px 0 0 0; color: #555;">Review the ${aiAnalysis.missingScenarios} AI-suggested scenarios in the "Additional Scenarios" section above. Add approximately ${Math.ceil(aiAnalysis.missingScenarios / 2)} high-priority ones to baseline (focus on security, edge cases, and error handling).</p>
+                  <p style="margin: 5px 0 0 0; color: #555;">Review the ${this.filterHighPriorityScenarios(aiAnalysis.suggestedScenarios).length} critical P0/P1 AI-suggested scenarios shown above. Consider adding ${Math.min(5, Math.ceil(this.filterHighPriorityScenarios(aiAnalysis.suggestedScenarios).length / 2))} high-priority ones to baseline (focus on authentication, SQL injection, XSS, and security vulnerabilities).</p>
                 </div>
                 <div style="padding: 10px; background: #fff3cd; border-radius: 4px; border-left: 3px solid #ffc107;">
                   <strong style="color: #856404;">👨‍💻 DEV Action:</strong>
-                  <p style="margin: 5px 0 0 0; color: #555;">After QA adds scenarios to baseline, implement unit tests prioritizing:
-                    <br>1. Authentication & authorization checks
-                    <br>2. SQL injection & XSS validation
-                    <br>3. Error handling & edge cases
+                  <p style="margin: 5px 0 0 0; color: #555;">After QA adds critical scenarios to baseline, implement unit tests prioritizing:
+                    <br>1. Authentication & authorization checks (401, 403 errors)
+                    <br>2. SQL injection & XSS validation (input sanitization)
+                    <br>3. Rate limiting & security attack prevention
                   </p>
                 </div>
               </div>
@@ -350,9 +679,9 @@ export class ReportGenerator {
 <div class="section">
   <h2>
     🔗 Traceability Matrix (Unit Tests vs Baseline Scenarios)
-    <span class="section-toggle" onclick="toggleSection('traceability')">▼</span>
+    <span class="section-toggle" onclick="toggleSection('traceability')">▶</span>
   </h2>
-  <div class="section-content" id="traceability-content">
+  <div class="section-content collapsed" id="traceability-content">
     <div style="background: linear-gradient(135deg, #f0f7ff 0%, #e7f3ff 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; margin-bottom: 20px;">
       <p style="margin: 0; color: #333;"><strong>📋 Traceability Confidence:</strong> This section shows exact mapping between baseline scenarios and unit tests, including file locations and match confidence levels for verification.</p>
     </div>
@@ -408,9 +737,9 @@ export class ReportGenerator {
 <div class="section">
   <h2>
     🔄 Git Changes Detected
-    <span class="section-toggle" onclick="toggleSection('git-changes')">▼</span>
+    <span class="section-toggle" onclick="toggleSection('git-changes')">▶</span>
   </h2>
-  <div class="section-content" id="git-changes-content">
+  <div class="section-content collapsed" id="git-changes-content">
     <div style="background: #e7f3ff; padding: 20px; border-radius: 8px;">
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
         <div>
@@ -448,9 +777,9 @@ export class ReportGenerator {
 <div class="section">
   <h2>
     ⚠️ Coverage Gaps (${gaps.length})
-    <span class="section-toggle" onclick="toggleSection('gaps')">▼</span>
+    <span class="section-toggle" onclick="toggleSection('gaps')">▶</span>
   </h2>
-  <div class="section-content" id="gaps-content">
+  <div class="section-content collapsed" id="gaps-content">
     ${sortedGaps.map(gap => `
     <div class="gap-item ${gap.priority.toLowerCase()}" data-priority="${gap.priority.toLowerCase()}" data-status="not-covered">
       <div class="gap-header">
@@ -477,9 +806,9 @@ export class ReportGenerator {
 <div class="section">
   <h2>
     ⚠️ Orphan APIs (${orphanAPIs.length})
-    <span class="section-toggle" onclick="toggleSection('orphan-apis')">▼</span>
+    <span class="section-toggle" onclick="toggleSection('orphan-apis')">▶</span>
   </h2>
-  <div class="section-content" id="orphan-apis-content">
+  <div class="section-content collapsed" id="orphan-apis-content">
     <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626; margin-bottom: 20px;">
       <strong style="color: #991b1b; font-size: 1.1em;">⚠️ Critical:</strong> These APIs were discovered in code but have <strong>NO baseline scenarios AND NO unit tests</strong>. They are completely untracked and represent critical gaps in test coverage.
     </div>
@@ -656,9 +985,9 @@ export class ReportGenerator {
 <div class="section">
   <h2>
     🔍 Orphan Unit Tests (${orphanTests.totalOrphans})
-    <span class="section-toggle" onclick="toggleSection('orphans')">▼</span>
+    <span class="section-toggle" onclick="toggleSection('orphans')">▶</span>
   </h2>
-  <div class="section-content" id="orphans-content">
+  <div class="section-content collapsed" id="orphans-content">
     <div style="background: #fff8dc; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
       <p style="margin: 0 0 10px 0;"><strong>Orphan Unit Tests:</strong> ${orphanTests.totalOrphans} unit tests exist in the codebase but are not linked to baseline test scenarios.</p>
       <ul style="margin: 0; padding-left: 20px;">
@@ -946,5 +1275,198 @@ export class ReportGenerator {
         console.log(`  ⚠️ Could not auto-open browser: ${error.message}`);
       }
     });
+  }
+
+  /**
+   * Filter AI-suggested scenarios to only include P0/P1 priority ones
+   * Based on keywords that indicate critical security, authentication, or error handling scenarios
+   * STRICT filtering - only return truly critical scenarios
+   */
+  private filterHighPriorityScenarios(scenarios: string[]): string[] {
+    // P0 - Critical security and authentication keywords
+    const p0Keywords = [
+      'sql injection', 'xss', 'csrf', 'session fixation', 'brute force',
+      'authentication', 'authorization', 'unauthorized', '401', '403',
+      'password', 'credentials', 'token', 'jwt',
+      'replay attack', 'timing attack', 'security'
+    ];
+    
+    // P1 - Important error handling and validation (but be selective)
+    const p1Keywords = [
+      'rate limit', '429', 'too many',
+      '500', '503', 'service unavailable', 'database connection'
+    ];
+    
+    return scenarios.filter(scenario => {
+      const lowerScenario = scenario.toLowerCase();
+      
+      // Check if scenario contains P0 keywords (security/auth)
+      const hasP0Keyword = p0Keywords.some(keyword => lowerScenario.includes(keyword));
+      if (hasP0Keyword) return true;
+      
+      // Check if scenario contains P1 keywords (critical errors only)
+      const hasP1Keyword = p1Keywords.some(keyword => lowerScenario.includes(keyword));
+      return hasP1Keyword;
+    });
+  }
+
+  /**
+   * Generate YAML format for orphan tests
+   */
+  private generateOrphanYAML(businessTests: any[], serviceName: string): string {
+    if (businessTests.length === 0) return '';
+    
+    // Convert test name to baseline "When X, then Y" format
+    const convertToBaselineFormat = (testDesc: string): string => {
+      let scenario = testDesc
+        .replace(/^test/i, '')
+        .replace(/Test$/i, '')
+        .trim()
+        .replace(/([A-Z])/g, ' $1')
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .trim();
+      
+      if (scenario.includes('with') && scenario.includes('return')) {
+        const parts = scenario.split('return');
+        const condition = parts[0].replace(/^get |^post |^put |^delete /, '').trim();
+        const result = parts[1] ? parts[1].trim() : '';
+        return `When ${condition}, return ${result}`;
+      } else if (scenario.includes('with')) {
+        const condition = scenario.replace(/^get |^post |^put |^delete /, '').trim();
+        return `When ${condition}, process successfully`;
+      }
+      return scenario.charAt(0).toUpperCase() + scenario.slice(1);
+    };
+    
+    interface GroupedTests {
+      [api: string]: {
+        happy_case: string[];
+        edge_case: string[];
+        error_case: string[];
+      };
+    }
+    
+    const grouped: GroupedTests = {};
+    
+    businessTests.forEach((test: any) => {
+      let api = 'GET /v1/customers/{id}';
+      const desc = test.description.toLowerCase();
+      
+      if (desc.includes('register') || desc.includes('post')) api = 'POST /v1/register';
+      else if (desc.includes('login')) api = 'POST /v1/login';
+      
+      if (!grouped[api]) {
+        grouped[api] = { happy_case: [], edge_case: [], error_case: [] };
+      }
+      
+      const scenario = convertToBaselineFormat(test.description);
+      
+      if (desc.includes('error') || desc.includes('invalid') || desc.includes('empty')) {
+        grouped[api].error_case.push(scenario);
+      } else if (desc.includes('edge') || desc.includes('minimum') || desc.includes('special')) {
+        grouped[api].edge_case.push(scenario);
+      } else {
+        grouped[api].happy_case.push(scenario);
+      }
+    });
+    
+    let yaml = `service: ${serviceName}\n\n`;
+    
+    Object.keys(grouped).forEach(api => {
+      yaml += `${api}:\n`;
+      
+      if (grouped[api].happy_case.length > 0) {
+        yaml += '  happy_case:\n';
+        grouped[api].happy_case.forEach(scenario => {
+          yaml += `    - ${scenario}\n`;
+        });
+      }
+      
+      if (grouped[api].edge_case.length > 0) {
+        yaml += '\n  edge_case:\n';
+        grouped[api].edge_case.forEach(scenario => {
+          yaml += `    - ${scenario}\n`;
+        });
+      }
+      
+      if (grouped[api].error_case.length > 0) {
+        yaml += '\n  error_case:\n';
+        grouped[api].error_case.forEach(scenario => {
+          yaml += `    - ${scenario}\n`;
+        });
+      }
+      
+      yaml += '\n';
+    });
+    
+    return yaml;
+  }
+
+  /**
+   * Generate gaps list HTML for the Critical Gaps card
+   */
+  private generateGapsList(gaps: any[]): string {
+    if (gaps.length === 0) return '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">No coverage gaps found</p>';
+    
+    // Sort gaps by priority: P0 → P1 → P2 → P3
+    const priorityOrder = { 'P0': 0, 'P1': 1, 'P2': 2, 'P3': 3 };
+    const sortedGaps = [...gaps].sort((a, b) => {
+      const priorityA = priorityOrder[a.priority as keyof typeof priorityOrder] ?? 999;
+      const priorityB = priorityOrder[b.priority as keyof typeof priorityOrder] ?? 999;
+      return priorityA - priorityB;
+    });
+    
+    return sortedGaps.map(gap => `
+      <div class="gap-item ${gap.priority.toLowerCase()}">
+        <div class="gap-header">
+          <span class="gap-id">${gap.api}</span>
+          <span class="priority-badge priority-${gap.priority.toLowerCase()}">${gap.priority}</span>
+        </div>
+        <div class="gap-description">${gap.scenario}</div>
+        <div class="gap-recommendations">
+          <h4>📋 Recommendations:</h4>
+          <ul>
+            ${gap.recommendations.map((r: string) => `<li>${r}</li>`).join('')}
+          </ul>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /**
+   * Generate table rows for orphan tests
+   */
+  private generateOrphanTableRows(allTests: any[], serviceName: string): string {
+    return allTests
+      .sort((a: any, b: any) => {
+        const priorityOrder: { [key: string]: number } = { 'P0': 0, 'P1': 1, 'P2': 2, 'P3': 3 };
+        const prioA = priorityOrder[a.orphanCategory?.priority || 'P3'] ?? 999;
+        const prioB = priorityOrder[b.orphanCategory?.priority || 'P3'] ?? 999;
+        return prioA - prioB;
+      })
+      .map((test: any) => `
+        <tr>
+          <td>${serviceName}</td>
+          <td>
+            <strong>${test.description}</strong>
+          </td>
+          <td>
+            <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; background: ${test.orphanCategory?.type === 'technical' ? '#d1ecf1' : '#fff3cd'}; color: ${test.orphanCategory?.type === 'technical' ? '#0c5460' : '#856404'};">
+              ${(test.orphanCategory?.type || 'unknown').toUpperCase()}
+            </span>
+          </td>
+          <td>
+            <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; background: ${test.orphanCategory?.priority === 'P0' ? '#dc2626' : test.orphanCategory?.priority === 'P1' ? '#f59e0b' : test.orphanCategory?.priority === 'P2' ? '#3b82f6' : '#6b7280'}; color: white;">
+              ${test.orphanCategory?.priority || 'P3'}
+            </span>
+          </td>
+          <td>
+            ${test.orphanCategory?.actionRequired === 'qa_add_scenario' 
+              ? '<span style="color: #dc3545; font-weight: 600;">Required</span><br><span style="color: #666;">Add to baseline</span>'
+              : '<span style="color: #10b981;">✓ No action needed</span>'}
+          </td>
+        </tr>
+      `).join('');
   }
 }

@@ -208,7 +208,7 @@ Respond in JSON:
       const response = await this.client.messages.create({
         model: model,
         max_tokens: 2000,
-        temperature: 0.3,
+        temperature: 0.0,  // CRITICAL FIX: Set to 0.0 for deterministic outputs
         messages: [{ role: 'user', content: prompt }]
       });
 

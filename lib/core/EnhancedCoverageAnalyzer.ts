@@ -569,7 +569,7 @@ Respond in JSON format:
       const response = await this.client.messages.create({
         model: model,
         max_tokens: 2000,
-        temperature: 0.2,
+        temperature: 0.0,  // CRITICAL FIX: Set to 0.0 for deterministic outputs
         messages: [{ role: 'user', content: prompt }]
       });
 
@@ -746,7 +746,7 @@ Respond in JSON:
       const response = await this.client.messages.create({
         model: model,
         max_tokens: 3000,
-        temperature: 0.2,
+        temperature: 0.0,  // CRITICAL FIX: Set to 0.0 for deterministic outputs
         messages: [{ role: 'user', content: prompt }]
       });
 
@@ -1188,7 +1188,7 @@ Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be c
       const response = await this.client.messages.create({
         model: model,
         max_tokens: 300,
-        temperature: 0.3,
+        temperature: 0.0,  // CRITICAL FIX: Set to 0.0 for deterministic outputs
         messages: [{ role: 'user', content: prompt }]
       });
 

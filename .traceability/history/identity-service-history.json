@@ -136,8 +136,467 @@
       "totalScenarios": 13,
       "p0Gaps": 2,
       "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T11:58:42.504Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 25,
+      "scenariosCovered": 3,
+      "totalScenarios": 12,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T13:40:31.842Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T15:51:33.836Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T15:55:20.152Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T16:00:02.310Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T16:03:27.631Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T16:19:36.136Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T16:47:28.031Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T17:05:36.857Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T17:24:08.935Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T18:32:43.438Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T18:41:25.744Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T18:56:40.150Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T19:00:42.981Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T19:16:08.691Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T19:18:51.091Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T19:21:57.965Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T19:26:53.200Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T19:33:30.717Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T19:39:17.041Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T19:45:36.743Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T20:30:48.231Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T20:37:37.444Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T20:40:49.744Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T20:44:46.067Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T20:53:54.331Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T20:57:47.190Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T21:00:02.252Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T21:04:19.796Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T21:09:16.239Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T21:14:30.210Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T21:17:28.551Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T21:20:55.248Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T21:24:32.839Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T21:31:03.190Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T21:34:10.279Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T21:37:26.887Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T21:39:36.526Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T21:47:04.022Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T21:57:06.388Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T22:01:20.912Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T22:09:19.028Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T22:11:23.233Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T22:16:19.479Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T22:27:01.271Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T22:30:45.234Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T22:33:18.523Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T22:34:38.549Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T22:38:58.036Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T22:41:57.816Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
+    },
+    {
+      "timestamp": "2025-12-12T22:45:52.450Z",
+      "commit": "ffdabdb",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 2,
+      "p1Gaps": 1
     }
   ],
   "apiRiskScores": [],
-  "lastUpdated": "2025-12-11T16:35:11.578Z"
+  "lastUpdated": "2025-12-12T22:45:52.450Z"
 }

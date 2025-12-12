@@ -40,7 +40,10 @@ POST /identity/verify-otp:
     - When OTP verified, return auth token
   error_case:
     - When OTP is incorrect, return 401 Unauthorized
-    - When OTP is expired, return 401 with expired message
-    - When OTP attempts exceeded, lock verification
+#    - When OTP is expired, return 401 with expired message
+#    - When OTP attempts exceeded, lock verification
 #  edge_case:
 #    - When OTP is at expiry boundary, handle gracefully
+
+
+#
