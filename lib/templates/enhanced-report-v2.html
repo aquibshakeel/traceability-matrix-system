@@ -724,15 +724,19 @@
                 <div class="card-summary">
                     <div class="summary-item">
                         <div class="summary-value" style="color: var(--success);" id="journeys-covered">0</div>
-                        <div class="summary-label">Fully Covered Journeys</div>
+                        <div class="summary-label">Fully Covered</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" style="color: var(--warning);" id="journeys-partial">0</div>
+                        <div class="summary-label">Partially Covered</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" style="color: var(--danger);" id="journeys-notcovered">0</div>
+                        <div class="summary-label">Not Covered</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-value" id="journeys-total">0</div>
                         <div class="summary-label">Total Journeys</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-value" style="color: var(--danger);" id="journeys-atrisk">0</div>
-                        <div class="summary-label">Not Covered (Need Tests)</div>
                     </div>
                 </div>
                 <span class="card-toggle" id="journeys-card-toggle">▼</span>
@@ -1203,10 +1207,27 @@
             // Show the card
             wrapper.style.display = 'block';
             
-            // Update summary
-            document.getElementById('journeys-covered').textContent = journeys.coveredJourneys || 0;
+            // Update summary - count by status
+            let fullyCovered = 0;
+            let partiallyCovered = 0;
+            let notCovered = 0;
+            
+            if (journeys.journeys && Array.isArray(journeys.journeys)) {
+                journeys.journeys.forEach(j => {
+                    if (j.status === 'FULLY_COVERED') {
+                        fullyCovered++;
+                    } else if (j.status === 'PARTIAL_COVERAGE' || j.status === 'AT_RISK') {
+                        partiallyCovered++;
+                    } else if (j.status === 'NOT_COVERED') {
+                        notCovered++;
+                    }
+                });
+            }
+            
+            document.getElementById('journeys-covered').textContent = fullyCovered;
+            document.getElementById('journeys-partial').textContent = partiallyCovered;
+            document.getElementById('journeys-notcovered').textContent = notCovered;
             document.getElementById('journeys-total').textContent = journeys.totalJourneys || 0;
-            document.getElementById('journeys-atrisk').textContent = journeys.atRiskJourneys || 0;
             
             // Build journey list HTML
             let html = '';
