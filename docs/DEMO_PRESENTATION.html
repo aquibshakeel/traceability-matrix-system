@@ -431,7 +431,7 @@
             <h1>🎯 Universal AI-Driven Traceability Matrix System</h1>
             <h2>Intelligent Test Coverage & Gap Analysis Framework</h2>
             <div class="meta">
-                <p><strong>Demo Presentation</strong> | Version 1.0 | December 2025</p>
+                <p><strong>Demo Presentation</strong> | Version 6.2.0 | December 13, 2025</p>
                 <p>QA & Development Team</p>
             </div>
         </div>
@@ -534,6 +534,16 @@
                             <div class="feature-icon">📊</div>
                             <h3>Multi-Format Reports</h3>
                             <p>HTML, JSON, CSV, Markdown</p>
+                        </div>
+                        <div class="feature-box">
+                            <div class="feature-icon">🚀</div>
+                            <h3>Business Journeys (E2E)</h3>
+                            <p>Track complete user workflows <span class="badge badge-info">v6.2.0</span></p>
+                        </div>
+                        <div class="feature-box">
+                            <div class="feature-icon">📈</div>
+                            <h3>Historical Trends</h3>
+                            <p>30-day coverage tracking <span class="badge badge-info">v6.2.0</span></p>
                         </div>
                     </div>
                 </div>
@@ -657,6 +667,94 @@ void testCreateCustomer_WithInvalidEmail_Returns400() {
                             <li>SQL injection & XSS validation</li>
                             <li>Error handling & edge cases (500, 422)</li>
                         </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Business Journeys -->
+            <section id="business-journeys" class="section">
+                <div class="section-header">
+                    <span class="section-icon">🚀</span>
+                    <h2>Business Journeys (E2E Testing)</h2>
+                </div>
+
+                <div class="card">
+                    <h3>What are Business Journeys?</h3>
+                    <p>Business Journeys track <strong>complete end-to-end user workflows</strong> across multiple API calls, representing real user flows like "User Registration" or "Order Checkout Process".</p>
+
+                    <h4>Key Difference: Journeys vs Individual Scenarios</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Individual Scenarios</th>
+                                <th>Business Journeys</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>✅ Test single API endpoint</td>
+                                <td>🚀 Test complete user flow</td>
+                            </tr>
+                            <tr>
+                                <td>✅ Verify one operation</td>
+                                <td>🚀 Verify entire business process</td>
+                            </tr>
+                            <tr>
+                                <td>✅ Unit test level</td>
+                                <td>🚀 E2E test level</td>
+                            </tr>
+                            <tr>
+                                <td>Example: "Create customer returns 201"</td>
+                                <td>Example: "User registers → verifies email → completes profile"</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>Journey Status Indicators</h4>
+                    <div class="alert alert-success">
+                        <h4>✅ FULLY_COVERED</h4>
+                        <p>All steps have tests AND E2E test exists → Journey is complete!</p>
+                    </div>
+                    <div class="alert alert-warning">
+                        <h4>⚠️ PARTIAL_COVERAGE</h4>
+                        <p>Some steps covered, E2E test exists → Add missing step tests</p>
+                    </div>
+                    <div class="alert alert-danger">
+                        <h4>🔴 AT_RISK</h4>
+                        <p>Steps covered but NO E2E test → Create E2E test for journey</p>
+                    </div>
+                    <div class="alert alert-danger">
+                        <h4>❌ NOT_COVERED</h4>
+                        <p>Missing both step tests and E2E test → Implement full coverage</p>
+                    </div>
+
+                    <h4>Example: User Registration Journey</h4>
+                    <pre><code>service: customer-service
+
+journeys:
+  - id: user-registration
+    name: "Complete User Registration Flow"
+    description: "User registers, verifies email, sets up profile"
+    priority: P0
+    steps:
+      - api: "POST /v1/customers"
+        scenario: "When customer is created with valid data, return 201"
+      - api: "POST /v1/customers/verify-email"
+        scenario: "When email verification token is valid, activate account"
+      - api: "PUT /v1/customers/{id}/profile"
+        scenario: "When profile is updated with valid data, return 200"
+    e2e_test_file: "tests/e2e/UserRegistrationE2ETest.java"
+    e2e_test_method: "testCompleteUserRegistration"</code></pre>
+
+                    <div class="phase-box">
+                        <h4>💡 Benefits of Business Journeys</h4>
+                        <ul>
+                            <li><strong>Business Context:</strong> Maps technical tests to real user workflows</li>
+                            <li><strong>E2E Validation:</strong> Ensures complete flows work together</li>
+                            <li><strong>Risk Management:</strong> Identifies critical flows that need testing</li>
+                            <li><strong>Stakeholder Communication:</strong> Clear business value demonstration</li>
+                            <li><strong>Test Planning:</strong> Prioritize E2E efforts based on business priority</li>
+                        </ul>
                     </div>
                 </div>
             </section>
@@ -817,7 +915,7 @@ GET /v1/customers:
         <p>4. 📈 Track progress to 100% coverage</p>
         <hr style="margin: 30px 0; border: 1px solid rgba(255,255,255,0.2);">
         <p style="margin-top: 30px;"><strong>Demo Prepared By:</strong> QA & Development Team</p>
-        <p><strong>Version:</strong> 1.0 | <strong>Last Updated:</strong> December 2025</p>
+        <p><strong>Version:</strong> 6.2.0 | <strong>Last Updated:</strong> December 13, 2025</p>
         <p style="margin-top: 20px; opacity: 0.7; font-size: 0.9em;">
             <em>This presentation demonstrates our actual implementation with real data from the customer-service project.<br>
             All metrics, examples, and outputs are from live system execution.</em>

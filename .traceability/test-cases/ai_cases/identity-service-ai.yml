@@ -1,5 +1,5 @@
 # AI-Generated Test Scenarios
-# Generated: 2025-12-12T23:21:10.703Z
+# Generated: 2025-12-12T23:44:31.145Z
 # (✅ = in baseline, 🆕 = new suggestion, 🔧 = modified, ⚠️ = verify)
 # DO NOT EDIT - regenerated automatically
 # Copy relevant 🆕 scenarios to baseline/identity-service-baseline.yml
@@ -116,13 +116,13 @@ POST /identity/verify-otp:
   error_case:
     - When OTP is incorrect, return 400 invalid OTP  ✅
     - When OTP has expired, return 400 or 422 OTP expired  ✅
-    - When OTP already used/verified, return 400 or 409 OTP already consumed  ✅
+    - When OTP already used, return 400 or 409 OTP already verified  ✅
     - When identifier not found, return 404 user not found  🆕
     - When missing authentication token, return 401 unauthorized  ✅
     - When rate limit exceeded for OTP attempts, return 429 too many requests  🆕
     - When maximum retry attempts exceeded, return 403 account locked  🆕
     - When required field 'otp' missing, return 400 validation error  🆕
-    - When required field 'identifier' missing, return 400 validation error  🆕
+    - When required field 'identifier' missing, return 400 bad request  🆕
     - When invalid JSON format in body, return 400 malformed request  🆕
     - When server error during verification, return 500 internal error  🆕
     - When database connection fails, return 500 service unavailable  🆕

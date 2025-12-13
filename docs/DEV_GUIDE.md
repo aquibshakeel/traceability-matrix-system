@@ -1,16 +1,15 @@
 # Developer Guide - AI-Driven Test Coverage System
 
-**Version:** 6.1.0
-**Last Updated:** December 10, 2025
+**Version:** 6.2.0
+**Last Updated:** December 13, 2025
 **Audience:** Developers, DevOps Engineers, Tech Leads
 
-## 🎨 New in v6.1.0 - Premium Report Redesign
-- Enterprise-grade visual design with animations
-- Colored coverage badges (🟢 Green, 🟡 Yellow, 🔴 Red)
-- Collapsible sections with ▼ toggle buttons
-- Priority-first layout (Gaps shown first)
-- Professional Inter font typography
-- Animated shimmer header effect
+## 🚀 New in v6.2.0 - Business Journeys & Historical Tracking
+- **Business Journeys (E2E)** - Track complete user workflows across multiple API steps
+- **Historical Trend Analysis** - 30-day coverage tracking with visual charts
+- **Journey Status** - FULLY_COVERED / PARTIAL_COVERAGE / AT_RISK / NOT_COVERED
+- **Trend Charts** - Coverage progression with smart date formatting
+- All v6.1.0 features (colored badges, collapsible sections, animations)
 
 ---
 
@@ -1617,7 +1616,32 @@ git commit --no-verify -m "message"
 
 ## 📜 Version History
 
-### v6.0.0 (December 10, 2025) - Current Release
+### v6.2.0 (December 13, 2025) - Current Release
+
+**Major Features:**
+- **Business Journeys (E2E)** - Track end-to-end user workflows
+- **Historical Trend Analysis** - 30-day coverage tracking with charts
+- **Journey Status** - FULLY_COVERED / PARTIAL_COVERAGE / AT_RISK / NOT_COVERED
+- Fixed journey status calculation for accurate reporting
+- AI stability improvements (temperature=0.0)
+- Fixed "Scenarios Without Unit Test" capitalization
+- Fixed trend chart date parsing
+
+**New Components:**
+- `JourneyCoverageAnalyzer.ts` - E2E workflow analysis
+- `E2EJourneyParser.ts` - Journey YAML parsing
+- `E2ETestScanner.ts` - E2E test detection
+- `HistoryManager.ts` - Historical data management
+
+### v6.1.0 (December 10, 2025)
+
+**Major Features:**
+- Premium Report Redesign with enterprise-grade visuals
+- Colored coverage badges
+- Collapsible sections
+- Animated shimmer header
+
+### v6.0.0 (December 2025)
 
 **Major Features:**
 - Orphan Unit Test Detection with AI-suggested scenarios
@@ -1643,10 +1667,12 @@ git commit --no-verify -m "message"
 
 ---
 
-**Version:** 6.0.0  
+**Version:** 6.2.0  
 **Powered By:** Claude AI (Anthropic)  
 **Status:** Production Ready  
-**Build:** ✅ Passing
+**Build:** ✅ Passing  
+**Business Journeys:** 🚀 E2E Workflow Tracking  
+**Historical Trends:** 📈 30-Day Coverage Tracking
 
 ---
 

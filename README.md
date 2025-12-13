@@ -1,6 +1,6 @@
-# AI-Driven Test Coverage System v6.1.0
+# AI-Driven Test Coverage System v6.2.0
 
-Complete AI-powered test coverage analysis with **premium enterprise report design**, **orphan unit test detection**, **orphan API detection**, **visual analytics**, bidirectional scenario completeness detection, and multi-format reporting.
+Complete AI-powered test coverage analysis with **premium enterprise report design**, **Business Journeys (E2E) tracking**, **historical trend analysis**, **orphan unit test detection**, **orphan API detection**, **visual analytics**, bidirectional scenario completeness detection, and multi-format reporting.
 
 ## 🎯 What It Does
 
@@ -11,13 +11,15 @@ This system provides **100% AI-powered test coverage analysis** with zero static
 1. **AI Test Case Generation** - Generates comprehensive test scenarios from API specs
 2. **AI Coverage Analysis** - Intelligent scenario-to-test matching with gap detection
 3. **Premium Enterprise Reports** - Professional dashboard with interactive visualizations
-4. **Orphan Unit Test Detection** - Detects tests without baseline scenarios
-5. **Orphan API Detection** - Identifies completely untracked APIs
-6. **Orphan Test Categorization** - AI categorizes as Technical vs Business
-7. **Git Change Detection** - Automatically detects API changes
-8. **Visual Analytics** - Interactive charts and progress indicators
-9. **Multi-Format Reports** - HTML, JSON, CSV, and Markdown
-10. **Pre-Commit Validation** - Comprehensive validation on every commit
+4. **Business Journeys (E2E)** - Track end-to-end user workflow coverage
+5. **Historical Trend Analysis** - Coverage tracking over time with visual charts
+6. **Orphan Unit Test Detection** - Detects tests without baseline scenarios
+7. **Orphan API Detection** - Identifies completely untracked APIs
+8. **Orphan Test Categorization** - AI categorizes as Technical vs Business
+9. **Git Change Detection** - Automatically detects API changes
+10. **Visual Analytics** - Interactive charts and progress indicators
+11. **Multi-Format Reports** - HTML, JSON, CSV, and Markdown
+12. **Pre-Commit Validation** - Comprehensive validation on every commit
 
 ## 🚀 Quick Start
 
@@ -82,7 +84,7 @@ This comprehensive command:
 - **CSV:** Spreadsheet analysis (`.traceability/reports/{service}-report.csv`)
 - **Markdown:** Documentation (`.traceability/reports/{service}-report.md`)
 
-## 🎨 Premium Report Features (v6.1.0)
+## 🎨 Premium Report Features (v6.2.0)
 
 ### Enterprise-Grade Design
 - ✨ Modern animated header with shimmer effect
@@ -94,6 +96,8 @@ This comprehensive command:
 ### Visual Intelligence
 - 🟢 **Colored Coverage Badges** - Green/Yellow/Red for instant status
 - 📈 **Progress Indicators** - Visual coverage progress
+- 📊 **Coverage Trend Chart** - Historical tracking with 30-day timeline
+- 🚀 **Business Journeys Card** - E2E workflow coverage visualization
 - 🎯 **Priority-First Layout** - Critical gaps shown first
 - 💡 **Clear Action Items** - Concise, non-redundant messaging
 - 🔍 **Smart Filtering** - Hide empty data automatically
@@ -156,6 +160,20 @@ Automatically detects:
 - Match confidence levels
 
 ## 📊 Report Sections Explained
+
+### 📈 Visual Analytics (NEW in v6.2.0)
+- **Coverage Distribution** - Pie chart showing covered/partial/missing scenarios
+- **Scenarios Without Unit Test** - Bar chart by priority (P0/P1/P2/P3)
+- **Orphan Test Priority Breakdown** - Tests without scenarios by priority
+- **Coverage Trend Over Time** - Historical tracking with 30-day timeline
+
+### 🚀 Business Journeys (E2E) (NEW in v6.2.0)
+- **End-to-end workflow tracking** across multiple API steps
+- **Journey Status:** Fully Covered / Partially Covered / At Risk / Not Covered
+- **Step-by-step coverage** analysis for each journey
+- **Weak point identification** - Steps with insufficient coverage
+- **E2E test presence** validation
+- **Recommendations** for improving journey coverage
 
 ### 🎯 API Coverage Analysis (Unit Tests vs Baseline)
 - **Per-API detailed breakdown**
@@ -406,7 +424,81 @@ npm run generate
 
 ## 📜 Version History
 
-### v6.1.0 (December 10, 2025) - **CURRENT RELEASE**
+### v6.2.0 (December 13, 2025) - **CURRENT RELEASE**
+
+**🚀 Business Journeys & Historical Tracking**
+
+Major new features and improvements:
+
+1. **Business Journeys (E2E) Tracking**
+   - Define multi-step user workflows in YAML
+   - Track E2E test coverage for complete user journeys
+   - Step-by-step unit test coverage analysis
+   - Journey status: FULLY_COVERED / PARTIAL_COVERAGE / AT_RISK / NOT_COVERED
+   - Weak point identification in user workflows
+   - Comprehensive recommendations for each journey
+
+2. **Historical Trend Analysis**
+   - Coverage Trend Over Time chart with 30-day history
+   - Automatic snapshot tracking on each analysis run
+   - Visual trend line showing coverage progression
+   - Smart date formatting (time/day/date based on range)
+   - Historical data persistence in `.traceability/history/`
+
+3. **Enhanced Journey Analysis**
+   - Fixed journey status calculation logic
+   - Properly detects PARTIAL_COVERAGE (some unit tests, no E2E)
+   - AT_RISK status (has E2E but missing unit tests OR has unit tests but missing E2E)
+   - Accurate counting of Fully Covered/Partially Covered/Not Covered journeys
+
+4. **Report Improvements**
+   - Fixed "Scenarios Without Unit Test" capitalization
+   - Priority-based sorting (P0 → P1 → P2 → P3) in detailed test list
+   - Improved trend chart date parsing (no more "Invalid Date")
+   - Enhanced visual analytics with 4 comprehensive charts
+
+5. **AI Stability Enhancements**
+   - Set `temperature=0.0` for deterministic AI outputs
+   - Consistent P0/P1 recommendations across runs
+   - No more random variations in AI-generated scenarios
+
+**Journey File Format** (`.traceability/test-cases/journeys/{service}-journeys.yml`):
+```yaml
+service: identity-service
+
+business_journeys:
+  - id: user-registration-flow
+    name: "Complete User Registration Flow"
+    description: "User registers → receives OTP → verifies account"
+    priority: P0
+    steps:
+      - api: "POST /identity/register"
+        description: "Create new user account"
+        required: true
+      - api: "POST /identity/verify-otp"
+        description: "Verify user email with OTP"
+        required: true
+    e2e_tests:
+      - file: "RegistrationFlowE2ETest.java"
+        methods:
+          - "testCompleteRegistrationFlow"
+    tags: ["onboarding", "authentication"]
+```
+
+**Technical Improvements:**
+- New `JourneyCoverageAnalyzer` for E2E workflow analysis
+- `HistoryManager` integration for trend tracking
+- Improved data structure compatibility
+- Better timestamp handling for charts
+
+**All Documentation Updated:**
+- ✅ README.md updated to v6.2.0
+- ✅ FEATURES.md with Business Journeys
+- ✅ DEV_GUIDE.md with implementation details
+- ✅ QA_GUIDE.md with journey management
+- ✅ New journey examples added
+
+### v6.1.0 (December 10, 2025)
 
 **🎨 Premium Report Redesign - Enterprise Edition**
 
@@ -524,9 +616,11 @@ For issues or questions:
 
 ---
 
-**Version:** 6.1.0  
-**Release Date:** December 10, 2025  
+**Version:** 6.2.0  
+**Release Date:** December 13, 2025  
 **Status:** ✅ Production Ready  
 **Build:** ✅ Passing  
 **AI-Powered:** 100% (Zero Static Rules)
 **Premium Reports:** ✨ Enterprise Edition
+**Business Journeys:** 🚀 E2E Workflow Tracking
+**Historical Trends:** 📈 30-Day Coverage Tracking

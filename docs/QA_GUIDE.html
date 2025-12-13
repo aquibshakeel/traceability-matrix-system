@@ -203,8 +203,8 @@
     <div class="header">
         <h1>🤖 QA Guide - AI-Driven Test Coverage System</h1>
         <div class="header-meta">
-            <span><strong>Version:</strong> 6.1.0 ✨ Enterprise Edition</span>
-            <span><strong>Last Updated:</strong> December 10, 2025</span>
+            <span><strong>Version:</strong> 6.2.0 ✨ Enterprise Edition</span>
+            <span><strong>Last Updated:</strong> December 13, 2025</span>
             <span><strong>Audience:</strong> QA Engineers, Test Managers, Business Analysts</span>
         </div>
     </div>
@@ -505,6 +505,154 @@ Action: Create baseline scenarios</code></pre>
                     </div>
                 </section>
 
+                <section id="business-journeys">
+                    <h2>🚀 Business Journeys (E2E Testing)</h2>
+
+                    <h3>What are Business Journeys?</h3>
+                    <p>Business Journeys represent complete end-to-end user workflows that span multiple API calls. They help QA teams track and verify that complete business processes work together correctly.</p>
+
+                    <div class="feature-box">
+                        <h3>Why Business Journeys Matter for QA</h3>
+                        <ul>
+                            <li><strong>Business Context:</strong> Test real user scenarios, not just individual APIs</li>
+                            <li><strong>Requirement Traceability:</strong> Map business requirements to E2E tests</li>
+                            <li><strong>Risk Management:</strong> Identify critical flows that need comprehensive testing</li>
+                            <li><strong>Test Planning:</strong> Prioritize E2E test creation based on business value</li>
+                        </ul>
+                    </div>
+
+                    <h3>Journey File Structure</h3>
+                    <p><strong>Location:</strong> <code>.traceability/test-cases/journeys/&lt;service&gt;-journeys.yml</code></p>
+
+                    <pre><code>service: customer-service
+
+journeys:
+  - id: user-registration
+    name: "Complete User Registration Flow"
+    description: "New user signs up, verifies email, completes profile"
+    priority: P0
+    steps:
+      - api: "POST /v1/customers"
+        scenario: "When customer is created with valid data, return 201"
+      - api: "POST /v1/customers/verify-email"
+        scenario: "When email verification token is valid, activate account"
+      - api: "PUT /v1/customers/{id}/profile"
+        scenario: "When profile is updated with valid data, return 200"
+    e2e_test_file: "tests/e2e/UserRegistrationE2ETest.java"
+    e2e_test_method: "testCompleteUserRegistration"</code></pre>
+
+                    <h3>Journey Status Indicators</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>What It Means</th>
+                                <th>QA Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>✅ FULLY_COVERED</strong></td>
+                                <td>All steps tested + E2E test exists</td>
+                                <td>✅ No action needed</td>
+                            </tr>
+                            <tr>
+                                <td><strong>⚠️ PARTIAL_COVERAGE</strong></td>
+                                <td>Some steps missing tests</td>
+                                <td>Add missing baseline scenarios</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🔴 AT_RISK</strong></td>
+                                <td>No E2E test exists</td>
+                                <td>Request Dev to create E2E test</td>
+                            </tr>
+                            <tr>
+                                <td><strong>❌ NOT_COVERED</strong></td>
+                                <td>Missing scenarios AND E2E test</td>
+                                <td>Complete journey definition needed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Creating a Journey (QA Workflow)</h3>
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <div class="workflow-step">
+                            <h4>1. Identify Business Flow</h4>
+                            <p>Work with Product team to map user journey</p>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>2. Create Journey YAML File</h4>
+                            <p>Create file in <code>.traceability/test-cases/journeys/</code></p>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>3. Define Journey Steps</h4>
+                            <p>List all API calls in sequence with scenarios</p>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>4. Set Priority</h4>
+                            <p>P0 for critical flows, P1/P2/P3 for others</p>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>5. Link E2E Test</h4>
+                            <p>Reference the E2E test file and method</p>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>6. Run Analysis</h4>
+                            <p>Execute <code>npm run continue</code> to check coverage</p>
+                        </div>
+                    </div>
+
+                    <h3>Example: User Registration Journey</h3>
+                    <pre><code>service: customer-service
+
+journeys:
+  - id: user-registration
+    name: "Complete User Registration Flow"
+    description: "User signs up, verifies email, sets up profile"
+    priority: P0
+    steps:
+      - api: "POST /v1/customers"
+        scenario: "When customer is created with valid data, return 201"
+      - api: "POST /v1/customers/verify-email"
+        scenario: "When email verification token is valid, activate account"
+      - api: "PUT /v1/customers/{id}/profile"
+        scenario: "When profile is updated with valid data, return 200"
+    e2e_test_file: "tests/e2e/UserRegistrationE2ETest.java"
+    e2e_test_method: "testCompleteUserRegistration"</code></pre>
+
+                    <div class="alert alert-info">
+                        <h4>📚 QA Best Practices</h4>
+                        <ul>
+                            <li>Focus on high-value user journeys first</li>
+                            <li>Keep journeys focused on single business outcomes</li>
+                            <li>Reference existing baseline scenarios when possible</li>
+                            <li>Work with Dev to ensure E2E tests exist</li>
+                            <li>Review journey coverage in sprint planning</li>
+                        </ul>
+                    </div>
+
+                    <h3>Journey Report Section</h3>
+                    <p>In the HTML report, you'll find a dedicated Business Journeys section showing:</p>
+                    <ul>
+                        <li><strong>Journey Status:</strong> Visual indicators for each journey</li>
+                        <li><strong>Step Coverage:</strong> Which steps are covered vs missing</li>
+                        <li><strong>E2E Test Status:</strong> Whether E2E test exists and passes</li>
+                        <li><strong>Priority Breakdown:</strong> P0/P1/P2/P3 journey distribution</li>
+                    </ul>
+
+                    <div class="alert alert-success">
+                        <h4>✅ Benefits for QA</h4>
+                        <p><strong>With Business Journeys, QA teams can:</strong></p>
+                        <ul>
+                            <li>Verify complete business workflows, not just individual APIs</li>
+                            <li>Identify gaps in E2E test coverage</li>
+                            <li>Prioritize testing efforts based on business value</li>
+                            <li>Demonstrate test coverage to stakeholders</li>
+                            <li>Track progress on critical user flows</li>
+                        </ul>
+                    </div>
+                </section>
+
                 <section id="manual-execution">
                     <h2>🚀 Manual Execution</h2>
 
@@ -696,7 +844,8 @@ open .traceability/reports/payment-service-report.html</code></pre>
                     </div>
 
                     <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 0.5rem;">
-                        <p style="font-size: 1.1rem; margin: 0;"><strong>Version 6.1.0</strong> | <strong>Powered By:</strong> Claude AI (Anthropic) | <strong>Status:</strong> Production Ready</p>
+                        <p style="font-size: 1.1rem; margin: 0;"><strong>Version 6.2.0</strong> | <strong>Powered By:</strong> Claude AI (Anthropic) | <strong>Status:</strong> Production Ready</p>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: #64748b;">🚀 Business Journeys | 📈 Historical Trends | 100% AI-driven analysis</p>
                     </div>
                 </section>
 

@@ -1,15 +1,15 @@
 # QA Guide - AI-Driven Test Coverage System
 
-**Version:** 6.1.0
-**Last Updated:** December 10, 2025
+**Version:** 6.2.0
+**Last Updated:** December 13, 2025
 **Audience:** QA Engineers, Test Managers, Business Analysts
 
-## 🎨 New in v6.1.0 - Premium Report Redesign
-- Colored coverage badges for instant status (🟢 Green, 🟡 Yellow, 🔴 Red)
-- Collapsible sections to reduce scrolling
-- Priority-first layout (critical gaps shown first)
-- One-click copy for YAML scenarios
-- Professional design for stakeholder presentations
+## 🚀 New in v6.2.0 - Business Journeys & Historical Tracking
+- **Business Journeys (E2E)** - Track complete user workflows across multiple API steps
+- **Historical Trend Analysis** - Coverage tracking over time with 30-day charts
+- **Journey Status** - FULLY_COVERED / PARTIAL_COVERAGE / AT_RISK / NOT_COVERED
+- **Trend Charts** - Visual coverage progression with smart date formatting
+- All v6.1.0 features (colored badges, collapsible sections, priority-first layout)
 
 ---
 
@@ -18,14 +18,15 @@
 1. [What is This System?](#what-is-this-system)
 2. [Quick Start](#quick-start)
 3. [Demonstration Test Cases](#demonstration-test-cases) 🆕
-4. [How Claude AI Works](#how-claude-ai-works)
-5. [QA Workflow](#qa-workflow)
-6. [Writing Business Scenarios](#writing-business-scenarios)
-7. [Understanding Reports](#understanding-reports)
-8. [Advanced Features](#advanced-features)
-9. [Onboarding a New Service](#onboarding-a-new-service)
-10. [Quick Reference](#quick-reference)
-11. [Version History](#version-history)
+4. [Business Journeys (E2E)](#business-journeys-e2e) 🆕 v6.2.0
+5. [How Claude AI Works](#how-claude-ai-works)
+6. [QA Workflow](#qa-workflow)
+7. [Writing Business Scenarios](#writing-business-scenarios)
+8. [Understanding Reports](#understanding-reports)
+9. [Advanced Features](#advanced-features)
+10. [Onboarding a New Service](#onboarding-a-new-service)
+11. [Quick Reference](#quick-reference)
+12. [Version History](#version-history)
 
 ---
 
@@ -157,6 +158,154 @@ open .traceability/reports/customer-service-report.html
 - Use Case 6 to learn gap identification
 
 **Learn More:** See `docs/DETAILED-CASE-MAPPINGS.md` for complete details with exact scenario-to-test mappings.
+
+---
+
+## 🚀 Business Journeys (E2E)
+
+### What Are Business Journeys?
+
+**Business Journeys** track end-to-end user workflows that span multiple API endpoints, ensuring complete user experiences are tested.
+
+### Why Track Journeys?
+
+**Unit Tests Alone Aren't Enough:**
+- Unit tests validate individual endpoints
+- Journeys validate complete user workflows
+- Real user experiences involve multiple steps
+- Integration issues often occur between services
+
+**Example Journey:**
+```
+User Registration Flow:
+  1. POST /identity/register → Create account
+  2. POST /identity/verify-otp → Verify email
+  3. POST /identity/login → First login
+  
+Status: PARTIAL_COVERAGE
+- Step 1: 0% unit tests (❌ Missing tests)
+- Step 2: 60% unit tests (⚠️ Partial coverage)
+- Step 3: 100% unit tests (✅ Full coverage)
+- E2E Test: ❌ Missing
+
+Recommendation: Add E2E test + improve Step 1 & 2 unit tests
+```
+
+### Journey Status Meanings
+
+| Status | Meaning | E2E Test | Unit Tests | Action Required |
+|--------|---------|----------|------------|-----------------|
+| **FULLY_COVERED** | ✅ Complete | Yes | 80%+ on all steps | Maintain coverage |
+| **PARTIAL_COVERAGE** | ⚠️ Some tests | No | Some steps covered | Add E2E test |
+| **AT_RISK** | ⚠️ Risky | Yes or No | Gaps in critical steps | Fix unit test gaps |
+| **NOT_COVERED** | ❌ None | No | No tests | Add tests immediately |
+
+### Journey File Format
+
+**Create:** `.traceability/test-cases/journeys/{service}-journeys.yml`
+
+```yaml
+service: identity-service
+
+business_journeys:
+  - id: user-registration-flow
+    name: "Complete User Registration Flow"
+    description: "User registers → receives OTP → verifies account"
+    priority: P0
+    steps:
+      - api: "POST /identity/register"
+        description: "Create new user account"
+        required: true
+      - api: "POST /identity/verify-otp"
+        description: "Verify user email with OTP"
+        required: true
+    e2e_tests:
+      - file: "RegistrationFlowE2ETest.java"
+        methods:
+          - "testCompleteRegistrationFlow"
+    tags: ["onboarding", "authentication"]
+
+  - id: user-login-journey
+    name: "User Login Journey"
+    description: "User logs in with credentials → receives JWT token"
+    priority: P0
+    steps:
+      - api: "POST /identity/login"
+        description: "Authenticate user credentials"
+        required: true
+    e2e_tests:
+      - file: "LoginFlowE2ETest.java"
+        methods:
+          - "testUserLoginSuccess"
+          - "testUserLoginFailure"
+    tags: ["authentication"]
+```
+
+### Journey Report Section
+
+**HTML Report includes Business Journeys card with:**
+- Journey status badges (Fully Covered / Partial / At Risk / Not Covered)
+- Step-by-step coverage breakdown
+- Weak point identification
+- E2E test presence validation
+- Comprehensive recommendations
+
+**Example Output:**
+```
+🚀 Business Journeys (E2E)
+
+✅ Complete User Registration Flow (P0)
+   2 Steps | 38% Unit Tests | ❌ No E2E Test | 2 Weak Points
+   
+   Step 1: POST /identity/register
+   ❌ 0% Coverage | 0 unit tests | 0/0 scenarios
+   
+   Step 2: POST /identity/verify-otp
+   ⚠️ 60% Coverage | 3 unit tests | 3/5 scenarios
+   
+   Recommendations:
+   - 🚨 CRITICAL: Create E2E test covering all 2 steps
+   - ⚠️ Step 1: Add unit tests (0/0 scenarios covered)
+   - 📝 Step 2: Add more unit tests (3/5 scenarios covered)
+```
+
+### Creating Journeys for Your Service
+
+**Step 1: Identify User Workflows**
+```
+Examples:
+- User Registration → OTP Verification → First Login
+- Add to Cart → Checkout → Payment → Confirmation
+- Create Order → Process Payment → Send Confirmation
+```
+
+**Step 2: Map APIs to Journey Steps**
+```
+Registration Journey:
+  Step 1: POST /identity/register
+  Step 2: POST /identity/verify-otp
+  Step 3: GET /identity/profile
+```
+
+**Step 3: Define E2E Tests**
+```
+Create: tests/e2e/RegistrationFlowE2ETest.java
+
+Test should:
+- Call all journey steps in sequence
+- Verify data flows between steps
+- Test complete user experience
+```
+
+**Step 4: Run Analysis**
+```bash
+npm run continue
+```
+
+**Step 5: Review Journey Card in Report**
+- Check journey status
+- Identify weak steps
+- Follow recommendations
 
 ---
 
@@ -595,7 +744,21 @@ npm run install:hooks         # Install pre-commit hook
 
 ## 📜 Version History
 
-### v6.0.0 (December 10, 2025) - Current Release
+### v6.2.0 (December 13, 2025) - Current Release
+**Major Features:**
+- **Business Journeys (E2E)** - Track end-to-end user workflows
+- **Historical Trend Analysis** - 30-day coverage tracking with charts
+- **Journey Status** - FULLY_COVERED / PARTIAL_COVERAGE / AT_RISK / NOT_COVERED
+- Fixed journey status calculation for accurate reporting
+- AI stability improvements (temperature=0.0)
+
+### v6.1.0 (December 10, 2025)
+**Major Features:**
+- Premium Report Redesign with colored badges
+- Collapsible sections and priority-first layout
+- Professional design for stakeholders
+
+### v6.0.0 (December 2025)
 **Major Features:**
 - Orphan Unit Test Detection with AI-suggested scenarios
 - Orphan API Detection for completely untracked endpoints
@@ -623,9 +786,11 @@ npm run install:hooks         # Install pre-commit hook
 
 ---
 
-**Version:** 6.1.0  
+**Version:** 6.2.0  
 **Powered By:** Claude AI (Anthropic)  
-**Status:** Production Ready
+**Status:** Production Ready  
+**Business Journeys:** 🚀 E2E Workflow Tracking  
+**Historical Trends:** 📈 30-Day Coverage Tracking
 
 ---
 

@@ -236,21 +236,32 @@ export class JourneyCoverageAnalyzer {
   ): JourneyStatus {
     const hasNotCoveredSteps = stepCoverage.some(s => s.status === 'NOT_COVERED');
     const allStepsCovered = stepCoverage.every(s => s.status === 'COVERED');
+    const hasPartialCoverage = stepCoverage.some(s => s.status === 'COVERED' || s.status === 'PARTIAL');
 
-    if (!e2eTestsFound) {
-      return 'NOT_COVERED';
+    // Decision tree based on E2E test presence and unit test coverage
+    if (e2eTestsFound) {
+      // Has E2E test
+      if (allStepsCovered && overallCoverage >= 80) {
+        return 'FULLY_COVERED';
+      } else if (hasNotCoveredSteps) {
+        // Has E2E but critical steps lack unit tests
+        return 'AT_RISK';
+      } else {
+        return 'PARTIAL_COVERAGE';
+      }
+    } else {
+      // No E2E test
+      if (allStepsCovered && overallCoverage >= 80) {
+        // All unit tests exist but missing E2E
+        return 'AT_RISK';
+      } else if (hasPartialCoverage) {
+        // Some unit tests exist, no E2E
+        return 'PARTIAL_COVERAGE';
+      } else {
+        // No E2E and no unit tests
+        return 'NOT_COVERED';
+      }
     }
-
-    if (e2eTestsFound && allStepsCovered && overallCoverage >= 80) {
-      return 'FULLY_COVERED';
-    }
-
-    if (e2eTestsFound && hasNotCoveredSteps) {
-      // Has E2E test but critical steps lack unit tests
-      return 'AT_RISK';
-    }
-
-    return 'PARTIAL_COVERAGE';
   }
 
   /**

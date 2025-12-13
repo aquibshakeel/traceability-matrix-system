@@ -203,8 +203,8 @@
     <div class="header">
         <h1>🛠️ Developer Guide - AI-Driven Test Coverage System</h1>
         <div class="header-meta">
-            <span><strong>Version:</strong> 6.1.0 ✨ Enterprise Edition</span>
-            <span><strong>Last Updated:</strong> December 10, 2025</span>
+            <span><strong>Version:</strong> 6.2.0 ✨ Enterprise Edition</span>
+            <span><strong>Last Updated:</strong> December 13, 2025</span>
             <span><strong>Audience:</strong> Developers, DevOps Engineers, Tech Leads</span>
         </div>
     </div>
@@ -801,6 +801,151 @@ Tests: ${JSON.stringify(orphanTests)}`;
 }</code></pre>
                 </section>
 
+                <section id="business-journeys">
+                    <h2>🚀 Business Journeys (E2E Testing)</h2>
+
+                    <h3>What are Business Journeys?</h3>
+                    <p>Business Journeys track complete end-to-end user workflows that span multiple API calls. Unlike individual API scenarios, journeys represent real user flows like "User Registration" or "Complete Order Process".</p>
+
+                    <div class="feature-box">
+                        <h3>Key Benefits</h3>
+                        <ul>
+                            <li><strong>End-to-End Validation:</strong> Test complete user workflows, not just individual APIs</li>
+                            <li><strong>Business Context:</strong> Map technical tests to business processes</li>
+                            <li><strong>Coverage Tracking:</strong> See which journeys are fully tested vs at risk</li>
+                            <li><strong>Priority Management:</strong> Focus on high-priority business flows first</li>
+                        </ul>
+                    </div>
+
+                    <h3>Journey File Format</h3>
+                    <p><strong>Location:</strong> <code>.traceability/test-cases/journeys/&lt;service&gt;-journeys.yml</code></p>
+
+                    <pre><code>service: customer-service
+
+journeys:
+  - id: user-registration
+    name: "Complete User Registration Flow"
+    description: "User registers, verifies email, and sets up profile"
+    priority: P0
+    steps:
+      - api: "POST /v1/customers"
+        scenario: "When customer is created with valid data, return 201"
+      - api: "POST /v1/customers/verify-email"
+        scenario: "When email verification token is valid, activate account"
+      - api: "PUT /v1/customers/{id}/profile"
+        scenario: "When profile is updated with valid data, return 200"
+    e2e_test_file: "tests/e2e/UserRegistrationE2ETest.java"
+    e2e_test_method: "testCompleteUserRegistration"
+
+  - id: customer-update-flow
+    name: "Customer Information Update"
+    description: "Update customer details and verify changes"
+    priority: P1
+    steps:
+      - api: "GET /v1/customers/{id}"
+        scenario: "When requesting customer by valid ID, return 200"
+      - api: "PUT /v1/customers/{id}"
+        scenario: "When customer is updated with valid data, return 200"
+      - api: "GET /v1/customers/{id}"
+        scenario: "When requesting updated customer, return new data"
+    e2e_test_file: "tests/e2e/CustomerUpdateE2ETest.java"
+    e2e_test_method: "testCustomerUpdateFlow"</code></pre>
+
+                    <h3>Journey Status Indicators</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Meaning</th>
+                                <th>Action Required</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>✅ FULLY_COVERED</strong></td>
+                                <td>All steps have tests AND E2E test exists</td>
+                                <td>None - journey is complete</td>
+                            </tr>
+                            <tr>
+                                <td><strong>⚠️ PARTIAL_COVERAGE</strong></td>
+                                <td>Some steps covered, E2E test exists</td>
+                                <td>Add missing step tests</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🔴 AT_RISK</strong></td>
+                                <td>Steps covered but NO E2E test</td>
+                                <td>Create E2E test for journey</td>
+                            </tr>
+                            <tr>
+                                <td><strong>❌ NOT_COVERED</strong></td>
+                                <td>Missing both step tests and E2E test</td>
+                                <td>Implement full test coverage</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Creating a Journey</h3>
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <div class="workflow-step">
+                            <h4>1. Identify Business Flow</h4>
+                            <p>Map out the complete user journey with all API calls</p>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>2. Create Journey YAML</h4>
+                            <p>Define journey in <code>.traceability/test-cases/journeys/</code></p>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>3. Link to Scenarios</h4>
+                            <p>Reference existing baseline scenarios for each step</p>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>4. Create E2E Test</h4>
+                            <p>Write end-to-end test that executes the full journey</p>
+                        </div>
+                        <div class="workflow-step">
+                            <h4>5. Run Analysis</h4>
+                            <p>Execute <code>npm run continue</code> to verify coverage</p>
+                        </div>
+                    </div>
+
+                    <h3>E2E Test Example</h3>
+                    <pre><code>@Test
+@DisplayName("Complete User Registration Flow - E2E")
+public void testCompleteUserRegistration() {
+    // Step 1: Create customer
+    CustomerRequest request = new CustomerRequest();
+    request.setEmail("newuser@example.com");
+    CustomerResponse customer = customerService.create(request);
+    assertNotNull(customer.getId());
+    
+    // Step 2: Verify email
+    String token = emailService.getVerificationToken(customer.getEmail());
+    VerifyEmailRequest verifyReq = new VerifyEmailRequest(token);
+    customerService.verifyEmail(verifyReq);
+    
+    // Step 3: Update profile
+    ProfileRequest profileReq = new ProfileRequest();
+    profileReq.setFirstName("John");
+    profileReq.setLastName("Doe");
+    customerService.updateProfile(customer.getId(), profileReq);
+    
+    // Verify complete flow
+    CustomerResponse final = customerService.getById(customer.getId());
+    assertTrue(final.isEmailVerified());
+    assertEquals("John", final.getFirstName());
+}</code></pre>
+
+                    <div class="alert alert-info">
+                        <h4>📚 Best Practices</h4>
+                        <ul>
+                            <li>Keep journeys focused on single business outcomes</li>
+                            <li>Link journeys to actual E2E test files</li>
+                            <li>Set appropriate priorities (P0 for critical flows)</li>
+                            <li>Document journey dependencies clearly</li>
+                        </ul>
+                    </div>
+                </section>
+
                 <section id="implementation">
                     <h2>💻 Implementation Details</h2>
 
@@ -1113,8 +1258,8 @@ chmod +x .git/hooks/pre-commit</code></pre>
                     </div>
 
                     <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 0.5rem;">
-                        <p style="font-size: 1.1rem; margin: 0;"><strong>Version 6.0.0</strong> | <strong>Powered By:</strong> Claude AI (Anthropic) | <strong>Status:</strong> Production Ready</p>
-                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: #64748b;">100% AI-driven analysis - No manual fuzzy matching or pattern matching</p>
+                        <p style="font-size: 1.1rem; margin: 0;"><strong>Version 6.2.0</strong> | <strong>Powered By:</strong> Claude AI (Anthropic) | <strong>Status:</strong> Production Ready</p>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: #64748b;">🚀 Business Journeys | 📈 Historical Trends | 100% AI-driven analysis</p>
                     </div>
                 </section>
 

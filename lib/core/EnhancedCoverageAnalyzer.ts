@@ -13,6 +13,7 @@ import { ModelDetector } from './ModelDetector';
 import { APIScanner } from './APIScanner';
 import { BaselineValidator } from '../validation/BaselineSchema';
 import { HistoryTracker } from './HistoryTracker';
+import { HistoryManager } from './HistoryManager';
 
 export interface APIScenario {
   api: string;
@@ -147,6 +148,7 @@ export class EnhancedCoverageAnalyzer {
   private projectRoot: string;
   private apiScanner: APIScanner;
   private baselineValidator: BaselineValidator;
+  private historyManager: HistoryManager;
   private fileTimestamps = new Map<string, number>();
 
   constructor(apiKey: string, projectRoot: string) {
@@ -155,6 +157,7 @@ export class EnhancedCoverageAnalyzer {
     this.testParser = new TestParserFactory();
     this.apiScanner = new APIScanner();
     this.baselineValidator = new BaselineValidator();
+    this.historyManager = new HistoryManager(projectRoot);
     this.projectRoot = projectRoot;
   }
   
@@ -347,7 +350,7 @@ export class EnhancedCoverageAnalyzer {
     const summary = this.calculateSummary(apiAnalyses, gaps);
     
     // Calculate visual analytics
-    const visualAnalytics = this.calculateVisualAnalytics(apiAnalyses, gaps, orphanAnalysis);
+    const visualAnalytics = this.calculateVisualAnalytics(apiAnalyses, gaps, orphanAnalysis, service.name);
     
     // Mark which discovered APIs have tests using the improved logic
     this.apiScanner.markAPIsWithTests(discoveredAPIs, unitTests);
@@ -1133,7 +1136,8 @@ Respond in JSON:
   private calculateVisualAnalytics(
     apiAnalyses: APIAnalysis[],
     gaps: GapAnalysis[],
-    orphanAnalysis: OrphanTestAnalysis
+    orphanAnalysis: OrphanTestAnalysis,
+    serviceName: string
   ): VisualAnalytics {
     // Coverage distribution
     const fullyCovered = apiAnalyses.reduce((sum, a) => sum + a.coveredScenarios, 0);
@@ -1152,15 +1156,33 @@ Respond in JSON:
     const orphanP2 = orphanAnalysis.categorization.filter(c => c.priority === 'P2').reduce((sum, c) => sum + c.count, 0);
     const orphanP3 = orphanAnalysis.categorization.filter(c => c.priority === 'P3').reduce((sum, c) => sum + c.count, 0);
 
-    // Coverage trend (placeholder - could be extended to track history)
+    // Coverage trend - load historical data
     const totalScenarios = fullyCovered + partiallyCovered + notCovered;
     const currentCoverage = totalScenarios > 0 ? (fullyCovered / totalScenarios) * 100 : 0;
-    const coverageTrend = [
-      {
-        date: new Date().toISOString().split('T')[0],
-        coverage: currentCoverage
-      }
-    ];
+    
+    // Load historical coverage data from HistoryManager
+    const history = this.historyManager.loadHistory(serviceName);
+    const coverageTrend = history.coverageTrends
+      .slice(-30) // Last 30 entries
+      .map(entry => ({
+        timestamp: entry.timestamp, // Keep original timestamp for chart
+        date: new Date(entry.timestamp).toISOString().split('T')[0],
+        coverage: entry.coveragePercent,
+        coveragePercent: entry.coveragePercent // For compatibility
+      }));
+    
+    // Add current snapshot if not already present
+    const today = new Date().toISOString();
+    const todayDate = today.split('T')[0];
+    const hasToday = coverageTrend.some(t => t.date === todayDate);
+    if (!hasToday) {
+      coverageTrend.push({
+        timestamp: today,
+        date: todayDate,
+        coverage: currentCoverage,
+        coveragePercent: currentCoverage
+      });
+    }
 
     return {
       coverageDistribution: {
