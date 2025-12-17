@@ -11,13 +11,13 @@ import {
   APIDefinition,
   Scenarios,
   BaselineScenario,
-  UnitTest,
   CoverageAnalysis,
   TestCategories,
   ProviderConfig,
   CoverageMatch,
   TestCategorization
 } from '../types';
+import { UnitTest } from '../../types';
 
 export class AnthropicProvider implements AIProvider {
   readonly name = 'Anthropic';
@@ -254,7 +254,7 @@ Respond in JSON:
 ${scenarios.map((s, i) => `${i + 1}. [${s.priority}] ${s.scenario}`).join('\n')}
 
 **Available Tests:**
-${tests.map(t => `Test ${t.testNumber}: ${t.description || t.name} (${t.file})`).join('\n')}
+${tests.map((t, i) => `Test ${i + 1}: ${t.description} (${t.file})`).join('\n')}
 
 Determine coverage status for each scenario. Respond in JSON:
 {
@@ -277,7 +277,7 @@ Determine coverage status for each scenario. Respond in JSON:
     return `Categorize these unit tests as TECHNICAL or BUSINESS:
 
 **Tests:**
-${tests.map(t => `Test ${t.testNumber}: ${t.description || t.name} (${t.file})`).join('\n')}
+${tests.map((t, i) => `Test ${i + 1}: ${t.description} (${t.file})`).join('\n')}
 
 - TECHNICAL: Infrastructure tests (Entity, DTO, Mapper) - no scenario needed
 - BUSINESS: Business logic tests (Controller, Service) - needs scenario

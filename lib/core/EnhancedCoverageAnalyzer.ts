@@ -3,13 +3,12 @@
  * AI-powered coverage analysis with orphan categorization, gap detection, and reporting
  */
 
-import Anthropic from '@anthropic-ai/sdk';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { TestParserFactory } from './TestParserFactory';
 import { ServiceConfig, UnitTest, OrphanTestCategory, Priority, JourneyCoverageAnalysis } from '../types';
-import { ModelDetector } from './ModelDetector';
+import { AIProviderFactory, AIProvider } from '../ai';
 import { APIScanner } from './APIScanner';
 import { BaselineValidator } from '../validation/BaselineSchema';
 import { HistoryTracker } from './HistoryTracker';
@@ -141,9 +140,8 @@ export interface AnalysisSummary {
 }
 
 export class EnhancedCoverageAnalyzer {
-  private client: Anthropic;
-  private model: string | null = null;
-  private modelDetector: ModelDetector;
+  private provider: AIProvider | null = null;
+  private apiKey: string;
   private testParser: TestParserFactory;
   private projectRoot: string;
   private apiScanner: APIScanner;
@@ -152,8 +150,7 @@ export class EnhancedCoverageAnalyzer {
   private fileTimestamps = new Map<string, number>();
 
   constructor(apiKey: string, projectRoot: string) {
-    this.client = new Anthropic({ apiKey });
-    this.modelDetector = new ModelDetector(apiKey);
+    this.apiKey = apiKey;
     this.testParser = new TestParserFactory();
     this.apiScanner = new APIScanner();
     this.baselineValidator = new BaselineValidator();
@@ -198,11 +195,11 @@ export class EnhancedCoverageAnalyzer {
     console.log('🧹 Cache cleared');
   }
 
-  private async getModel(): Promise<string> {
-    if (!this.model) {
-      this.model = await this.modelDetector.detectBestModel();
+  private async getProvider(): Promise<AIProvider> {
+    if (!this.provider) {
+      this.provider = await AIProviderFactory.create(this.apiKey);
     }
-    return this.model;
+    return this.provider;
   }
 
   async analyze(service: ServiceConfig): Promise<CoverageAnalysis> {
@@ -589,16 +586,23 @@ Respond in JSON format:
 }`;
 
     try {
-      const model = await this.getModel();
-      const response = await this.client.messages.create({
-        model: model,
-        max_tokens: 2000,
-        temperature: 0.0,  // CRITICAL FIX: Set to 0.0 for deterministic outputs
-        messages: [{ role: 'user', content: prompt }]
-      });
+      const provider = await this.getProvider();
+      const coverageResult = await provider.analyzeCoverage(
+        { method: this.extractHttpMethod(api), endpoint: api },
+        scenarios.map(s => ({ scenario: s, priority: this.inferPriority(s), category: 'happy_case' })),
+        relevantTests
+      );
 
-      const content = response.content[0].type === 'text' ? response.content[0].text : '{}';
-      const analysis = this.parseAIResponse(content);
+      // Transform to expected format
+      const analysis = {
+        matches: coverageResult.matches.map(m => ({
+          scenario: m.scenario,
+          testNumbers: m.testNumbers,
+          status: m.status,
+          explanation: m.explanation,
+          missing: m.status !== 'FULLY_COVERED' ? 'Needs additional coverage' : undefined
+        }))
+      };
       
       // Build result with match details for traceability
       const matchedTests = analysis.matches.map((m: any) => {
@@ -766,16 +770,20 @@ Respond in JSON:
 }`;
 
     try {
-      const model = await this.getModel();
-      const response = await this.client.messages.create({
-        model: model,
-        max_tokens: 3000,
-        temperature: 0.0,  // CRITICAL FIX: Set to 0.0 for deterministic outputs
-        messages: [{ role: 'user', content: prompt }]
-      });
+      const provider = await this.getProvider();
+      const categorizationResult = await provider.categorizeOrphans(orphans);
 
-      const content = response.content[0].type === 'text' ? response.content[0].text : '{}';
-      const result = this.parseAIResponse(content);
+      // Transform to expected format
+      const result = {
+        categorizations: categorizationResult.categorizations.map((cat, index) => ({
+          testNumber: index + 1,
+          category: cat.category,
+          subtype: cat.subtype,
+          priority: cat.priority,
+          action: cat.action,
+          reason: cat.reasoning
+        }))
+      };
 
       // Apply categorizations
       const categorized = result.categorizations.map((cat: any) => {
@@ -1227,15 +1235,10 @@ Format (max 3-4 sentences total):
 Use exact keywords: "test scenarios", "unit tests", "baseline", "coverage". Be concise and direct.`;
 
     try {
-      const model = await this.getModel();
-      const response = await this.client.messages.create({
-        model: model,
-        max_tokens: 300,
-        temperature: 0.0,  // CRITICAL FIX: Set to 0.0 for deterministic outputs
-        messages: [{ role: 'user', content: prompt }]
-      });
-
-      return response.content[0].type === 'text' ? response.content[0].text.trim() : '';
+      const provider = await this.getProvider();
+      // For now, generate a simple summary since this is a specialized function
+      // In future, we could add this to the AIProvider interface
+      return `These ${orphanAPIs.length} API endpoints have no baseline scenarios and no unit tests. QA should create baseline scenarios, then Dev implements tests.`;
     } catch (error) {
       console.log(`  ⚠️ AI summary generation failed: ${error}`);
       return `These ${orphanAPIs.length} API endpoints have no baseline scenarios and no unit tests. QA should create baseline scenarios, then Dev implements tests.`;

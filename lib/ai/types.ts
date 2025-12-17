@@ -35,16 +35,6 @@ export interface BaselineScenario {
   category: 'happy_case' | 'edge_case' | 'error_case' | 'security';
 }
 
-/**
- * Unit Test
- */
-export interface UnitTest {
-  testNumber: number;
-  name: string;
-  description?: string;
-  file: string;
-  lineNumber?: number;
-}
 
 /**
  * Coverage Status

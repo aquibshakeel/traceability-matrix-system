@@ -12,7 +12,6 @@ export {
   APIDefinition,
   Scenarios,
   BaselineScenario,
-  UnitTest,
   CoverageStatus,
   CoverageMatch,
   CoverageAnalysis,

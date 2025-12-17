@@ -8,7 +8,6 @@
  * - Marks which are in baseline (✅) vs new (🆕)
  */
 
-import Anthropic from '@anthropic-ai/sdk';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
@@ -16,7 +15,7 @@ import { SwaggerParser } from './SwaggerParser';
 import { APIScanner } from './APIScanner';
 import { ServiceManager } from './ServiceManager';
 import { GitChangeDetector } from './GitChangeDetector';
-import { ModelDetector } from './ModelDetector';
+import { AIProviderFactory, AIProvider } from '../ai';
 import { ServiceConfig } from '../types';
 
 export interface SimpleScenarios {
@@ -29,18 +28,16 @@ export interface SimpleScenarios {
 }
 
 export class AITestCaseGenerator {
-  private client: Anthropic;
-  private model: string | null = null;
-  private modelDetector: ModelDetector;
+  private provider: AIProvider | null = null;
+  private apiKey: string;
   private baselineDir: string;
   private aiCasesDir: string;
   private serviceManager: ServiceManager;
   private projectRoot: string;
 
   constructor(apiKey: string, projectRoot: string) {
-    this.client = new Anthropic({ apiKey });
+    this.apiKey = apiKey;
     this.projectRoot = projectRoot;
-    this.modelDetector = new ModelDetector(apiKey);
     
     this.baselineDir = path.join(projectRoot, '.traceability/test-cases/baseline');
     this.aiCasesDir = path.join(projectRoot, '.traceability/test-cases/ai_cases');
@@ -52,13 +49,13 @@ export class AITestCaseGenerator {
   }
 
   /**
-   * Get the best available model for this user
+   * Get or initialize the AI provider
    */
-  private async getModel(): Promise<string> {
-    if (!this.model) {
-      this.model = await this.modelDetector.detectBestModel();
+  private async getProvider(): Promise<AIProvider> {
+    if (!this.provider) {
+      this.provider = await AIProviderFactory.create(this.apiKey);
     }
-    return this.model;
+    return this.provider;
   }
 
   /**
@@ -172,48 +169,17 @@ export class AITestCaseGenerator {
    * Generate scenarios for one API
    */
   private async generateForAPI(api: any): Promise<any> {
-    const prompt = `Generate test scenarios for this API in simple one-liner format.
-
-**API:** ${api.method} ${api.endpoint}
-**Description:** ${api.description || 'N/A'}
-**Parameters:** ${JSON.stringify(api.parameters || [])}
-**Request Body:** ${JSON.stringify(api.requestBody || {})}
-**Responses:** ${JSON.stringify(api.responses || {})}
-
-Generate simple one-liner test scenarios:
-
-1. **happy_case** - Valid inputs, success responses
-2. **edge_case** - Boundaries, special chars, empty/null, long inputs  
-3. **error_case** - 400, 401, 403, 404, 409, 422, 500 errors
-4. **security** - SQL injection, XSS, auth bypass
-
-Format: "When [condition], [expected result]"
-
-Examples:
-- When customer created with valid data, return 201
-- When name has special characters, accept and store
-- When created with missing required fields, return 400
-- When name contains SQL injection, reject with 400
-
-Respond in JSON:
-{
-  "happy_case": ["one-liner 1", "one-liner 2"],
-  "edge_case": ["one-liner 1", "one-liner 2"],
-  "error_case": ["one-liner 1", "one-liner 2"],
-  "security": ["one-liner 1", "one-liner 2"]
-}`;
-
     try {
-      const model = await this.getModel();
-      const response = await this.client.messages.create({
-        model: model,
-        max_tokens: 2000,
-        temperature: 0.0,  // CRITICAL FIX: Set to 0.0 for deterministic outputs
-        messages: [{ role: 'user', content: prompt }]
+      const provider = await this.getProvider();
+      const scenarios = await provider.generateScenarios({
+        method: api.method,
+        endpoint: api.endpoint,
+        description: api.description,
+        parameters: api.parameters,
+        requestBody: api.requestBody,
+        responses: api.responses
       });
-
-      const content = response.content[0].type === 'text' ? response.content[0].text : '';
-      return this.parseJSON(content);
+      return scenarios;
     } catch (error) {
       console.error(`     ⚠️  Failed: ${error}`);
       return {};
@@ -376,21 +342,6 @@ service: ${service.name}
     
     fs.writeFileSync(filePath, content);
     console.log(`   ✓ Saved: ${filePath}`);
-  }
-
-  /**
-   * Parse JSON
-   */
-  private parseJSON(content: string): any {
-    try {
-      let json = content.trim();
-      if (json.startsWith('```')) {
-        json = json.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      }
-      return JSON.parse(json);
-    } catch (error) {
-      return {};
-    }
   }
 
   /**

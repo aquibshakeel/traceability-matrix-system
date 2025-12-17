@@ -9,11 +9,11 @@ import {
   APIDefinition,
   Scenarios,
   BaselineScenario,
-  UnitTest,
   CoverageAnalysis,
   TestCategories,
   ProviderConfig
 } from './types';
+import { UnitTest } from '../types';
 
 export interface AIProvider {
   /**
