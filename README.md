@@ -1,6 +1,6 @@
-# AI-Driven Test Coverage System v6.2.0
+# AI-Driven Test Coverage System v6.3.0
 
-Complete AI-powered test coverage analysis with **premium enterprise report design**, **Business Journeys (E2E) tracking**, **historical trend analysis**, **orphan unit test detection**, **orphan API detection**, **visual analytics**, bidirectional scenario completeness detection, and multi-format reporting.
+Complete AI-powered test coverage analysis with **multi-provider AI support**, **premium enterprise report design**, **Business Journeys (E2E) tracking**, **historical trend analysis**, **orphan unit test detection**, **orphan API detection**, **visual analytics**, bidirectional scenario completeness detection, and multi-format reporting.
 
 ## 🎯 What It Does
 
@@ -30,11 +30,32 @@ npm install
 npm run build
 ```
 
-### Setup Claude API Key
+### Setup AI Provider
 
+**Default: Claude (Anthropic)**
 ```bash
 export CLAUDE_API_KEY="sk-ant-..."
 ```
+
+**Or use OpenAI:**
+```bash
+# Edit .traceability/config.json
+{
+  "ai": {
+    "provider": "openai",  // Change from "anthropic" to "openai"
+    "model": "auto"
+  }
+}
+
+export OPENAI_API_KEY="sk-..."
+```
+
+The system supports multiple AI providers:
+- ✅ **Anthropic** (Claude 4.5 Sonnet, Claude 3.7/3.5)
+- ✅ **OpenAI** (GPT-4 Turbo, GPT-4)
+- 🔮 **Coming Soon:** Google Gemini, local models
+
+Switch providers by editing `.traceability/config.json` - no code changes needed!
 
 ### Configure Services
 
@@ -424,7 +445,69 @@ npm run generate
 
 ## 📜 Version History
 
-### v6.2.0 (December 13, 2025) - **CURRENT RELEASE**
+### v6.3.0 (December 18, 2025) - **CURRENT RELEASE**
+
+**🤖 Multi-Provider AI Support**
+
+Revolutionary AI provider abstraction layer:
+
+1. **True Multi-Provider Architecture**
+   - Switch between AI providers via config file
+   - No code changes required - just edit config.json
+   - Provider-specific optimizations
+   - Extensible for unlimited future providers
+
+2. **Currently Supported Providers**
+   - ✅ **Anthropic** (Claude 4.5 Sonnet, Claude 3.7, Claude 3.5)
+   - ✅ **OpenAI** (GPT-4 Turbo, GPT-4)
+   - Auto-detects best available model per provider
+
+3. **Configuration System**
+   - Reads from `.traceability/config.json`
+   - Supports `provider` field: "anthropic" or "openai"
+   - Model selection per provider
+   - Intelligent API key resolution
+
+4. **Provider Benefits**
+   - 🚫 No vendor lock-in
+   - 💰 Cost optimization (cheaper models for dev/test)
+   - 🔄 Provider redundancy (fallback if primary down)
+   - 📊 A/B testing (compare provider performance)
+   - 🎯 Model-specific optimizations
+
+**Configuration Example:**
+```json
+{
+  "ai": {
+    "provider": "anthropic",  // or "openai"
+    "model": "auto",          // or specific model
+    "temperature": 0.3,
+    "maxTokens": 2000
+  }
+}
+```
+
+**Switching Providers:**
+```bash
+# Option 1: Claude (Default)
+export CLAUDE_API_KEY="sk-ant-..."
+
+# Option 2: OpenAI
+{
+  "ai": { "provider": "openai", "model": "auto" }
+}
+export OPENAI_API_KEY="sk-..."
+```
+
+**Technical Implementation:**
+- New `lib/ai/` directory with provider abstraction
+- `AIProvider` interface for all providers
+- `AIProviderFactory` with config-based creation
+- `AnthropicProvider` and `OpenAIProvider` implementations
+- All core classes use the abstraction layer
+- 100% backwards compatible
+
+### v6.2.0 (December 13, 2025)
 
 **🚀 Business Journeys & Historical Tracking**
 
@@ -616,11 +699,12 @@ For issues or questions:
 
 ---
 
-**Version:** 6.2.0  
-**Release Date:** December 13, 2025  
+**Version:** 6.3.0  
+**Release Date:** December 18, 2025  
 **Status:** ✅ Production Ready  
 **Build:** ✅ Passing  
 **AI-Powered:** 100% (Zero Static Rules)
+**Multi-Provider:** 🤖 Anthropic & OpenAI Support
 **Premium Reports:** ✨ Enterprise Edition
 **Business Journeys:** 🚀 E2E Workflow Tracking
 **Historical Trends:** 📈 30-Day Coverage Tracking
