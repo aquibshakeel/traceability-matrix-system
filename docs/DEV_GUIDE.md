@@ -1,10 +1,17 @@
 # Developer Guide - AI-Driven Test Coverage System
 
-**Version:** 6.2.0
-**Last Updated:** December 13, 2025
+**Version:** 6.3.0
+**Last Updated:** December 18, 2025
 **Audience:** Developers, DevOps Engineers, Tech Leads
 
-## 🚀 New in v6.2.0 - Business Journeys & Historical Tracking
+## 🚀 New in v6.3.0 - AI Provider Abstraction
+- **Multi-Provider Support** - Switch between Claude, OpenAI, Gemini, etc.
+- **No Vendor Lock-in** - Abstract interface for all AI providers
+- **Auto Model Detection** - Automatically selects best available model
+- **Future-Proof Architecture** - Ready for new AI models
+- All v6.2.0 features (Business Journeys, Historical Tracking)
+
+## 🎉 New in v6.2.0 - Business Journeys & Historical Tracking
 - **Business Journeys (E2E)** - Track complete user workflows across multiple API steps
 - **Historical Trend Analysis** - 30-day coverage tracking with visual charts
 - **Journey Status** - FULLY_COVERED / PARTIAL_COVERAGE / AT_RISK / NOT_COVERED
@@ -31,6 +38,123 @@
 14. [Troubleshooting](#troubleshooting)
 15. [Quick Reference](#quick-reference)
 16. [Version History](#version-history)
+
+---
+
+## 🆕 AI Provider System (Multi-Provider Support)
+
+### Overview
+
+**New in v6.3.0:** The system now uses an **AI provider abstraction layer** that supports multiple AI providers (Claude, OpenAI, Gemini, etc.) through a unified interface.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   Application Layer                          │
+│  • AITestCaseGenerator                                       │
+│  • EnhancedCoverageAnalyzer                                  │
+│  • AIChangeImpactAnalyzer                                    │
+└────────────────────┬────────────────────────────────────────┘
+                     │ uses
+┌────────────────────▼────────────────────────────────────────┐
+│                AI Provider Abstraction (lib/ai/)             │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  AIProviderFactory                                   │   │
+│  │  • Auto-detects provider from config                │   │
+│  │  • Creates appropriate provider instance            │   │
+│  └────────────────┬─────────────────────────────────────┘   │
+│                   │ creates                                  │
+│  ┌────────────────▼─────────────────────────────────────┐   │
+│  │  AIProvider Interface                                │   │
+│  │  • generateScenarios()                               │   │
+│  │  • analyzeCoverage()                                 │   │
+│  │  • categorizeOrphans()                               │   │
+│  └────────────────┬─────────────────────────────────────┘   │
+│                   │ implements                               │
+│  ┌────────────────▼─────────────────────────────────────┐   │
+│  │  Concrete Providers:                                 │   │
+│  │  • AnthropicProvider (Claude) ✅                     │   │
+│  │  • OpenAIProvider (GPT) - Future                     │   │
+│  │  • GeminiProvider (Gemini) - Future                  │   │
+│  └──────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Current Implementation
+
+**Active Provider:** Anthropic (Claude AI)
+- Claude Sonnet 4.5 (auto-detected)
+- Claude 3.7 Sonnet (fallback)
+- Claude 3.5 Sonnet (ultimate fallback)
+
+### Key Benefits
+
+✅ **No Vendor Lock-in** - Switch AI providers easily  
+✅ **Cost Optimization** - Use cheaper models for dev/testing  
+✅ **Provider Redundancy** - Fallback if primary unavailable  
+✅ **A/B Testing** - Compare provider performance  
+✅ **Future-Proof** - Ready for new AI models  
+
+### How It Works
+
+**1. Provider Auto-Detection:**
+```typescript
+// System automatically uses best available Claude model
+const provider = await AIProviderFactory.create(apiKey);
+// ✓ Using: claude-sonnet-4.5-20250929 (Claude Sonnet 4.5)
+```
+
+**2. Unified API Operations:**
+```typescript
+// All AI operations use the same interface
+const scenarios = await provider.generateScenarios(api);
+const coverage = await provider.analyzeCoverage(api, scenarios, tests);
+const categories = await provider.categorizeOrphans(orphanTests);
+```
+
+**3. Provider Switching (Future):**
+```json
+// config.json (future configuration)
+{
+  "ai": {
+    "provider": "anthropic",  // Change to "openai", "gemini", etc.
+    "model": "auto",          // Or specify: "gpt-4-turbo"
+    "apiKey": "${API_KEY}"
+  }
+}
+```
+
+### Adding New Providers (For Contributors)
+
+**Time Required:** 1-2 hours per provider
+
+**Steps:**
+1. Implement `AIProvider` interface (~200 lines)
+2. Add provider to `AIProviderFactory` (~5 lines)
+3. Export from `lib/ai/index.ts` (~1 line)
+4. Test with actual API (~30 minutes)
+
+**Example: Adding OpenAI**
+```typescript
+// lib/ai/providers/OpenAIProvider.ts
+export class OpenAIProvider implements AIProvider {
+  async generateScenarios(api: APIDefinition): Promise<Scenarios> {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4-turbo-preview',
+      messages: [{ role: 'user', content: this.buildPrompt(api) }]
+    });
+    return this.parseResponse(response);
+  }
+  // ... implement other interface methods
+}
+```
+
+### Documentation
+
+- **Technical Guide:** `lib/ai/README.md`
+- **Implementation Details:** `AI_PROVIDER_IMPLEMENTATION_SUMMARY.md`
+- **Interface Definition:** `lib/ai/AIProvider.ts`
 
 ---
 
