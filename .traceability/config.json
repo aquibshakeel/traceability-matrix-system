@@ -21,10 +21,12 @@
     }
   ],
   "ai": {
-    "model": "claude-4-5-sonnet-20250929",
+    "provider": "anthropic",
+    "model": "auto",
     "temperature": 0.3,
     "maxTokens": 2000,
-    "batchSize": 3
+    "batchSize": 3,
+    "fallbackProviders": ["anthropic"]
   },
   "testCases": {
     "baselineDirectory": ".traceability/test-cases/baseline",

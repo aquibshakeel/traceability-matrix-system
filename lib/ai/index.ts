@@ -7,6 +7,7 @@
 export { AIProvider } from './AIProvider';
 export { AIProviderFactory } from './AIProviderFactory';
 export { AnthropicProvider } from './providers/AnthropicProvider';
+export { OpenAIProvider } from './providers/OpenAIProvider';
 
 export {
   APIDefinition,

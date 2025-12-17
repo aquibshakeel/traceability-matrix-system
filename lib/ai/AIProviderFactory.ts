@@ -5,23 +5,54 @@
  * Defaults to Anthropic (Claude) for backwards compatibility.
  */
 
+import * as fs from 'fs';
+import * as path from 'path';
 import { AIProvider } from './AIProvider';
 import { ProviderConfig, AIConfig } from './types';
 import { AnthropicProvider } from './providers/AnthropicProvider';
+import { OpenAIProvider } from './providers/OpenAIProvider';
 
 export class AIProviderFactory {
   /**
+   * Load AI config from config.json file
+   */
+  static loadConfigFromFile(): AIConfig | null {
+    try {
+      const configPath = path.join(process.cwd(), '.traceability', 'config.json');
+      if (fs.existsSync(configPath)) {
+        const configData = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+        return configData.ai || null;
+      }
+    } catch (error) {
+      console.warn('⚠️  Could not load config from file, using defaults');
+    }
+    return null;
+  }
+
+  /**
    * Create an AI provider based on configuration
-   * @param config AI configuration
+   * @param config AI configuration (or just API key for backwards compatibility)
    * @param apiKey API key (for backwards compatibility)
    * @returns Initialized AI provider
    */
-  static async create(config: AIConfig | string, apiKey?: string): Promise<AIProvider> {
+  static async create(config?: AIConfig | string, apiKey?: string): Promise<AIProvider> {
+    // Resolve config: use provided, load from file, or use defaults
+    let resolvedConfig: AIConfig | string;
+    if (config) {
+      resolvedConfig = config;
+    } else {
+      const fileConfig = this.loadConfigFromFile();
+      resolvedConfig = fileConfig || {
+        provider: 'anthropic',
+        model: 'auto'
+      };
+    }
+    
     // Handle backwards compatibility: string input is just the API key
-    if (typeof config === 'string') {
+    if (typeof resolvedConfig === 'string') {
       const providerConfig: ProviderConfig = {
         provider: 'anthropic',
-        apiKey: config,
+        apiKey: resolvedConfig,
         model: 'auto'
       };
       
@@ -31,24 +62,42 @@ export class AIProviderFactory {
     }
 
     // Modern config object
-    const providerName = (config.provider || 'anthropic').toLowerCase();
-    const providerApiKey = config.apiKey || apiKey || process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY;
+    const providerName = (resolvedConfig.provider || 'anthropic').toLowerCase();
+    
+    // Get API key based on provider
+    let providerApiKey = resolvedConfig.apiKey || apiKey;
+    if (!providerApiKey) {
+      switch (providerName) {
+        case 'openai':
+        case 'gpt':
+          providerApiKey = process.env.OPENAI_API_KEY;
+          break;
+        case 'anthropic':
+        case 'claude':
+        default:
+          providerApiKey = process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY;
+          break;
+      }
+    }
 
     if (!providerApiKey) {
+      const envVarName = (providerName === 'openai' || providerName === 'gpt') 
+        ? 'OPENAI_API_KEY' 
+        : 'CLAUDE_API_KEY or ANTHROPIC_API_KEY';
       throw new Error(
-        'AI Provider API key not found. ' +
-        'Set CLAUDE_API_KEY or ANTHROPIC_API_KEY environment variable, ' +
-        'or provide apiKey in configuration.'
+        `AI Provider API key not found for ${providerName}. ` +
+        `Set ${envVarName} environment variable, ` +
+        `or provide apiKey in configuration.`
       );
     }
 
     const providerConfig: ProviderConfig = {
       provider: providerName,
       apiKey: providerApiKey,
-      model: config.model || 'auto',
-      temperature: config.options?.temperature,
-      maxTokens: config.options?.maxTokens,
-      options: config.options
+      model: resolvedConfig.model || 'auto',
+      temperature: resolvedConfig.options?.temperature,
+      maxTokens: resolvedConfig.options?.maxTokens,
+      options: resolvedConfig.options
     };
 
     // Create provider based on name
@@ -62,11 +111,8 @@ export class AIProviderFactory {
 
       case 'openai':
       case 'gpt':
-        throw new Error(
-          'OpenAI provider not yet implemented. ' +
-          'Please use "anthropic" provider for now. ' +
-          'Future versions will support OpenAI.'
-        );
+        provider = new OpenAIProvider();
+        break;
 
       case 'google':
       case 'gemini':
@@ -96,14 +142,14 @@ export class AIProviderFactory {
    * Get list of supported providers
    */
   static getSupportedProviders(): string[] {
-    return ['anthropic', 'claude'];
+    return ['anthropic', 'claude', 'openai', 'gpt'];
   }
 
   /**
    * Get list of coming soon providers
    */
   static getComingSoonProviders(): string[] {
-    return ['openai', 'gpt', 'google', 'gemini'];
+    return ['google', 'gemini'];
   }
 
   /**
