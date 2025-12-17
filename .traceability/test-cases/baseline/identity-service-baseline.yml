@@ -44,3 +44,5 @@ POST /identity/verify-otp:
 #    - When OTP attempts exceeded, lock verification
 #  edge_case:
 #    - When OTP is at expiry boundary, handle gracefully
+#  security:
+#    - When OTP in transit, ensure secure delivery

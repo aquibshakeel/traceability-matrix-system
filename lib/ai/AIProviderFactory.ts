@@ -11,6 +11,7 @@ import { AIProvider } from './AIProvider';
 import { ProviderConfig, AIConfig } from './types';
 import { AnthropicProvider } from './providers/AnthropicProvider';
 import { OpenAIProvider } from './providers/OpenAIProvider';
+import { EnvConfig } from '../utils/EnvConfig';
 
 export class AIProviderFactory {
   /**
@@ -36,8 +37,21 @@ export class AIProviderFactory {
    * @returns Initialized AI provider
    */
   static async create(config?: AIConfig | string, apiKey?: string): Promise<AIProvider> {
+    // Handle backwards compatibility FIRST: string input is just the API key
+    if (typeof config === 'string') {
+      const providerConfig: ProviderConfig = {
+        provider: 'anthropic',
+        apiKey: config,
+        model: 'auto'
+      };
+      
+      const provider = new AnthropicProvider();
+      await provider.initialize(providerConfig);
+      return provider;
+    }
+    
     // Resolve config: use provided, load from file, or use defaults
-    let resolvedConfig: AIConfig | string;
+    let resolvedConfig: AIConfig;
     if (config) {
       resolvedConfig = config;
     } else {
@@ -47,18 +61,20 @@ export class AIProviderFactory {
         model: 'auto'
       };
     }
-    
-    // Handle backwards compatibility: string input is just the API key
-    if (typeof resolvedConfig === 'string') {
-      const providerConfig: ProviderConfig = {
-        provider: 'anthropic',
-        apiKey: resolvedConfig,
-        model: 'auto'
+
+    // Apply environment variable overrides (priority: ENV > config > default)
+    const envOverrides = EnvConfig.getAIOverrides();
+    if (Object.keys(envOverrides).length > 0) {
+      EnvConfig.logOverrides();
+      resolvedConfig = {
+        ...resolvedConfig,
+        ...envOverrides,
+        options: {
+          ...resolvedConfig.options,
+          temperature: envOverrides.temperature ?? resolvedConfig.options?.temperature,
+          maxTokens: envOverrides.maxTokens ?? resolvedConfig.options?.maxTokens
+        }
       };
-      
-      const provider = new AnthropicProvider();
-      await provider.initialize(providerConfig);
-      return provider;
     }
 
     // Modern config object

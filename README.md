@@ -32,30 +32,68 @@ npm run build
 
 ### Setup AI Provider
 
-**Default: Claude (Anthropic)**
+**Option 1: Environment Variables (Recommended)**
 ```bash
+# API Key (Required)
 export CLAUDE_API_KEY="sk-ant-..."
+
+# Optional: Override config.json settings
+export AI_PROVIDER="anthropic"     # anthropic|openai
+export AI_MODEL="auto"              # auto or specific model
+export AI_TEMPERATURE="0.3"         # 0.0-1.0
+export AI_MAX_TOKENS="2000"         # token limit
 ```
 
-**Or use OpenAI:**
+**Option 2: Config File**
 ```bash
 # Edit .traceability/config.json
 {
   "ai": {
-    "provider": "openai",  // Change from "anthropic" to "openai"
-    "model": "auto"
+    "provider": "anthropic",
+    "model": "auto",
+    "temperature": 0.3,
+    "maxTokens": 2000
   }
 }
 
-export OPENAI_API_KEY="sk-..."
+export CLAUDE_API_KEY="sk-ant-..."
 ```
+
+**Option 3: Switch to OpenAI**
+```bash
+export AI_PROVIDER="openai"
+export OPENAI_API_KEY="sk-..."
+# OR edit config.json and set provider to "openai"
+```
+
+**Priority:** Environment Variables > Config File > Defaults
 
 The system supports multiple AI providers:
 - ✅ **Anthropic** (Claude 4.5 Sonnet, Claude 3.7/3.5)
 - ✅ **OpenAI** (GPT-4 Turbo, GPT-4)
 - 🔮 **Coming Soon:** Google Gemini, local models
 
-Switch providers by editing `.traceability/config.json` - no code changes needed!
+**Available Environment Variables:**
+```bash
+# AI Configuration
+AI_PROVIDER="anthropic|openai"      # Override provider
+AI_MODEL="auto|model-name"          # Override model
+AI_TEMPERATURE="0.0-1.0"            # Override temperature
+AI_MAX_TOKENS="1000-8000"           # Override max tokens
+
+# API Keys
+CLAUDE_API_KEY="sk-ant-..."         # Claude/Anthropic
+ANTHROPIC_API_KEY="sk-ant-..."      # Alias for Claude
+OPENAI_API_KEY="sk-..."             # OpenAI/GPT
+
+# Feature Flags
+VERBOSE="true|false"                 # Verbose logging
+AUTO_OPEN_REPORTS="true|false"      # Auto-open HTML reports
+SKIP_GIT_DETECTION="true|false"     # Skip git change detection
+
+# Service Configuration
+HEALTH_CHECK_TIMEOUT="5000"         # Health check timeout (ms)
+```
 
 ### Configure Services
 
