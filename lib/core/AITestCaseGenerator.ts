@@ -17,6 +17,7 @@ import { ServiceManager } from './ServiceManager';
 import { GitChangeDetector } from './GitChangeDetector';
 import { AIProviderFactory, AIProvider } from '../ai';
 import { ServiceConfig } from '../types';
+import { PathResolver } from '../utils/PathResolver';
 
 export interface SimpleScenarios {
   [api: string]: {
@@ -34,15 +35,21 @@ export class AITestCaseGenerator {
   private aiCasesDir: string;
   private serviceManager: ServiceManager;
   private projectRoot: string;
+  private pathResolver: PathResolver;
 
   constructor(apiKey: string, projectRoot: string, config?: any, cliOverrides?: any) {
     this.apiKey = apiKey;
     this.projectRoot = projectRoot;
-    
-    this.baselineDir = path.join(projectRoot, '.traceability/test-cases/baseline');
+
+    this.pathResolver = new PathResolver(projectRoot, config, cliOverrides);
+    // Use TEST_SCENARIO_PATH from ENV or default for baseline directory
+    this.baselineDir = process.env.TEST_SCENARIO_PATH || 
+                       cliOverrides?.baselinePath?.replace(/\/[^\/]+$/, '') ||
+                       config?.paths?.testScenarios || 
+                       path.join(projectRoot, '.traceability/test-cases/baseline');
     this.aiCasesDir = path.join(projectRoot, '.traceability/test-cases/ai_cases');
     this.serviceManager = new ServiceManager();
-    
+
     if (!fs.existsSync(this.aiCasesDir)) {
       fs.mkdirSync(this.aiCasesDir, { recursive: true });
     }
