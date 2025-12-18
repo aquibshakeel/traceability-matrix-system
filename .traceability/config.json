@@ -27,7 +27,7 @@
     "fallbackProviders": ["anthropic"]
   },
   "paths": {
-    "aiCasesDirectory": ".traceability/ai_cases",
+    "aiCasesDirectory": ".traceability/test-cases/ai_cases",
     "reportsDirectory": ".traceability/reports",
     "note": "AI cases and reports stored locally. Service code and baseline scenarios read from external repos via SERVICE_PATH and TEST_SCENARIO_PATH environment variables."
   }

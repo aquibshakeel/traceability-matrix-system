@@ -1295,35 +1295,13 @@ void test${gap.scenario.replace(/\W+/g, '_').replace(/^_+|_+$/g, '')}() {
 
   /**
    * Filter AI-suggested scenarios to only include P0/P1 priority ones
-   * Based on keywords that indicate critical security, authentication, or error handling scenarios
-   * STRICT filtering - only return truly critical scenarios
+   * CRITICAL FIX: Since scenarios are already filtered for P0/P1 in EnhancedCoverageAnalyzer,
+   * we just return them all without additional filtering to avoid being too restrictive
    */
   private filterHighPriorityScenarios(scenarios: string[]): string[] {
-    // P0 - Critical security and authentication keywords
-    const p0Keywords = [
-      'sql injection', 'xss', 'csrf', 'session fixation', 'brute force',
-      'authentication', 'authorization', 'unauthorized', '401', '403',
-      'password', 'credentials', 'token', 'jwt',
-      'replay attack', 'timing attack', 'security'
-    ];
-    
-    // P1 - Important error handling and validation (but be selective)
-    const p1Keywords = [
-      'rate limit', '429', 'too many',
-      '500', '503', 'service unavailable', 'database connection'
-    ];
-    
-    return scenarios.filter(scenario => {
-      const lowerScenario = scenario.toLowerCase();
-      
-      // Check if scenario contains P0 keywords (security/auth)
-      const hasP0Keyword = p0Keywords.some(keyword => lowerScenario.includes(keyword));
-      if (hasP0Keyword) return true;
-      
-      // Check if scenario contains P1 keywords (critical errors only)
-      const hasP1Keyword = p1Keywords.some(keyword => lowerScenario.includes(keyword));
-      return hasP1Keyword;
-    });
+    // Scenarios are already filtered for P0/P1 in EnhancedCoverageAnalyzer
+    // No need for additional filtering - just return them all
+    return scenarios || [];
   }
 
   /**

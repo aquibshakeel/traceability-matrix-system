@@ -1,5 +1,5 @@
 # AI-Generated Test Scenarios
-# Generated: 2025-12-18T11:36:27.074Z
+# Generated: 2025-12-18T13:03:08.026Z
 # (✅ = in baseline, 🆕 = new suggestion, 🔧 = modified, ⚠️ = verify)
 # DO NOT EDIT - regenerated automatically
 # Copy relevant 🆕 scenarios to baseline/identity-service-baseline.yml
@@ -34,31 +34,29 @@ POST /identity/register:
     - When email exceeds maximum length, return 400 or 422  🆕
     - When username contains invalid characters, return 400 or 422  🆕
     - When password is too short, return 400 or 422  🆕
-    - When Content-Type header is missing or incorrect, return 400 or 415  🆕
-    - When server encounters database error, return 500  🆕
-    - When required field values are empty strings, return 400  🆕
+    - When Content-Type header is missing or incorrect, return 415  🆕
+    - When server encounters internal error during registration, return 500  🆕
 
   security:
-    - When email contains SQL injection payload, reject with 400 and sanitize input  🆕
-    - When username contains SQL injection payload, reject with 400 and sanitize input  🆕
-    - When password contains SQL injection payload, sanitize and hash securely  🆕
-    - When email contains XSS script tags, reject with 400 and sanitize input  🆕
-    - When username contains XSS script tags, reject with 400 and sanitize input  🆕
-    - When request includes script injection in any field, reject with 400  🆕
+    - When email contains SQL injection payload, reject with 400  🆕
+    - When username contains SQL injection payload, reject with 400  🆕
+    - When password contains SQL injection payload, sanitize and accept or reject with 400  🆕
+    - When email contains XSS script tags, reject with 400  🆕
+    - When username contains XSS script tags, reject with 400  🆕
+    - When request contains script injection in any field, reject with 400  🆕
     - When attempting registration without CSRF token (if required), return 403  🆕
-    - When password is sent, ensure it is hashed and not stored in plain text  🆕
-    - When registering with extremely long input to cause buffer overflow, return 400  🆕
+    - When password is sent in plain text over non-HTTPS, ensure secure transmission  🆕
+    - When attempting to register with admin/privileged role in payload, reject with 403  🆕
+    - When request contains path traversal characters in fields, reject with 400  🆕
     - When attempting mass registration (rate limiting), return 429  🆕
-    - When request contains malicious file upload in unexpected field, return 400  🆕
-    - When using automated bot patterns, implement CAPTCHA or return 403  🆕
 
 # POST /identity/login
 POST /identity/login:
   happy_case:
-    - When user logs in with valid username and password, return 200 with auth token  🆕
-    - When user logs in with valid email and password, return 200 with auth token  🆕
-    - When user logs in with correct credentials, return user profile data  🆕
-    - When user logs in successfully, return refresh token along with access token  🆕
+    - When user logs in with valid username and password, return 200 with auth token  ✅
+    - When user logs in with valid email and password, return 200 with auth token  ✅
+    - When user logs in with correct credentials, return user profile data  ✅
+    - When user logs in successfully, return refresh token along with access token  ✅
 
   edge_case:
     - When username contains special characters, validate and process login  🆕
@@ -67,20 +65,20 @@ POST /identity/login:
     - When username has leading/trailing whitespace, trim and process  🆕
     - When request body is empty, return 400 with appropriate error  🆕
     - When username field is null, return 400 with validation error  🆕
-    - When password field is null, return 400 with validation error  🆕
+    - When password field is null, return 400 with validation error  ✅
     - When username contains unicode characters, validate and process  🆕
     - When multiple concurrent login requests for same user, handle gracefully  🆕
 
   error_case:
-    - When username does not exist, return 401 unauthorized  🆕
-    - When password is incorrect, return 401 unauthorized  🆕
+    - When username does not exist, return 401 unauthorized  ✅
+    - When password is incorrect, return 401 unauthorized  ✅
     - When required username field is missing, return 400 bad request  🆕
-    - When required password field is missing, return 400 bad request  🆕
-    - When user account is locked/disabled, return 403 forbidden  🆕
-    - When user account is not verified, return 403 forbidden  🆕
+    - When required password field is missing, return 400 bad request  ✅
+    - When user account is locked/disabled, return 403 forbidden  ✅
+    - When user account is not verified, return 403 forbidden  ✅
     - When invalid JSON format in request body, return 400 bad request  🆕
-    - When content-type header is missing or incorrect, return 400 bad request  🆕
-    - When too many failed login attempts, return 429 rate limit exceeded  🆕
+    - When content-type header is missing or incorrect, return 400 bad request  ✅
+    - When too many failed login attempts, return 429 rate limit exceeded  ✅
     - When database connection fails, return 500 internal server error  🆕
     - When authentication service is unavailable, return 503 service unavailable  🆕
 
@@ -91,7 +89,7 @@ POST /identity/login:
     - When password contains XSS payload, sanitize and reject with 400  🆕
     - When attempting login without CSRF token, reject with 403  🆕
     - When using expired or invalid session token, return 401  🆕
-    - When attempting brute force with multiple failed attempts, lock account and return 429  🆕
+    - When attempting brute force with multiple failed attempts, lock account and return 429  ✅
     - When credentials are sent over non-HTTPS connection, reject request  🆕
     - When attempting authentication bypass with manipulated headers, return 401  🆕
     - When using default or common passwords, enforce password policy and reject  🆕
@@ -99,46 +97,46 @@ POST /identity/login:
 # POST /identity/verify-otp
 POST /identity/verify-otp:
   happy_case:
-    - When valid OTP and identifier provided, return 200 and verify successfully  🆕
-    - When correct OTP submitted within expiry time, return success with auth token  🆕
+    - When valid OTP and identifier provided, return 200 and verify successfully  ✅
+    - When correct OTP submitted within expiry time, return success with auth token  ✅
     - When valid 6-digit OTP matches sent code, return 200 with verified status  🆕
     - When OTP verified for registered user, return 200 with user session  🆕
 
   edge_case:
-    - When OTP is empty string, return 400 validation error  🆕
-    - When OTP is null, return 400 bad request  🆕
+    - When OTP is empty string, return 400 validation error  ✅
+    - When OTP is null, return 400 bad request  ✅
     - When OTP has leading/trailing spaces, trim and validate  🆕
-    - When OTP is exactly at expiry timestamp, return 400 expired  🆕
-    - When identifier is missing, return 400 required field error  🆕
+    - When OTP is exactly at expiry timestamp, handle boundary condition  🆕
+    - When identifier is empty, return 400 missing parameter  🆕
     - When OTP contains special characters, return 400 invalid format  🆕
-    - When OTP is alphabetic instead of numeric, return 400 invalid format  🆕
+    - When OTP is alphanumeric instead of numeric, return 400  ✅
     - When request body is empty object, return 400 missing required fields  🆕
-    - When OTP length is less than required digits, return 400 invalid length  🆕
-    - When OTP length exceeds maximum digits, return 400 invalid length  🆕
+    - When OTP length exceeds maximum (e.g., 10 digits), return 400  🆕
+    - When identifier is very long string (1000+ chars), return 400  🆕
 
   error_case:
-    - When OTP is incorrect, return 400 invalid OTP error  🆕
-    - When OTP has expired, return 400 OTP expired error  🆕
-    - When OTP already used, return 400 OTP already verified error  🆕
+    - When OTP is incorrect, return 400 invalid OTP  ✅
+    - When OTP has expired, return 400 or 422 OTP expired  ✅
+    - When OTP already used, return 400 or 409 OTP already verified  ✅
     - When identifier not found, return 404 user not found  🆕
-    - When maximum retry attempts exceeded, return 429 too many requests  🆕
-    - When no OTP was sent to identifier, return 404 OTP not found  🆕
-    - When authentication token missing, return 401 unauthorized  🆕
-    - When authentication token invalid, return 401 invalid token  🆕
-    - When user account is locked, return 403 account locked  🆕
-    - When request body malformed JSON, return 400 bad request  🆕
-    - When database connection fails, return 500 internal server error  🆕
-    - When OTP service unavailable, return 503 service unavailable  🆕
+    - When missing authentication token, return 401 unauthorized  ✅
+    - When rate limit exceeded for OTP attempts, return 429 too many requests  🆕
+    - When maximum retry attempts exceeded, return 403 account locked  🆕
+    - When required field 'otp' missing, return 400 validation error  🆕
+    - When required field 'identifier' missing, return 400 bad request  🆕
+    - When invalid JSON format in body, return 400 malformed request  🆕
+    - When server error during verification, return 500 internal error  🆕
+    - When database connection fails, return 500 service unavailable  🆕
 
   security:
     - When OTP contains SQL injection payload, sanitize and return 400  🆕
-    - When identifier contains SQL injection, reject with 400  🆕
+    - When identifier contains SQL injection (e.g., ' OR '1'='1), reject with 400  🆕
     - When OTP contains XSS script tags, sanitize and return 400  🆕
-    - When brute force multiple wrong OTPs, lock account after threshold  🆕
-    - When request from different IP than OTP generation, flag suspicious activity  🆕
-    - When concurrent verification requests for same OTP, allow only first  🆕
-    - When attempting to verify without rate limiting, enforce rate limits  🆕
-    - When replaying previously valid OTP, return 400 already used  🆕
-    - When CSRF token missing or invalid, return 403 forbidden  🆕
-    - When request lacks proper content-type header, return 415 unsupported media type  🆕
+    - When identifier contains XSS payload, sanitize and reject  🆕
+    - When brute force attack with multiple wrong OTPs, implement rate limiting  🆕
+    - When attempting to verify OTP without proper session, return 401  ✅
+    - When trying to reuse already verified OTP, return 400 or 409  🆕
+    - When OTP verification attempted from different IP/device, validate or challenge  🆕
+    - When request contains malicious headers, sanitize and process safely  🆕
+    - When attempting timing attack to guess OTP, use constant-time comparison  🆕
 

@@ -234,7 +234,13 @@ export class EnhancedCoverageAnalyzer {
     
     // Load AI cases for completeness check (stored locally in framework)
     const aiCasesPath = this.pathResolver.resolveAICasesPath(service.name);
+    console.log(`🔍 DEBUG: Checking AI cases at: ${aiCasesPath}`);
+    console.log(`🔍 DEBUG: File exists: ${fs.existsSync(aiCasesPath)}`);
     const aiCases = fs.existsSync(aiCasesPath) ? this.loadYAML(aiCasesPath) : null;
+    console.log(`🔍 DEBUG: aiCases is null: ${aiCases === null}`);
+    if (aiCases) {
+      console.log(`🔍 DEBUG: AI case keys: ${Object.keys(aiCases).join(', ')}`);
+    }
     
     // Get unit tests
     const parser = this.testParser.getParser(service.language as any, service.testFramework as any);
@@ -285,6 +291,11 @@ export class EnhancedCoverageAnalyzer {
       
       console.log(`\n${actualAPI}:`);
       const aiSuggestions = aiCases && aiCases[actualAPI] ? aiCases[actualAPI] : null;
+      if (aiCases) {
+        console.log(`  🔍 DEBUG: Looking for AI suggestions with key: "${actualAPI}"`);
+        console.log(`  🔍 DEBUG: Available AI keys: ${Object.keys(aiCases).filter(k => k !== 'service').join(', ')}`);
+        console.log(`  🔍 DEBUG: AI suggestions found: ${aiSuggestions ? 'YES' : 'NO'}`);
+      }
       const analysis = await this.analyzeAPI(actualAPI, categories as any, unitTests, aiSuggestions);
       apiAnalyses.push(analysis);
       gaps.push(...analysis.gaps);
@@ -475,10 +486,14 @@ export class EnhancedCoverageAnalyzer {
     const completenessGaps: GapAnalysis[] = [];
     let hasUntestedSuggestions = false;
     let missingScenarios: string[] = [];
+    let untestedP0P1Scenarios: string[] = []; // CRITICAL: Only untested P0/P1 for display
     
     if (aiSuggestions) {
+      console.log(`  🔍 Checking AI suggestions for completeness...`);
       const aiScenarios = this.flattenScenarios(aiSuggestions);
+      console.log(`     Found ${aiScenarios.length} AI scenarios total`);
       missingScenarios = this.findMissingScenarios(scenarios, aiScenarios);
+      console.log(`     Found ${missingScenarios.length} scenarios with 🆕 marker (not in baseline)`);
       
       if (missingScenarios.length > 0) {
         console.log(`  ⚠️  API Completeness: ${missingScenarios.length} additional scenarios suggested by API spec`);
@@ -486,6 +501,7 @@ export class EnhancedCoverageAnalyzer {
         // For each missing scenario, check if unit test exists
         for (const missingScenario of missingScenarios) {
           const hasUnitTest = this.checkIfUnitTestExists(missingScenario, unitTests);
+          const priority = this.inferPriority(missingScenario);
           
           if (hasUnitTest) {
             console.log(`     - Unit test exists for: "${missingScenario.substring(0, 60)}..."`);
@@ -504,10 +520,16 @@ export class EnhancedCoverageAnalyzer {
           } else {
             hasUntestedSuggestions = true;
             console.log(`     - No unit test for: "${missingScenario.substring(0, 60)}..."`);
+            
+            // CRITICAL: Only track P0/P1 untested scenarios for report display
+            if (priority === 'P0' || priority === 'P1') {
+              untestedP0P1Scenarios.push(missingScenario);
+            }
+            
             completenessGaps.push({
               api,
               scenario: missingScenario,
-              priority: this.inferPriority(missingScenario),
+              priority,
               reason: 'API spec suggests scenario, but NO baseline AND NO unit test',
               recommendations: [
                 `QA Action: Review API spec and add scenario if relevant`,
@@ -666,12 +688,18 @@ Respond in JSON format:
       }
 
       // Generate AI analysis for ALL endpoints (including 100% covered)
+      // CRITICAL: Filter to ONLY P0/P1 scenarios for report display
+      const p0P1Scenarios = missingScenarios.filter(scenario => {
+        const priority = this.inferPriority(scenario);
+        return priority === 'P0' || priority === 'P1';
+      });
+      
       const aiAnalysis = this.generateAIAnalysis(
         coveredCount, 
         scenarios.length, 
         uncoveredCount, 
         partialCount,
-        missingScenarios,  // Pass the full array, not just length
+        p0P1Scenarios,  // CRITICAL: Only P0/P1 🆕 scenarios for report
         hasUntestedSuggestions
       );
 
@@ -892,13 +920,13 @@ Respond in JSON:
       message = `❌ Critical gaps! Only ${coveragePercent.toFixed(1)}% covered. Immediate action needed for ${uncoveredCount} scenarios.`;
     }
     
-    return {
-      coverageStatus,
-      message,
-      missingScenarios: hasMissingScenarios ? missingCount : undefined,
-      suggestedScenarios: hasMissingScenarios ? missingScenarios : undefined
-    };
-  }
+  return {
+    coverageStatus,
+    message,
+    missingScenarios: missingCount > 0 ? missingCount : undefined,
+    suggestedScenarios: missingCount > 0 ? missingScenarios : undefined
+  };
+}
 
   private parseAIResponse(content: string): any {
     try {
@@ -1048,22 +1076,16 @@ Respond in JSON:
 
   /**
    * Find scenarios in AI suggestions that are missing from baseline
-   * Uses semantic similarity to avoid false positives
+   * Uses 🆕 marker to identify new suggestions (not in baseline)
    */
   private findMissingScenarios(baselineScenarios: string[], aiScenarios: string[]): string[] {
     const missing: string[] = [];
     
     for (const aiScenario of aiScenarios) {
-      // Remove markers (✅ or 🆕) from AI scenario
-      const cleanAiScenario = aiScenario.replace(/\s*(✅|🆕)\s*$/, '').trim();
-      
-      // Check if this AI scenario is already in baseline
-      const existsInBaseline = baselineScenarios.some(baselineScenario => {
-        const cleanBaseline = baselineScenario.replace(/\s*(✅|🆕)\s*$/, '').trim();
-        return this.similar(cleanAiScenario, cleanBaseline);
-      });
-      
-      if (!existsInBaseline) {
+      // CRITICAL: Check for 🆕 marker - this indicates scenario is NOT in baseline
+      if (aiScenario.includes('🆕')) {
+        // Remove marker and return clean scenario
+        const cleanAiScenario = aiScenario.replace(/\s*(✅|🆕|🔧|⚠️)\s*$/, '').trim();
         missing.push(cleanAiScenario);
       }
     }
