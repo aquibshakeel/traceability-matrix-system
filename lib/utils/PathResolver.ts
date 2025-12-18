@@ -31,18 +31,30 @@ export interface ValidationResult {
 export class PathResolver {
   private projectRoot: string;
   private config: any;
+  private cliOverrides: { servicePath?: string; baselinePath?: string };
 
-  constructor(projectRoot: string, config: any) {
+  constructor(projectRoot: string, config: any, cliOverrides?: { servicePath?: string; baselinePath?: string }) {
     this.projectRoot = projectRoot;
     this.config = config;
+    this.cliOverrides = cliOverrides || {};
   }
 
   /**
-   * Resolve service path with four-tier fallback
-   * Priority: Per-Service ENV > Shared ENV > Config > Default
+   * Resolve service path with five-tier fallback
+   * Priority: CLI Override > Per-Service ENV > Shared ENV > Config > Default
    */
   resolveServicePath(serviceName: string): PathResolutionResult['servicePath'] {
-    // Tier 0: Per-service environment variable (highest priority)
+    // Tier -1: CLI override (ABSOLUTE HIGHEST PRIORITY)
+    if (this.cliOverrides.servicePath) {
+      const cliPath = this.cliOverrides.servicePath;
+      if (fs.existsSync(cliPath)) {
+        return cliPath;
+      }
+      // If CLI path provided but doesn't exist, still try it (let downstream handle the error)
+      return cliPath;
+    }
+
+    // Tier 0: Per-service environment variable (highest priority after CLI)
     // e.g., IDENTITY_SERVICE_PATH for identity-service
     const perServiceEnvKey = `${serviceName.toUpperCase().replace(/-/g, '_')}_PATH`;
     const perServicePath = process.env[perServiceEnvKey];
@@ -104,13 +116,23 @@ export class PathResolver {
   }
 
   /**
-   * Resolve baseline scenario path with four-tier fallback
-   * Priority: Per-Service ENV > Shared ENV > Config > Default
+   * Resolve baseline scenario path with five-tier fallback
+   * Priority: CLI Override > Per-Service ENV > Shared ENV > Config > Default
    */
   resolveBaselinePath(serviceName: string): PathResolutionResult['baselinePath'] {
     const baselineFileName = `${serviceName}-baseline.yml`;
 
-    // Tier 0: Per-service baseline environment variable (highest priority)
+    // Tier -1: CLI override (ABSOLUTE HIGHEST PRIORITY)
+    if (this.cliOverrides.baselinePath) {
+      const cliPath = this.cliOverrides.baselinePath;
+      if (fs.existsSync(cliPath)) {
+        return cliPath;
+      }
+      // If CLI path provided but doesn't exist, still try it (let downstream handle the error)
+      return cliPath;
+    }
+
+    // Tier 0: Per-service baseline environment variable (highest priority after CLI)
     // e.g., IDENTITY_SERVICE_BASELINE for identity-service
     const perServiceBaselineKey = `${serviceName.toUpperCase().replace(/-/g, '_')}_BASELINE`;
     const perServiceBaseline = process.env[perServiceBaselineKey];

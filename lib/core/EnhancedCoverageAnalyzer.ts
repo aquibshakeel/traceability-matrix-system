@@ -151,12 +151,14 @@ export class EnhancedCoverageAnalyzer {
   private baselineValidator: BaselineValidator;
   private historyManager: HistoryManager;
   private fileTimestamps = new Map<string, number>();
+  private cliOverrides: { servicePath?: string; baselinePath?: string };
 
-  constructor(apiKey: string, projectRoot: string, config?: any) {
+  constructor(apiKey: string, projectRoot: string, config?: any, cliOverrides?: { servicePath?: string; baselinePath?: string }) {
     this.apiKey = apiKey;
     this.projectRoot = projectRoot;
     this.config = config || {};
-    this.pathResolver = new PathResolver(projectRoot, this.config);
+    this.cliOverrides = cliOverrides || {};
+    this.pathResolver = new PathResolver(projectRoot, this.config, this.cliOverrides);
     this.testParser = new TestParserFactory();
     this.apiScanner = new APIScanner();
     this.baselineValidator = new BaselineValidator();

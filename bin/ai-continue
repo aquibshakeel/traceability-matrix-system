@@ -12,6 +12,29 @@ const { GitChangeDetector } = require('../lib/core/GitChangeDetector');
 const { ReportGenerator } = require('../lib/core/ReportGenerator');
 const { HistoryManager } = require('../lib/core/HistoryManager');
 
+function parseCommandLineArgs() {
+  const args = {
+    serviceName: null,
+    servicePath: null,
+    baselinePath: null
+  };
+
+  for (let i = 2; i < process.argv.length; i++) {
+    const arg = process.argv[i];
+    
+    if (arg.startsWith('--service-path=')) {
+      args.servicePath = arg.split('=')[1];
+    } else if (arg.startsWith('--baseline-path=')) {
+      args.baselinePath = arg.split('=')[1];
+    } else if (!arg.startsWith('--')) {
+      // First non-flag argument is the service name
+      args.serviceName = arg;
+    }
+  }
+
+  return args;
+}
+
 async function main() {
   console.log(`
 ╔══════════════════════════════════════════════════════════════════════╗
@@ -37,16 +60,36 @@ async function main() {
 
   const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
   
-  // Initialize PathResolver for logging
+  // Parse command-line arguments
+  const cliArgs = parseCommandLineArgs();
+  
+  // Prepare CLI overrides for PathResolver
+  const cliOverrides = {
+    servicePath: cliArgs.servicePath,
+    baselinePath: cliArgs.baselinePath
+  };
+  
+  // Initialize PathResolver with CLI overrides
   const { PathResolver } = require('../lib/utils/PathResolver');
-  const pathResolver = new PathResolver(projectRoot, config);
+  const pathResolver = new PathResolver(projectRoot, config, cliOverrides);
   
   // Log path configuration
   console.log('\n📁 Path Configuration:');
   const pathSummary = pathResolver.getPathConfigSummary();
   pathSummary.forEach(line => console.log(`   ${line}`));
   
-  const analyzer = new EnhancedCoverageAnalyzer(apiKey, projectRoot, config);
+  // Log CLI overrides if provided
+  if (cliArgs.servicePath || cliArgs.baselinePath) {
+    console.log('\n🎯 CLI Overrides (Highest Priority):');
+    if (cliArgs.servicePath) {
+      console.log(`   Service Path: ${cliArgs.servicePath} (--service-path)`);
+    }
+    if (cliArgs.baselinePath) {
+      console.log(`   Baseline Path: ${cliArgs.baselinePath} (--baseline-path)`);
+    }
+  }
+  
+  const analyzer = new EnhancedCoverageAnalyzer(apiKey, projectRoot, config, cliOverrides);
   const gitDetector = new GitChangeDetector(projectRoot);
   const reportGenerator = new ReportGenerator(projectRoot);
   const historyManager = new HistoryManager(projectRoot);
@@ -55,7 +98,7 @@ async function main() {
   const commitInfo = historyManager.getCommitInfo();
   
   // Check if specific service was provided as argument
-  const targetServiceName = process.argv[2];
+  const targetServiceName = cliArgs.serviceName;
   
   // Detect Git changes (only used when no specific service specified)
   const servicePaths = config.services.filter(s => s.enabled).map(s => s.path);
