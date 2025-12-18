@@ -77,6 +77,42 @@ export class EnvConfig {
   }
 
   /**
+   * Get service path override from environment (absolute path to service repository)
+   * ENV: SERVICE_PATH=/absolute/path/to/service-repo
+   * This allows analyzing services from external repositories
+   */
+  static getServicePath(): string | undefined {
+    return process.env.SERVICE_PATH;
+  }
+
+  /**
+   * Get test scenario path override from environment (absolute path to baseline scenarios)
+   * ENV: TEST_SCENARIO_PATH=/absolute/path/to/test-scenarios
+   * This allows using QA scenarios from external repositories
+   */
+  static getTestScenarioPath(): string | undefined {
+    return process.env.TEST_SCENARIO_PATH;
+  }
+
+  /**
+   * Get services root directory from environment
+   * ENV: SERVICES_ROOT=/path/to/services
+   * Alternative to SERVICE_PATH for multi-service setups
+   */
+  static getServicesRoot(): string | undefined {
+    return process.env.SERVICES_ROOT;
+  }
+
+  /**
+   * Get test cases root directory from environment
+   * ENV: TEST_CASES_ROOT=/path/to/test-cases
+   * Alternative to TEST_SCENARIO_PATH for complete test-cases directory
+   */
+  static getTestCasesRoot(): string | undefined {
+    return process.env.TEST_CASES_ROOT;
+  }
+
+  /**
    * Get all AI-related environment overrides
    * Returns object with only defined overrides
    */

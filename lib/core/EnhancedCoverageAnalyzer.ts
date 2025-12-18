@@ -13,6 +13,7 @@ import { APIScanner } from './APIScanner';
 import { BaselineValidator } from '../validation/BaselineSchema';
 import { HistoryTracker } from './HistoryTracker';
 import { HistoryManager } from './HistoryManager';
+import { PathResolver } from '../utils/PathResolver';
 
 export interface APIScenario {
   api: string;
@@ -144,18 +145,22 @@ export class EnhancedCoverageAnalyzer {
   private apiKey: string;
   private testParser: TestParserFactory;
   private projectRoot: string;
+  private config: any;
+  private pathResolver: PathResolver;
   private apiScanner: APIScanner;
   private baselineValidator: BaselineValidator;
   private historyManager: HistoryManager;
   private fileTimestamps = new Map<string, number>();
 
-  constructor(apiKey: string, projectRoot: string) {
+  constructor(apiKey: string, projectRoot: string, config?: any) {
     this.apiKey = apiKey;
+    this.projectRoot = projectRoot;
+    this.config = config || {};
+    this.pathResolver = new PathResolver(projectRoot, this.config);
     this.testParser = new TestParserFactory();
     this.apiScanner = new APIScanner();
     this.baselineValidator = new BaselineValidator();
     this.historyManager = new HistoryManager(projectRoot);
-    this.projectRoot = projectRoot;
   }
   
   /**
@@ -206,11 +211,16 @@ export class EnhancedCoverageAnalyzer {
     console.log(`\n📊 Analyzing: ${service.name}`);
     console.log('='.repeat(70));
 
+    // Resolve service path using PathResolver if not already set
+    if (!service.path) {
+      service.path = this.pathResolver.resolveServicePath(service.name);
+    }
+
     // Scan APIs from actual code
     const discoveredAPIs = await this.apiScanner.scanAPIs(service);
     
-    // Load baseline
-    const baselinePath = path.join(this.projectRoot, '.traceability/test-cases/baseline', `${service.name}-baseline.yml`);
+    // Load baseline using PathResolver (supports ENV, config, or default paths)
+    const baselinePath = this.pathResolver.resolveBaselinePath(service.name);
     if (!fs.existsSync(baselinePath)) {
       throw new Error(`Baseline not found: ${baselinePath}`);
     }
@@ -220,8 +230,8 @@ export class EnhancedCoverageAnalyzer {
     // Extract API mapping if present (new format with unique keys)
     const apiMapping = baseline.api_mapping || {};
     
-    // Load AI cases for completeness check
-    const aiCasesPath = path.join(this.projectRoot, '.traceability/test-cases/ai_cases', `${service.name}-ai.yml`);
+    // Load AI cases for completeness check (stored locally in framework)
+    const aiCasesPath = this.pathResolver.resolveAICasesPath(service.name);
     const aiCases = fs.existsSync(aiCasesPath) ? this.loadYAML(aiCasesPath) : null;
     
     // Get unit tests
@@ -366,7 +376,7 @@ export class EnhancedCoverageAnalyzer {
     let journeyAnalysis = null;
     try {
       const { JourneyCoverageAnalyzer } = await import('./JourneyCoverageAnalyzer');
-      const journeyAnalyzer = new JourneyCoverageAnalyzer(this.projectRoot);
+      const journeyAnalyzer = new JourneyCoverageAnalyzer(this.projectRoot, this.pathResolver);
       
       journeyAnalysis = await journeyAnalyzer.analyzeServiceJourneys(
         service.name,

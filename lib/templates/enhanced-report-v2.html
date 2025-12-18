@@ -69,16 +69,20 @@
 
         .container { max-width: 1400px; margin: 0 auto; }
 
-        /* Executive Header */
+        /* Executive Header - One Line Compact */
         .header {
             background: var(--accent-gradient);
             color: white;
-            padding: 30px;
-            border-radius: var(--radius-xl);
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-xl);
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
         }
 
         .header::before {
@@ -97,38 +101,56 @@
             50% { transform: translate(-10%, -10%); }
         }
 
-        .header h1 { 
-            font-size: 2.2em; 
-            margin-bottom: 10px; 
-            font-weight: 800;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
             position: relative;
             z-index: 1;
+            flex: 1;
+        }
+
+        .header h1 { 
+            font-size: 1.2em; 
+            margin: 0;
+            font-weight: 700;
+            white-space: nowrap;
         }
         
         .header .subtitle { 
             opacity: 0.95; 
-            font-size: 0.95em; 
-            margin: 5px 0;
-            position: relative;
-            z-index: 1;
+            font-size: 0.8em; 
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.8em;
+            opacity: 0.95;
+        }
+
+        .header-divider {
+            color: rgba(255,255,255,0.4);
         }
         
         .header-controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
         }
 
         .theme-toggle, .export-btn {
             background: rgba(255,255,255,0.2);
             border: 1px solid rgba(255,255,255,0.3);
             color: white;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
             transition: all 0.2s;
         }
 
@@ -138,10 +160,11 @@
 
         .status-badge {
             display: inline-block;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            margin-top: 15px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.75em;
+            white-space: nowrap;
         }
         .status-success { background: var(--success); color: white; }
         .status-failure { background: var(--danger); color: white; }
@@ -475,7 +498,14 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            .header h1 { font-size: 1.8em; }
+            .header { 
+                padding: 10px 15px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .header h1 { font-size: 1em; }
+            .header-info { font-size: 0.7em; gap: 8px; }
+            .header-controls { gap: 5px; }
             .stats-grid { grid-template-columns: 1fr; }
             .charts-grid { grid-template-columns: 1fr; }
         }
@@ -536,24 +566,28 @@
 <body>
     <div class="container">
         <div class="header">
+            <div class="header-left">
+                <h1>🎯 Unit-Test Traceability Report</h1>
+                <span class="header-divider">|</span>
+                <div class="subtitle" style="font-weight: 600;">
+                    <span style="color: #fbbf24;">{{SERVICE_NAME}}</span>
+                </div>
+                <span class="header-divider">|</span>
+                <div class="header-info">
+                    <span><span id="timestamp">{{TIMESTAMP}}</span></span>
+                    <span class="header-divider">•</span>
+                    <span><span id="duration">{{DURATION}}</span>ms</span>
+                </div>
+                <span class="status-badge status-{{STATUS_CLASS}}" id="status">{{STATUS_TEXT}}</span>
+            </div>
             <div class="header-controls">
                 <button class="theme-toggle" onclick="toggleTheme()">
-                    <span id="theme-icon">🌙</span> Toggle Theme
+                    <span id="theme-icon">🌙</span>
                 </button>
                 <button class="export-btn" onclick="exportReport()">
-                    📥 Export PDF
+                    📥 PDF
                 </button>
             </div>
-            <h1>🎯 Unit-Test Traceability Report</h1>
-            <div class="subtitle" style="font-size: 1.3em; font-weight: 600; margin-bottom: 8px;">
-                Service: <span style="color: #fbbf24;">{{SERVICE_NAME}}</span>
-            </div>
-            <div class="subtitle">Generated on <span id="timestamp">{{TIMESTAMP}}</span></div>
-            <div class="subtitle">Duration: <span id="duration">{{DURATION}}</span>ms</div>
-            <div class="subtitle">Mode: Full Suite Analysis</div>
-            <span class="status-badge status-{{STATUS_CLASS}}" id="status">
-                {{STATUS_TEXT}}
-            </span>
         </div>
 
         <!-- Total Scenarios Card - MOVED TO TOP -->
@@ -753,8 +787,8 @@
             </div>
         </div>
 
-        <!-- Visual Analytics Card - NOW COLLAPSED BY DEFAULT -->
-        <div class="expandable-card">
+        <!-- Visual Analytics Card - HIDDEN (code kept for future use) -->
+        <div class="expandable-card" style="display: none;">
             <div class="card-header" onclick="toggleCard('analytics-card')">
                 <div class="card-header-left">
                     <span class="card-icon">📈</span>

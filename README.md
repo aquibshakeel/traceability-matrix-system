@@ -30,6 +30,22 @@ npm install
 npm run build
 ```
 
+### External Repository Setup (Recommended)
+
+For production use, store services and test scenarios in separate repositories:
+
+```bash
+# Set environment variables
+export SERVICE_PATH=/path/to/services-repo
+export TEST_SCENARIO_PATH=/path/to/test-scenarios-repo/baseline
+
+# Or per-service paths for granular control
+export IDENTITY_SERVICE_PATH=/path/to/services/identity-service
+export IDENTITY_SERVICE_BASELINE=/path/to/scenarios/identity-baseline.yml
+```
+
+**See [QUICKSTART_EXTERNAL_REPOS.md](QUICKSTART_EXTERNAL_REPOS.md) for detailed setup guide.**
+
 ### Setup AI Provider
 
 **Option 1: Environment Variables (Recommended)**
@@ -485,9 +501,18 @@ npm run generate
 
 ### v6.3.0 (December 18, 2025) - **CURRENT RELEASE**
 
-**🤖 Multi-Provider AI Support**
+**🏢 External Repository Architecture + Multi-Provider AI Support**
 
-Revolutionary AI provider abstraction layer:
+Complete production-ready architecture with enterprise features:
+
+**External Repository Support:**
+- **Complete Decoupling** - Framework reads from external repos
+- **PathResolver** - 4-tier fallback system (Per-Service ENV → Shared ENV → Config → Default)
+- **Per-Service Paths** - Granular control per microservice
+- **Journey Integration** - E2E journeys supported in external repos
+- **Production Ready** - Services/QA scenarios in separate repos
+
+**Multi-Provider AI Support:**
 
 1. **True Multi-Provider Architecture**
    - Switch between AI providers via config file

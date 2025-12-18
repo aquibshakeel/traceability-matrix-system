@@ -36,7 +36,17 @@ async function main() {
   }
 
   const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-  const analyzer = new EnhancedCoverageAnalyzer(apiKey, projectRoot);
+  
+  // Initialize PathResolver for logging
+  const { PathResolver } = require('../lib/utils/PathResolver');
+  const pathResolver = new PathResolver(projectRoot, config);
+  
+  // Log path configuration
+  console.log('\n📁 Path Configuration:');
+  const pathSummary = pathResolver.getPathConfigSummary();
+  pathSummary.forEach(line => console.log(`   ${line}`));
+  
+  const analyzer = new EnhancedCoverageAnalyzer(apiKey, projectRoot, config);
   const gitDetector = new GitChangeDetector(projectRoot);
   const reportGenerator = new ReportGenerator(projectRoot);
   const historyManager = new HistoryManager(projectRoot);
@@ -44,22 +54,38 @@ async function main() {
   // Get current commit info for history tracking
   const commitInfo = historyManager.getCommitInfo();
   
-  // Detect Git changes
+  // Check if specific service was provided as argument
+  const targetServiceName = process.argv[2];
+  
+  // Detect Git changes (only used when no specific service specified)
   const servicePaths = config.services.filter(s => s.enabled).map(s => s.path);
   const gitChanges = await gitDetector.detectChanges(servicePaths);
 
-  // Filter services to only those with changes
+  // Filter services to analyze
   let servicesToAnalyze = config.services.filter(s => s.enabled);
   
-  if (gitChanges.affectedServices.length > 0) {
-    console.log(`\n📌 Only analyzing changed services: ${gitChanges.affectedServices.join(', ')}`);
-    servicesToAnalyze = servicesToAnalyze.filter(s => 
-      gitChanges.affectedServices.includes(s.name)
-    );
+  if (targetServiceName) {
+    // MANUAL EXECUTION: Specific service requested → ALWAYS analyze (ignore Git)
+    console.log(`\n📌 Manual execution - analyzing: ${targetServiceName}`);
+    servicesToAnalyze = servicesToAnalyze.filter(s => s.name === targetServiceName);
+    
+    if (servicesToAnalyze.length === 0) {
+      console.error(`\n❌ ERROR: Service '${targetServiceName}' not found or not enabled`);
+      console.error(`\nAvailable services: ${config.services.map(s => s.name).join(', ')}`);
+      process.exit(1);
+    }
   } else {
-    console.log(`\n📌 No service code changes detected - skipping analysis`);
-    console.log('✅ No services to process');
-    return;
+    // PRE-COMMIT MODE: No service specified → Use Git detection
+    if (gitChanges.affectedServices.length > 0) {
+      console.log(`\n📌 Pre-commit mode - analyzing changed services: ${gitChanges.affectedServices.join(', ')}`);
+      servicesToAnalyze = servicesToAnalyze.filter(s => 
+        gitChanges.affectedServices.includes(s.name)
+      );
+    } else {
+      console.log(`\n📌 Pre-commit mode - no service code changes detected`);
+      console.log('✅ No services to process');
+      return;
+    }
   }
 
   if (servicesToAnalyze.length === 0) {

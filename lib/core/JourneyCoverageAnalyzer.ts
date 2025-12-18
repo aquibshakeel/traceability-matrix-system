@@ -17,15 +17,18 @@ import {
 } from '../types';
 import { E2EJourneyParser } from './E2EJourneyParser';
 import { E2ETestScanner } from './E2ETestScanner';
+import { PathResolver } from '../utils/PathResolver';
 
 export class JourneyCoverageAnalyzer {
   private projectRoot: string;
   private journeyParser: E2EJourneyParser;
   private testScanner: E2ETestScanner;
+  private pathResolver: PathResolver;
 
-  constructor(projectRoot: string) {
+  constructor(projectRoot: string, pathResolver: PathResolver) {
     this.projectRoot = projectRoot;
-    this.journeyParser = new E2EJourneyParser(projectRoot);
+    this.pathResolver = pathResolver;
+    this.journeyParser = new E2EJourneyParser(projectRoot, pathResolver);
     this.testScanner = new E2ETestScanner(projectRoot);
   }
 

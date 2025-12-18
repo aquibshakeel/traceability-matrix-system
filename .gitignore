@@ -47,5 +47,9 @@ allure-report/
 .traceability/reports/
 .traceability/config.json
 
+# Local copies (use external repos instead)
+services/
+.traceability/test-cases/baseline/
+
 # Docker volumes
 mongodb_data/

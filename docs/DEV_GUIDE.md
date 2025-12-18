@@ -41,6 +41,334 @@
 
 ---
 
+## 🏢 External Repository Architecture (Production Setup)
+
+### Overview
+
+**New in v6.3.0:** The system now supports **complete decoupling** from the framework, allowing services and test scenarios to live in separate repositories. This enables true enterprise architecture where:
+
+- **Framework** (this repo) - Analysis engine and reporting
+- **Services Repo** - Microservices source code
+- **QA Scenarios Repo** - Baseline scenarios and journey files
+
+### Benefits
+
+✅ **Separation of Concerns** - Framework, services, and test data are independent  
+✅ **Team Autonomy** - QA, Dev, and Framework teams work independently  
+✅ **Scalability** - Services can grow without affecting framework  
+✅ **Security** - Sensitive service code isolated from framework  
+✅ **Flexibility** - Per-service or shared path configuration  
+
+### Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Framework Repository (traceability-matrix-system)          │
+│  • Reads from external repos via ENV variables              │
+│  • Writes reports/ai_cases locally                          │
+│  • PathResolver handles all path resolution                 │
+└────────────────┬────────────────────────────────────────────┘
+                 │ reads from
+┌────────────────▼────────────────────────────────────────────┐
+│  Services Repository (pulse-services)                       │
+│  /Users/aquibshakeel/Desktop/pulse-services/                │
+│  ├── identity-service/                                      │
+│  │   └── src/main/java/.../IdentityController.java         │
+│  ├── customer-service/                                      │
+│  │   └── src/main/java/.../CustomerController.java         │
+│  └── ...                                                    │
+└─────────────────────────────────────────────────────────────┘
+                 │ reads from
+┌────────────────▼────────────────────────────────────────────┐
+│  QA Test Scenarios Repository (qa-test-scenario)            │
+│  /Users/aquibshakeel/Desktop/qa-test-scenario/              │
+│  ├── baseline/                                              │
+│  │   ├── identity-service-baseline.yml                      │
+│  │   └── customer-service-baseline.yml                      │
+│  └── journeys/                                              │
+│      ├── identity-service-journeys.yml                      │
+│      └── customer-service-journeys.yml                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### PathResolver: 4-Tier Fallback System
+
+**Implementation:** `lib/utils/PathResolver.ts`
+
+The PathResolver provides intelligent path resolution with 4 priority tiers:
+
+**Priority Order (Highest to Lowest):**
+1. **Per-Service ENV** - `IDENTITY_SERVICE_PATH`, `IDENTITY_SERVICE_BASELINE`, `IDENTITY_SERVICE_JOURNEY`
+2. **Shared ENV** - `SERVICE_PATH`, `TEST_SCENARIO_PATH`
+3. **Config File** - `.traceability/config.json` service paths
+4. **Default Paths** - Local framework directories (backward compatible)
+
+### Configuration Examples
+
+**Option 1: Per-Service ENV (Highest Priority)**
+
+Perfect for granular control:
+
+```bash
+# .env file
+IDENTITY_SERVICE_PATH=/Users/aquibshakeel/Desktop/pulse-services/identity-service
+IDENTITY_SERVICE_BASELINE=/Users/aquibshakeel/Desktop/qa-test-scenario/baseline/identity-service-baseline.yml
+IDENTITY_SERVICE_JOURNEY=/Users/aquibshakeel/Desktop/qa-test-scenario/journeys/identity-service-journeys.yml
+
+CUSTOMER_SERVICE_PATH=/Users/aquibshakeel/Desktop/pulse-services/customer-service
+CUSTOMER_SERVICE_BASELINE=/Users/aquibshakeel/Desktop/qa-test-scenario/baseline/customer-service-baseline.yml
+```
+
+**Option 2: Shared ENV (Recommended for Most Cases)**
+
+Simpler setup:
+
+```bash
+# .env file
+SERVICE_PATH=/Users/aquibshakeel/Desktop/pulse-services
+TEST_SCENARIO_PATH=/Users/aquibshakeel/Desktop/qa-test-scenario/baseline
+
+# PathResolver automatically resolves:
+# identity-service → $SERVICE_PATH/identity-service
+# baseline → $TEST_SCENARIO_PATH/identity-service-baseline.yml
+# journey → $TEST_SCENARIO_PATH/../journeys/identity-service-journeys.yml
+```
+
+**Option 3: Config File Override**
+
+```json
+// .traceability/config.json
+{
+  "services": [
+    {
+      "name": "identity-service",
+      "path": "/custom/path/identity-service",
+      "baselinePath": "/custom/baseline.yml"
+    }
+  ]
+}
+```
+
+**Option 4: Default Paths (Backward Compatible)**
+
+If no ENV or config set:
+
+```
+services/identity-service/
+.traceability/test-cases/baseline/identity-service-baseline.yml
+.traceability/test-cases/journeys/identity-service-journeys.yml
+```
+
+### Path Resolution Methods
+
+**1. Service Path Resolution**
+
+```typescript
+resolveServicePath(serviceName: string): string
+```
+
+Priority:
+1. `IDENTITY_SERVICE_PATH` env var
+2. `SERVICE_PATH/identity-service`
+3. Config file path
+4. `./services/identity-service` (default)
+
+**2. Baseline Path Resolution**
+
+```typescript
+resolveBaselinePath(serviceName: string): string
+```
+
+Priority:
+1. `IDENTITY_SERVICE_BASELINE` env var
+2. `TEST_SCENARIO_PATH/identity-service-baseline.yml`
+3. Config file baselinePath
+4. `.traceability/test-cases/baseline/identity-service-baseline.yml` (default)
+
+**3. Journey Path Resolution** (**NEW in v6.3.0**)
+
+```typescript
+resolveJourneyPath(serviceName: string): string | null
+```
+
+Priority:
+1. `IDENTITY_SERVICE_JOURNEY` env var
+2. `TEST_SCENARIO_PATH/../journeys/identity-service-journeys.yml`
+3. Config file journeyPath
+4. `.traceability/test-cases/journeys/identity-service-journeys.yml` (default)
+
+Returns `null` if file doesn't exist (journeys are optional).
+
+**4. AI Cases Path (Always Local)**
+
+```typescript
+resolveAICasesPath(serviceName: string): string
+```
+
+Always local: `.traceability/test-cases/ai_cases/identity-service-ai.yml`
+AI suggestions are framework-managed, not shared.
+
+### Setting Up External Repos
+
+**Step 1: Create Directory Structure**
+
+```bash
+# Services repository
+mkdir -p ~/Desktop/pulse-services/identity-service
+mkdir -p ~/Desktop/pulse-services/customer-service
+
+# QA scenarios repository
+mkdir -p ~/Desktop/qa-test-scenario/baseline
+mkdir -p ~/Desktop/qa-test-scenario/journeys
+```
+
+**Step 2: Configure ENV Variables**
+
+```bash
+# Add to .env file
+cat >> .env << 'EOF'
+# External Repository Configuration
+SERVICE_PATH=/Users/aquibshakeel/Desktop/pulse-services
+TEST_SCENARIO_PATH=/Users/aquibshakeel/Desktop/qa-test-scenario/baseline
+
+# AI Configuration
+CLAUDE_API_KEY=sk-ant-...
+EOF
+```
+
+**Step 3: Verify Setup**
+
+```bash
+# Load environment
+export $(cat .env | grep -v '^#' | xargs)
+
+# Verify paths
+echo $SERVICE_PATH
+echo $TEST_SCENARIO_PATH
+
+# Check directories exist
+ls -la $SERVICE_PATH
+ls -la $TEST_SCENARIO_PATH
+```
+
+**Step 4: Run Analysis**
+
+```bash
+# Analyze service from external repo
+export $(cat .env | grep -v '^#' | xargs) && node bin/ai-continue identity-service
+```
+
+### Console Output
+
+When configured correctly:
+
+```
+📁 Path Configuration:
+   Services: /Users/aquibshakeel/Desktop/pulse-services (ENV: SERVICE_PATH)
+   Scenarios: /Users/aquibshakeel/Desktop/qa-test-scenario/baseline (ENV: TEST_SCENARIO_PATH)
+   Reports: ./.traceability/reports/ (always local)
+
+📊 Analyzing: identity-service
+  📡 Scanning 1 controller file(s) for APIs...
+  ✓ Discovered 3 API endpoint(s)
+✓ Baseline: 11 scenarios
+✓ Unit tests: 14 found
+```
+
+### Integration with Existing Components
+
+**Updated Components for External Repo Support:**
+
+1. **E2EJourneyParser** - Now uses PathResolver for journey files
+2. **JourneyCoverageAnalyzer** - Passes PathResolver to parser
+3. **EnhancedCoverageAnalyzer** - Uses PathResolver for all path resolution
+4. **ServiceManager** - Resolves service paths before analysis
+5. **AITestCaseGenerator** - Uses PathResolver for baseline comparison
+
+**Example Integration:**
+
+```typescript
+// lib/core/E2EJourneyParser.ts
+export class E2EJourneyParser {
+  private pathResolver: PathResolver;
+
+  constructor(projectRoot: string, pathResolver: PathResolver) {
+    this.projectRoot = projectRoot;
+    this.pathResolver = pathResolver;
+  }
+
+  async parseJourneyFile(serviceName: string): Promise<BusinessJourney[]> {
+    // Uses PathResolver instead of hardcoded path
+    const journeyFilePath = this.pathResolver.resolveJourneyPath(serviceName);
+    
+    if (!journeyFilePath || !fs.existsSync(journeyFilePath)) {
+      console.log(`  ℹ️  No journey file found for ${serviceName}`);
+      return [];
+    }
+    
+    // Parse journey file...
+  }
+}
+```
+
+### Best Practices
+
+**For Development:**
+- Use shared ENV variables (`SERVICE_PATH`, `TEST_SCENARIO_PATH`)
+- Keep services and scenarios in separate directories
+- Use relative paths when possible
+
+**For Production:**
+- Use per-service ENV for fine-grained control
+- Store sensitive service code in secure repos
+- Keep QA scenarios in version-controlled repo
+- CI/CD can set ENV variables dynamically
+
+**For Testing:**
+- Default paths work without configuration
+- Framework remains self-contained for demos
+- Can mix external and local services
+
+### Troubleshooting
+
+**Issue: "Service path not found"**
+
+```bash
+# Check ENV variables
+echo $IDENTITY_SERVICE_PATH
+echo $SERVICE_PATH
+
+# Verify directory exists
+ls -la $SERVICE_PATH/identity-service
+```
+
+**Issue: "Baseline not found"**
+
+```bash
+# Check ENV variables
+echo $IDENTITY_SERVICE_BASELINE
+echo $TEST_SCENARIO_PATH
+
+# Verify file exists
+cat $TEST_SCENARIO_PATH/identity-service-baseline.yml
+```
+
+**Issue: "Journey file not loaded"**
+
+```bash
+# Journeys are optional - this is expected if file doesn't exist
+ls -la ~/Desktop/qa-test-scenario/journeys/
+
+# Create journey file if needed
+mkdir -p ~/Desktop/qa-test-scenario/journeys
+cat > ~/Desktop/qa-test-scenario/journeys/identity-service-journeys.yml << 'EOF'
+service: identity-service
+business_journeys: []
+EOF
+```
+
+---
+
 ## 🆕 AI Provider System (Multi-Provider Support)
 
 ### Overview

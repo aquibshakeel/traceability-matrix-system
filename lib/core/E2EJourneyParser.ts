@@ -7,22 +7,25 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { BusinessJourney, JourneyBaselineFile } from '../types';
+import { PathResolver } from '../utils/PathResolver';
 
 export class E2EJourneyParser {
   private projectRoot: string;
+  private pathResolver: PathResolver;
 
-  constructor(projectRoot: string) {
+  constructor(projectRoot: string, pathResolver: PathResolver) {
     this.projectRoot = projectRoot;
+    this.pathResolver = pathResolver;
   }
 
   /**
    * Parse journey file for a specific service
    */
   async parseJourneyFile(serviceName: string): Promise<BusinessJourney[]> {
-    const journeyFilePath = this.getJourneyFilePath(serviceName);
+    const journeyFilePath = this.pathResolver.resolveJourneyPath(serviceName);
     
-    if (!fs.existsSync(journeyFilePath)) {
-      console.log(`  ℹ️  No journey file found for ${serviceName}: ${journeyFilePath}`);
+    if (!journeyFilePath || !fs.existsSync(journeyFilePath)) {
+      console.log(`  ℹ️  No journey file found for ${serviceName}`);
       return [];
     }
 
@@ -49,24 +52,11 @@ export class E2EJourneyParser {
   }
 
   /**
-   * Get the expected path for a service's journey file
-   */
-  private getJourneyFilePath(serviceName: string): string {
-    return path.join(
-      this.projectRoot,
-      '.traceability',
-      'test-cases',
-      'journeys',
-      `${serviceName}-journeys.yml`
-    );
-  }
-
-  /**
    * Check if journey file exists for a service
    */
   hasJourneyFile(serviceName: string): boolean {
-    const journeyFilePath = this.getJourneyFilePath(serviceName);
-    return fs.existsSync(journeyFilePath);
+    const journeyFilePath = this.pathResolver.resolveJourneyPath(serviceName);
+    return journeyFilePath !== null && fs.existsSync(journeyFilePath);
   }
 
   /**
