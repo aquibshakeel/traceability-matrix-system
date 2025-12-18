@@ -192,7 +192,7 @@ export class PathResolver {
     const aiCasesFileName = `${serviceName}-ai.yml`;
     
     // AI cases are ALWAYS stored locally in the framework
-    const aiCasesDir = this.config.paths?.aiCasesDirectory || '.traceability/ai_cases';
+    const aiCasesDir = this.config.paths?.aiCasesDirectory || '.traceability/test-cases/ai_cases';
     const localPath = path.join(this.projectRoot, aiCasesDir, aiCasesFileName);
     
     return localPath; // Return path even if file doesn't exist yet (will be created)
