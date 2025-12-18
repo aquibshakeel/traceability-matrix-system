@@ -2,8 +2,8 @@
 ## Intelligent Test Coverage & Gap Analysis Framework
 
 **Demo Presentation**  
-Version 6.2.0  
-December 13, 2025  
+Version 6.3.0  
+December 18, 2025  
 QA & Development Team
 
 ---
@@ -35,6 +35,7 @@ An **intelligent, AI-powered framework** that creates bidirectional mapping betw
 ✅ **Orphan Detection**: Categorizes tests (Business vs Technical)  
 ✅ **Pre-Commit Validation**: Blocks commits with P0 gaps  
 ✅ **Multi-Format Reports**: HTML, JSON, CSV, Markdown  
+✅ **External Repo Architecture**: Services and scenarios in separate repos 🆕 v6.3.0  
 ✅ **Business Journeys (E2E)**: Track complete user workflows 🆕 v6.2.0  
 ✅ **Historical Trends**: 30-day coverage tracking with charts 🆕 v6.2.0
 
