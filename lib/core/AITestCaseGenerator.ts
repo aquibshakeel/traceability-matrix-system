@@ -35,7 +35,7 @@ export class AITestCaseGenerator {
   private serviceManager: ServiceManager;
   private projectRoot: string;
 
-  constructor(apiKey: string, projectRoot: string) {
+  constructor(apiKey: string, projectRoot: string, config?: any, cliOverrides?: any) {
     this.apiKey = apiKey;
     this.projectRoot = projectRoot;
     
