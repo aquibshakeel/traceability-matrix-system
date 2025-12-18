@@ -1,10 +1,17 @@
 # QA Guide - AI-Driven Test Coverage System
 
-**Version:** 6.2.0
-**Last Updated:** December 13, 2025
+**Version:** 6.3.0
+**Last Updated:** December 18, 2025
 **Audience:** QA Engineers, Test Managers, Business Analysts
 
-## 🚀 New in v6.2.0 - Business Journeys & Historical Tracking
+## 🚀 New in v6.3.0 - External Repository Architecture
+- **External Repo Support** - Baseline and journey files in separate repository
+- **Team Autonomy** - QA team owns test scenario repo independently
+- **Per-Service Paths** - Granular control over scenario locations
+- **Production Ready** - True enterprise separation of concerns
+- All v6.2.0 features (Business Journeys, Historical Tracking, Trend Charts)
+
+## 🎉 New in v6.2.0 - Business Journeys & Historical Tracking
 - **Business Journeys (E2E)** - Track complete user workflows across multiple API steps
 - **Historical Trend Analysis** - Coverage tracking over time with 30-day charts
 - **Journey Status** - FULLY_COVERED / PARTIAL_COVERAGE / AT_RISK / NOT_COVERED
