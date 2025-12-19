@@ -944,10 +944,8 @@ Respond in JSON:
   private inferPriority(scenario: string): Priority {
     const lower = scenario.toLowerCase();
     
-    // P0: Critical security, authentication, and authorization
+    // P0: Critical security threats
     if (
-      lower.includes('critical') || 
-      lower.includes('security') || 
       lower.includes('sql injection') ||
       lower.includes('xss') ||
       lower.includes('csrf') ||
@@ -957,45 +955,52 @@ Respond in JSON:
       lower.includes('ssl') ||
       lower.includes('tls') ||
       lower.includes('manipulated headers') ||
-      lower.includes('session') && lower.includes('hijack') ||
-      lower.includes('token') && (lower.includes('expired') || lower.includes('invalid'))
+      lower.includes('session') && lower.includes('hijack')
     ) {
       return 'P0';
     }
     
-    // P1: Critical errors, infrastructure failures, and attack prevention
+    // P1: API validation, infrastructure failures, and attack prevention
     if (
+      // Required field validation (critical for APIs)
+      lower.includes('empty') && (lower.includes('body') || lower.includes('request') || lower.includes('field')) ||
+      lower.includes('null') && lower.includes('field') ||
+      lower.includes('missing') && (lower.includes('field') || lower.includes('required') || lower.includes('parameter')) ||
+      lower.includes('invalid') && (lower.includes('json') || lower.includes('format')) ||
+      lower.includes('required field') ||
+      lower.includes('bad request') && lower.includes('400') ||
+      // Infrastructure failures
       lower.includes('database') && (lower.includes('connection') || lower.includes('fail')) ||
       lower.includes('service unavailable') ||
       lower.includes('500') ||
       lower.includes('503') ||
+      // Attack prevention
       lower.includes('rate limit') ||
       lower.includes('429') ||
       lower.includes('brute force') ||
       lower.includes('brute forcing') ||
       lower.includes('replay attack') ||
       lower.includes('replaying') ||
+      lower.includes('timing attack') ||
+      lower.includes('account locked') ||
+      lower.includes('maximum retry') ||
+      // Password & authentication policies
       lower.includes('password policy') ||
       lower.includes('common password') ||
       lower.includes('default password') ||
-      lower.includes('timing attack') ||
-      lower.includes('account locked') ||
-      lower.includes('maximum retry')
+      lower.includes('token') && (lower.includes('expired') || lower.includes('invalid'))
     ) {
       return 'P1';
     }
     
-    // P2: Edge cases, boundary testing, and basic validation
+    // P2: Edge cases and boundary testing
     if (
       lower.includes('edge') || 
       lower.includes('boundary') ||
-      lower.includes('empty') ||
-      lower.includes('null') ||
-      lower.includes('missing') && lower.includes('field') ||
-      lower.includes('invalid') && lower.includes('format') ||
       lower.includes('special characters') ||
       lower.includes('length exceeds') ||
-      lower.includes('maximum') && lower.includes('length')
+      lower.includes('maximum') && lower.includes('length') ||
+      lower.includes('minimum') && lower.includes('length')
     ) {
       return 'P2';
     }
