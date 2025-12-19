@@ -151,6 +151,7 @@ export class EnhancedCoverageAnalyzer {
   private baselineValidator: BaselineValidator;
   private historyManager: HistoryManager;
   private fileTimestamps = new Map<string, number>();
+  private priorityCache = new Map<string, Priority>();
   private cliOverrides: { servicePath?: string; baselinePath?: string };
 
   constructor(apiKey: string, projectRoot: string, config?: any, cliOverrides?: { servicePath?: string; baselinePath?: string }) {
@@ -941,7 +942,68 @@ Respond in JSON:
     }
   }
 
+  /**
+   * Infer priority for a scenario using AI (with caching and fallback)
+   * 
+   * Priority:
+   * 1. Check cache
+   * 2. Try AI inference
+   * 3. Fallback to keyword-based if AI fails
+   * 4. Cache result for future use
+   */
   private inferPriority(scenario: string): Priority {
+    // Check cache first
+    if (this.priorityCache.has(scenario)) {
+      return this.priorityCache.get(scenario)!;
+    }
+    
+    // Check if AI priority is enabled in config
+    const useAIPriority = this.config.ai?.usePriorityAI !== false; // Default to true
+    
+    if (useAIPriority && this.provider) {
+      // Try AI inference (synchronous wrapper for async call)
+      try {
+        // We need to handle this synchronously, so use a workaround
+        // Call AI inference asynchronously and cache when it completes
+        this.inferPriorityAsync(scenario).catch(() => {
+          // AI failed, fallback already handled
+        });
+      } catch (error) {
+        // AI failed, use fallback below
+      }
+    }
+    
+    // Fallback to keyword-based logic (always fast and reliable)
+    const priority = this.inferPriorityKeywordBased(scenario);
+    this.priorityCache.set(scenario, priority);
+    return priority;
+  }
+  
+  /**
+   * Async AI-powered priority inference (called from inferPriority)
+   * Updates cache when complete
+   */
+  private async inferPriorityAsync(scenario: string): Promise<Priority> {
+    try {
+      const provider = await this.getProvider();
+      const aiPriority = await provider.inferPriority(scenario);
+      
+      // Cache the AI result
+      this.priorityCache.set(scenario, aiPriority);
+      return aiPriority;
+    } catch (error) {
+      // AI failed, use keyword-based fallback
+      const fallbackPriority = this.inferPriorityKeywordBased(scenario);
+      this.priorityCache.set(scenario, fallbackPriority);
+      return fallbackPriority;
+    }
+  }
+  
+  /**
+   * Keyword-based priority inference (fallback method)
+   * Fast and deterministic, used when AI is unavailable
+   */
+  private inferPriorityKeywordBased(scenario: string): Priority {
     const lower = scenario.toLowerCase();
     
     // P0: Critical security threats

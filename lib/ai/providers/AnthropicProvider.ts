@@ -126,6 +126,49 @@ export class AnthropicProvider implements AIProvider {
   }
 
   /**
+   * Infer priority for a test scenario using AI
+   */
+  async inferPriority(scenario: string): Promise<'P0' | 'P1' | 'P2' | 'P3'> {
+    const prompt = `Classify this test scenario's priority for API testing:
+
+Scenario: "${scenario}"
+
+Priority Definitions:
+- P0: Security threats (SQL injection, XSS, CSRF, auth bypass, session hijacking, transport security like HTTPS/TLS/SSL)
+- P1: Critical API validation (empty/null/missing required fields, invalid formats, bad request 400), infrastructure failures (database connection, service unavailable 500/503), attack prevention (rate limiting, brute force, replay attacks, account locking, password policies)
+- P2: Edge cases (boundary testing, special characters, maximum/minimum length), validation rules
+- P3: Nice-to-have features, everything else
+
+Analyze the scenario and respond with ONLY the priority level: P0, P1, P2, or P3
+
+No explanation needed, just the priority.`;
+
+    try {
+      const response = await this.client.messages.create({
+        model: this._modelId,
+        max_tokens: 10,
+        temperature: 0.0,
+        messages: [{ role: 'user', content: prompt }]
+      });
+
+      const content = response.content[0].type === 'text' ? response.content[0].text : '';
+      const priority = content.trim().toUpperCase();
+      
+      // Validate response
+      if (priority === 'P0' || priority === 'P1' || priority === 'P2' || priority === 'P3') {
+        return priority as 'P0' | 'P1' | 'P2' | 'P3';
+      }
+      
+      // Fallback to P3 if invalid response
+      console.warn(`Invalid priority response: ${content}, defaulting to P3`);
+      return 'P3';
+    } catch (error) {
+      console.error(`Anthropic API error in inferPriority: ${error}`);
+      throw error; // Let caller handle fallback
+    }
+  }
+
+  /**
    * Check if provider is available
    */
   async isAvailable(): Promise<boolean> {

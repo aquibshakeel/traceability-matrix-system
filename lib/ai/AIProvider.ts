@@ -60,6 +60,13 @@ export interface AIProvider {
   categorizeOrphans(tests: UnitTest[]): Promise<TestCategories>;
 
   /**
+   * Infer priority for a test scenario using AI
+   * @param scenario Test scenario text
+   * @returns Priority level (P0, P1, P2, or P3)
+   */
+  inferPriority(scenario: string): Promise<'P0' | 'P1' | 'P2' | 'P3'>;
+
+  /**
    * Check if the provider is available and properly configured
    * @returns true if provider can be used
    */
