@@ -958,7 +958,12 @@ Respond in JSON:
       lower.includes('unauthorized') ||
       lower.includes('forbidden') ||
       lower.includes('authentication') ||
-      lower.includes('authorization')
+      lower.includes('authorization') ||
+      lower.includes('https') ||
+      lower.includes('http') ||
+      lower.includes('ssl') ||
+      lower.includes('tls') ||
+      lower.includes('non-https')
     ) {
       return 'P0';
     }
@@ -975,7 +980,14 @@ Respond in JSON:
       lower.includes('rate limit') ||
       lower.includes('429') ||
       lower.includes('brute force') ||
-      lower.includes('replay attack')
+      lower.includes('replay attack') ||
+      lower.includes('password policy') ||
+      lower.includes('common password') ||
+      lower.includes('default password') ||
+      lower.includes('retry') ||
+      lower.includes('locked') ||
+      lower.includes('400') ||
+      lower.includes('validation')
     ) {
       return 'P1';
     }
