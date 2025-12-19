@@ -948,52 +948,55 @@ Respond in JSON:
     if (
       lower.includes('critical') || 
       lower.includes('security') || 
-      lower.includes('auth') ||
       lower.includes('sql injection') ||
       lower.includes('xss') ||
       lower.includes('csrf') ||
-      lower.includes('session') ||
-      lower.includes('token') ||
       lower.includes('bypass') ||
-      lower.includes('unauthorized') ||
-      lower.includes('forbidden') ||
-      lower.includes('authentication') ||
-      lower.includes('authorization') ||
       lower.includes('https') ||
-      lower.includes('http') ||
+      lower.includes('non-https') ||
       lower.includes('ssl') ||
       lower.includes('tls') ||
-      lower.includes('non-https')
+      lower.includes('manipulated headers') ||
+      lower.includes('session') && lower.includes('hijack') ||
+      lower.includes('token') && (lower.includes('expired') || lower.includes('invalid'))
     ) {
       return 'P0';
     }
     
-    // P1: Error handling, validation, and infrastructure failures
+    // P1: Critical errors, infrastructure failures, and attack prevention
     if (
-      lower.includes('error') || 
-      lower.includes('invalid') || 
-      lower.includes('fail') ||
-      lower.includes('database') ||
+      lower.includes('database') && (lower.includes('connection') || lower.includes('fail')) ||
       lower.includes('service unavailable') ||
       lower.includes('500') ||
       lower.includes('503') ||
       lower.includes('rate limit') ||
       lower.includes('429') ||
       lower.includes('brute force') ||
+      lower.includes('brute forcing') ||
       lower.includes('replay attack') ||
+      lower.includes('replaying') ||
       lower.includes('password policy') ||
       lower.includes('common password') ||
       lower.includes('default password') ||
-      lower.includes('retry') ||
-      lower.includes('locked') ||
-      lower.includes('400') ||
-      lower.includes('validation')
+      lower.includes('timing attack') ||
+      lower.includes('account locked') ||
+      lower.includes('maximum retry')
     ) {
       return 'P1';
     }
     
-    // P2: Edge cases and boundary testing
-    if (lower.includes('edge') || lower.includes('boundary')) {
+    // P2: Edge cases, boundary testing, and basic validation
+    if (
+      lower.includes('edge') || 
+      lower.includes('boundary') ||
+      lower.includes('empty') ||
+      lower.includes('null') ||
+      lower.includes('missing') && lower.includes('field') ||
+      lower.includes('invalid') && lower.includes('format') ||
+      lower.includes('special characters') ||
+      lower.includes('length exceeds') ||
+      lower.includes('maximum') && lower.includes('length')
+    ) {
       return 'P2';
     }
     
