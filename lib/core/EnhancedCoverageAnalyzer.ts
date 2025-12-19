@@ -943,15 +943,48 @@ Respond in JSON:
 
   private inferPriority(scenario: string): Priority {
     const lower = scenario.toLowerCase();
-    if (lower.includes('critical') || lower.includes('security') || lower.includes('auth')) {
+    
+    // P0: Critical security, authentication, and authorization
+    if (
+      lower.includes('critical') || 
+      lower.includes('security') || 
+      lower.includes('auth') ||
+      lower.includes('sql injection') ||
+      lower.includes('xss') ||
+      lower.includes('csrf') ||
+      lower.includes('session') ||
+      lower.includes('token') ||
+      lower.includes('bypass') ||
+      lower.includes('unauthorized') ||
+      lower.includes('forbidden') ||
+      lower.includes('authentication') ||
+      lower.includes('authorization')
+    ) {
       return 'P0';
     }
-    if (lower.includes('error') || lower.includes('invalid') || lower.includes('fail')) {
+    
+    // P1: Error handling, validation, and infrastructure failures
+    if (
+      lower.includes('error') || 
+      lower.includes('invalid') || 
+      lower.includes('fail') ||
+      lower.includes('database') ||
+      lower.includes('service unavailable') ||
+      lower.includes('500') ||
+      lower.includes('503') ||
+      lower.includes('rate limit') ||
+      lower.includes('429') ||
+      lower.includes('brute force') ||
+      lower.includes('replay attack')
+    ) {
       return 'P1';
     }
+    
+    // P2: Edge cases and boundary testing
     if (lower.includes('edge') || lower.includes('boundary')) {
       return 'P2';
     }
+    
     return 'P3';
   }
 
