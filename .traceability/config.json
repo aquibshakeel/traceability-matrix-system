@@ -21,7 +21,7 @@
   "ai": {
     "provider": "anthropic",
     "model": "auto",
-    "temperature": 0.3,
+    "temperature": 0.0,
     "maxTokens": 2000,
     "batchSize": 3,
     "fallbackProviders": ["anthropic"]
