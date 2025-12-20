@@ -3,8 +3,21 @@
 
 **Demo Presentation**  
 Version 6.3.0  
-December 18, 2025  
+December 20, 2025  
 QA & Development Team
+
+---
+
+## 📚 Quick Navigation
+
+**New to the system?** Check out these comprehensive guides:
+- **[📖 Getting Started Guide](GETTING_STARTED.md)** - 15-minute tutorial for beginners
+- **[⚙️ Configuration Guide](CONFIGURATION.md)** - Complete configuration reference
+- **[📊 Reports Guide](REPORTS_GUIDE.md)** - Understanding all report sections
+- **[❓ Troubleshooting](TROUBLESHOOTING.md)** - Common issues & solutions
+- **[🧪 QA Guide](QA_GUIDE.md)** - For QA team members
+- **[👨‍💻 Developer Guide](DEV_GUIDE.md)** - For developers
+- **[🏗 Architecture Guide](ARCHITECTURE.md)** - System design details
 
 ---
 

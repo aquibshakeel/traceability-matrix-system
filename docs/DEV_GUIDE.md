@@ -1,2131 +1,851 @@
-# Developer Guide - AI-Driven Test Coverage System
+# 👨‍💻 Developer Guide
 
-**Version:** 6.3.0
-**Last Updated:** December 18, 2025
-**Audience:** Developers, DevOps Engineers, Tech Leads
-
-## 🚀 New in v6.3.0 - AI Provider Abstraction
-- **Multi-Provider Support** - Switch between Claude, OpenAI, Gemini, etc.
-- **No Vendor Lock-in** - Abstract interface for all AI providers
-- **Auto Model Detection** - Automatically selects best available model
-- **Future-Proof Architecture** - Ready for new AI models
-- All v6.2.0 features (Business Journeys, Historical Tracking)
-
-## 🎉 New in v6.2.0 - Business Journeys & Historical Tracking
-- **Business Journeys (E2E)** - Track complete user workflows across multiple API steps
-- **Historical Trend Analysis** - 30-day coverage tracking with visual charts
-- **Journey Status** - FULLY_COVERED / PARTIAL_COVERAGE / AT_RISK / NOT_COVERED
-- **Trend Charts** - Coverage progression with smart date formatting
-- All v6.1.0 features (colored badges, collapsible sections, animations)
+**Version:** 6.3.0  
+**Last Updated:** December 20, 2025  
+**Difficulty:** Advanced  
+**Prerequisites:** [Getting Started](GETTING_STARTED.md), [Architecture](ARCHITECTURE.md)
 
 ---
 
-## 📋 Table of Contents
+## 📖 Overview
 
-1. [What is This System?](#what-is-this-system)
-2. [Quick Setup](#quick-setup)
-3. [Demonstration Test Cases](#demonstration-test-cases) 🆕
-4. [How It Works (Claude AI)](#how-it-works-claude-ai)
-5. [Architecture Overview](#architecture-overview)
-6. [Running Locally](#running-locally)
-7. [Pre-Commit Hook](#pre-commit-hook)
-8. [Interpreting Reports](#interpreting-reports)
-9. [Advanced Features Deep Dive](#advanced-features-deep-dive)
-10. [Implementation Details](#implementation-details)
-11. [Writing Unit Tests](#writing-unit-tests)
-12. [Real-World Examples](#real-world-examples)
-13. [Best Practices](#best-practices)
-14. [Troubleshooting](#troubleshooting)
-15. [Quick Reference](#quick-reference)
-16. [Version History](#version-history)
+This guide is for developers who want to:
+- Contribute to the system
+- Extend functionality
+- Debug issues
+- Understand implementation details
+- Add new features
+
+**Note:** This guide assumes you've read:
+- [Getting Started](GETTING_STARTED.md) - Basic setup and usage
+- [Architecture](ARCHITECTURE.md) - System design and components
+- [Configuration](CONFIGURATION.md) - Configuration options
 
 ---
 
-## 🏢 External Repository Architecture (Production Setup)
-
-### Overview
-
-**New in v6.3.0:** The system now supports **complete decoupling** from the framework, allowing services and test scenarios to live in separate repositories. This enables true enterprise architecture where:
-
-- **Framework** (this repo) - Analysis engine and reporting
-- **Services Repo** - Microservices source code
-- **QA Scenarios Repo** - Baseline scenarios and journey files
-
-### Benefits
-
-✅ **Separation of Concerns** - Framework, services, and test data are independent  
-✅ **Team Autonomy** - QA, Dev, and Framework teams work independently  
-✅ **Scalability** - Services can grow without affecting framework  
-✅ **Security** - Sensitive service code isolated from framework  
-✅ **Flexibility** - Per-service or shared path configuration  
-
-### Architecture Diagram
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Framework Repository (traceability-matrix-system)          │
-│  • Reads from external repos via ENV variables              │
-│  • Writes reports/ai_cases locally                          │
-│  • PathResolver handles all path resolution                 │
-└────────────────┬────────────────────────────────────────────┘
-                 │ reads from
-┌────────────────▼────────────────────────────────────────────┐
-│  Services Repository (pulse-services)                       │
-│  /Users/aquibshakeel/Desktop/pulse-services/                │
-│  ├── identity-service/                                      │
-│  │   └── src/main/java/.../IdentityController.java         │
-│  ├── customer-service/                                      │
-│  │   └── src/main/java/.../CustomerController.java         │
-│  └── ...                                                    │
-└─────────────────────────────────────────────────────────────┘
-                 │ reads from
-┌────────────────▼────────────────────────────────────────────┐
-│  QA Test Scenarios Repository (qa-test-scenario)            │
-│  /Users/aquibshakeel/Desktop/qa-test-scenario/              │
-│  ├── baseline/                                              │
-│  │   ├── identity-service-baseline.yml                      │
-│  │   └── customer-service-baseline.yml                      │
-│  └── journeys/                                              │
-│      ├── identity-service-journeys.yml                      │
-│      └── customer-service-journeys.yml                      │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### PathResolver: 4-Tier Fallback System
-
-**Implementation:** `lib/utils/PathResolver.ts`
-
-The PathResolver provides intelligent path resolution with 4 priority tiers:
-
-**Priority Order (Highest to Lowest):**
-1. **Per-Service ENV** - `IDENTITY_SERVICE_PATH`, `IDENTITY_SERVICE_BASELINE`, `IDENTITY_SERVICE_JOURNEY`
-2. **Shared ENV** - `SERVICE_PATH`, `TEST_SCENARIO_PATH`
-3. **Config File** - `.traceability/config.json` service paths
-4. **Default Paths** - Local framework directories (backward compatible)
-
-### Configuration Examples
-
-**Option 1: Per-Service ENV (Highest Priority)**
-
-Perfect for granular control:
-
-```bash
-# .env file
-IDENTITY_SERVICE_PATH=/Users/aquibshakeel/Desktop/pulse-services/identity-service
-IDENTITY_SERVICE_BASELINE=/Users/aquibshakeel/Desktop/qa-test-scenario/baseline/identity-service-baseline.yml
-IDENTITY_SERVICE_JOURNEY=/Users/aquibshakeel/Desktop/qa-test-scenario/journeys/identity-service-journeys.yml
-
-CUSTOMER_SERVICE_PATH=/Users/aquibshakeel/Desktop/pulse-services/customer-service
-CUSTOMER_SERVICE_BASELINE=/Users/aquibshakeel/Desktop/qa-test-scenario/baseline/customer-service-baseline.yml
-```
-
-**Option 2: Shared ENV (Recommended for Most Cases)**
-
-Simpler setup:
-
-```bash
-# .env file
-SERVICE_PATH=/Users/aquibshakeel/Desktop/pulse-services
-TEST_SCENARIO_PATH=/Users/aquibshakeel/Desktop/qa-test-scenario/baseline
-
-# PathResolver automatically resolves:
-# identity-service → $SERVICE_PATH/identity-service
-# baseline → $TEST_SCENARIO_PATH/identity-service-baseline.yml
-# journey → $TEST_SCENARIO_PATH/../journeys/identity-service-journeys.yml
-```
-
-**Option 3: Config File Override**
-
-```json
-// .traceability/config.json
-{
-  "services": [
-    {
-      "name": "identity-service",
-      "path": "/custom/path/identity-service",
-      "baselinePath": "/custom/baseline.yml"
-    }
-  ]
-}
-```
-
-**Option 4: Default Paths (Backward Compatible)**
-
-If no ENV or config set:
-
-```
-services/identity-service/
-.traceability/test-cases/baseline/identity-service-baseline.yml
-.traceability/test-cases/journeys/identity-service-journeys.yml
-```
-
-### Path Resolution Methods
-
-**1. Service Path Resolution**
-
-```typescript
-resolveServicePath(serviceName: string): string
-```
-
-Priority:
-1. `IDENTITY_SERVICE_PATH` env var
-2. `SERVICE_PATH/identity-service`
-3. Config file path
-4. `./services/identity-service` (default)
-
-**2. Baseline Path Resolution**
-
-```typescript
-resolveBaselinePath(serviceName: string): string
-```
-
-Priority:
-1. `IDENTITY_SERVICE_BASELINE` env var
-2. `TEST_SCENARIO_PATH/identity-service-baseline.yml`
-3. Config file baselinePath
-4. `.traceability/test-cases/baseline/identity-service-baseline.yml` (default)
-
-**3. Journey Path Resolution** (**NEW in v6.3.0**)
-
-```typescript
-resolveJourneyPath(serviceName: string): string | null
-```
-
-Priority:
-1. `IDENTITY_SERVICE_JOURNEY` env var
-2. `TEST_SCENARIO_PATH/../journeys/identity-service-journeys.yml`
-3. Config file journeyPath
-4. `.traceability/test-cases/journeys/identity-service-journeys.yml` (default)
-
-Returns `null` if file doesn't exist (journeys are optional).
-
-**4. AI Cases Path (Always Local)**
-
-```typescript
-resolveAICasesPath(serviceName: string): string
-```
-
-Always local: `.traceability/test-cases/ai_cases/identity-service-ai.yml`
-AI suggestions are framework-managed, not shared.
-
-### Setting Up External Repos
-
-**Step 1: Create Directory Structure**
-
-```bash
-# Services repository
-mkdir -p ~/Desktop/pulse-services/identity-service
-mkdir -p ~/Desktop/pulse-services/customer-service
-
-# QA scenarios repository
-mkdir -p ~/Desktop/qa-test-scenario/baseline
-mkdir -p ~/Desktop/qa-test-scenario/journeys
-```
-
-**Step 2: Configure ENV Variables**
-
-```bash
-# Add to .env file
-cat >> .env << 'EOF'
-# External Repository Configuration
-SERVICE_PATH=/Users/aquibshakeel/Desktop/pulse-services
-TEST_SCENARIO_PATH=/Users/aquibshakeel/Desktop/qa-test-scenario/baseline
-
-# AI Configuration
-CLAUDE_API_KEY=sk-ant-...
-EOF
-```
-
-**Step 3: Verify Setup**
-
-```bash
-# Load environment
-export $(cat .env | grep -v '^#' | xargs)
-
-# Verify paths
-echo $SERVICE_PATH
-echo $TEST_SCENARIO_PATH
-
-# Check directories exist
-ls -la $SERVICE_PATH
-ls -la $TEST_SCENARIO_PATH
-```
-
-**Step 4: Run Analysis**
-
-```bash
-# Analyze service from external repo
-export $(cat .env | grep -v '^#' | xargs) && node bin/ai-continue identity-service
-```
-
-### Console Output
-
-When configured correctly:
-
-```
-📁 Path Configuration:
-   Services: /Users/aquibshakeel/Desktop/pulse-services (ENV: SERVICE_PATH)
-   Scenarios: /Users/aquibshakeel/Desktop/qa-test-scenario/baseline (ENV: TEST_SCENARIO_PATH)
-   Reports: ./.traceability/reports/ (always local)
-
-📊 Analyzing: identity-service
-  📡 Scanning 1 controller file(s) for APIs...
-  ✓ Discovered 3 API endpoint(s)
-✓ Baseline: 11 scenarios
-✓ Unit tests: 14 found
-```
-
-### Integration with Existing Components
-
-**Updated Components for External Repo Support:**
-
-1. **E2EJourneyParser** - Now uses PathResolver for journey files
-2. **JourneyCoverageAnalyzer** - Passes PathResolver to parser
-3. **EnhancedCoverageAnalyzer** - Uses PathResolver for all path resolution
-4. **ServiceManager** - Resolves service paths before analysis
-5. **AITestCaseGenerator** - Uses PathResolver for baseline comparison
-
-**Example Integration:**
-
-```typescript
-// lib/core/E2EJourneyParser.ts
-export class E2EJourneyParser {
-  private pathResolver: PathResolver;
-
-  constructor(projectRoot: string, pathResolver: PathResolver) {
-    this.projectRoot = projectRoot;
-    this.pathResolver = pathResolver;
-  }
-
-  async parseJourneyFile(serviceName: string): Promise<BusinessJourney[]> {
-    // Uses PathResolver instead of hardcoded path
-    const journeyFilePath = this.pathResolver.resolveJourneyPath(serviceName);
-    
-    if (!journeyFilePath || !fs.existsSync(journeyFilePath)) {
-      console.log(`  ℹ️  No journey file found for ${serviceName}`);
-      return [];
-    }
-    
-    // Parse journey file...
-  }
-}
-```
-
-### Best Practices
-
-**For Development:**
-- Use shared ENV variables (`SERVICE_PATH`, `TEST_SCENARIO_PATH`)
-- Keep services and scenarios in separate directories
-- Use relative paths when possible
-
-**For Production:**
-- Use per-service ENV for fine-grained control
-- Store sensitive service code in secure repos
-- Keep QA scenarios in version-controlled repo
-- CI/CD can set ENV variables dynamically
-
-**For Testing:**
-- Default paths work without configuration
-- Framework remains self-contained for demos
-- Can mix external and local services
-
-### Troubleshooting
-
-**Issue: "Service path not found"**
-
-```bash
-# Check ENV variables
-echo $IDENTITY_SERVICE_PATH
-echo $SERVICE_PATH
-
-# Verify directory exists
-ls -la $SERVICE_PATH/identity-service
-```
-
-**Issue: "Baseline not found"**
-
-```bash
-# Check ENV variables
-echo $IDENTITY_SERVICE_BASELINE
-echo $TEST_SCENARIO_PATH
-
-# Verify file exists
-cat $TEST_SCENARIO_PATH/identity-service-baseline.yml
-```
-
-**Issue: "Journey file not loaded"**
-
-```bash
-# Journeys are optional - this is expected if file doesn't exist
-ls -la ~/Desktop/qa-test-scenario/journeys/
-
-# Create journey file if needed
-mkdir -p ~/Desktop/qa-test-scenario/journeys
-cat > ~/Desktop/qa-test-scenario/journeys/identity-service-journeys.yml << 'EOF'
-service: identity-service
-business_journeys: []
-EOF
-```
-
----
-
-## 🆕 AI Provider System (Multi-Provider Support)
-
-### Overview
-
-**New in v6.3.0:** The system now uses an **AI provider abstraction layer** that supports multiple AI providers (Claude, OpenAI, Gemini, etc.) through a unified interface.
-
-### Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                   Application Layer                          │
-│  • AITestCaseGenerator                                       │
-│  • EnhancedCoverageAnalyzer                                  │
-│  • AIChangeImpactAnalyzer                                    │
-└────────────────────┬────────────────────────────────────────┘
-                     │ uses
-┌────────────────────▼────────────────────────────────────────┐
-│                AI Provider Abstraction (lib/ai/)             │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │  AIProviderFactory                                   │   │
-│  │  • Auto-detects provider from config                │   │
-│  │  • Creates appropriate provider instance            │   │
-│  └────────────────┬─────────────────────────────────────┘   │
-│                   │ creates                                  │
-│  ┌────────────────▼─────────────────────────────────────┐   │
-│  │  AIProvider Interface                                │   │
-│  │  • generateScenarios()                               │   │
-│  │  • analyzeCoverage()                                 │   │
-│  │  • categorizeOrphans()                               │   │
-│  └────────────────┬─────────────────────────────────────┘   │
-│                   │ implements                               │
-│  ┌────────────────▼─────────────────────────────────────┐   │
-│  │  Concrete Providers:                                 │   │
-│  │  • AnthropicProvider (Claude) ✅                     │   │
-│  │  • OpenAIProvider (GPT) - Future                     │   │
-│  │  • GeminiProvider (Gemini) - Future                  │   │
-│  └──────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Current Implementation
-
-**Active Provider:** Anthropic (Claude AI)
-- Claude Sonnet 4.5 (auto-detected)
-- Claude 3.7 Sonnet (fallback)
-- Claude 3.5 Sonnet (ultimate fallback)
-
-### Key Benefits
-
-✅ **No Vendor Lock-in** - Switch AI providers easily  
-✅ **Cost Optimization** - Use cheaper models for dev/testing  
-✅ **Provider Redundancy** - Fallback if primary unavailable  
-✅ **A/B Testing** - Compare provider performance  
-✅ **Future-Proof** - Ready for new AI models  
-
-### How It Works
-
-**1. Provider Auto-Detection:**
-```typescript
-// System automatically uses best available Claude model
-const provider = await AIProviderFactory.create(apiKey);
-// ✓ Using: claude-sonnet-4.5-20250929 (Claude Sonnet 4.5)
-```
-
-**2. Unified API Operations:**
-```typescript
-// All AI operations use the same interface
-const scenarios = await provider.generateScenarios(api);
-const coverage = await provider.analyzeCoverage(api, scenarios, tests);
-const categories = await provider.categorizeOrphans(orphanTests);
-```
-
-**3. Provider Switching (Future):**
-```json
-// config.json (future configuration)
-{
-  "ai": {
-    "provider": "anthropic",  // Change to "openai", "gemini", etc.
-    "model": "auto",          // Or specify: "gpt-4-turbo"
-    "apiKey": "${API_KEY}"
-  }
-}
-```
-
-### Adding New Providers (For Contributors)
-
-**Time Required:** 1-2 hours per provider
-
-**Steps:**
-1. Implement `AIProvider` interface (~200 lines)
-2. Add provider to `AIProviderFactory` (~5 lines)
-3. Export from `lib/ai/index.ts` (~1 line)
-4. Test with actual API (~30 minutes)
-
-**Example: Adding OpenAI**
-```typescript
-// lib/ai/providers/OpenAIProvider.ts
-export class OpenAIProvider implements AIProvider {
-  async generateScenarios(api: APIDefinition): Promise<Scenarios> {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
-      messages: [{ role: 'user', content: this.buildPrompt(api) }]
-    });
-    return this.parseResponse(response);
-  }
-  // ... implement other interface methods
-}
-```
-
-### Documentation
-
-- **Technical Guide:** `lib/ai/README.md`
-- **Implementation Details:** `AI_PROVIDER_IMPLEMENTATION_SUMMARY.md`
-- **Interface Definition:** `lib/ai/AIProvider.ts`
-
----
-
-## 🎯 What is This System?
-
-### Purpose
-
-An **AI-powered test coverage validation system** that uses **Claude AI** to automatically verify whether business scenarios have corresponding unit test coverage. It runs on every commit via pre-commit hooks and blocks commits when critical scenarios lack tests.
-
-### Core Technology
-
-**🤖 Powered by Claude AI (Anthropic)**
-- Uses Claude 4.5 Sonnet (auto-detected)
-- Natural language understanding
-- No manual fuzzy matching or pattern matching
-- 100% AI-driven analysis
-
-### Key Capabilities
-
-✅ **AI-Powered Analysis** - Claude AI analyzes scenarios and tests using natural language  
-✅ **Auto Model Detection** - Automatically selects best available Claude model  
-✅ **Language Agnostic** - Supports Java, TypeScript, Python, Go, and more  
-✅ **Intelligent Categorization** - AI categorizes orphan tests as Technical vs Business  
-✅ **Smart Recommendations** - AI provides context-aware suggestions  
-✅ **Pre-Commit Integration** - Runs automatically, blocks P0 gaps  
-✅ **Visual Analytics** - NEW! Interactive charts and dashboards  
-✅ **Rich Reports** - HTML, JSON, Markdown, CSV outputs  
-
-### What Problems Does It Solve?
-
-**Before:**
-- ❌ Manual verification of scenario coverage
-- ❌ No automated way to ensure requirements are tested
-- ❌ Features ship without corresponding tests
-- ❌ Unclear which tests cover which scenarios
-
-**After:**
-- ✅ AI automatically maps scenarios to tests
-- ✅ Real-time coverage validation on every commit
-- ✅ P0 scenarios MUST have tests (enforced)
-- ✅ Clear AI-powered recommendations
-- ✅ Visual dashboards for stakeholders
-
----
-
-## ⚡ Quick Setup
+## 🚀 Development Setup
 
 ### Prerequisites
 
 ```bash
-# Check Node.js (>= 18 required)
-node --version
+# Required
+node >= 16.0.0
+npm >= 7.0.0
+git >= 2.0.0
 
-# Check npm
-npm --version
-
-# Get Claude API key from https://console.anthropic.com/
+# Recommended
+TypeScript >= 4.5.0
+VS Code or IntelliJ IDEA
 ```
 
-### Installation
+### Initial Setup
 
 ```bash
-# 1. Install dependencies
+# 1. Clone repository
+git clone <repo-url>
+cd traceability-matrix-system
+
+# 2. Install dependencies
 npm install
 
-# 2. Build TypeScript
+# 3. Build TypeScript
 npm run build
 
-# 3. Set Claude API key
-export CLAUDE_API_KEY="sk-ant-your-key-here"
-# OR
-export ANTHROPIC_API_KEY="sk-ant-your-key-here"
+# 4. Set up API keys
+cp .env.example .env
+# Edit .env and add your CLAUDE_API_KEY
 
-# 4. Install pre-commit hook
-npm run install:hooks
+# 5. Run tests (if available)
+npm test
 
-# 5. Verify setup
-npm run generate   # Phase 1: AI generates scenarios
-npm run continue   # Phase 2: AI analyzes coverage
+# 6. Verify build
+node dist/index.js --version
+```
+
+### Project Structure
+
+```
+traceability-matrix-system/
+├── bin/                        # CLI entry points
+│   ├── ai-generate            # Generate scenarios
+│   ├── ai-continue            # Analyze coverage
+│   └── ai-generate-api        # Single API generation
+├── lib/                        # Core source code
+│   ├── ai/                    # AI provider abstraction
+│   │   ├── AIProvider.ts      # Interface
+│   │   ├── AIProviderFactory.ts
+│   │   └── providers/         # Concrete implementations
+│   │       ├── AnthropicProvider.ts
+│   │       └── OpenAIProvider.ts
+│   ├── core/                  # Core analysis engine
+│   │   ├── ServiceManager.ts  # Orchestration
+│   │   ├── AITestCaseGenerator.ts
+│   │   ├── EnhancedCoverageAnalyzer.ts
+│   │   ├── JourneyCoverageAnalyzer.ts
+│   │   ├── GitChangeDetector.ts
+│   │   ├── HistoryManager.ts
+│   │   └── ReportGenerator.ts
+│   ├── parsers/               # Language-specific parsers
+│   │   ├── JavaTestParser.ts
+│   │   ├── TypeScriptTestParser.ts
+│   │   ├── PythonTestParser.ts
+│   │   └── GoTestParser.ts
+│   ├── utils/                 # Utilities
+│   │   ├── PathResolver.ts    # Path resolution
+│   │   ├── EnvConfig.ts       # Environment config
+│   │   └── ProgressBar.ts     # CLI progress
+│   ├── templates/             # Report templates
+│   │   └── enhanced-report-v2.html
+│   └── types.ts               # TypeScript types
+├── docs/                      # Documentation
+├── scripts/                   # Build and hook scripts
+└── .traceability/            # Runtime data
+    ├── config.json           # Configuration
+    ├── test-cases/           # Scenarios
+    ├── reports/              # Generated reports
+    └── history/              # Historical snapshots
 ```
 
 ---
 
-## 🎯 Demonstration Test Cases
+## 🔧 Development Workflow
 
-The system includes three comprehensive demonstration cases that showcase all coverage detection capabilities:
-
-### Case 4: Full Coverage (GET /v1/customers)
-**Purpose:** Demonstrates 100% coverage with perfect traceability
-
-- **Implementation:**
-  - 10 baseline scenarios in `customer-service-baseline.yml`
-  - 10 unit tests in `CustomerControllerGetAllTest.java`
-  - Perfect 1:1 scenario-to-test mapping
-  
-- **What It Shows:**
-  - ✅ FULLY_COVERED status for all scenarios
-  - HIGH confidence matches
-  - Complete traceability with file/line numbers
-  - No gaps or action items needed
-
-### Case 5: Intelligent Gap Detection (DELETE /v1/customers/{id})
-**Purpose:** Demonstrates two-phase analysis (baseline vs API completeness)
-
-- **Implementation:**
-  - 5 baseline scenarios in `customer-service-baseline.yml`
-  - 5 unit tests in `CustomerControllerDeleteTest.java`
-  - 100% baseline coverage
-  
-- **What It Shows:**
-  - ✅ Baseline 100% covered
-  - 🤖 AI suggests 22 additional scenarios from API spec
-  - Demonstrates difference between "covered" and "complete"
-  - Priority-based recommendations (P1/P2)
-
-### Case 6: Partial Coverage (PUT /v1/customers/{id})
-**Purpose:** Demonstrates mixed coverage states and gap detection
-
-- **Implementation:**
-  - 5 baseline scenarios in `customer-service-baseline.yml`
-  - 4 unit tests in `CustomerControllerUpdateTest.java`
-  - Intentionally incomplete coverage
-  
-- **What It Shows:**
-  - ✅ FULLY_COVERED: 2 scenarios (40%)
-  - ⚠️ PARTIALLY_COVERED: 2 scenarios (40%)
-  - ❌ NOT_COVERED: 1 scenario (20%)
-  - Detailed gap analysis with remediation steps
-  - Real-world quality issues
-
-### Running the Demonstrations
+### Making Changes
 
 ```bash
-# Build the project
+# 1. Create feature branch
+git checkout -b feature/your-feature
+
+# 2. Make changes
+# Edit files in lib/
+
+# 3. Build TypeScript
 npm run build
 
-# Run analysis to see all three cases
+# 4. Test locally
 npm run continue
 
-# View the HTML report
-open .traceability/reports/customer-service-report.html
+# 5. Verify changes
+# Check reports, console output
+
+# 6. Commit
+git add .
+git commit -m "feat: your feature description"
+
+# 7. Push
+git push origin feature/your-feature
 ```
 
-### Expected Results
+### Building
 
-The analysis will show:
-- Case 4: "✅ ALL SCENARIOS FULLY COVERED (10/10)"
-- Case 5: "✅ BASELINE COVERED + 💡 22 AI SUGGESTIONS"
-- Case 6: "⚠️ MIXED COVERAGE - 3 GAPS IDENTIFIED"
+```bash
+# Full build
+npm run build
 
-**Learn More:** See `docs/DETAILED-CASE-MAPPINGS.md` for detailed documentation of all cases with exact scenario-to-test mappings.
+# Watch mode (during development)
+npx tsc --watch
 
----
-
-## 🏗 Architecture Overview
-
-### System Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     User Interface Layer                     │
-│  • CLI Commands (bin/ai-generate, bin/ai-continue)          │
-│  • Pre-commit Hook (scripts/pre-commit.sh)                  │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   Orchestration Layer                        │
-│  • ServiceManager - Service lifecycle management            │
-│  • Main workflow coordination                                │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│                     Core Engine Layer                        │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │  AITestCaseGenerator                                │    │
-│  │  • Discovers APIs (Swagger + Code)                  │    │
-│  │  • Generates scenarios with Claude AI               │    │
-│  │  • Marks baseline vs new suggestions                │    │
-│  └─────────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │  EnhancedCoverageAnalyzer                           │    │
-│  │  • AI-powered scenario-to-test matching             │    │
-│  │  • Orphan unit test detection (NEW)                 │    │
-│  │  • Orphan API detection (NEW)                       │    │
-│  │  • Visual analytics generation (NEW)                │    │
-│  │  • Orphan test categorization                       │    │
-│  └─────────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │  GitChangeDetector                                   │    │
-│  │  • Git diff analysis                                 │    │
-│  │  • API change detection                              │    │
-│  │  • Affected test identification                      │    │
-│  └─────────────────────────────────────────────────────┘    │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   Utility Layer                              │
-│  • SwaggerParser - API spec parsing                         │
-│  • APIScanner - Code-based API discovery                    │
-│  • TestParserFactory - Multi-language test parsing          │
-│  • ModelDetector - Auto Claude model selection              │
-│  • ReportGenerator - Multi-format report generation         │
-└─────────────────────────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    External Services                         │
-│  • Claude AI API (Anthropic)                                │
-│  • Git (version control)                                    │
-│  • File System (reports, baselines)                         │
-└─────────────────────────────────────────────────────────────┘
+# Clean build
+rm -rf dist/
+npm run build
 ```
 
-### Component Interaction Flow
+### Testing Changes
 
-```
-1. Developer commits code
-   ↓
-2. Pre-commit hook triggers
-   ↓
-3. Phase 1: AITestCaseGenerator
-   - Discovers APIs via Swagger/Code scan
-   - Sends API specs to Claude AI
-   - Generates comprehensive scenarios
-   - Marks ✅ (in baseline) vs 🆕 (new)
-   ↓
-4. Phase 2: EnhancedCoverageAnalyzer
-   - Loads baseline scenarios
-   - Parses unit tests (multi-language)
-   - Sends to Claude AI for analysis
-   - AI determines coverage status
-   - AI categorizes orphan tests
-   - Detects orphan unit tests (NEW)
-   - Detects orphan APIs (NEW)
-   - Calculates visual analytics (NEW)
-   ↓
-5. GitChangeDetector
-   - Analyzes git diffs
-   - Extracts API changes
-   - Identifies affected tests
-   ↓
-6. ReportGenerator
-   - Generates HTML (with visual analytics)
-   - Generates JSON (CI/CD)
-   - Generates CSV (spreadsheet)
-   - Generates Markdown (docs)
-   ↓
-7. Decision
-   - P0 gaps → BLOCK commit
-   - No P0 gaps → ALLOW commit
+```bash
+# Test scenario generation
+npm run generate
+
+# Test coverage analysis
+npm run continue
+
+# Test specific service
+node bin/ai-continue customer-service
+
+# Test with verbose output
+export VERBOSE=true
+npm run continue
 ```
 
 ---
 
-## 🚀 Advanced Features Deep Dive
+## 🎯 Common Development Tasks
 
-### Feature 1: Git Change Detection
+### Task 1: Adding a New AI Provider
 
-**Implementation:** `lib/core/GitChangeDetector.ts`
+**Example: Adding Google Gemini support**
 
-**How It Works:**
-1. Executes `git diff` to get changed files
-2. Filters service-related files
-3. Analyzes each file's diff for API patterns
-4. Extracts HTTP methods, endpoints, line numbers
-5. Correlates with unit tests in test directories
+**Step 1: Create Provider Class**
 
-**Code Flow:**
 ```typescript
-async detectChanges(servicePaths: string[]): Promise<GitChangeAnalysis> {
-  1. getChangedFiles() → Execute git diff
-  2. Filter by servicePaths
-  3. For each file:
-     - analyzeFileChanges() → Extract API changes
-     - findAffectedTests() → Find related tests
-  4. Return comprehensive change analysis
-}
-```
+// lib/ai/providers/GeminiProvider.ts
+import { AIProvider, AIConfig } from '../AIProvider';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-**Detection Patterns:**
-- **Java Spring:** `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`, `@PatchMapping`
-- **TypeScript/Express:** `router.get()`, `app.post()`, etc.
-- **Python/Flask:** `@app.route()`
-- **Python/FastAPI:** `@router.get()`, etc.
+export class GeminiProvider implements AIProvider {
+  private gemini: GoogleGenerativeAI;
+  private model: string;
 
-**Output:**
-```typescript
-{
-  changedFiles: string[]
-  apiChanges: APIChange[]  // added, modified, removed
-  affectedTests: { [file: string]: string[] }
-  totalAPIsChanged: number
-}
-```
-
-### Feature 2: 3-Layer Completeness Detection
-
-**Implementation:** `lib/core/EnhancedCoverageAnalyzer.ts`
-
-**Layer 1: Forward Check (API Spec → Baseline)**
-```typescript
-// Find scenarios suggested by API spec but missing from baseline
-const missingScenarios = findMissingScenarios(
-  baselineScenarios,
-  aiScenarios
-);
-
-// For each missing scenario, check if unit test exists
-const hasTest = checkIfUnitTestExists(scenario, unitTests);
-```
-
-**Layer 1b: Reverse Check (Unit Tests → Baseline) - ENHANCED**
-```typescript
-// NEW in v6.0: Find unit tests without baseline scenarios
-const unscenarioedTests = findUnscenarioedTests(
-  baselineScenarios,
-  unitTests,
-  api
-);
-
-// NEW: For each orphan unit test, find AI-suggested scenario
-for (const test of unscenarioedTests) {
-  const aiSuggestion = findMatchingAIScenario(test, aiScenarios);
-  // Create P2 gap with AI suggestion
-}
-```
-
-**Layer 2: AI Coverage Analysis**
-```typescript
-// Send to Claude AI for semantic matching
-const prompt = `Analyze test coverage for ${api}
-Expected Scenarios: ${baselineScenarios}
-Available Tests: ${unitTests}
-Determine coverage status for each scenario.`;
-
-const response = await anthropic.messages.create({
-  model: detectedModel,
-  messages: [{ role: 'user', content: prompt }]
-});
-```
-
-**Layer 3: Status Adjustment**
-```typescript
-// Adjust status based on API completeness
-if (missingScenarios.length > 0) {
-  // Baseline is incomplete
-  if (status === 'FULLY_COVERED') {
-    status = 'PARTIALLY_COVERED';
-    reason = 'API suggests additional untested scenarios';
+  constructor(config: AIConfig) {
+    this.gemini = new GoogleGenerativeAI(config.apiKey);
+    this.model = config.model || 'gemini-pro';
   }
-}
-```
 
-### Feature 3: Orphan Test Categorization
+  async generateTestScenarios(apiSpec: string): Promise<any> {
+    const model = this.gemini.getGenerativeModel({ 
+      model: this.model 
+    });
 
-**Implementation:** `lib/core/EnhancedCoverageAnalyzer.ts`
-
-**AI Categorization Process:**
-```typescript
-private async categorizeOrphanTests(
-  orphanTests: UnitTest[],
-  aiModel: string
-): Promise<OrphanTestAnalysis> {
-  
-  // Build prompt with test details
-  const prompt = `Categorize these unit tests as:
-  - TECHNICAL: Infrastructure tests (Entity, DTO, Mapper) - no scenario needed
-  - BUSINESS: Business logic tests (Controller, Service) - needs scenario
-  
-  Tests: ${JSON.stringify(orphanTests)}`;
-  
-  // Send to Claude AI
-  const response = await this.anthropic.messages.create({
-    model: aiModel,
-    max_tokens: 3000,
-    temperature: 0.2,
-    messages: [{ role: 'user', content: prompt }]
-  });
-  
-  // Parse AI response
-  const categorizations = parseAIResponse(response.content);
-  
-  // Group by category and priority
-  return {
-    technical: [...],  // P3 - No action needed
-    business: [...]    // P0-P2 - QA must add scenarios
-  };
-}
-```
-
-**AI Response Format:**
-```json
-{
-  "categorizations": [
-    {
-      "testNumber": 1,
-      "category": "TECHNICAL",
-      "subtype": "Entity Test",
-      "priority": "P3",
-      "action": "none",
-      "reason": "Entity validation is infrastructure concern"
-    },
-    {
-      "testNumber": 2,
-      "category": "BUSINESS",
-      "subtype": "Controller Test",
-      "priority": "P1",
-      "action": "qa_add_scenario",
-      "reason": "API endpoint requires business scenario"
-    }
-  ]
-}
-```
-
-### Feature 4: Auto Model Selection
-
-**Implementation:** `lib/core/ModelDetector.ts`
-
-**Detection Algorithm:**
-```typescript
-async detectBestModel(): Promise<string> {
-  // Priority order
-  const preferredModels = [
-    'claude-sonnet-4-5-20250929',    // Claude 4.5 Sonnet
-    'claude-3-5-sonnet-20241022',    // Claude 3.5 Sonnet (latest)
-    'claude-3-5-sonnet-20240620'     // Claude 3.5 Sonnet (fallback)
-  ];
-  
-  try {
-    // Query Anthropic Models API
-    const response = await this.anthropic.models.list();
+    const prompt = this.buildScenarioPrompt(apiSpec);
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
     
-    // Find first available preferred model
-    for (const preferred of preferredModels) {
-      if (response.data.some(m => m.id === preferred)) {
-        this.cachedModel = preferred;
-        return preferred;
-      }
-    }
-  } catch (error) {
-    // Fallback if Models API unavailable
-    console.log('⚠️  Models API failed, using fallback...');
+    return this.parseScenarioResponse(response.text());
   }
-  
-  // Default fallback
-  return 'claude-3-5-sonnet-20240620';
+
+  async matchTestToScenario(
+    test: any, 
+    scenarios: any[]
+  ): Promise<any> {
+    const model = this.gemini.getGenerativeModel({ 
+      model: this.model 
+    });
+
+    const prompt = this.buildMatchingPrompt(test, scenarios);
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    
+    return this.parseMatchResponse(response.text());
+  }
+
+  // Implement other interface methods...
 }
 ```
 
-**Caching:**
-- Model detected once per session
-- Cached in memory to avoid repeated API calls
-- Can be cleared with `clearCache()` if needed
+**Step 2: Update Factory**
 
-### Feature 5: Multi-Language Support
-
-**Implementation:** `lib/parsers/` + `lib/core/TestParserFactory.ts`
-
-**Architecture:**
 ```typescript
-interface TestParser {
-  canParse(filePath: string): boolean;
-  parseTests(filePath: string): UnitTest[];
-  getSupportedLanguage(): SupportedLanguage;
-  getSupportedFramework(): SupportedFramework;
+// lib/ai/AIProviderFactory.ts
+import { GeminiProvider } from './providers/GeminiProvider';
+
+export class AIProviderFactory {
+  static create(config: AIConfig): AIProvider {
+    switch (config.provider) {
+      case 'anthropic':
+        return new AnthropicProvider(config);
+      case 'openai':
+        return new OpenAIProvider(config);
+      case 'gemini':  // Add this
+        return new GeminiProvider(config);
+      default:
+        throw new Error(`Unknown provider: ${config.provider}`);
+    }
+  }
+}
+```
+
+**Step 3: Update Types**
+
+```typescript
+// lib/types.ts
+export type AIProviderType = 'anthropic' | 'openai' | 'gemini';
+```
+
+**Step 4: Test**
+
+```bash
+# Install Gemini SDK
+npm install @google/generative-ai
+
+# Update config
+{
+  "ai": {
+    "provider": "gemini",
+    "model": "gemini-pro"
+  }
 }
 
-class TestParserFactory {
-  private parsers: Map<string, TestParser> = new Map();
-  
-  registerParser(parser: TestParser): void {
-    const key = `${parser.getSupportedLanguage()}-${parser.getSupportedFramework()}`;
-    this.parsers.set(key, parser);
+# Set API key
+export GEMINI_API_KEY="your-key"
+
+# Test
+npm run continue
+```
+
+---
+
+### Task 2: Adding a New Language Parser
+
+**Example: Adding Rust test parser**
+
+**Step 1: Create Parser**
+
+```typescript
+// lib/parsers/RustTestParser.ts
+import * as fs from 'fs';
+import * as path from 'path';
+
+export class RustTestParser {
+  canParse(filePath: string): boolean {
+    return filePath.endsWith('_test.rs') || 
+           filePath.endsWith('tests.rs');
   }
-  
-  getParser(language: SupportedLanguage, framework: SupportedFramework): TestParser {
+
+  parseTests(filePath: string): any[] {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const tests: any[] = [];
+
+    // Match Rust test functions: #[test]
+    const testRegex = /#\[test\]\s*(?:#\[.*?\]\s*)*fn\s+(\w+)/g;
+    let match;
+
+    while ((match = testRegex.exec(content)) !== null) {
+      const testName = match[1];
+      const lineNumber = this.getLineNumber(content, match.index);
+
+      tests.push({
+        name: testName,
+        displayName: this.formatTestName(testName),
+        file: filePath,
+        line: lineNumber,
+        language: 'rust',
+        framework: 'cargo test'
+      });
+    }
+
+    return tests;
+  }
+
+  private formatTestName(name: string): string {
+    // Convert snake_case to readable format
+    return name
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
+  private getLineNumber(content: string, index: number): number {
+    return content.substring(0, index).split('\n').length;
+  }
+}
+```
+
+**Step 2: Register Parser**
+
+```typescript
+// lib/core/TestParserFactory.ts
+import { RustTestParser } from '../parsers/RustTestParser';
+
+export class TestParserFactory {
+  private parsers: Map<string, any> = new Map();
+
+  constructor() {
+    this.registerDefaultParsers();
+  }
+
+  private registerDefaultParsers() {
+    this.parsers.set('java-junit', new JavaTestParser());
+    this.parsers.set('typescript-jest', new TypeScriptTestParser());
+    this.parsers.set('python-pytest', new PythonTestParser());
+    this.parsers.set('go-testing', new GoTestParser());
+    this.parsers.set('rust-cargo', new RustTestParser()); // Add this
+  }
+
+  getParser(language: string, framework: string): any {
     const key = `${language}-${framework}`;
     return this.parsers.get(key);
   }
 }
 ```
 
-**Supported Parsers:**
-
-1. **JavaTestParser** (`lib/parsers/JavaTestParser.ts`)
-   - Frameworks: JUnit 4/5, TestNG
-   - Extracts: `@Test`, `@DisplayName`, method names
-   - Pattern: `*Test.java`, `*Tests.java`
-
-2. **TypeScriptTestParser** (`lib/parsers/TypeScriptTestParser.ts`)
-   - Frameworks: Jest, Mocha, Jasmine
-   - Extracts: `test()`, `it()`, `describe()`
-   - Pattern: `*.test.ts`, `*.spec.ts`
-
-3. **PythonTestParser** (`lib/parsers/PythonTestParser.ts`)
-   - Frameworks: Pytest, Unittest
-   - Extracts: `def test_*`, `@pytest.mark`
-   - Pattern: `test_*.py`, `*_test.py`
-
-4. **GoTestParser** (`lib/parsers/GoTestParser.ts`)
-   - Framework: Go Test
-   - Extracts: `func Test*`
-   - Pattern: `*_test.go`
-
----
-
-## 💻 Implementation Details
-
-### Core Classes Deep Dive
-
-#### 1. AITestCaseGenerator
-
-**File:** `lib/core/AITestCaseGenerator.ts`
-
-**Purpose:** Generate comprehensive test scenarios from API specifications using Claude AI.
-
-**Key Methods:**
+**Step 3: Update Config Schema**
 
 ```typescript
-async generate(service: ServiceConfig): Promise<void>
-```
-- Main entry point for scenario generation
-- Discovers APIs via Swagger + code scan
-- Generates scenarios for each API
-- Compares with baseline
-- Saves to ai_cases folder
-
-```typescript
-private async discoverAPIs(service: ServiceConfig): Promise<any[]>
-```
-- Uses SwaggerParser to read OpenAPI specs
-- Falls back to APIScanner for code-based discovery
-- Returns list of discovered APIs with metadata
-
-```typescript
-private async generateForAPI(api: any): Promise<any>
-```
-- Constructs prompt with API details
-- Sends to Claude AI
-- Parses AI response into structured scenarios
-- Categories: happy_case, edge_case, error_case, security
-
-```typescript
-private markBaseline(aiScenarios: SimpleScenarios, baseline: any): any
-```
-- Compares AI scenarios with baseline
-- Marks ✅ for scenarios already in baseline
-- Marks 🆕 for new suggestions
-
-#### 2. EnhancedCoverageAnalyzer
-
-**File:** `lib/core/EnhancedCoverageAnalyzer.ts`
-
-**Purpose:** AI-powered coverage analysis with orphan detection and visual analytics.
-
-**Key Methods:**
-
-```typescript
-async analyze(service: ServiceConfig): Promise<CoverageAnalysis>
-```
-- Main analysis orchestrator
-- Loads baseline and parses unit tests
-- Analyzes each API endpoint
-- Categorizes orphan tests
-- Detects orphan unit tests (NEW)
-- Detects orphan APIs (NEW)
-- Calculates visual analytics (NEW)
-- Returns comprehensive analysis
-
-```typescript
-private async analyzeAPI(
-  api: string,
-  categories: any,
-  unitTests: UnitTest[],
-  aiSuggestions: any = null
-): Promise<APIAnalysis>
-```
-- Analyzes single API endpoint
-- Flattens scenarios from categories
-- Sends to Claude AI for matching
-- Parses AI response
-- Detects orphan unit tests with AI suggestions
-- Checks API completeness
-- Returns coverage status per scenario
-
-```typescript
-private findUnscenarioedTests(
-  baselineScenarios: string[],
-  allUnitTests: UnitTest[],
-  api: string
-): UnitTest[]
-```
-- NEW in v6.0
-- Finds unit tests without baseline scenarios
-- Filters tests related to specific API
-- Returns orphan unit tests
-
-```typescript
-private findMatchingAIScenario(
-  test: UnitTest,
-  aiScenarios: string[]
-): string | null
-```
-- NEW in v6.0
-- Semantic matching between test name and AI scenarios
-- Uses word overlap similarity
-- Returns best matching AI scenario or null
-
-```typescript
-private async categorizeOrphanTests(
-  orphanTests: UnitTest[],
-  aiModel: string
-): Promise<OrphanTestAnalysis>
-```
-- AI categorization of orphan tests
-- TECHNICAL vs BUSINESS classification
-- Priority assignment (P0-P3)
-- Action recommendations
-
-```typescript
-private detectOrphanAPIs(
-  baseline: any,
-  unitTests: UnitTest[],
-  apiAnalyses: APIAnalysis[]
-): OrphanAPIInfo[]
-```
-- NEW in v6.0
-- Detects APIs with 0 scenarios AND 0 tests
-- Returns list of completely untracked APIs
-
-```typescript
-private calculateVisualAnalytics(
-  apiAnalyses: APIAnalysis[],
-  gaps: GapAnalysis[],
-  orphanAnalysis: OrphanTestAnalysis
-): VisualAnalytics
-```
-- NEW in v6.0
-- Calculates coverage distribution
-- Computes gap priority breakdown
-- Computes orphan test priority breakdown
-- Returns metrics for visual charts
-
-#### 3. GitChangeDetector
-
-**File:** `lib/core/GitChangeDetector.ts`
-
-**Purpose:** Detect code changes and API modifications via Git.
-
-**Key Methods:**
-
-```typescript
-async detectChanges(servicePaths: string[]): Promise<GitChangeAnalysis>
-```
-- Gets changed files from git diff
-- Filters service-related files
-- Analyzes each file for API changes
-- Finds affected tests
-- Returns comprehensive change analysis
-
-```typescript
-private async analyzeFileChanges(file: string): Promise<APIChange[]>
-```
-- Reads git diff for specific file
-- Extracts added APIs (lines starting with +)
-- Extracts removed APIs (lines starting with -)
-- Identifies modified APIs
-- Returns list of API changes
-
-```typescript
-findAffectedTests(changedFile: string, servicePath: string): string[]
-```
-- Finds test files related to changed file
-- Extracts test names from test files
-- Returns list of affected test names
-
-#### 4. ReportGenerator
-
-**File:** `lib/core/ReportGenerator.ts`
-
-**Purpose:** Generate multi-format reports with visual analytics.
-
-**Key Methods:**
-
-```typescript
-async generateReports(
-  analysis: CoverageAnalysis,
-  gitChanges: GitChangeAnalysis,
-  serviceName: string
-): Promise<void>
-```
-- Generates HTML report (with visual analytics)
-- Generates JSON report (CI/CD)
-- Generates CSV report (spreadsheet)
-- Generates Markdown report (docs)
-- Auto-opens HTML in browser
-
-```typescript
-private generateHTML(
-  analysis: CoverageAnalysis,
-  gitChanges: GitChangeAnalysis,
-  serviceName: string
-): string
-```
-- NEW: Includes visual analytics section
-- NEW: Includes orphan APIs section
-- NEW: Enhanced orphan tests section with AI suggestions
-- Creates interactive dashboard
-- Uses embedded CSS and JavaScript
-- Returns complete HTML string
-
-#### 5. ModelDetector
-
-**File:** `lib/core/ModelDetector.ts`
-
-**Purpose:** Auto-detect best available Claude model.
-
-**Key Methods:**
-
-```typescript
-async detectBestModel(): Promise<string>
-```
-- Queries Anthropic Models API
-- Selects best available model from priority list
-- Caches result
-- Falls back to Claude 3.5 Sonnet if API unavailable
-
-```typescript
-private async isModelAvailable(model: string): Promise<boolean>
-```
-- Checks if specific model is available
-- Used for fallback detection
-
-#### 6. SwaggerParser
-
-**File:** `lib/core/SwaggerParser.ts`
-
-**Purpose:** Parse OpenAPI/Swagger specifications.
-
-**Key Methods:**
-
-```typescript
-static parseFile(filePath: string): SwaggerSpec
-```
-- Reads YAML/JSON Swagger file
-- Parses into structured format
-- Returns SwaggerSpec object
-
-```typescript
-static extractAPIs(spec: SwaggerSpec): SwaggerAPI[]
-```
-- Extracts all API endpoints from spec
-- Includes methods, paths, parameters, bodies, responses
-- Returns list of SwaggerAPI objects
-
-```typescript
-static findSwaggerFiles(directory: string): string[]
-```
-- Recursively searches for Swagger files
-- Patterns: swagger.yaml, openapi.json, etc.
-- Returns list of file paths
-
-#### 7. APIScanner
-
-**File:** `lib/core/APIScanner.ts`
-
-**Purpose:** Code-based API discovery (fallback when Swagger unavailable).
-
-**Key Methods:**
-
-```typescript
-async scanAPIs(service: ServiceConfig): Promise<DiscoveredAPI[]>
-```
-- Scans controller files
-- Extracts HTTP endpoints from annotations
-- Returns list of discovered APIs
-
-```typescript
-getOrphanAPIs(apis: DiscoveredAPI[]): DiscoveredAPI[]
-```
-- Filters APIs with no scenarios AND no tests
-- Returns orphan APIs
-
-#### 8. TestParserFactory
-
-**File:** `lib/core/TestParserFactory.ts`
-
-**Purpose:** Multi-language test parsing factory.
-
-**Key Methods:**
-
-```typescript
-registerParser(parser: TestParser): void
-```
-- Registers language-specific parser
-- Stores in internal map
-
-```typescript
-getParser(language: SupportedLanguage, framework: SupportedFramework): TestParser
-```
-- Returns appropriate parser for language/framework
-- Throws error if not supported
-
----
-
-## 🤖 How It Works (Claude AI)
-
-### AI Model Selection
-
-**Automatic Detection:**
-```
-1. Query Anthropic Models API
-2. Check availability of preferred models:
-   - claude-sonnet-4-5-20250929 (Claude 4.5 Sonnet)
-   - claude-3-5-sonnet-20241022 (Claude 3.5 Sonnet latest)
-   - claude-3-5-sonnet-20240620 (Claude 3.5 Sonnet fallback)
-3. Select first available
-4. Cache for session
-5. Fallback to Claude 3.5 Sonnet if API unavailable
-```
-
-**Console Output:**
-```
-🔍 Auto-detecting best available Claude model...
-   ✓ Using: claude-sonnet-4-5-20250929 (Claude Sonnet 4.5)
-```
-
-### How Claude AI Analyzes Coverage
-
-**Step 1: Prompt Construction**
-```typescript
-const prompt = `Analyze test coverage for API endpoint: ${api}
-
-**Expected Scenarios (from QA baseline):**
-1. When customer created with valid data, return 201
-2. When created with invalid email, return 400
-...
-
-**Available Unit Tests (from codebase):**
-1. testCreateCustomerWithValidData() (CustomerControllerTest.java)
-2. testCreateCustomerInvalidEmail() (CustomerControllerTest.java)
-...
-
-For each scenario, determine:
-1. Which unit tests cover it
-2. Coverage status: FULLY_COVERED / PARTIALLY_COVERED / NOT_COVERED
-3. What's missing if not fully covered
-
-Respond in JSON format...`;
-```
-
-**Step 2: Claude AI Analysis**
-```typescript
-const response = await anthropic.messages.create({
-  model: 'claude-sonnet-4-5-20250929',  // Auto-detected
-  max_tokens: 2000,
-  temperature: 0.2,  // Low temp for consistency
-  messages: [{ role: 'user', content: prompt }]
-});
-```
-
-**Step 3: AI Response**
-```json
-{
-  "matches": [
-    {
-      "scenario": "When customer created with valid data, return 201",
-      "testNumbers": [1],
-      "status": "FULLY_COVERED",
-      "explanation": "Test testCreateCustomerWithValidData covers this scenario completely"
-    },
-    {
-      "scenario": "When created with invalid email, return 400",
-      "testNumbers": [2],
-      "status": "FULLY_COVERED",
-      "explanation": "Test testCreateCustomerInvalidEmail validates email format"
-    }
-  ]
-}
-```
-
-### Key Features of AI Analysis
-
-**Natural Language Understanding:**
-- Claude AI understands context and intent
-- Recognizes synonyms (e.g., "delete" = "remove")
-- Understands test naming conventions
-- No manual pattern matching needed
-
-**Intelligent Categorization:**
-```typescript
-// AI categorizes orphan tests
-const prompt = `Categorize these unit tests as either:
-- TECHNICAL: Infrastructure tests (Entity, DTO, Mapper) - no scenario needed
-- BUSINESS: Business logic tests (Controller, Service) - needs scenario
-
-Tests to categorize:
-1. CustomerMapperTest.testMapToDto()
-2. CustomerControllerTest.testCreateEndpoint()
-...`;
-
-// Claude AI responds:
-{
-  "categorizations": [
-    {
-      "testNumber": 1,
-      "category": "TECHNICAL",
-      "subtype": "Mapper Test",
-      "priority": "P3",
-      "action": "none",
-      "reason": "DTO mapping is infrastructure concern"
-    },
-    {
-      "testNumber": 2,
-      "category": "BUSINESS",
-      "subtype": "Controller Test",
-      "priority": "P1",
-      "action": "qa_add_scenario",
-      "reason": "API endpoint requires business scenario"
-    }
-  ]
-}
-```
-
-**Smart Recommendations:**
-- AI provides context-specific suggestions
-- Recommends actions based on gap type
-- Suggests priority levels (P0-P3)
-- Gives specific next steps
-
----
-
-## 🚀 Running Locally
-
-### Basic Commands
-
-```bash
-# Phase 1: Generate AI test scenarios
-npm run generate
-
-# Phase 2: Analyze coverage with AI
-npm run continue
-
-# Combined: Generate + Analyze
-npm run generate && npm run continue
-
-# Build TypeScript
-npm run build
-
-# Install pre-commit hook
-npm run install:hooks
-```
-
-### Advanced Usage
-
-```bash
-# Generate for specific service
-node bin/ai-generate customer-service
-
-# Analyze specific service
-node bin/ai-continue customer-service
-
-# Generate scenarios for single API (QA tool)
-npm run generate:api -- --service customer-service --endpoint "POST /api/customers"
-```
-
-### What Each Command Does
-
-**npm run generate:**
-```
-🤖 Generating AI test cases: customer-service
-📡 Discovering APIs...
-   ✓ Found 10 APIs
-
-🤖 AI generating scenarios...
-   Processing: POST /api/customers
-   Processing: GET /api/customers/{id}
-   ...
-
-📋 Comparing with baseline (25 scenarios)...
-   ✓ Saved: .traceability/test-cases/ai_cases/customer-service-ai.yml
-
-✅ Generation complete!
-```
-
-**npm run continue:**
-```
-📊 Analyzing: customer-service
-✓ Baseline: 25 scenarios
-✓ Unit tests: 42 found
-
-🤖 AI analyzing coverage...
-POST /api/customers:
-  ✅ Covered: 8/10
-  ⚠️  Gaps: 2 not covered
-
-🔍 Categorizing orphan tests...
-  ✅ Technical: 10, Business: 2
-
-📈 Coverage: 82.5%
-📄 Generating reports...
-  ✅ HTML: .traceability/reports/customer-service-report.html
-```
-
----
-
-## 🔗 Pre-Commit Hook
-
-### How It Works
-
-When you commit, the pre-commit hook automatically:
-
-1. Runs `npm run generate` (AI generates scenarios)
-2. Runs `npm run continue` (AI analyzes coverage)
-3. Checks for P0 gaps
-4. **BLOCKS** commit if P0 gaps found
-5. **ALLOWS** commit if no P0 gaps
-6. Shows report location
-
-### Configuration
-
-Edit `.traceability/config.json`:
-
-```json
-{
-  "preCommit": {
-    "enabled": true,
-    "blockOnP0Gaps": true,
-    "blockOnP1Gaps": false
-  }
-}
-```
-
-### Bypassing (Emergency Only)
-
-```bash
-# Skip validation for this commit
-git commit --no-verify -m "Emergency fix"
-
-# Or temporarily disable
-export SKIP_VALIDATION=true
-git commit -m "Skip validation"
-```
-
----
-
-## 📊 Interpreting Reports
-
-### HTML Report (Interactive Dashboard)
-
-**Summary Cards:**
-```
-┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
-│  Coverage: 85%  │  │  P0 Gaps: 0     │  │  Orphans: 12    │
-└─────────────────┘  └─────────────────┘  └─────────────────┘
-```
-
-**Visual Analytics (NEW in v6.0):**
-- Coverage Distribution: Progress bars
-- Gap Priority Breakdown: P0/P1/P2/P3 visual grid
-- Orphan Test Priority: Technical vs Business chart
-
-**Coverage Gaps Section:**
-```
-🚨 P0 GAP
-API: POST /api/customers
-Scenario: When created with duplicate email, return 409
-Status: NOT_COVERED
-Recommendation: Create unit test to cover this critical scenario
-```
-
-**Orphan Unit Tests (NEW in v6.0):**
-```
-⚠️ ORPHAN UNIT TEST [P2]
-Test: createCustomer_ShouldValidateEmail
-File: CustomerControllerTest.java
-Reason: Unit test exists but NO corresponding baseline scenario
-
-💡 AI Suggestion: "When customer created with invalid email format,
-                    return 400 with validation error"
-
-Action: QA should add this AI-suggested scenario to baseline
-```
-
-**Orphan APIs (NEW in v6.0):**
-```
-⚠️ ORPHAN API [Critical]
-POST /api/customers/bulk
-Status: No baseline scenarios, No unit tests
-Action: Add scenarios and tests, or remove if deprecated
-```
-
-**Orphan Tests (Traditional):**
-```
-🔧 TECHNICAL ORPHAN [P3]
-Test: CustomerMapperTest.testMapToDto()
-Category: Mapper Test
-Action: No action needed (infrastructure test)
-
-💼 BUSINESS ORPHAN [P1]
-Test: CustomerService.testBulkCreate()
-Category: Service Test
-Action: QA must create scenario for this business logic
-```
-
-### JSON Report (CI/CD)
-
-```json
-{
-  "service": "customer-service",
-  "timestamp": "2025-12-10T01:30:00.000Z",
-  "summary": {
-    "totalScenarios": 25,
-    "fullyCovered": 20,
-    "coveragePercent": 80.0,
-    "p0Gaps": 1,
-    "p1Gaps": 2
-  },
-  "gaps": [
-    {
-      "api": "POST /api/customers",
-      "scenario": "When created with duplicate email...",
-      "priority": "P0",
-      "reason": "No unit test found",
-      "recommendations": ["Create unit test..."]
-    }
-  ],
-  "orphanAPIs": [
-    {
-      "method": "POST",
-      "endpoint": "/api/customers/bulk",
-      "hasScenario": false,
-      "hasTest": false,
-      "riskLevel": "Critical"
-    }
-  ]
-}
-```
-
----
-
-## ✍️ Writing Unit Tests
-
-### Best Practices for AI Matching
-
-**✅ Good Test Names (AI-friendly):**
-```java
-@Test
-public void testCreateCustomerWithValidDataReturns201() { }
-
-@Test
-public void testGetCustomerWithInvalidIdReturns404() { }
-
-@Test
-@DisplayName("When user creates customer with valid email, return 201")
-public void testCreateCustomer() { }
-```
-
-**❌ Bad Test Names (Hard for AI):**
-```java
-@Test
-public void test1() { }
-
-@Test
-public void testMethod() { }
-```
-
-### Linking Tests to Scenarios
-
-**Method 1: Descriptive Naming**
-```java
-@Test
-public void testCreateCustomerWithValidEmail_Returns201() {
-    // Test name matches scenario:
-    // "When customer created with valid email, return 201"
-}
-```
-
-**Method 2: @DisplayName**
-```java
-@Test
-@DisplayName("When customer created with valid email, system returns 201 with customer ID")
-public void testCreateCustomer() {
-    // AI matches DisplayName to scenario
-}
-```
-
-**Method 3: Comment Reference**
-```java
-/**
- * Covers scenario: CUST-001
- * When customer created with valid data, return 201
- */
-@Test
-public void testCreateCustomerHappyPath() {
-    // Comment helps QA track, AI uses test name
-}
-```
-
-### Test Structure (AAA Pattern)
-
-```java
-@Test
-@DisplayName("When customer created with valid data, return 201")
-public void testCreateCustomer() {
-    // ARRANGE - Setup
-    CustomerRequest request = new CustomerRequest();
-    request.setEmail("test@example.com");
-    request.setName("John Doe");
-    
-    when(repository.save(any())).thenReturn(savedCustomer);
-    
-    // ACT - Execute
-    CustomerResponse response = service.createCustomer(request);
-    
-    // ASSERT - Verify
-    assertNotNull(response);
-    assertEquals(201, response.getStatusCode());
-    assertEquals("test@example.com", response.getEmail());
-    verify(repository).save(any());
-}
-```
-
-### Keywords for Better AI Matching
-
-Include these in test names/descriptions:
-- **HTTP Methods:** GET, POST, PUT, DELETE, PATCH
-- **Status Codes:** 200, 201, 400, 401, 403, 404, 409, 422, 500
-- **Actions:** create, get, update, delete, validate, process
-- **Conditions:** valid, invalid, missing, empty, duplicate, malformed
-- **Entities:** customer, order, user, product, payment
-
----
-
-## 💡 Real-World Examples
-
-### Example 1: New Feature Development
-
-**Scenario:** Developer adds a new customer search API
-
-**Steps:**
-1. Developer implements API endpoint
-2. Developer writes unit tests
-3. Pre-commit hook runs on commit
-4. System detects new API (Git Change Detection)
-5. AI generates baseline scenarios
-6. System detects orphan unit tests (tests without baseline)
-7. AI suggests scenarios for QA
-8. QA reviews and adds to baseline
-
-**System Output:**
-```
-🔍 Git changes detected:
-  + Added: GET /api/customers/search
-
-⚠️  Orphan Unit Tests: 3
-  - testSearchByEmail
-    💡 AI Suggestion: "When customer searched by email, return matching results"
-  - testSearchByPhone
-    💡 AI Suggestion: "When customer searched by phone, return matching results"
-  - testSearchNoResults
-    💡 AI Suggestion: "When search has no matches, return empty list"
-
-Action: QA should add these scenarios to baseline
-```
-
-### Example 2: Refactoring Existing Code
-
-**Scenario:** Developer refactors customer validation logic
-
-**Steps:**
-1. Developer modifies CustomerService.java
-2. Some tests may be affected
-3. Pre-commit detects changes
-4. Git Change Detector identifies affected tests
-5. System re-analyzes coverage
-6. Reports show if refactoring broke coverage
-
-**System Output:**
-```
-🔍 Git changes detected:
-  ~ Modified: CustomerService.java (45 lines changed)
-  
-📋 Affected Tests:
-  - testValidateEmail
-  - testValidatePhoneNumber
-  - testValidateRequiredFields
-
-📊 Coverage Analysis:
-  ✅ All scenarios still covered
-  No action required
-```
-
-### Example 3: API Sunset/Deprecation
-
-**Scenario:** Team decides to remove deprecated bulk upload API
-
-**Steps:**
-1. Developer deletes API endpoint
-2. Pre-commit detects removal
-3. System identifies orphaned scenarios
-4. Suggests baseline cleanup
-
-**System Output:**
-```
-🔍 Git changes detected:
-  - Removed: POST /api/customers/bulk
-
-⚠️  Stale Scenarios: 5
-  These scenarios are in baseline but API no longer exists:
-  - When bulk upload with CSV, process all rows
-  - When bulk upload with invalid format, return 400
-  ...
-
-Recommendation: Remove these scenarios from baseline
-File: .traceability/test-cases/baseline/customer-service-baseline.yml
-```
-
----
-
-## 🎯 Best Practices
-
-### For Developers
-
-1. **Write Descriptive Test Names**
-   - Include HTTP method and status code
-   - Use business-friendly language
-   - Match scenario language when possible
-
-2. **Use @DisplayName Annotations**
-   - Especially helpful in Java/Kotlin
-   - Makes AI matching more accurate
-   - Better test documentation
-
-3. **Group Related Tests**
-   - Use test classes for each API endpoint
-   - Keep tests close to implementation
-   - Maintain consistent naming conventions
-
-4. **Run Analysis Before Pushing**
-   - `npm run continue` before commit
-   - Review HTML report
-   - Fix P0/P1 gaps immediately
-
-5. **Don't Fight the Pre-Commit Hook**
-   - It's there to help quality
-   - Only bypass in true emergencies
-   - Fix gaps properly instead of skipping
-
-### For QA Engineers
-
-1. **Keep Baseline Updated**
-   - Review AI suggestions regularly
-   - Add scenarios for new features
-   - Remove scenarios for deprecated APIs
-
-2. **Use Proper Priority Levels**
-   - P0: Critical business scenarios
-   - P1: Important functionality
-   - P2: Edge cases
-   - P3: Nice-to-have
-
-3. **Write Clear Scenarios**
-   - Use "When...then..." format
-   - Include expected responses
-   - Be specific about conditions
-
-4. **Review Orphan Unit Tests**
-   - Check AI suggestions weekly
-   - Add suitable scenarios to baseline
-   - Work with developers on unclear tests
-
-5. **Monitor Visual Analytics**
-   - Track coverage trends over time
-   - Identify patterns in gaps
-   - Prioritize high-risk areas
-
-### For Team Leads
-
-1. **Set Coverage Standards**
-   - Define acceptable coverage thresholds
-   - Establish P0/P1 gap policies
-   - Configure pre-commit rules
-
-2. **Review Reports Regularly**
-   - Weekly coverage dashboard reviews
-   - Track orphan API trends
-   - Monitor technical debt
-
-3. **Facilitate Dev-QA Collaboration**
-   - Use AI suggestions as discussion starters
-   - Pair on gap resolution
-   - Share HTML reports in standups
-
-4. **Leverage CI/CD Integration**
-   - Parse JSON reports in pipeline
-   - Fail builds on coverage drops
-   - Track metrics over time
-
----
-
-## 🐛 Troubleshooting
-
-### Error: "Claude API key not found"
-
-```bash
-# Set API key
-export CLAUDE_API_KEY="sk-ant-your-key-here"
-# OR
-export ANTHROPIC_API_KEY="sk-ant-your-key-here"
-
-# Verify
-echo $CLAUDE_API_KEY
-```
-
-### Error: "No tests found"
-
-**Check Configuration:**
-```json
+// Service configuration now supports rust
 {
   "services": [{
-    "testDirectory": "src/test/java",  // Check this path
-    "testPattern": "*Test.java"         // Check this pattern
+    "name": "rust-service",
+    "language": "rust",
+    "testFramework": "cargo",
+    "testDirectory": "tests",
+    "testPattern": "*_test.rs"
   }]
 }
 ```
 
-**Verify Tests Exist:**
-```bash
-# Check test directory
-ls -la services/customer-service/src/test/java
+---
 
-# Find test files
-find services/customer-service -name "*Test.java"
+### Task 3: Adding a New Report Format
+
+**Example: Adding XML report format**
+
+**Step 1: Implement Generator Method**
+
+```typescript
+// lib/core/ReportGenerator.ts
+export class ReportGenerator {
+  async generateXML(data: AnalysisData): Promise<void> {
+    const xml = this.buildXML(data);
+    const filePath = path.join(
+      this.outputDir, 
+      `${data.serviceName}-report.xml`
+    );
+    
+    fs.writeFileSync(filePath, xml, 'utf-8');
+    console.log(`✅ XML: ${filePath}`);
+  }
+
+  private buildXML(data: AnalysisData): string {
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<coverage-report>
+  <service>${data.serviceName}</service>
+  <timestamp>${data.timestamp}</timestamp>
+  <summary>
+    <coverage>${data.summary.coveragePercent}</coverage>
+    <total-scenarios>${data.summary.totalScenarios}</total-scenarios>
+    <fully-covered>${data.summary.fullyCovered}</fully-covered>
+    <gaps>
+      <p0>${data.summary.p0Gaps}</p0>
+      <p1>${data.summary.p1Gaps}</p1>
+    </gaps>
+  </summary>
+  <apis>
+    ${data.apis.map(api => this.buildAPIXML(api)).join('\n')}
+  </apis>
+</coverage-report>`;
+  }
+
+  private buildAPIXML(api: any): string {
+    return `<api>
+  <endpoint>${api.endpoint}</endpoint>
+  <method>${api.method}</method>
+  <coverage>${api.coverage}</coverage>
+</api>`;
+  }
+}
 ```
 
-### Error: "Model detection failed"
+**Step 2: Update Report Generation Pipeline**
 
-**Solution:**
-```bash
-# The system will automatically fallback to Claude 3.5 Sonnet
-# If you see this, it means the Models API had issues
-# But the system continues with a fallback model
-
-# Console output:
-# ⚠️  Models API failed, trying fallback detection...
-# ✓ Using: claude-3-5-sonnet-20240620
+```typescript
+// lib/core/ReportGenerator.ts
+async generateReports(data: AnalysisData): Promise<void> {
+  const formats = this.config.formats || ['html', 'json', 'csv', 'markdown'];
+  
+  if (formats.includes('html')) {
+    await this.generateHTML(data);
+  }
+  if (formats.includes('json')) {
+    await this.generateJSON(data);
+  }
+  if (formats.includes('xml')) {  // Add this
+    await this.generateXML(data);
+  }
+  // ... other formats
+}
 ```
 
-### Low Coverage Scores
+**Step 3: Update Configuration**
 
-**Claude AI shows low matches:**
-
-1. **Improve Test Naming:**
-   - Use descriptive names that match scenario language
-   - Include HTTP methods and status codes
-   - Use @DisplayName annotations
-
-2. **Check Scenario Descriptions:**
-   - Make scenarios clear and specific
-   - Use "When...then..." format
-   - Include expected responses
-
-3. **Review AI Analysis:**
-   - Check the JSON report for AI explanations
-   - See what AI thought each test covered
-   - Adjust test names based on AI feedback
-
-### Pre-Commit Hook Not Running
-
-```bash
-# Re-install hooks
-npm run install:hooks
-
-# Check if hook exists
-ls -la .git/hooks/pre-commit
-
-# Make executable
-chmod +x .git/hooks/pre-commit
-
-# Verify content
-cat .git/hooks/pre-commit
-```
-
-### Reports Not Generated
-
-```bash
-# Check reports directory exists
-ls -la .traceability/reports/
-
-# Create if missing
-mkdir -p .traceability/reports
-
-# Check permissions
-chmod 755 .traceability/reports
-
-# Run analysis again
-npm run continue
+```json
+{
+  "reporting": {
+    "formats": ["html", "json", "xml"]
+  }
+}
 ```
 
 ---
 
-## 🎯 Quick Reference
+### Task 4: Customizing AI Prompts
 
-### File Locations
+**Location:** `lib/ai/providers/AnthropicProvider.ts`
 
+**Example: Customizing scenario generation prompt**
+
+```typescript
+// lib/ai/providers/AnthropicProvider.ts
+private buildScenarioPrompt(api: any): string {
+  return `You are a QA engineer analyzing an API endpoint.
+
+API Details:
+- Method: ${api.method}
+- Path: ${api.path}
+- Parameters: ${JSON.stringify(api.parameters)}
+- Request Body: ${JSON.stringify(api.requestBody)}
+- Responses: ${JSON.stringify(api.responses)}
+
+Generate comprehensive test scenarios covering:
+1. Happy Cases - Normal successful flows
+2. Error Cases - Expected failures and validation
+3. Edge Cases - Boundary conditions
+4. Security Cases - Auth, injection, etc.
+
+Format your response as YAML:
+happy_case:
+  - When [condition], [expected result]
+error_case:
+  - When [condition], [expected result]
+...
+
+Generate at least 8-12 scenarios total.
+Focus on realistic business scenarios.`;
+}
 ```
-.traceability/
-├── config.json                          # Configuration
-├── test-cases/
-│   ├── baseline/                        # QA-managed scenarios
-│   │   └── customer-service-baseline.yml
-│   └── ai_cases/                        # AI-generated (auto)
-│       └── customer-service-ai.yml      # ✅ in baseline, 🆕 new
-└── reports/                             # Generated reports
-    ├── customer-service-report.html     # Interactive dashboard
-    ├── customer-service-report.json     # CI/CD data
-    ├── customer-service-report.md       # Documentation
-    └── customer-service-report.csv      # Spreadsheet
-```
 
-### Common Commands
+**Testing Custom Prompts:**
 
 ```bash
-# Generate AI scenarios
+# Enable verbose mode to see prompts
+export VERBOSE=true
 npm run generate
 
-# Analyze coverage with AI
-npm run continue
-
-# Combined workflow
-npm run generate && npm run continue
-
-# Build
-npm run build
-
-# Install hooks
-npm run install:hooks
-
-# Emergency bypass
-git commit --no-verify -m "message"
+# Check AI responses in console
+# Adjust prompt based on AI output quality
 ```
 
-### Key Technologies
+---
 
-- **AI Engine:** Claude AI (Anthropic)
-- **Model:** Claude 4.5 Sonnet (auto-detected)
-- **Languages:** Java, TypeScript, Python, Go
-- **Reports:** HTML, JSON, Markdown, CSV
-- **Hook:** Git pre-commit (automatic)
+## 🐛 Debugging
 
-### Priority Levels
+### Enable Debug Mode
 
-- **P0 (Critical):** Must have tests, blocks commits
-- **P1 (High):** Important features, configurable blocking
-- **P2 (Medium):** Edge cases, recommended coverage
-- **P3 (Low):** Technical tests, no action needed
+```bash
+# Maximum verbosity
+export VERBOSE=true
+export DEBUG="*"
+
+# Run analysis
+npm run continue 2>&1 | tee debug.log
+```
+
+### Common Debugging Scenarios
+
+**Scenario 1: AI Not Matching Tests**
+
+```bash
+# Check what AI is seeing
+export VERBOSE=true
+npm run continue
+
+# Look for:
+# - Prompt sent to AI
+# - AI response
+# - Parsed matches
+
+# Common issues:
+# - Test names too generic
+# - Scenario descriptions unclear
+# - API key issues
+```
+
+**Scenario 2: Tests Not Being Found**
+
+```typescript
+// Add logging to TestParserFactory
+console.log('Parsing tests from:', testDirectory);
+console.log('Pattern:', testPattern);
+console.log('Found files:', foundFiles);
+
+// Check:
+// 1. testDirectory path correct?
+// 2. testPattern matches files?
+// 3. Parser supports language?
+```
+
+**Scenario 3: Reports Not Generated**
+
+```typescript
+// Add logging to ReportGenerator
+console.log('Generating report for:', serviceName);
+console.log('Output directory:', outputDir);
+console.log('Data:', JSON.stringify(data, null, 2));
+
+// Check:
+// 1. Output directory writable?
+// 2. Data structure correct?
+// 3. Template file exists?
+```
+
+### Using TypeScript Debugger
+
+**VS Code launch.json:**
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Continue",
+      "program": "${workspaceFolder}/bin/ai-continue",
+      "args": ["customer-service"],
+      "env": {
+        "CLAUDE_API_KEY": "your-key",
+        "VERBOSE": "true"
+      },
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+    }
+  ]
+}
+```
+
+### Logging Best Practices
+
+```typescript
+// Use console.log with prefixes
+console.log('📊 [Analyzer]', 'Processing API:', api);
+console.log('🤖 [AI]', 'Sending prompt...');
+console.log('✅ [Report]', 'Generated:', filePath);
+console.log('⚠️  [Warning]', 'Low confidence match');
+console.log('❌ [Error]', error.message);
+
+// Conditional logging
+if (process.env.VERBOSE === 'true') {
+  console.log('🔍 [Debug]', detailedInfo);
+}
+```
+
+---
+
+## 🧪 Testing
+
+### Manual Testing
+
+```bash
+# Test generation
+npm run generate
+
+# Test analysis
+npm run continue
+
+# Test specific service
+node bin/ai-continue customer-service
+
+# Test with sample data
+# Edit .traceability/test-cases/baseline/*.yml
+# Add test scenarios
+npm run continue
+```
+
+### Integration Testing
+
+```typescript
+// Create test service configuration
+const testConfig = {
+  name: 'test-service',
+  path: './test-fixtures/service',
+  language: 'java',
+  testFramework: 'junit',
+  testDirectory: 'src/test/java',
+  testPattern: '*Test.java'
+};
+
+// Run analysis
+const analyzer = new EnhancedCoverageAnalyzer();
+const result = await analyzer.analyze(testConfig);
+
+// Assert results
+assert(result.coveragePercent > 0);
+assert(result.apis.length > 0);
+```
+
+### End-to-End Testing
+
+```bash
+# Create complete test scenario
+mkdir -p test-e2e/services/test-service
+mkdir -p test-e2e/.traceability/test-cases/baseline
+
+# Add test files
+cp -r fixtures/* test-e2e/
+
+# Run full analysis
+cd test-e2e
+npm run generate
+npm run continue
+
+# Verify reports
+ls .traceability/reports/
+```
+
+---
+
+## 📝 Contributing Guidelines
+
+### Code Style
+
+```typescript
+// Use TypeScript strict mode
+"strict": true
+
+// Prefer const over let
+const data = loadData();
+
+// Use async/await over promises
+async function analyze() {
+  const result = await fetchData();
+}
+
+// Type everything
+function process(data: AnalysisData): Report {
+  // ...
+}
+
+// Use descriptive names
+const coveragePercentage = calculateCoverage();
+```
+
+### Commit Messages
+
+```bash
+# Format: <type>(<scope>): <subject>
+
+# Types:
+feat: New feature
+fix: Bug fix
+docs: Documentation
+style: Formatting
+refactor: Code restructuring
+test: Tests
+chore: Maintenance
+
+# Examples:
+feat(ai): add Gemini provider support
+fix(parser): handle edge case in Java parser
+docs(dev): update contributor guide
+refactor(core): simplify analyzer logic
+```
+
+### Pull Request Process
+
+1. **Create Feature Branch**
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+
+2. **Make Changes**
+   - Write code
+   - Add tests
+   - Update documentation
+
+3. **Test Thoroughly**
+   ```bash
+   npm run build
+   npm run continue
+   # Verify all works
+   ```
+
+4. **Commit**
+   ```bash
+   git add .
+   git commit -m "feat: your feature"
+   ```
+
+5. **Push and Create PR**
+   ```bash
+   git push origin feature/your-feature
+   # Create PR on GitHub
+   ```
+
+6. **PR Checklist**
+   - [ ] Code builds successfully
+   - [ ] All existing functionality works
+   - [ ] New feature tested manually
+   - [ ] Documentation updated
+   - [ ] No console errors
+   - [ ] Commit messages follow convention
+
+---
+
+## 🔐 Security Considerations
+
+### API Key Management
+
+```typescript
+// ✅ Good: Environment variables
+const apiKey = process.env.CLAUDE_API_KEY;
+
+// ❌ Bad: Hardcoded keys
+const apiKey = 'sk-ant-...';  // Never do this!
+
+// ✅ Good: Validation
+if (!apiKey) {
+  throw new Error('API key not set');
+}
+
+// ✅ Good: Never log keys
+console.log('API key:', apiKey.substring(0, 10) + '...');
+```
+
+### Data Privacy
+
+```typescript
+// Only send necessary data to AI
+const prompt = buildPrompt({
+  apiSpec: api.spec,         // ✅ OK
+  testNames: tests.map(t => t.name),  // ✅ OK
+  sourceCode: fullCode       // ❌ Avoid if possible
+});
+
+// Sanitize sensitive data
+function sanitize(data: any): any {
+  return {
+    ...data,
+    apiKey: undefined,
+    secrets: undefined,
+    credentials: undefined
+  };
+}
+```
 
 ---
 
 ## 📚 Additional Resources
 
-- **Main Documentation:**
-  - `README.md` - Project overview and quick start
-  - `docs/QA_GUIDE.md` - QA workflow and baseline management
-  - `docs/TESTING-GUIDE.md` - Testing and validation guide
-  
-- **Test Case Documentation:**
-  - `docs/DETAILED-CASE-MAPPINGS.md` - Complete traceability matrix for all 5 APIs (Cases 1, 3, 4, 5, 6)
-  - `docs/AI-PRIORITY-LOGIC.md` - How P0/P1/P2/P3 priorities work
-  - `docs/TWO-PHASE-ANALYSIS-EXPLAINED.md` - Baseline vs completeness
-  - `docs/DETAILED-CASE-MAPPINGS.md` - All 3 cases with exact mappings and details
+### TypeScript References
 
-- **Technical Documentation:**
-  - `docs/SCENARIO-COMPLETENESS-DETECTION.md` - Completeness detection
-  - `IMPLEMENTATION_SUMMARY.md` - Implementation overview
-  - `FEATURES.md` - Complete feature list
+- **Official Docs:** https://www.typescriptlang.org/docs/
+- **tsconfig.json:** Project TypeScript configuration
+- **Type Definitions:** `lib/types.ts`
 
----
+### AI Provider Documentation
 
-## 📜 Version History
+- **Anthropic (Claude):** https://docs.anthropic.com/
+- **OpenAI (GPT):** https://platform.openai.com/docs
 
-### v6.2.0 (December 13, 2025) - Current Release
+### Related Guides
 
-**Major Features:**
-- **Business Journeys (E2E)** - Track end-to-end user workflows
-- **Historical Trend Analysis** - 30-day coverage tracking with charts
-- **Journey Status** - FULLY_COVERED / PARTIAL_COVERAGE / AT_RISK / NOT_COVERED
-- Fixed journey status calculation for accurate reporting
-- AI stability improvements (temperature=0.0)
-- Fixed "Scenarios Without Unit Test" capitalization
-- Fixed trend chart date parsing
-
-**New Components:**
-- `JourneyCoverageAnalyzer.ts` - E2E workflow analysis
-- `E2EJourneyParser.ts` - Journey YAML parsing
-- `E2ETestScanner.ts` - E2E test detection
-- `HistoryManager.ts` - Historical data management
-
-### v6.1.0 (December 10, 2025)
-
-**Major Features:**
-- Premium Report Redesign with enterprise-grade visuals
-- Colored coverage badges
-- Collapsible sections
-- Animated shimmer header
-
-### v6.0.0 (December 2025)
-
-**Major Features:**
-- Orphan Unit Test Detection with AI-suggested scenarios
-- Orphan API Detection for completely untracked endpoints
-- Visual Analytics Dashboard with interactive charts
-- Enhanced 3-Layer Completeness Detection with reverse check
-- Improved Git Change Detection with impact analysis
-
-### v5.0.0
-- 3-Layer Scenario Completeness Detection
-- Bidirectional gap analysis
-- Change Impact Analysis with affected tests tracking
-
-### v4.0.0
-- Multi-format reporting (HTML, JSON, CSV, Markdown)
-- Git integration for change detection
-- Orphan test categorization (Technical vs Business)
-
-### v3.0.0
-- Claude AI integration for coverage analysis
-- Pre-commit hook validation
-- Automated scenario-to-test mapping
+- **[Architecture](ARCHITECTURE.md)** - System design details
+- **[Configuration](CONFIGURATION.md)** - All configuration options
+- **[Getting Started](GETTING_STARTED.md)** - Basic setup
+- **[QA Guide](QA_GUIDE.md)** - For QA team members
 
 ---
 
-**Version:** 6.2.0  
-**Powered By:** Claude AI (Anthropic)  
-**Status:** Production Ready  
-**Build:** ✅ Passing  
-**Business Journeys:** 🚀 E2E Workflow Tracking  
-**Historical Trends:** 📈 30-Day Coverage Tracking
+## 🤝 Getting Help
+
+### Documentation
+
+1. Check this guide first
+2. Review [Architecture](ARCHITECTURE.md) for design
+3. Check [Troubleshooting](TROUBLESHOOTING.md) for common issues
+
+### Code Examples
+
+```bash
+# Look at existing implementations
+lib/parsers/JavaTestParser.ts      # Parser example
+lib/ai/providers/AnthropicProvider.ts  # AI provider example
+lib/core/ReportGenerator.ts        # Report generation
+```
+
+### Community
+
+- Create GitHub issue for bugs
+- Discussion forum for questions
+- Pull requests for contributions
 
 ---
 
-**Key Takeaway:** This system is 100% powered by Claude AI using natural language understanding. No manual fuzzy matching, pattern matching, or similarity algorithms. The AI analyzes scenarios and tests intelligently, providing context-aware recommendations and categorizations.
+**Version:** 6.3.0 | **Status:** Production Ready ✅

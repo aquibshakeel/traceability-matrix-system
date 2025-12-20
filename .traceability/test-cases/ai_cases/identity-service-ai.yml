@@ -1,5 +1,5 @@
 # AI-Generated Test Scenarios
-# Generated: 2025-12-19T22:57:29.384Z
+# Generated: 2025-12-20T01:44:58.312Z
 # (✅ = in baseline, 🆕 = new suggestion, 🔧 = modified, ⚠️ = verify)
 # DO NOT EDIT - regenerated automatically
 # Copy relevant 🆕 scenarios to baseline/identity-service-baseline.yml
@@ -125,7 +125,7 @@ POST /identity/verify-otp:
     - When rate limit exceeded for OTP attempts, return 429 too many requests  🆕
     - When maximum retry attempts exceeded, return 403 account locked  🆕
     - When required field 'otp' missing, return 400 validation error  🆕
-    - When required field 'identifier' missing, return 400 bad request  🆕
+    - When required field 'identifier' missing, return 400 validation error  🆕
     - When invalid JSON format in body, return 400 malformed request  🆕
     - When server error during verification, return 500 internal error  🆕
     - When database connection fails, return 500 service unavailable  🆕
@@ -135,10 +135,10 @@ POST /identity/verify-otp:
     - When identifier contains SQL injection (e.g., ' OR '1'='1), reject with 400  🆕
     - When OTP contains XSS script tags, sanitize and return 400  🆕
     - When identifier contains XSS payload, sanitize and reject  🆕
-    - When attempting to verify OTP for different user without auth, return 401  ✅
-    - When brute forcing OTP with multiple attempts, implement rate limiting and lockout  🆕
-    - When replaying previously valid OTP, return 400 OTP already used  🆕
-    - When submitting OTP without proper CSRF token, return 403  🆕
-    - When using expired or invalid session token, return 401 unauthorized  ✅
-    - When attempting timing attack on OTP validation, use constant-time comparison  🆕
+    - When attempting brute force with multiple OTPs, implement rate limiting  🆕
+    - When no CSRF token provided, return 403 forbidden  🆕
+    - When invalid or expired session token, return 401 unauthorized  ✅
+    - When attempting to verify OTP for different user, return 403 forbidden  🆕
+    - When request contains NoSQL injection patterns, sanitize and reject  🆕
+    - When attempting replay attack with old valid OTP, return 400 OTP expired  🆕
 

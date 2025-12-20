@@ -141,9 +141,33 @@ Creates baseline scenarios in `.traceability/test-cases/baseline/{service}-basel
 
 ### Analyze Coverage
 
+#### Option 1: Using Config File
+
 ```bash
 npm run continue
 ```
+
+#### Option 2: External Repository CLI (v6.3.0) 🆕
+
+**NEW:** Pass service and baseline paths directly via command line!
+
+```bash
+# Analyze customer-service from external repos
+npm run continue -- customer-service \
+  --service-path=/Users/username/pulse-services/customer-service \
+  --baseline-path=/Users/username/qa-test-scenario/baseline/customer-service-baseline.yml
+
+# Analyze identity-service
+npm run continue -- identity-service \
+  --service-path=/Users/username/pulse-services/identity-service \
+  --baseline-path=/Users/username/qa-test-scenario/baseline/identity-service-baseline.yml
+```
+
+**When to use CLI arguments:**
+- ✅ Services in separate repository
+- ✅ QA scenarios in separate repository  
+- ✅ CI/CD pipelines
+- ✅ On-the-fly path overrides
 
 This comprehensive command:
 - ✅ Analyzes coverage using AI
@@ -478,22 +502,85 @@ npm run generate
 
 ## 📚 Documentation
 
-- **📖 Complete Guides:**
-  - `docs/DEV_GUIDE.md` - Developer guide with implementation details
-  - `docs/QA_GUIDE.md` - QA guide for test scenario management  
-  - `docs/TESTING-GUIDE.md` - Comprehensive testing and validation guide
-  - `docs/TEST-CASES-GUIDE.md` - **NEW:** Demonstration test cases (Cases 4, 5, 6)
+### 🚀 Getting Started
 
-- **📋 Feature Documentation:**
+**New to the system?** Start here:
+- **[📖 Getting Started Guide](docs/GETTING_STARTED.md)** - Complete 15-minute tutorial for beginners
+  - Installation and setup
+  - Your first analysis
+  - Understanding reports
+  - Next steps
+
+### 📖 Core Documentation
+
+**Essential guides for all users:**
+- **[⚙️ Configuration Guide](docs/CONFIGURATION.md)** - All configuration options
+  - AI provider setup (Claude & OpenAI)
+  - Service configuration
+  - External repositories
+  - Environment variables
+  
+- **[📊 Reports Guide](docs/REPORTS_GUIDE.md)** - Understanding reports
+  - Reading all 8 report sections
+  - Acting on gaps and orphans
+  - Export formats (JSON, CSV, MD)
+  - Daily workflows
+
+- **[❓ Troubleshooting Guide](docs/TROUBLESHOOTING.md)** - Common issues & solutions
+  - Installation, configuration, API key issues
+  - Analysis and report problems
+  - Performance optimization
+  - FAQ section
+
+### 👥 Role-Specific Guides
+
+**For your team:**
+- **[🧪 QA Engineer Guide](docs/QA_GUIDE.md)** - For QA team members
+  - Writing baseline scenarios
+  - Managing business journeys
+  - Reviewing AI suggestions
+  - Gap management
+  
+- **[👨‍💻 Developer Guide](docs/DEV_GUIDE.md)** - For developers
+  - Contributing to the system
+  - Adding new features
+  - Debugging techniques
+  - Extension points
+
+### 🏗 Technical Documentation
+
+**Deep dive into the system:**
+- **[🏗 Architecture Guide](docs/ARCHITECTURE.md)** - System design
+  - High-level architecture
+  - Component relationships
+  - Data flow
+  - Extension points
+
+### 📋 Additional Resources
+
+- **Feature Documentation:**
   - `FEATURES.md` - Complete feature list with examples
   - `IMPLEMENTATION_SUMMARY.md` - Implementation overview
-  - `docs/SCENARIO-COMPLETENESS-DETECTION.md` - Completeness detection details
+  - `docs/SCENARIO-COMPLETENESS-DETECTION.md` - Completeness detection
+  - `docs/EXTERNAL_REPOS.md` - External repository setup
 
-- **🎯 Test Case Documentation:**
-  - `docs/TEST-CASES-GUIDE.md` - Overview of demonstration cases
-  - `docs/AI-PRIORITY-LOGIC.md` - How P0/P1/P2/P3 priorities are determined
-  - `docs/TWO-PHASE-ANALYSIS-EXPLAINED.md` - Baseline vs completeness phases
-  - `docs/DETAILED-CASE-MAPPINGS.md` - All 3 cases with exact mappings and details
+- **Test Case Documentation:**
+  - `docs/TEST-CASES-GUIDE.md` - Demonstration cases overview
+  - `docs/AI-PRIORITY-LOGIC.md` - P0/P1/P2/P3 priorities
+  - `docs/TWO-PHASE-ANALYSIS-EXPLAINED.md` - Baseline vs completeness
+  - `docs/DETAILED-CASE-MAPPINGS.md` - Complete mappings
+
+### 🎯 Quick Links by Task
+
+| I want to... | Read this guide |
+|--------------|----------------|
+| Get started quickly | [Getting Started](docs/GETTING_STARTED.md) |
+| Configure the system | [Configuration](docs/CONFIGURATION.md) |
+| Understand reports | [Reports Guide](docs/REPORTS_GUIDE.md) |
+| Fix an issue | [Troubleshooting](docs/TROUBLESHOOTING.md) |
+| Write test scenarios (QA) | [QA Guide](docs/QA_GUIDE.md) |
+| Contribute code (Dev) | [Developer Guide](docs/DEV_GUIDE.md) |
+| Understand architecture | [Architecture](docs/ARCHITECTURE.md) |
 
 ---
 

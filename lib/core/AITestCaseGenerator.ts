@@ -72,9 +72,13 @@ export class AITestCaseGenerator {
     console.log(`\n🤖 Generating AI test cases: ${service.name}`);
     console.log('='.repeat(70));
     
+    // Resolve service path using PathResolver
+    const resolvedPath = this.pathResolver.resolveServicePath(service.name);
+    const serviceWithResolvedPath = { ...service, path: resolvedPath };
+    
     // 1. Detect git changes
     const gitDetector = new GitChangeDetector(path.dirname(this.aiCasesDir));
-    const gitChanges = await gitDetector.detectChanges([service.path]);
+    const gitChanges = await gitDetector.detectChanges([serviceWithResolvedPath.path]);
     const changeMap = new Map<string, any>();
     
     for (const change of gitChanges.apiChanges) {
@@ -96,7 +100,7 @@ export class AITestCaseGenerator {
     
     // 2. Spin service
     await this.serviceManager.ensureServiceRunning({
-      name: service.name,
+      name: serviceWithResolvedPath.name,
       startCommand: service.startCommand,
       stopCommand: service.stopCommand,
       healthCheckUrl: service.healthCheckUrl,
@@ -105,7 +109,7 @@ export class AITestCaseGenerator {
     
     // 3. Discover APIs
     console.log(`\n📡 Discovering APIs...`);
-    const apis = await this.discoverAPIs(service);
+    const apis = await this.discoverAPIs(serviceWithResolvedPath);
     console.log(`   ✓ Found ${apis.length} APIs`);
     
     // 4. Generate AI scenarios (NO access to baseline)
@@ -119,13 +123,13 @@ export class AITestCaseGenerator {
     }
     
     // 5. Mark which are in baseline (separate step)
-    const baseline = this.loadBaseline(service);
+    const baseline = this.loadBaseline(serviceWithResolvedPath);
     const baselineCount = this.countScenarios(baseline);
     console.log(`\n📋 Comparing with baseline (${baselineCount} scenarios)...`);
     const marked = this.markBaseline(aiScenarios, baseline);
     
     // 6. Save with change impact
-    this.save(service, marked, changeMap);
+    this.save(serviceWithResolvedPath, marked, changeMap);
     
     console.log(`\n✅ Generation complete!`);
     console.log('='.repeat(70));
@@ -261,7 +265,21 @@ export class AITestCaseGenerator {
     const data = yaml.load(content) as any;
     
     // Extract just the scenarios part (skip service metadata)
-    const { service: _, ...scenarios } = data;
+    const { service: _, api_mapping, ...scenarios } = data;
+    
+    // If api_mapping exists, convert custom keys to actual endpoints
+    if (api_mapping) {
+      const normalizedScenarios: any = {};
+      
+      for (const [customKey, actualEndpoint] of Object.entries(api_mapping)) {
+        if (scenarios[customKey]) {
+          normalizedScenarios[actualEndpoint as string] = scenarios[customKey];
+        }
+      }
+      
+      return normalizedScenarios;
+    }
+    
     return scenarios;
   }
 

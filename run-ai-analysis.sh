@@ -48,7 +48,9 @@ echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━�
 echo -e "${BLUE}STEP 1: Generating AI Test Cases${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-npm run generate $SERVICE_NAME -- --service-path=$SERVICE_PATH/$SERVICE_NAME
+npm run generate $SERVICE_NAME -- \
+  --service-path=$SERVICE_PATH/$SERVICE_NAME \
+  --baseline-path=$TEST_SCENARIO_PATH/${SERVICE_NAME}-baseline.yml
 
 echo
 echo -e "${GREEN}✅ AI cases generated!${NC}"

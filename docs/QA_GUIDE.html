@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QA Guide - AI-Driven Test Coverage System</title>
+    <title>QA Engineer Guide - AI-Driven Test Coverage System</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
             --success-color: #10b981;
             --warning-color: #f59e0b;
             --danger-color: #ef4444;
@@ -117,60 +117,6 @@
         th, td { padding: 1rem; text-align: left; border: 1px solid #e2e8f0; }
         tbody tr:nth-child(even) { background: #f8fafc; }
         tbody tr:hover { background: #f1f5f9; }
-        .feature-box {
-            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-            border: 2px solid #667eea;
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-        }
-        .feature-box h3 { margin-top: 0; color: #667eea; }
-        .workflow-step {
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin: 1rem 0;
-            position: relative;
-        }
-        .workflow-step::before {
-            content: '';
-            position: absolute;
-            left: 50%;
-            bottom: -2rem;
-            width: 2px;
-            height: 2rem;
-            background: #cbd5e1;
-        }
-        .workflow-step:last-child::before { display: none; }
-        .workflow-step h4 { margin: 0 0 0.5rem; color: #667eea; }
-        .benefits-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-        .benefit-item {
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 0.5rem;
-            padding: 1.25rem;
-            transition: all 0.3s;
-        }
-        .benefit-item:hover {
-            border-color: #667eea;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
-        }
-        .benefit-item h4 { margin: 0 0 0.5rem; color: #667eea; font-size: 1rem; }
-        .command-box {
-            background: #f8fafc;
-            border-left: 4px solid #667eea;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 0.25rem;
-        }
-        .command-box h4 { margin: 0 0 0.5rem; font-size: 1rem; color: #667eea; }
         .scroll-top {
             position: fixed;
             bottom: 2rem;
@@ -201,11 +147,11 @@
 </head>
 <body>
     <div class="header">
-        <h1>🤖 QA Guide - AI-Driven Test Coverage System</h1>
+        <h1>🧪 QA Engineer Guide</h1>
         <div class="header-meta">
-            <span><strong>Version:</strong> 6.3.0 ✨ Enterprise Edition</span>
-            <span><strong>Last Updated:</strong> December 18, 2025</span>
-            <span><strong>Audience:</strong> QA Engineers, Test Managers, Business Analysts</span>
+            <span><strong>Version:</strong> 6.3.0</span>
+            <span><strong>Last Updated:</strong> December 20, 2025</span>
+            <span><strong>Difficulty:</strong> Intermediate</span>
         </div>
     </div>
 
@@ -214,673 +160,595 @@
             <h3>📋 Contents</h3>
             <nav>
                 <ul>
-                    <li><a href="#what-is-this">What is This System?</a></li>
-                    <li><a href="#quick-start">Quick Start</a></li>
-                    <li><a href="#how-ai-works">How Claude AI Works</a></li>
-                    <li><a href="#qa-workflow">QA Workflow</a></li>
-                    <li><a href="#writing-scenarios">Writing Business Scenarios</a></li>
-                    <li><a href="#understanding-reports">Understanding Reports</a></li>
-                    <li><a href="#manual-execution">Manual Execution</a></li>
-                    <li><a href="#onboarding">Onboarding New Service</a></li>
-                    <li><a href="#quick-reference">Quick Reference</a></li>
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#role">QA Role in System</a></li>
+                    <li><a href="#workflows">Daily QA Workflows</a></li>
+                    <li><a href="#scenarios">Writing Baseline Scenarios</a></li>
+                    <li><a href="#journeys">Managing Business Journeys</a></li>
+                    <li><a href="#reports">Working with Reports</a></li>
+                    <li><a href="#orphans">Reviewing Orphan Tests</a></li>
+                    <li><a href="#gaps">Gap Management</a></li>
+                    <li><a href="#collaboration">Collaborating with Developers</a></li>
+                    <li><a href="#metrics">Metrics and Reporting</a></li>
                 </ul>
             </nav>
         </aside>
 
         <main class="main-content">
             <div class="content-wrapper">
-                <section id="what-is-this">
-                    <h2>🎯 What is This System?</h2>
+                <section id="overview">
+                    <h2>📖 Overview</h2>
                     
-                    <h3>Purpose</h3>
-                    <p>An <strong>AI-powered system</strong> that uses <strong>Claude AI</strong> to automatically validate whether business scenarios have corresponding unit test coverage.</p>
-
-                    <div class="feature-box">
-                        <h3>🤖 Powered by Claude AI (Anthropic)</h3>
-                        <ul>
-                            <li>Natural language understanding</li>
-                            <li>No manual pattern matching</li>
-                            <li>100% AI-driven analysis</li>
-                            <li>Auto-detects best Claude model</li>
-                        </ul>
-                    </div>
-
-                    <h3>Key Benefits for QA</h3>
-                    <div class="benefits-grid">
-                        <div class="benefit-item">
-                            <h4>✅ Automated Validation</h4>
-                            <p>Runs on every developer commit</p>
-                        </div>
-                        <div class="benefit-item">
-                            <h4>✅ AI-Generated Scenarios</h4>
-                            <p>Claude AI suggests test scenarios from APIs</p>
-                        </div>
-                        <div class="benefit-item">
-                            <h4>✅ AI-Powered Matching</h4>
-                            <p>Intelligent scenario-to-test mapping</p>
-                        </div>
-                        <div class="benefit-item">
-                            <h4>✅ Smart Recommendations</h4>
-                            <p>Context-aware suggestions</p>
-                        </div>
-                        <div class="benefit-item">
-                            <h4>✅ Orphan Detection</h4>
-                            <p>AI categorizes orphan tests</p>
-                        </div>
-                        <div class="benefit-item">
-                            <h4>✅ Visual Dashboards</h4>
-                            <p>Interactive charts</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="quick-start">
-                    <h2>⚡ Quick Start</h2>
-
-                    <h3>Prerequisites</h3>
-                    <pre><code># Required
-export CLAUDE_API_KEY="sk-ant-your-key-here"</code></pre>
-
-                    <h3>First Time Setup</h3>
-                    <div style="max-width: 800px; margin: 0 auto;">
-                        <div class="workflow-step">
-                            <h4>1. Generate AI scenarios from APIs</h4>
-                            <pre><code>npm run generate</code></pre>
-                        </div>
-                        <div class="workflow-step">
-                            <h4>2. Review AI suggestions</h4>
-                            <p>Edit: <code>.traceability/test-cases/baseline/&lt;service&gt;-baseline.yml</code></p>
-                        </div>
-                        <div class="workflow-step">
-                            <h4>3. Analyze coverage</h4>
-                            <pre><code>npm run continue</code></pre>
-                        </div>
-                        <div class="workflow-step">
-                            <h4>4. Open HTML report</h4>
-                            <pre><code>open .traceability/reports/&lt;service&gt;-report.html</code></pre>
-                        </div>
-                    </div>
-
-                    <h3>Daily Usage</h3>
-                    <pre><code># Check coverage status
-npm run continue
-
-# View reports
-open .traceability/reports/&lt;service&gt;-report.html</code></pre>
-                </section>
-
-                <section id="how-ai-works">
-                    <h2>🤖 How Claude AI Works</h2>
+                    <p>This guide is for QA engineers who:</p>
+                    <ul>
+                        <li>Write and maintain baseline test scenarios</li>
+                        <li>Review AI-generated scenario suggestions</li>
+                        <li>Monitor test coverage metrics</li>
+                        <li>Define business journeys (E2E workflows)</li>
+                        <li>Work with developers on gap resolution</li>
+                    </ul>
 
                     <div class="alert alert-info">
-                        <h4>Two-Phase System</h4>
-                        <p><strong>Important:</strong> This system uses Claude AI with natural language understanding, NOT manual fuzzy matching or pattern matching.</p>
+                        <h4>📚 Prerequisites</h4>
+                        <p>This guide assumes you've read:</p>
+                        <ul style="margin-bottom: 0;">
+                            <li><strong>Getting Started</strong> - Basic setup and usage</li>
+                            <li><strong>Reports Guide</strong> - Understanding reports</li>
+                        </ul>
                     </div>
+                </section>
 
-                    <h3>Phase 1: AI Scenario Generation</h3>
-                    <pre><code>// System discovers APIs (Swagger + Code Scan)
-APIs discovered: POST /api/customers, GET /api/customers/{id}, ...
+                <section id="role">
+                    <h2>🎯 QA Role in the System</h2>
 
-// Sends to Claude AI
-Prompt: "Generate test scenarios for API: POST /api/customers
-         Generate scenarios in categories: happy_case, edge_case, error_case, security"
+                    <h3>What QA Manages</h3>
+                    <ol>
+                        <li><strong>Baseline Scenarios</strong> (<code>.traceability/test-cases/baseline/</code>)
+                            <ul>
+                                <li>Authoritative test requirements</li>
+                                <li>Version-controlled YAML files</li>
+                                <li>One file per service</li>
+                            </ul>
+                        </li>
+                        <li><strong>Business Journeys</strong> (<code>.traceability/test-cases/journeys/</code>)
+                            <ul>
+                                <li>End-to-end user workflows</li>
+                                <li>Multi-step API sequences</li>
+                                <li>E2E test verification</li>
+                            </ul>
+                        </li>
+                        <li><strong>Coverage Quality</strong>
+                            <ul>
+                                <li>Review AI suggestions</li>
+                                <li>Validate traceability</li>
+                                <li>Prioritize gaps</li>
+                                <li>Track metrics</li>
+                            </ul>
+                        </li>
+                    </ol>
 
-// Claude AI responds with scenarios
-Response: {
-  "happy_case": ["When customer created with valid data, return 201"],
-  "error_case": ["When created with missing email, return 400"]
-}</code></pre>
+                    <h3>What System Provides</h3>
+                    <ol>
+                        <li><strong>AI-Generated Suggestions</strong> - Auto-generated from API specs</li>
+                        <li><strong>Coverage Reports</strong> - HTML dashboards, gap analysis, orphan detection</li>
+                        <li><strong>Automated Validation</strong> - Pre-commit hooks, CI/CD integration</li>
+                    </ol>
+                </section>
+
+                <section id="workflows">
+                    <h2>🔄 Daily QA Workflows</h2>
+
+                    <h3>Workflow 1: Morning Coverage Check</h3>
+                    <pre><code># 1. Run analysis
+npm run continue
+
+# 2. Open report
+open .traceability/reports/customer-service-report.html
+
+# 3. Review:
+# - Coverage percentage (target: >80%)
+# - P0 gaps (should be 0)
+# - New orphan tests
+# - Historical trend</code></pre>
+
+                    <h3>Workflow 2: Reviewing AI Suggestions</h3>
+                    <pre><code># 1. Generate fresh AI scenarios
+npm run generate
+
+# 2. Review AI suggestions
+cat .traceability/test-cases/ai_cases/customer-service-ai.yml
+
+# 3. Compare with baseline
+diff .traceability/test-cases/baseline/customer-service-baseline.yml \
+     .traceability/test-cases/ai_cases/customer-service-ai.yml
+
+# 4. Add valuable suggestions to baseline
+# Edit: .traceability/test-cases/baseline/customer-service-baseline.yml
+
+# 5. Re-analyze
+npm run continue</code></pre>
+
+                    <h3>Workflow 3: Adding New Service Scenarios</h3>
+                    <pre><code># 1. Create baseline file
+touch .traceability/test-cases/baseline/new-service-baseline.yml
+
+# 2. Write initial scenarios
+cat > .traceability/test-cases/baseline/new-service-baseline.yml << 'EOF'
+service: new-service
+
+POST /api/resource:
+  happy_case:
+    - When resource created with valid data, return 201
+  error_case:
+    - When resource created with missing field, return 400
+EOF
+
+# 3. Analyze
+npm run continue
+
+# 4. Review coverage
+open .traceability/reports/new-service-report.html</code></pre>
+
+                    <h3>Workflow 4: Sprint Planning</h3>
+                    <pre><code># 1. Generate coverage report
+npm run continue
+
+# 2. Export to CSV
+# Open: .traceability/reports/customer-service-report.csv
+
+# 3. Filter by priority
+# In Excel: Filter "Priority" column for P0, P1
+
+# 4. Add to sprint backlog
+# Create tickets for gaps
+
+# 5. Track progress
+# Re-run npm run continue daily</code></pre>
+                </section>
+
+                <section id="scenarios">
+                    <h2>✍️ Writing Baseline Scenarios</h2>
+
+                    <h3>Scenario Format</h3>
+                    <p><strong>Template:</strong> <code>When [condition], [expected result]</code></p>
+
+                    <h4>Good Examples</h4>
+                    <pre><code>service: customer-service
+
+POST /api/customers:
+  happy_case:
+    - When customer created with valid data, return 201 with customer ID
+    - When customer created with all optional fields, save complete profile
+  
+  error_case:
+    - When customer created with missing email, return 400 with validation error
+    - When customer created with invalid email format, return 400
+    - When customer created with duplicate email, return 409
+  
+  edge_case:
+    - When customer name is at maximum length (255 chars), accept successfully
+    - When customer age is 0, accept as valid
+  
+  security:
+    - When customer created without authentication token, return 401
+    - When customer name contains SQL injection attempt, sanitize and return 400</code></pre>
+
+                    <h3>Scenario Categories</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Purpose</th>
+                                <th>Priority</th>
+                                <th>Examples</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>happy_case</td>
+                                <td>Normal success flows</td>
+                                <td>P3</td>
+                                <td>Valid data returns 201</td>
+                            </tr>
+                            <tr>
+                                <td>error_case</td>
+                                <td>Expected failures</td>
+                                <td>P1-P2</td>
+                                <td>Missing fields return 400</td>
+                            </tr>
+                            <tr>
+                                <td>edge_case</td>
+                                <td>Boundary conditions</td>
+                                <td>P2</td>
+                                <td>Max length, zero values</td>
+                            </tr>
+                            <tr>
+                                <td>security</td>
+                                <td>Auth, injection, XSS</td>
+                                <td>P0</td>
+                                <td>No auth returns 401</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
                     <div class="alert alert-success">
-                        <h4>QA Role:</h4>
-                        <ol>
-                            <li>Review AI-generated scenarios in <code>ai_cases/</code> folder</li>
-                            <li>Select relevant scenarios</li>
-                            <li>Add to baseline in <code>baseline/</code> folder</li>
-                        </ol>
+                        <h4>✅ Do:</h4>
+                        <pre><code># Specific and testable
+- When customer created with email "test@example.com", return 201
+
+# Includes expected status code
+- When login fails with wrong password, return 401
+
+# Clear condition and result
+- When OTP expired, return 401 with "OTP expired" message</code></pre>
                     </div>
 
-                    <h3>Phase 2: AI Coverage Analysis</h3>
-                    <pre><code>// Sends baseline + unit tests to Claude AI
-Prompt: "Analyze coverage for POST /api/customers
-         Determine coverage status for each scenario"
-
-// Claude AI responds with analysis
-Response: {
-  "matches": [{
-    "scenario": "When customer created with valid data, return 201",
-    "status": "FULLY_COVERED",
-    "testNumbers": [1]
-  }]
-}</code></pre>
-
-                    <h3>Coverage Status Indicators</h3>
-                    <div class="alert alert-success">
-                        <h4>✅ FULLY_COVERED</h4>
-                        <p>Claude AI confirmed unit test fully covers the scenario</p>
-                    </div>
-                    <div class="alert alert-warning">
-                        <h4>⚠️ PARTIALLY_COVERED</h4>
-                        <p>Test exists but doesn't fully cover all aspects</p>
-                    </div>
                     <div class="alert alert-danger">
-                        <h4>❌ NOT_COVERED</h4>
-                        <p>No unit test found - action required</p>
+                        <h4>❌ Don't:</h4>
+                        <pre><code># Too vague
+- When customer is created, it works
+
+# Missing status code
+- When login fails, show error
+
+# Unclear condition
+- When something goes wrong, handle it</code></pre>
                     </div>
                 </section>
 
-                <section id="qa-workflow">
-                    <h2>🔄 QA Workflow</h2>
+                <section id="journeys">
+                    <h2>🚀 Managing Business Journeys</h2>
 
-                    <h3>Daily Workflow</h3>
-                    <div style="max-width: 800px; margin: 0 auto;">
-                        <div class="workflow-step">
-                            <h4>1. Developer adds new API</h4>
-                            <p>POST /api/orders</p>
-                        </div>
-                        <div class="workflow-step">
-                            <h4>2. Pre-commit runs (automatic)</h4>
-                            <ul>
-                                <li>AI generates scenarios</li>
-                                <li>Marks: 🆕 new suggestions</li>
-                            </ul>
-                        </div>
-                        <div class="workflow-step">
-                            <h4>3. QA Reviews AI suggestions</h4>
-                            <ul>
-                                <li>Review 🆕 new scenarios</li>
-                                <li>Select relevant ones</li>
-                            </ul>
-                        </div>
-                        <div class="workflow-step">
-                            <h4>4. QA Updates Baseline</h4>
-                            <ul>
-                                <li>Add scenarios to baseline</li>
-                                <li>Set priorities (P0/P1/P2/P3)</li>
-                            </ul>
-                        </div>
-                        <div class="workflow-step">
-                            <h4>5. Coverage Analysis</h4>
-                            <ul>
-                                <li>AI analyzes baseline vs tests</li>
-                                <li>Blocks if P0 gaps exist</li>
-                            </ul>
-                        </div>
+                    <h3>What Are Business Journeys?</h3>
+                    <p>End-to-end user workflows across multiple API endpoints.</p>
+
+                    <div class="alert alert-info">
+                        <h4>Example:</h4>
+                        <pre><code>Registration Flow:
+  Step 1: POST /identity/register (Create account)
+  Step 2: POST /identity/verify-otp (Verify email)
+  Step 3: GET /identity/profile (Get profile)
+  
+Result: User has verified, active account</code></pre>
+                    </div>
+
+                    <h3>Journey File Format</h3>
+                    <p><strong>Create:</strong> <code>.traceability/test-cases/journeys/{service}-journeys.yml</code></p>
+
+                    <pre><code>service: identity-service
+
+business_journeys:
+  - id: user-registration
+    name: "Complete User Registration Flow"
+    description: "User registers, verifies email, and accesses profile"
+    priority: P0
+    steps:
+      - api: "POST /identity/register"
+        description: "Create new user account"
+        required: true
+      - api: "POST /identity/verify-otp"  
+        description: "Verify email with OTP"
+        required: true
+      - api: "GET /identity/profile"
+        description: "Retrieve user profile"
+        required: false
+    e2e_tests:
+      - file: "RegistrationFlowE2ETest.java"
+        methods:
+          - "testCompleteRegistrationFlow"
+    tags: ["onboarding", "authentication"]</code></pre>
+
+                    <h3>Journey Status Meanings</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Meaning</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>FULLY_COVERED 🟢</strong></td>
+                                <td>All steps have unit tests (>80%)<br>E2E test exists</td>
+                                <td>No action needed</td>
+                            </tr>
+                            <tr>
+                                <td><strong>PARTIALLY_COVERED 🟡</strong></td>
+                                <td>Some steps have unit tests<br>OR missing E2E test</td>
+                                <td>Complete coverage</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AT_RISK 🟠</strong></td>
+                                <td>Has E2E but weak unit tests<br>OR has unit tests but no E2E</td>
+                                <td>Add missing layer</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NOT_COVERED 🔴</strong></td>
+                                <td>No unit tests<br>No E2E test</td>
+                                <td>Immediate attention</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <section id="reports">
+                    <h2>📊 Working with Reports</h2>
+
+                    <h3>Key Sections for QA</h3>
+                    <ol>
+                        <li><strong>Executive Summary</strong> - Quick health check</li>
+                        <li><strong>Coverage Gaps</strong> - Prioritized missing tests</li>
+                        <li><strong>Orphan Tests</strong> - Tests without scenarios</li>
+                        <li><strong>Business Journeys</strong> - E2E workflow coverage</li>
+                        <li><strong>AI Suggestions</strong> - Additional scenarios</li>
+                    </ol>
+
+                    <h3>Daily Report Review</h3>
+                    <pre><code># Open latest report
+open .traceability/reports/customer-service-report.html
+
+# Check these metrics:
+1. Coverage % - Target: >80%
+2. P0 Gaps - Target: 0
+3. P1 Gaps - Target: <5
+4. Orphan Business Tests - Review for baseline addition
+5. Journey Status - All should be Fully Covered or Partial
+
+# Export for stakeholders
+# CSV available at: .traceability/reports/customer-service-report.csv</code></pre>
+                </section>
+
+                <section id="orphans">
+                    <h2>🔍 Reviewing Orphan Tests</h2>
+
+                    <h3>What Are Orphan Tests?</h3>
+                    <p>Unit tests that exist in codebase but aren't linked to any baseline scenario.</p>
+
+                    <h3>Two Categories</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Action Required</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Business Orphans</strong></td>
+                                <td>Controller tests, Service tests, API tests</td>
+                                <td>✅ Add baseline scenarios</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Technical Orphans</strong></td>
+                                <td>Entity tests, DTO tests, Mapper tests</td>
+                                <td>❌ No action needed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Workflow for Business Orphans</h3>
+                    <pre><code># 1. Open report
+open .traceability/reports/customer-service-report.html
+
+# 2. Find "Orphan Tests" section
+
+# 3. For each Business orphan:
+#    a. Read test name/file
+#    b. Check AI suggestion (if available)
+#    c. Decide: Add to baseline or mark as technical
+
+# 4. Add to baseline:
+cat >> .traceability/test-cases/baseline/customer-service-baseline.yml << 'EOF'
+
+POST /api/customers/bulk:
+  happy_case:
+    - When customers created in bulk with valid data, return 201
+EOF
+
+# 5. Re-analyze to verify
+npm run continue</code></pre>
+
+                    <div class="alert alert-warning">
+                        <h4>Example Orphan Review</h4>
+                        <p><strong>Report Shows:</strong></p>
+                        <pre><code>💼 Business Orphan [P1]
+Test: testBulkCreateCustomers
+File: CustomerControllerTest.java:145
+💡 AI Suggestion: "When customers created in bulk with valid data array, 
+                    return 201 with list of customer IDs"
+
+Action: Add scenario to baseline</code></pre>
+                        <p><strong>QA Action:</strong></p>
+                        <pre><code># Add to baseline/customer-service-baseline.yml
+
+POST /api/customers/bulk:
+  happy_case:
+    - When customers created in bulk with valid data array, return 201 with list of customer IDs
+  error_case:
+    - When bulk create with invalid customer data, return 400 with error details</code></pre>
                     </div>
                 </section>
 
-                <section id="writing-scenarios">
-                    <h2>✍️ Writing Business Scenarios</h2>
+                <section id="gaps">
+                    <h2>🎯 Gap Management</h2>
 
-                    <h3>Best Practices</h3>
-
-                    <h4>1. Use Clear "When...Then..." Format</h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div class="alert alert-success">
-                            <h4>✅ Good:</h4>
-                            <pre><code>- When customer created with valid email, 
-  return 201 with customer ID</code></pre>
-                        </div>
-                        <div class="alert alert-danger">
-                            <h4>❌ Bad:</h4>
-                            <pre><code>- Test customer creation
-- Check ID</code></pre>
-                        </div>
-                    </div>
-
-                    <h4>2. Priority Guidelines</h4>
+                    <h3>Gap Priorities</h3>
                     <table>
                         <thead>
                             <tr>
                                 <th>Priority</th>
-                                <th>When to Use</th>
-                                <th>Blocks?</th>
+                                <th>Action</th>
+                                <th>Timeframe</th>
+                                <th>Owner</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td><strong>P0</strong></td>
-                                <td>Security, critical flows</td>
-                                <td>YES</td>
+                                <td>Block commit</td>
+                                <td>Immediate</td>
+                                <td>Dev + QA</td>
                             </tr>
                             <tr>
                                 <td><strong>P1</strong></td>
-                                <td>Important features</td>
-                                <td>Configurable</td>
+                                <td>Current sprint</td>
+                                <td>This week</td>
+                                <td>Dev + QA</td>
                             </tr>
                             <tr>
                                 <td><strong>P2</strong></td>
-                                <td>Edge cases</td>
-                                <td>NO</td>
+                                <td>Next sprint</td>
+                                <td>1-2 weeks</td>
+                                <td>Dev</td>
                             </tr>
                             <tr>
                                 <td><strong>P3</strong></td>
-                                <td>Nice-to-have</td>
-                                <td>NO</td>
+                                <td>Backlog</td>
+                                <td>Future</td>
+                                <td>Dev</td>
                             </tr>
                         </tbody>
                     </table>
-                </section>
 
-                <section id="understanding-reports">
-                    <h2>📊 Understanding Reports</h2>
+                    <h3>Creating Tickets from Gaps</h3>
+                    <pre><code>Title: [P0 Gap] Add unit test for customer duplicate email validation
 
-                    <h3>HTML Report Sections</h3>
-
-                    <h4>1. Summary Statistics</h4>
-                    <pre><code>Coverage: 85%
-Total Scenarios: 25
-Fully Covered: 20
-Not Covered: 5
-P0 Gaps: 1</code></pre>
-
-                    <h4>2. Coverage Gaps</h4>
-                    <div class="alert alert-danger">
-                        <pre><code>🚨 P0 GAP
-API: POST /api/customers
-Scenario: When created with duplicate email, return 409
+Description:
+Coverage Gap: POST /api/customers
+Scenario: When customer created with duplicate email, return 409
+Priority: P0 (Blocks commit)
 Status: NOT_COVERED
 
-Action Required: Create unit test</code></pre>
-                    </div>
+Acceptance Criteria:
+- Unit test verifies duplicate email returns 409
+- Error message includes "Email already exists"
+- Test name matches scenario description
 
-                    <h4>3. Orphan Unit Tests (NEW)</h4>
-                    <div class="alert alert-warning">
-                        <pre><code>⚠️ ORPHAN UNIT TEST [P2]
-Test: createCustomer_ShouldValidateEmail
-
-💡 AI Suggestion: "When customer created with invalid email format,
-                    return 400 with validation error"
-
-Action: Add this scenario to baseline</code></pre>
-                    </div>
-
-                    <h4>4. Orphan APIs (NEW)</h4>
-                    <div class="alert alert-warning">
-                        <pre><code>⚠️ ORPHAN API [Critical]
-POST /api/customers/bulk
-Status: No baseline scenarios, No unit tests
-
-Action: Create baseline scenarios</code></pre>
-                    </div>
+Test Location: CustomerControllerTest.java
+Baseline Reference: customer-service-baseline.yml:15</code></pre>
                 </section>
 
-                <section id="business-journeys">
-                    <h2>🚀 Business Journeys (E2E Testing)</h2>
+                <section id="collaboration">
+                    <h2>🤝 Collaborating with Developers</h2>
 
-                    <h3>What are Business Journeys?</h3>
-                    <p>Business Journeys represent complete end-to-end user workflows that span multiple API calls. They help QA teams track and verify that complete business processes work together correctly.</p>
-
-                    <div class="feature-box">
-                        <h3>Why Business Journeys Matter for QA</h3>
-                        <ul>
-                            <li><strong>Business Context:</strong> Test real user scenarios, not just individual APIs</li>
-                            <li><strong>Requirement Traceability:</strong> Map business requirements to E2E tests</li>
-                            <li><strong>Risk Management:</strong> Identify critical flows that need comprehensive testing</li>
-                            <li><strong>Test Planning:</strong> Prioritize E2E test creation based on business value</li>
-                        </ul>
-                    </div>
-
-                    <h3>Journey File Structure</h3>
-                    <p><strong>Location:</strong> <code>.traceability/test-cases/journeys/&lt;service&gt;-journeys.yml</code></p>
-
-                    <pre><code>service: customer-service
-
-journeys:
-  - id: user-registration
-    name: "Complete User Registration Flow"
-    description: "New user signs up, verifies email, completes profile"
-    priority: P0
-    steps:
-      - api: "POST /v1/customers"
-        scenario: "When customer is created with valid data, return 201"
-      - api: "POST /v1/customers/verify-email"
-        scenario: "When email verification token is valid, activate account"
-      - api: "PUT /v1/customers/{id}/profile"
-        scenario: "When profile is updated with valid data, return 200"
-    e2e_test_file: "tests/e2e/UserRegistrationE2ETest.java"
-    e2e_test_method: "testCompleteUserRegistration"</code></pre>
-
-                    <h3>Journey Status Indicators</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Status</th>
-                                <th>What It Means</th>
-                                <th>QA Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>✅ FULLY_COVERED</strong></td>
-                                <td>All steps tested + E2E test exists</td>
-                                <td>✅ No action needed</td>
-                            </tr>
-                            <tr>
-                                <td><strong>⚠️ PARTIAL_COVERAGE</strong></td>
-                                <td>Some steps missing tests</td>
-                                <td>Add missing baseline scenarios</td>
-                            </tr>
-                            <tr>
-                                <td><strong>🔴 AT_RISK</strong></td>
-                                <td>No E2E test exists</td>
-                                <td>Request Dev to create E2E test</td>
-                            </tr>
-                            <tr>
-                                <td><strong>❌ NOT_COVERED</strong></td>
-                                <td>Missing scenarios AND E2E test</td>
-                                <td>Complete journey definition needed</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h3>Creating a Journey (QA Workflow)</h3>
-                    <div style="max-width: 800px; margin: 0 auto;">
-                        <div class="workflow-step">
-                            <h4>1. Identify Business Flow</h4>
-                            <p>Work with Product team to map user journey</p>
-                        </div>
-                        <div class="workflow-step">
-                            <h4>2. Create Journey YAML File</h4>
-                            <p>Create file in <code>.traceability/test-cases/journeys/</code></p>
-                        </div>
-                        <div class="workflow-step">
-                            <h4>3. Define Journey Steps</h4>
-                            <p>List all API calls in sequence with scenarios</p>
-                        </div>
-                        <div class="workflow-step">
-                            <h4>4. Set Priority</h4>
-                            <p>P0 for critical flows, P1/P2/P3 for others</p>
-                        </div>
-                        <div class="workflow-step">
-                            <h4>5. Link E2E Test</h4>
-                            <p>Reference the E2E test file and method</p>
-                        </div>
-                        <div class="workflow-step">
-                            <h4>6. Run Analysis</h4>
-                            <p>Execute <code>npm run continue</code> to check coverage</p>
-                        </div>
-                    </div>
-
-                    <h3>Example: User Registration Journey</h3>
-                    <pre><code>service: customer-service
-
-journeys:
-  - id: user-registration
-    name: "Complete User Registration Flow"
-    description: "User signs up, verifies email, sets up profile"
-    priority: P0
-    steps:
-      - api: "POST /v1/customers"
-        scenario: "When customer is created with valid data, return 201"
-      - api: "POST /v1/customers/verify-email"
-        scenario: "When email verification token is valid, activate account"
-      - api: "PUT /v1/customers/{id}/profile"
-        scenario: "When profile is updated with valid data, return 200"
-    e2e_test_file: "tests/e2e/UserRegistrationE2ETest.java"
-    e2e_test_method: "testCompleteUserRegistration"</code></pre>
-
-                    <div class="alert alert-info">
-                        <h4>📚 QA Best Practices</h4>
-                        <ul>
-                            <li>Focus on high-value user journeys first</li>
-                            <li>Keep journeys focused on single business outcomes</li>
-                            <li>Reference existing baseline scenarios when possible</li>
-                            <li>Work with Dev to ensure E2E tests exist</li>
-                            <li>Review journey coverage in sprint planning</li>
-                        </ul>
-                    </div>
-
-                    <h3>Journey Report Section</h3>
-                    <p>In the HTML report, you'll find a dedicated Business Journeys section showing:</p>
-                    <ul>
-                        <li><strong>Journey Status:</strong> Visual indicators for each journey</li>
-                        <li><strong>Step Coverage:</strong> Which steps are covered vs missing</li>
-                        <li><strong>E2E Test Status:</strong> Whether E2E test exists and passes</li>
-                        <li><strong>Priority Breakdown:</strong> P0/P1/P2/P3 journey distribution</li>
-                    </ul>
+                    <h3>Communication Tips</h3>
 
                     <div class="alert alert-success">
-                        <h4>✅ Benefits for QA</h4>
-                        <p><strong>With Business Journeys, QA teams can:</strong></p>
-                        <ul>
-                            <li>Verify complete business workflows, not just individual APIs</li>
-                            <li>Identify gaps in E2E test coverage</li>
-                            <li>Prioritize testing efforts based on business value</li>
-                            <li>Demonstrate test coverage to stakeholders</li>
-                            <li>Track progress on critical user flows</li>
-                        </ul>
+                        <h4>✅ Effective:</h4>
+                        <pre><code>"I reviewed AI suggestions and marked 8 high-value ones 
+for this sprint"
+
+"We have 3 P0 gaps blocking deployment and 5 P1 gaps 
+for this sprint"
+
+"These 5 business orphans need scenarios. The other 10 
+are technical tests (no action needed)"</code></pre>
                     </div>
+
+                    <div class="alert alert-danger">
+                        <h4>❌ Ineffective:</h4>
+                        <pre><code>"The AI suggested 50 scenarios, add them all"
+
+"You have 20 gaps"
+
+"Fix these 15 orphan tests"</code></pre>
+                    </div>
+
+                    <h3>Weekly Sync Agenda</h3>
+                    <pre><code>1. Coverage Metrics (5 min)
+   - Current: X%
+   - Target: Y%
+   - Trend: Up/Down
+
+2. P0/P1 Gaps (10 min)
+   - How many?
+   - Owners?
+   - Blockers?
+
+3. New Features (10 min)
+   - APIs added this week
+   - Baseline scenarios needed
+   - Test coverage plan
+
+4. Orphan Review (5 min)
+   - New business orphans
+   - Scenarios to add
+
+5. Journey Health (5 min)
+   - Journey status update
+   - E2E test gaps
+
+Total: 35 minutes</code></pre>
                 </section>
 
-                <section id="manual-execution">
-                    <h2>🚀 Manual Execution</h2>
+                <section id="metrics">
+                    <h2>📈 Metrics and Reporting</h2>
 
-                    <h3>QA Commands</h3>
+                    <h3>Key Metrics for QA</h3>
 
-                    <div class="command-box">
-                        <h4>Command 1: Generate AI Scenarios</h4>
-                        <pre><code># Generate for all services
-npm run generate
+                    <h4>Coverage Metrics</h4>
+                    <ul>
+                        <li>Overall Coverage %</li>
+                        <li>Coverage by Priority (P0/P1/P2/P3)</li>
+                        <li>Coverage by API</li>
+                        <li>Coverage Trend (30 days)</li>
+                    </ul>
 
-# Generate for specific service
-node bin/ai-generate customer-service</code></pre>
-                    </div>
+                    <h4>Gap Metrics</h4>
+                    <ul>
+                        <li>P0 Gaps (should be 0)</li>
+                        <li>P1 Gaps (target: <5)</li>
+                        <li>P2 Gaps (track)</li>
+                        <li>P3 Gaps (backlog)</li>
+                    </ul>
 
-                    <div class="command-box">
-                        <h4>Command 2: Generate for Single API (NEW) ⭐</h4>
-                        <pre><code># Generate scenarios for ONE specific endpoint
-npm run generate:api -- --service customer-service --endpoint "POST /api/customers"</code></pre>
-                        <p><strong>Output:</strong></p>
-                        <pre><code>🤖 AI Test Case Generator - Single API
-📋 Service: customer-service
-🔗 Endpoint: POST /api/customers
+                    <h4>Quality Metrics</h4>
+                    <ul>
+                        <li>Orphan Business Tests (decreasing?)</li>
+                        <li>Orphan APIs (should be 0)</li>
+                        <li>Journey Coverage (target: 100% P0 journeys)</li>
+                        <li>Partially Covered Scenarios (decreasing?)</li>
+                    </ul>
 
-✅ Success! Scenarios generated
-📄 Output: ai_cases/customer-service-POST__api_customers-ai.json
+                    <h3>Monthly Report for Stakeholders</h3>
+                    <pre><code>Slide 1: Coverage Overview
+  - Current: X%
+  - Last Month: Y%
+  - Trend: +Z%
 
-Generated Scenarios:
-  HAPPY CASE (4):
-    1. When customer created with valid data, return 201
-    2. Customer ID is generated and returned
-  ERROR CASE (5):
-    1. When created with missing email, return 400
-    2. When created with duplicate email, return 409</code></pre>
-                        <p><strong>When to Use:</strong></p>
-                        <ul>
-                            <li>New API endpoint added</li>
-                            <li>Need inspiration for test cases</li>
-                            <li>Quick scenario generation for single endpoint</li>
-                        </ul>
-                    </div>
+Slide 2: Gap Analysis
+  - P0: 0 (✅ Good)
+  - P1: 3 (⚠️ Tracking)
+  - Action Items: ...
 
-                    <div class="command-box">
-                        <h4>Command 3: Analyze Coverage</h4>
-                        <pre><code># Analyze all services
-npm run continue
+Slide 3: Journey Health
+  - P0 Journeys: 5/5 covered (✅)
+  - P1 Journeys: 8/10 covered (⚠️)
+  - E2E Tests: 12/15 exist
 
-# Analyze specific service
-node bin/ai-continue customer-service</code></pre>
-                    </div>
-
-                    <div class="command-box">
-                        <h4>Command 4: Combined Workflow</h4>
-                        <pre><code># Generate + Analyze
-npm run generate && npm run continue</code></pre>
-                    </div>
+Slide 4: Quality Improvements
+  - Orphan Tests: 20 → 5 (📉 Good)
+  - API Coverage: 75% → 85% (📈 Good)
+  - New Features: 3 fully covered</code></pre>
                 </section>
 
-                <section id="onboarding">
-                    <h2>📦 Onboarding a New Service</h2>
+                <section>
+                    <h2>🎯 QA Checklist</h2>
 
-                    <h3>Step 1: Add Service Configuration</h3>
-                    <p><strong>Edit:</strong> <code>.traceability/config.json</code></p>
-                    <pre><code>{
-  "services": [
-    {
-      "name": "payment-service",
-      "enabled": true,
-      "path": "services/payment-service",
-      "language": "java",
-      "testFramework": "junit",
-      "testDirectory": "src/test/java",
-      "testPattern": "*Test.java"
-    }
-  ]
-}</code></pre>
+                    <h3>Daily</h3>
+                    <ul>
+                        <li>Run <code>npm run continue</code> to check coverage</li>
+                        <li>Review P0 gaps (should be 0)</li>
+                        <li>Check for new orphan business tests</li>
+                        <li>Monitor coverage trend</li>
+                    </ul>
 
-                    <h3>Step 2: Generate AI Scenarios</h3>
-                    <pre><code>npm run generate</code></pre>
-                    <p><strong>Result:</strong> <code>.traceability/test-cases/ai_cases/payment-service-ai.yml</code></p>
-
-                    <h3>Step 3: Create Baseline</h3>
-                    <p><strong>Create:</strong> <code>.traceability/test-cases/baseline/payment-service-baseline.yml</code></p>
-                    <pre><code>service: payment-service
-
-POST /api/payments:
-  happy_case:
-    - When payment processed with valid card, return 200
-  error_case:
-    - When payment processed with invalid card, return 400
-  security:
-    - When payment processed without auth, return 401</code></pre>
-
-                    <h3>Step 4: Verify Setup</h3>
-                    <pre><code>npm run continue
-open .traceability/reports/payment-service-report.html</code></pre>
-                </section>
-
-                <section id="quick-reference">
-                    <h2>🎯 Quick Reference</h2>
-
-                    <h3>File Locations</h3>
-                    <pre><code>.traceability/
-├── config.json                          # Configuration
-├── test-cases/
-│   ├── baseline/                        # QA-managed (edit these)
-│   │   ├── customer-service-baseline.yml
-│   │   └── payment-service-baseline.yml
-│   └── ai_cases/                        # AI-generated (read-only)
-│       ├── customer-service-ai.yml       # ✅ in baseline, 🆕 new
-│       └── payment-service-ai.yml
-└── reports/                             # Generated reports
-    ├── customer-service-report.html     # Interactive dashboard
-    ├── customer-service-report.json     # Data export
-    └── customer-service-report.csv      # Spreadsheet</code></pre>
-
-                    <h3>Common QA Commands</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Command</th>
-                                <th>Purpose</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>npm run generate</code></td>
-                                <td>Generate AI scenarios</td>
-                            </tr>
-                            <tr>
-                                <td><code>npm run generate:api</code></td>
-                                <td>Generate for single API</td>
-                            </tr>
-                            <tr>
-                                <td><code>npm run continue</code></td>
-                                <td>Analyze coverage</td>
-                            </tr>
-                            <tr>
-                                <td><code>npm run generate && npm run continue</code></td>
-                                <td>Full workflow</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h3>Priority Guidelines</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Priority</th>
-                                <th>Purpose</th>
-                                <th>Blocks?</th>
-                                <th>Example</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>P0</td>
-                                <td>Security, critical flows</td>
-                                <td>YES</td>
-                                <td>Auth, payments</td>
-                            </tr>
-                            <tr>
-                                <td>P1</td>
-                                <td>Important features</td>
-                                <td>Configurable</td>
-                                <td>CRUD operations</td>
-                            </tr>
-                            <tr>
-                                <td>P2</td>
-                                <td>Edge cases</td>
-                                <td>NO</td>
-                                <td>Long inputs</td>
-                            </tr>
-                            <tr>
-                                <td>P3</td>
-                                <td>Nice-to-have</td>
-                                <td>NO</td>
-                                <td>UI formatting</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="alert alert-info" style="margin-top: 2rem;">
-                        <h4>📚 Additional Resources</h4>
-                        <ul>
-                            <li><strong>Developer Guide:</strong> <code>docs/DEV_GUIDE.md</code></li>
-                            <li><strong>Testing Guide:</strong> <code>docs/TESTING-GUIDE.md</code></li>
-                            <li><strong>Completeness Detection:</strong> <code>docs/SCENARIO-COMPLETENESS-DETECTION.md</code></li>
-                        </ul>
-                    </div>
-
-                    <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 0.5rem;">
-                        <p style="font-size: 1.1rem; margin: 0;"><strong>Version 6.3.0</strong> | <strong>Powered By:</strong> Claude AI (Anthropic) | <strong>Status:</strong> Production Ready</p>
-                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: #64748b;">🏢 External Repo Architecture | 🚀 Business Journeys | 📈 Historical Trends | 100% AI-driven</p>
-                    </div>
-                </section>
-
-            </div>
-        </main>
-    </div>
-
-    <button class="scroll-top" id="scrollTopBtn">↑</button>
-
-    <script>
-        // Scroll to top button visibility and click handler
-        window.addEventListener('scroll', function() {
-            const scrollTop = document.querySelector('.scroll-top');
-            if (window.pageYOffset > 300) {
-                scrollTop.classList.add('visible');
-            } else {
-                scrollTop.classList.remove('visible');
-            }
-        });
-
-        // Scroll to top on button click
-        document.getElementById('scrollTopBtn').addEventListener('click', function() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        // Smooth scroll for sidebar links
-        document.querySelectorAll('.sidebar a').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+                    <h3>Weekly</h3>
+                    <ul>
+                        <li>Review AI suggestions</li>
+                        <li>Update baseline with valuable scenarios</li>
+                        <li>Sync with dev team on gaps</li>
+                        <li>Review journey coverage</li>
+                        <li>Update sprint back

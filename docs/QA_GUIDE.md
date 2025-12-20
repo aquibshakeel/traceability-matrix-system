@@ -1,211 +1,253 @@
-# QA Guide - AI-Driven Test Coverage System
+# 🧪 QA Engineer Guide
 
-**Version:** 6.3.0
-**Last Updated:** December 18, 2025
-**Audience:** QA Engineers, Test Managers, Business Analysts
-
-## 🚀 New in v6.3.0 - External Repository Architecture
-- **External Repo Support** - Baseline and journey files in separate repository
-- **Team Autonomy** - QA team owns test scenario repo independently
-- **Per-Service Paths** - Granular control over scenario locations
-- **Production Ready** - True enterprise separation of concerns
-- All v6.2.0 features (Business Journeys, Historical Tracking, Trend Charts)
-
-## 🎉 New in v6.2.0 - Business Journeys & Historical Tracking
-- **Business Journeys (E2E)** - Track complete user workflows across multiple API steps
-- **Historical Trend Analysis** - Coverage tracking over time with 30-day charts
-- **Journey Status** - FULLY_COVERED / PARTIAL_COVERAGE / AT_RISK / NOT_COVERED
-- **Trend Charts** - Visual coverage progression with smart date formatting
-- All v6.1.0 features (colored badges, collapsible sections, priority-first layout)
+**Version:** 6.3.0  
+**Last Updated:** December 20, 2025  
+**Difficulty:** Intermediate  
+**Prerequisites:** [Getting Started](GETTING_STARTED.md)
 
 ---
 
-## 📋 Table of Contents
+## 📖 Overview
 
-1. [What is This System?](#what-is-this-system)
-2. [Quick Start](#quick-start)
-3. [Demonstration Test Cases](#demonstration-test-cases) 🆕
-4. [Business Journeys (E2E)](#business-journeys-e2e) 🆕 v6.2.0
-5. [How Claude AI Works](#how-claude-ai-works)
-6. [QA Workflow](#qa-workflow)
-7. [Writing Business Scenarios](#writing-business-scenarios)
-8. [Understanding Reports](#understanding-reports)
-9. [Advanced Features](#advanced-features)
-10. [Onboarding a New Service](#onboarding-a-new-service)
-11. [Quick Reference](#quick-reference)
-12. [Version History](#version-history)
+This guide is for QA engineers who:
+- Write and maintain baseline test scenarios
+- Review AI-generated scenario suggestions
+- Monitor test coverage metrics
+- Define business journeys (E2E workflows)
+- Work with developers on gap resolution
+
+**Note:** This guide assumes you've read:
+- [Getting Started](GETTING_STARTED.md) - Basic setup and usage
+- [Reports Guide](REPORTS_GUIDE.md) - Understanding reports
 
 ---
 
-## 🎯 What is This System?
+## 🎯 QA Role in the System
 
-### Purpose
+### What QA Manages
 
-An **AI-powered system** that uses **Claude AI** to automatically validate whether business scenarios have corresponding unit test coverage. It ensures developers can't commit code for critical scenarios without tests.
+**1. Baseline Scenarios** (`.traceability/test-cases/baseline/`)
+- Authoritative test requirements
+- Version-controlled YAML files
+- One file per service
 
-### Core Technology
+**2. Business Journeys** (`.traceability/test-cases/journeys/`)
+- End-to-end user workflows
+- Multi-step API sequences
+- E2E test verification
 
-**🤖 Powered by Claude AI (Anthropic)**
-- Natural language understanding
-- No manual pattern matching
-- 100% AI-driven analysis
-- Auto-detects best Claude model
+**3. Coverage Quality**
+- Review AI suggestions
+- Validate traceability
+- Prioritize gaps
+- Track metrics
 
-### Key Benefits for QA
+### What System Provides
 
-✅ **Automated Validation** - Runs on every developer commit
-✅ **AI-Generated Scenarios** - Claude AI suggests test scenarios from APIs
-✅ **AI-Powered Matching** - Claude AI maps scenarios to tests intelligently
-✅ **Smart Recommendations** - AI provides context-aware suggestions
-✅ **Orphan Detection** - AI categorizes orphan tests (Technical vs Business)
-✅ **Visual Dashboards** - Interactive charts for stakeholder presentations
-✅ **Multiple Reports** - HTML, JSON, CSV, Markdown formats
+**1. AI-Generated Suggestions** (`.traceability/test-cases/ai_cases/`)
+- Auto-generated from API specs
+- Not version-controlled
+- For QA review only
 
-### What Problems Does It Solve?
+**2. Coverage Reports** (`.traceability/reports/`)
+- HTML dashboards
+- Gap analysis
+- Orphan detection
+- Historical trends
 
-**Before:**
-- ❌ No way to verify if requirements are tested
-- ❌ Manual tracking in spreadsheets
-- ❌ Features ship without test coverage
-- ❌ Unclear which tests cover which scenarios
-
-**After:**
-- ✅ Automated scenario → test mapping via Claude AI
-- ✅ Real-time coverage visibility
-- ✅ P0 scenarios MUST have tests (enforced)
-- ✅ AI-generated scenario suggestions
-- ✅ Clear reports showing gaps and recommendations
+**3. Automated Validation**
+- Pre-commit hooks
+- CI/CD integration
+- Blocking on P0 gaps
 
 ---
 
-## ⚡ Quick Start
+## 🔄 Daily QA Workflows
 
-### Prerequisites
+### Workflow 1: Morning Coverage Check
 
 ```bash
-# Required
-export CLAUDE_API_KEY="sk-ant-your-key-here"
+# 1. Run analysis
+npm run continue
+
+# 2. Open report
+open .traceability/reports/customer-service-report.html
+
+# 3. Review:
+# - Coverage percentage (target: >80%)
+# - P0 gaps (should be 0)
+# - New orphan tests
+# - Historical trend
 ```
 
-### First Time Setup
+### Workflow 2: Reviewing AI Suggestions
 
 ```bash
-# 1. Generate AI scenarios from APIs
+# 1. Generate fresh AI scenarios
 npm run generate
 
 # 2. Review AI suggestions
-# Edit: .traceability/test-cases/baseline/<service>-baseline.yml
+cat .traceability/test-cases/ai_cases/customer-service-ai.yml
 
-# 3. Analyze coverage
+# 3. Compare with baseline
+diff .traceability/test-cases/baseline/customer-service-baseline.yml \
+     .traceability/test-cases/ai_cases/customer-service-ai.yml
+
+# 4. Add valuable suggestions to baseline
+# Edit: .traceability/test-cases/baseline/customer-service-baseline.yml
+
+# 5. Re-analyze
 npm run continue
-
-# 4. Open HTML report
-open .traceability/reports/<service>-report.html
 ```
 
-### Daily Usage
+### Workflow 3: Adding New Service Scenarios
 
 ```bash
-# Check coverage status
+# 1. Create baseline file
+touch .traceability/test-cases/baseline/new-service-baseline.yml
+
+# 2. Write initial scenarios
+cat > .traceability/test-cases/baseline/new-service-baseline.yml << 'EOF'
+service: new-service
+
+POST /api/resource:
+  happy_case:
+    - When resource created with valid data, return 201
+  error_case:
+    - When resource created with missing field, return 400
+EOF
+
+# 3. Analyze
 npm run continue
 
-# View reports
-open .traceability/reports/<service>-report.html
+# 4. Review coverage
+open .traceability/reports/new-service-report.html
+```
+
+### Workflow 4: Sprint Planning
+
+```bash
+# 1. Generate coverage report
+npm run continue
+
+# 2. Export to CSV
+# Open: .traceability/reports/customer-service-report.csv
+
+# 3. Filter by priority
+# In Excel: Filter "Priority" column for P0, P1
+
+# 4. Add to sprint backlog
+# Create tickets for gaps
+
+# 5. Track progress
+# Re-run npm run continue daily
 ```
 
 ---
 
-## 🎯 Demonstration Test Cases
+## ✍️ Writing Baseline Scenarios
 
-The system includes three demonstration cases that QA teams can reference to understand different coverage states:
+### Scenario Format
 
-### Case 4: Full Coverage (GET /v1/customers)
-**Purpose:** Shows what perfect coverage looks like
-
-- **Baseline:** 10 scenarios in `customer-service-baseline.yml`
-- **Status:** ✅ 100% covered (10/10)
-- **What QA Learns:**
-  - How to write scenarios that match perfectly with tests
-  - What "fully covered" means in practice
-  - How to structure scenarios for clear traceability
-
-### Case 5: Intelligent Gap Detection (DELETE /v1/customers/{id})
-**Purpose:** Shows AI's two-phase analysis capability
-
-- **Baseline:** 5 scenarios in `customer-service-baseline.yml`
-- **Status:** ✅ 100% baseline + 🤖 22 AI suggestions
-- **What QA Learns:**
-  - Difference between "covered" vs "complete"
-  - How AI suggests additional scenarios from API spec
-  - How to evaluate and add AI suggestions to baseline
-
-### Case 6: Partial Coverage (PUT /v1/customers/{id})
-**Purpose:** Shows real-world gaps and how to address them
-
-- **Baseline:** 5 scenarios in `customer-service-baseline.yml`
-- **Status:** ⚠️ 40% fully covered (2 full + 2 partial + 1 none)
-- **What QA Learns:**
-  - How to identify incomplete test assertions
-  - How to enhance partial tests to full coverage
-  - How to prioritize gap remediation (P0/P1/P2)
-
-### Using the Demonstrations
-
-```bash
-# Run analysis to see all three cases
-npm run continue
-
-# Open report to review results
-open .traceability/reports/customer-service-report.html
+**Template:**
+```
+When [condition], [expected result]
 ```
 
-**For QA Teams:**
-- Use Case 4 as your coverage goal
-- Use Case 5 to understand AI suggestions
-- Use Case 6 to learn gap identification
+**Good Examples:**
+```yaml
+service: customer-service
 
-**Learn More:** See `docs/DETAILED-CASE-MAPPINGS.md` for complete details with exact scenario-to-test mappings.
+POST /api/customers:
+  happy_case:
+    - When customer created with valid data, return 201 with customer ID
+    - When customer created with all optional fields, save complete profile
+  
+  error_case:
+    - When customer created with missing email, return 400 with validation error
+    - When customer created with invalid email format, return 400
+    - When customer created with duplicate email, return 409
+  
+  edge_case:
+    - When customer name is at maximum length (255 chars), accept successfully
+    - When customer age is 0, accept as valid
+    - When customer age is 120, accept as valid
+  
+  security:
+    - When customer created without authentication token, return 401
+    - When customer name contains SQL injection attempt, sanitize and return 400
+    - When customer email contains XSS payload, sanitize and return 400
+```
+
+### Scenario Categories
+
+| Category | Purpose | Priority | Examples |
+|----------|---------|----------|----------|
+| `happy_case` | Normal success flows | P3 | Valid data returns 201 |
+| `error_case` | Expected failures | P1-P2 | Missing fields return 400 |
+| `edge_case` | Boundary conditions | P2 | Max length, zero values |
+| `security` | Auth, injection, XSS | P0 | No auth returns 401 |
+
+### Best Practices
+
+**✅ Do:**
+```yaml
+# Specific and testable
+- When customer created with email "test@example.com", return 201
+
+# Includes expected status code
+- When login fails with wrong password, return 401
+
+# Clear condition and result
+- When OTP expired, return 401 with "OTP expired" message
+```
+
+**❌ Don't:**
+```yaml
+# Too vague
+- When customer is created, it works
+
+# Missing status code
+- When login fails, show error
+
+# Unclear condition
+- When something goes wrong, handle it
+```
+
+### Scenario Naming Convention
+
+```yaml
+# Pattern: When [actor] [action] [condition], [system] [result]
+
+# Good examples:
+- When user registers with valid email, system creates account and returns 201
+- When admin deletes customer by ID, system removes record and returns 204
+- When API called without token, system rejects with 401
+
+# Keep it:
+# - Descriptive (clear what's being tested)
+# - Specific (exact condition and result)
+# - Testable (dev can write unit test from it)
+# - Business-focused (non-technical language)
+```
 
 ---
 
-## 🚀 Business Journeys (E2E)
+## 🚀 Managing Business Journeys
 
 ### What Are Business Journeys?
 
-**Business Journeys** track end-to-end user workflows that span multiple API endpoints, ensuring complete user experiences are tested.
+End-to-end user workflows across multiple API endpoints.
 
-### Why Track Journeys?
-
-**Unit Tests Alone Aren't Enough:**
-- Unit tests validate individual endpoints
-- Journeys validate complete user workflows
-- Real user experiences involve multiple steps
-- Integration issues often occur between services
-
-**Example Journey:**
+**Example:**
 ```
-User Registration Flow:
-  1. POST /identity/register → Create account
-  2. POST /identity/verify-otp → Verify email
-  3. POST /identity/login → First login
+Registration Flow:
+  Step 1: POST /identity/register (Create account)
+  Step 2: POST /identity/verify-otp (Verify email)
+  Step 3: GET /identity/profile (Get profile)
   
-Status: PARTIAL_COVERAGE
-- Step 1: 0% unit tests (❌ Missing tests)
-- Step 2: 60% unit tests (⚠️ Partial coverage)
-- Step 3: 100% unit tests (✅ Full coverage)
-- E2E Test: ❌ Missing
-
-Recommendation: Add E2E test + improve Step 1 & 2 unit tests
+Result: User has verified, active account
 ```
-
-### Journey Status Meanings
-
-| Status | Meaning | E2E Test | Unit Tests | Action Required |
-|--------|---------|----------|------------|-----------------|
-| **FULLY_COVERED** | ✅ Complete | Yes | 80%+ on all steps | Maintain coverage |
-| **PARTIAL_COVERAGE** | ⚠️ Some tests | No | Some steps covered | Add E2E test |
-| **AT_RISK** | ⚠️ Risky | Yes or No | Gaps in critical steps | Fix unit test gaps |
-| **NOT_COVERED** | ❌ None | No | No tests | Add tests immediately |
 
 ### Journey File Format
 
@@ -215,590 +257,528 @@ Recommendation: Add E2E test + improve Step 1 & 2 unit tests
 service: identity-service
 
 business_journeys:
-  - id: user-registration-flow
+  - id: user-registration
     name: "Complete User Registration Flow"
-    description: "User registers → receives OTP → verifies account"
+    description: "User registers, verifies email, and accesses profile"
     priority: P0
     steps:
       - api: "POST /identity/register"
         description: "Create new user account"
         required: true
-      - api: "POST /identity/verify-otp"
-        description: "Verify user email with OTP"
+      - api: "POST /identity/verify-otp"  
+        description: "Verify email with OTP"
         required: true
+      - api: "GET /identity/profile"
+        description: "Retrieve user profile"
+        required: false
     e2e_tests:
       - file: "RegistrationFlowE2ETest.java"
         methods:
           - "testCompleteRegistrationFlow"
+          - "testRegistrationWithInvalidOTP"
     tags: ["onboarding", "authentication"]
-
-  - id: user-login-journey
-    name: "User Login Journey"
-    description: "User logs in with credentials → receives JWT token"
-    priority: P0
+    
+  - id: password-reset
+    name: "Password Reset Journey"
+    description: "User requests reset, receives email, sets new password"
+    priority: P1
     steps:
+      - api: "POST /identity/forgot-password"
+        description: "Request password reset"
+        required: true
+      - api: "POST /identity/reset-password"
+        description: "Set new password with token"
+        required: true
       - api: "POST /identity/login"
-        description: "Authenticate user credentials"
+        description: "Login with new password"
         required: true
     e2e_tests:
-      - file: "LoginFlowE2ETest.java"
+      - file: "PasswordResetE2ETest.java"
         methods:
-          - "testUserLoginSuccess"
-          - "testUserLoginFailure"
-    tags: ["authentication"]
+          - "testPasswordResetFlow"
+    tags: ["authentication", "security"]
 ```
 
-### Journey Report Section
+### Journey Priorities
 
-**HTML Report includes Business Journeys card with:**
-- Journey status badges (Fully Covered / Partial / At Risk / Not Covered)
-- Step-by-step coverage breakdown
+| Priority | When to Use | Example |
+|----------|-------------|---------|
+| **P0** | Critical user flows | Registration, Login, Checkout |
+| **P1** | Important features | Password reset, Profile update |
+| **P2** | Secondary features | Email preferences, Export data |
+| **P3** | Nice-to-have | UI customization, Themes |
+
+### Journey Status Meanings
+
+**FULLY_COVERED (🟢)**
+- All steps have unit tests (>80% coverage)
+- E2E test exists for complete flow
+- No action needed
+
+**PARTIALLY_COVERED (🟡)**
+- Some steps have unit tests
+- OR missing E2E test
+- Action: Complete coverage
+
+**AT_RISK (🟠)**
+- Has E2E test but weak unit tests
+- OR has unit tests but no E2E
+- Action: Add missing layer
+
+**NOT_COVERED (🔴)**
+- No unit tests
+- No E2E test
+- Action: Immediate attention
+
+### Reviewing Journey Coverage
+
+```bash
+# 1. Run analysis
+npm run continue
+
+# 2. Open report and find "Business Journeys" section
+open .traceability/reports/identity-service-report.html
+
+# 3. Review each journey:
+# - Check journey status badge
+# - Identify weak steps (low coverage)
+# - Verify E2E test exists
+# - Read recommendations
+
+# 4. Take action:
+# - Work with dev to add missing tests
+# - Create E2E test if needed
+# - Update journey file if steps changed
+```
+
+---
+
+## 📊 Working with Reports
+
+### Understanding Report Sections
+
+For detailed report documentation, see [Reports Guide](REPORTS_GUIDE.md).
+
+**Key sections for QA:**
+
+**1. Executive Summary**
+- Quick health check
+- Coverage percentage
+- P0 gap count
+
+**2. Coverage Gaps**
+- Prioritized list of missing tests
+- What needs attention first
+- AI suggestions for gaps
+
+**3. Orphan Tests**
+- Tests without scenarios
+- Business vs Technical categorization
+- Copy-ready YAML for baseline
+
+**4. Business Journeys**
+- E2E workflow coverage
+- Step-by-step analysis
 - Weak point identification
-- E2E test presence validation
-- Comprehensive recommendations
 
-**Example Output:**
-```
-🚀 Business Journeys (E2E)
+**5. AI Suggestions**
+- Additional scenarios from API spec
+- Not in baseline yet
+- Consider adding
 
-✅ Complete User Registration Flow (P0)
-   2 Steps | 38% Unit Tests | ❌ No E2E Test | 2 Weak Points
-   
-   Step 1: POST /identity/register
-   ❌ 0% Coverage | 0 unit tests | 0/0 scenarios
-   
-   Step 2: POST /identity/verify-otp
-   ⚠️ 60% Coverage | 3 unit tests | 3/5 scenarios
-   
-   Recommendations:
-   - 🚨 CRITICAL: Create E2E test covering all 2 steps
-   - ⚠️ Step 1: Add unit tests (0/0 scenarios covered)
-   - 📝 Step 2: Add more unit tests (3/5 scenarios covered)
-```
-
-### Creating Journeys for Your Service
-
-**Step 1: Identify User Workflows**
-```
-Examples:
-- User Registration → OTP Verification → First Login
-- Add to Cart → Checkout → Payment → Confirmation
-- Create Order → Process Payment → Send Confirmation
-```
-
-**Step 2: Map APIs to Journey Steps**
-```
-Registration Journey:
-  Step 1: POST /identity/register
-  Step 2: POST /identity/verify-otp
-  Step 3: GET /identity/profile
-```
-
-**Step 3: Define E2E Tests**
-```
-Create: tests/e2e/RegistrationFlowE2ETest.java
-
-Test should:
-- Call all journey steps in sequence
-- Verify data flows between steps
-- Test complete user experience
-```
-
-**Step 4: Run Analysis**
-```bash
-npm run continue
-```
-
-**Step 5: Review Journey Card in Report**
-- Check journey status
-- Identify weak steps
-- Follow recommendations
-
----
-
-## 🤖 How Claude AI Works
-
-### AI-Powered Analysis (Not Manual Matching)
-
-**Important:** This system uses Claude AI with natural language understanding, NOT manual fuzzy matching, pattern matching, or similarity algorithms.
-
-### Auto Model Selection
-
-**What It Does:**
-- System automatically selects the best Claude model for your needs
-- Analyzes codebase size and complexity
-- Chooses optimal Claude model
-- **Default:** claude-3-5-sonnet-20241022 (optimized for coverage analysis)
-
-**Why It Matters:**
-- Ensures optimal performance
-- Reduces unnecessary API costs
-- Maintains accuracy with intelligent model selection
-- Transparent model selection in logs
-
-**How It Works:**
-```
-Codebase Analysis:
-  • Scans codebase size (KB)
-  • Counts services and APIs
-  • Evaluates complexity level
-
-Model Selection:
-  if (codebaseSize < 500KB && apiCount < 50)
-    → claude-3-5-sonnet (optimal for small-medium projects)
-  else
-    → claude-3-5-sonnet (handles any size)
-```
-
----
-
-## 🔄 QA Workflow
-
-### Daily Workflow
-
-```
-1. Developer adds new API
-       ↓
-2. Pre-commit runs - AI generates scenarios
-       ↓
-3. QA Reviews AI suggestions
-       ↓
-4. Developer adds unit tests
-       ↓
-5. Pre-commit validation - AI analyzes coverage
-       ↓
-6. (If gaps exist) Fix issues
-       ↓
-7. Commit Successful ✅
-```
-
-### QA Daily Commands
+### Daily Report Review
 
 ```bash
-# Morning: Check current coverage
-npm run continue
+# Open latest report
 open .traceability/reports/customer-service-report.html
 
-# After baseline updates: Verify changes
-npm run continue
+# Check these metrics:
+1. Coverage % - Target: >80%
+2. P0 Gaps - Target: 0
+3. P1 Gaps - Target: <5
+4. Orphan Business Tests - Review for baseline addition
+5. Journey Status - All should be Fully Covered or Partial
 
-# Before sprint planning: Generate fresh scenarios
-npm run generate
-npm run continue
+# Export for stakeholders
+# CSV available at: .traceability/reports/customer-service-report.csv
 ```
 
 ---
 
-## ✍️ Writing Business Scenarios
+## 🔍 Reviewing Orphan Tests
 
-### Scenario Format
+### What Are Orphan Tests?
 
-Use "When...Then..." format:
+Unit tests that exist in codebase but aren't linked to any baseline scenario.
+
+### Two Categories
+
+**Business Orphans** (Action Required)
+- Controller tests
+- Service tests
+- API tests
+- Need baseline scenarios
+
+**Technical Orphans** (No Action)
+- Entity tests
+- DTO tests
+- Mapper tests
+- Infrastructure tests
+
+### Workflow for Business Orphans
+
+```bash
+# 1. Open report
+open .traceability/reports/customer-service-report.html
+
+# 2. Find "Orphan Tests" section
+
+# 3. For each Business orphan:
+#    a. Read test name/file
+#    b. Check AI suggestion (if available)
+#    c. Decide: Add to baseline or mark as technical
+
+# 4. Add to baseline:
+cat >> .traceability/test-cases/baseline/customer-service-baseline.yml << 'EOF'
+
+POST /api/customers/bulk:
+  happy_case:
+    - When customers created in bulk with valid data, return 201
+EOF
+
+# 5. Re-analyze to verify
+npm run continue
+```
+
+### Example Orphan Review
+
+**Report Shows:**
+```
+💼 Business Orphan [P1]
+Test: testBulkCreateCustomers
+File: CustomerControllerTest.java:145
+💡 AI Suggestion: "When customers created in bulk with valid data array, 
+                    return 201 with list of customer IDs"
+
+Action: Add scenario to baseline
+```
+
+**QA Action:**
+```yaml
+# Add to baseline/customer-service-baseline.yml
+
+POST /api/customers/bulk:
+  happy_case:
+    - When customers created in bulk with valid data array, return 201 with list of customer IDs
+  error_case:
+    - When bulk create with invalid customer data, return 400 with error details
+```
+
+---
+
+## 🎯 Gap Management
+
+### Gap Priorities
+
+| Priority | Action | Timeframe | Owner |
+|----------|--------|-----------|-------|
+| **P0** | Block commit | Immediate | Dev + QA |
+| **P1** | Current sprint | This week | Dev + QA |
+| **P2** | Next sprint | 1-2 weeks | Dev |
+| **P3** | Backlog | Future | Dev |
+
+### Gap Resolution Workflow
+
+**For P0 Gaps:**
+```
+1. QA: Create detailed scenario in baseline
+2. Dev: Write unit test
+3. QA: Verify coverage in report
+4. Both: Commit when gap closed
+```
+
+**For P1 Gaps:**
+```
+1. QA: Add scenarios to sprint backlog
+2. QA: Work with dev to clarify requirements
+3. Dev: Implement tests during sprint
+4. QA: Validate at sprint end
+```
+
+**For P2/P3 Gaps:**
+```
+1. QA: Document in baseline with TODO marker
+2. QA: Track in backlog
+3. Address when capacity allows
+```
+
+### Creating Tickets from Gaps
+
+**Example Ticket Format:**
+```
+Title: [P0 Gap] Add unit test for customer duplicate email validation
+
+Description:
+Coverage Gap: POST /api/customers
+Scenario: When customer created with duplicate email, return 409
+Priority: P0 (Blocks commit)
+Status: NOT_COVERED
+
+Acceptance Criteria:
+- Unit test verifies duplicate email returns 409
+- Error message includes "Email already exists"
+- Test name matches scenario description
+
+Test Location: CustomerControllerTest.java
+Baseline Reference: customer-service-baseline.yml:15
+```
+
+---
+
+## 🤝 Collaborating with Developers
+
+### Communication Tips
+
+**When Reviewing AI Suggestions:**
+```
+❌ "The AI suggested 50 scenarios, add them all"
+✅ "I reviewed AI suggestions and marked 8 high-value ones 
+    for this sprint"
+```
+
+**When Reporting Gaps:**
+```
+❌ "You have 20 gaps"
+✅ "We have 3 P0 gaps blocking deployment and 5 P1 gaps 
+    for this sprint"
+```
+
+**When Discussing Orphans:**
+```
+❌ "Fix these 15 orphan tests"
+✅ "These 5 business orphans need scenarios. The other 10 
+    are technical tests (no action needed)"
+```
+
+### Weekly Sync Agenda
+
+```
+1. Coverage Metrics (5 min)
+   - Current: X%
+   - Target: Y%
+   - Trend: Up/Down
+
+2. P0/P1 Gaps (10 min)
+   - How many?
+   - Owners?
+   - Blockers?
+
+3. New Features (10 min)
+   - APIs added this week
+   - Baseline scenarios needed
+   - Test coverage plan
+
+4. Orphan Review (5 min)
+   - New business orphans
+   - Scenarios to add
+   - Technical orphans to ignore
+
+5. Journey Health (5 min)
+   - Journey status update
+   - E2E test gaps
+   - Weak steps
+
+Total: 35 minutes
+```
+
+---
+
+## 📈 Metrics and Reporting
+
+### Key Metrics for QA
+
+**Coverage Metrics:**
+```
+- Overall Coverage %
+- Coverage by Priority (P0/P1/P2/P3)
+- Coverage by API
+- Coverage Trend (30 days)
+```
+
+**Gap Metrics:**
+```
+- P0 Gaps (should be 0)
+- P1 Gaps (target: <5)
+- P2 Gaps (track)
+- P3 Gaps (backlog)
+```
+
+**Quality Metrics:**
+```
+- Orphan Business Tests (decreasing?)
+- Orphan APIs (should be 0)
+- Journey Coverage (target: 100% P0 journeys)
+- Partially Covered Scenarios (decreasing?)
+```
+
+### Monthly Report for Stakeholders
+
+```bash
+# 1. Generate latest report
+npm run continue
+
+# 2. Open CSV for export
+# File: .traceability/reports/customer-service-report.csv
+
+# 3. Create summary slides:
+Slide 1: Coverage Overview
+  - Current: X%
+  - Last Month: Y%
+  - Trend: +Z%
+
+Slide 2: Gap Analysis
+  - P0: 0 (✅ Good)
+  - P1: 3 (⚠️ Tracking)
+  - Action Items: ...
+
+Slide 3: Journey Health
+  - P0 Journeys: 5/5 covered (✅)
+  - P1 Journeys: 8/10 covered (⚠️)
+  - E2E Tests: 12/15 exist
+
+Slide 4: Quality Improvements
+  - Orphan Tests: 20 → 5 (📉 Good)
+  - API Coverage: 75% → 85% (📈 Good)
+  - New Features: 3 fully covered
+```
+
+---
+
+## 🚀 Advanced QA Tasks
+
+### Task 1: Bulk Scenario Updates
+
+```bash
+# Scenario: New security requirement across all APIs
+# All endpoints need authentication check
+
+# 1. Update all baseline files
+for file in .traceability/test-cases/baseline/*.yml; do
+  echo "Updating $file..."
+  # Add security scenario to each API
+done
+
+# 2. Use script for consistency
+cat > add-auth-scenario.sh << 'EOF'
+#!/bin/bash
+# Adds authentication scenario to all POST endpoints
+for file in .traceability/test-cases/baseline/*.yml; do
+  sed -i '/POST.*:/a\  security:\n    - When request made without authentication token, return 401' "$file"
+done
+EOF
+
+chmod +x add-auth-scenario.sh
+./add-auth-scenario.sh
+
+# 3. Verify changes
+npm run continue
+```
+
+### Task 2: Cross-Service Journey
 
 ```yaml
+# Journey spanning multiple services
+
 service: customer-service
 
-POST /api/customers:
-  happy_case:
-    - When customer created with valid data, return 201 with customer ID
-  error_case:
-    - When customer created with missing email, return 400 with validation error
-  security:
-    - When customer created without auth token, return 401
+business_journeys:
+  - id: complete-order-flow
+    name: "Complete Order Processing"
+    description: "Create order → Process payment → Ship order"
+    priority: P0
+    steps:
+      - api: "POST /api/orders"
+        service: "order-service"
+        description: "Create new order"
+      - api: "POST /api/payments"
+        service: "payment-service"
+        description: "Process payment"
+      - api: "POST /api/shipments"
+        service: "shipping-service"
+        description: "Create shipment"
+    e2e_tests:
+      - file: "OrderFlowE2ETest.java"
+        service: "integration-tests"
+    tags: ["cross-service", "critical"]
 ```
 
----
+### Task 3: Scenario Templates
 
-## 📊 Understanding Reports
-
-### Report Sections
-
-1. **Summary Cards** - Coverage %, critical gaps, orphan tests
-2. **Git Changes** - APIs added/modified/removed with warnings
-3. **API Coverage Breakdown** - Per-endpoint scenario status
-4. **Coverage Gaps** - P0/P1/P2/P3 gaps with AI suggestions
-5. **Orphan Tests** - Uncovered tests with categorization
-6. **Visual Analytics** - Charts and priority grids
-
-### Coverage Gaps with AI Suggestions
-
-```
-[P0] POST /api/customers/bulk
-  Reason: No test cases in baseline
-  Status: ORPHAN UNIT TEST
-
-  Test: createCustomerBulk_ShouldValidateInput()
-  File: CustomerControllerTest.java
-  💡 AI Suggestion: "When customers created in bulk with invalid format, return 400"
-  
-  Action: Add scenario to baseline or improve test documentation
-```
-
----
-
-## 🔧 Manual Execution
-
-### Command 1: Generate AI Scenarios
-```bash
-npm run generate
-# Or: node bin/ai-generate-api customer-service
-```
-
-### Command 2: Analyze Coverage
-```bash
-npm run continue
-# Or: node bin/ai-continue customer-service
-```
-
-### Command 3: Combined Workflow
-```bash
-npm run generate && npm run continue
-```
-
----
-
-## 🚀 Advanced Features
-
-### 1. Git Change Detection & Impact Analysis
-
-**What It Does:**
-- Detects APIs added/modified/removed in current commit
-- Identifies affected unit tests
-- Warns about APIs without tests
-- Shows impact on coverage
-
-**Implementation File:** `lib/core/GitChangeDetector.ts`
-
-**Example Output:**
-```
-Git Changes Detected:
-  • Added: POST /api/orders (5 new endpoints)
-  • Modified: POST /api/customers (signature changed)
-  • Removed: POST /api/legacy (deprecated)
-
-Impact Analysis:
-  ⚠️ WARNING: POST /api/orders has NO unit tests
-  ⚠️ WARNING: Modified endpoint - verify tests still valid
-  ✓ Deprecated endpoint removed successfully
-
-Recommendation:
-  → Add unit tests for 5 new /api/orders endpoints
-  → Verify POST /api/customers tests cover new signature
-```
-
-**When to Use:**
-- Code review process
-- Pre-commit validation
-- Release planning
-- Risk assessment
-
----
-
-### 2. Bidirectional Scenario Completeness Detection (3-Layer)
-
-**3-Layer Architecture:**
-
-**Layer 1: API Spec → Baseline (Forward Check)**
-- Analyzes Swagger/OpenAPI specifications
-- Checks baseline for corresponding scenarios
-- Identifies missing scenario documentation
-- Reports gaps with priorities (P0-P3)
-
-**Layer 1b: Unit Tests → Baseline (Reverse Check - NEW)**
-- Finds unit tests WITHOUT baseline scenarios
-- Matches with AI-generated scenarios
-- Provides AI suggestions for missing scenarios
-- Categorizes as orphan tests
-
-**Layer 2: Baseline ↔ Unit Tests (Semantic Matching)**
-- AI-powered semantic matching using Claude
-- Maps scenarios to unit tests
-- Calculates coverage status per scenario
-- Detects partial coverage
-
-**Layer 3: Intelligent Status Adjustment**
-- Adjusts coverage based on API completeness
-- Determines FULLY_COVERED vs PARTIALLY_COVERED
-- Considers edge cases and error scenarios
-- Prioritizes by business impact
-
-**See Also:** `docs/SCENARIO-COMPLETENESS-DETECTION.md`
-
----
-
-### 3. Orphan Test Categorization with AI Reasoning
-
-**Automatic Classification:**
-
-**Business Tests (Require Baseline Scenarios):**
-- Controller/API tests (HTTP endpoints)
-- Service tests (business logic)
-- Integration tests
-- Priority: P0-P2 (gaps need action)
-
-**Technical Tests (No Scenarios Needed):**
-- Entity/Model tests (data structures)
-- DTO tests (data transfer objects)
-- Mapper tests (model-to-DTO conversion)
-- Utility tests (helper functions)
-- Priority: P3 (no action required)
-
-**Example Categorization:**
-```
-BUSINESS TESTS (5) - Action Required:
-  P0 | CustomerController.getCustomer() → 💡 Suggestion available
-  P1 | CustomerService.validateEmail() → Create custom scenario
-  P2 | CustomerService.createBulk() → 💡 Suggestion available
-
-TECHNICAL TESTS (3) - No Action Needed:
-  P3 | CustomerEntity.getId() → Entity test (skip)
-  P3 | CustomerMapper.toDTO() → Mapper test (skip)
-  P3 | CustomerDTO.validate() → DTO test (skip)
-
-Summary:
-  Business Tests Needing Scenarios: 5
-  Technical Tests: 3
-  Total Orphan Tests: 8
-```
-
-**How AI Determines Category:**
-- Analyzes test class name and location
-- Evaluates test purpose and assertions
-- Checks if test touches business logic
-- Determines if customer impact exists
-
----
-
-### 4. Multi-Language Test Parser Support
-
-**Supported Languages:**
-- ✅ Java (JUnit 4/5, Mockito, Spring Test)
-- ✅ Python (pytest, unittest)
-- ✅ TypeScript/JavaScript (Jest, Mocha, Jasmine)
-- ✅ Go (testing package, testify)
-
-**Auto-Detection Process:**
-```
-1. Scan codebase directory
-2. Detect language by file extension (.java, .py, .ts, .go)
-3. Select appropriate parser from lib/parsers/
-4. Extract test methods and assertions
-5. Analyze test coverage
-6. Generate reports with language-specific insights
-```
-
-**Parser Details:**
-
-**Java Parser** (`lib/parsers/JavaTestParser.ts`):
-- Detects: `@Test`, `@ParameterizedTest` annotations
-- Frameworks: JUnit 4, JUnit 5, Mockito, Spring Test
-- Handles: Nested test classes, parameterized tests
-
-**Python Parser** (`lib/parsers/PythonTestParser.ts`):
-- Detects: `test_*` functions, `Test*` classes
-- Frameworks: pytest, unittest
-- Handles: Parameterized tests, fixtures
-
-**TypeScript Parser** (`lib/parsers/TypeScriptTestParser.ts`):
-- Detects: `test()`, `it()`, `describe()` blocks
-- Frameworks: Jest, Mocha, Jasmine
-- Handles: Async tests, snapshots
-
-**Go Parser** (`lib/parsers/GoTestParser.ts`):
-- Detects: `Test*` functions
-- Frameworks: testing package, testify
-- Handles: Table-driven tests, subtests
-
-**Configuration Output:**
-```
-📝 Multi-Language Test Analysis:
-
-Service: customer-service
-Primary Language: Java
-Secondary Language: TypeScript (UI tests)
-
-Java Configuration:
-  Test Framework: JUnit 5
-  Test Directory: src/test/java
-  Found Tests: 42 (35 unit, 7 integration)
-
-TypeScript Configuration:
-  Test Framework: Jest
-  Test Directory: src/__tests__
-  Found Tests: 28 (20 unit, 8 E2E)
-
-Cross-Language Coverage:
-  Total Tests: 70
-  Languages Analyzed: 2
-  Combined Coverage: 78%
-```
-
----
-
-## 📦 Onboarding a New Service
-
-### Step 1: Add Service Configuration
-
-**Edit:** `.traceability/config.json`
-
-```json
-{
-  "services": [
-    {
-      "name": "payment-service",
-      "enabled": true,
-      "path": "services/payment-service",
-      "language": "java",
-      "testFramework": "junit",
-      "testDirectory": "src/test/java",
-      "testPattern": "*Test.java"
-    }
-  ]
-}
-```
-
-### Step 2: Generate AI Scenarios
-
-```bash
-npm run generate
-```
-
-Result: `.traceability/test-cases/ai_cases/payment-service-ai.yml`
-
-### Step 3: Create Baseline
-
-**Create:** `.traceability/test-cases/baseline/payment-service-baseline.yml`
+Create reusable templates for common patterns:
 
 ```yaml
-service: payment-service
-
-POST /api/payments:
+# template-crud.yml
+POST /api/{resource}:
   happy_case:
-    - When payment processed with valid card, return 200
+    - When {resource} created with valid data, return 201
   error_case:
-    - When payment processed with invalid card, return 400
+    - When {resource} created with missing required field, return 400
+    - When {resource} created with invalid format, return 400
   security:
-    - When payment processed without auth, return 401
-```
+    - When {resource} created without auth, return 401
 
-### Step 4: Verify Setup
+GET /api/{resource}:
+  happy_case:
+    - When {resource} retrieved by valid ID, return 200
+  error_case:
+    - When {resource} retrieved by non-existent ID, return 404
+  security:
+    - When {resource} retrieved without auth, return 401
 
-```bash
-npm run continue
-open .traceability/reports/payment-service-report.html
+# Usage: Copy and replace {resource} with actual resource name
 ```
 
 ---
 
-## 🎯 Quick Reference
+## 📚 Related Documentation
 
-### File Locations
-
-```
-.traceability/
-├── config.json                          # Service configuration
-├── test-cases/
-│   ├── baseline/                        # QA-managed scenarios
-│   │   ├── customer-service-baseline.yml
-│   │   └── payment-service-baseline.yml
-│   └── ai_cases/                        # AI-generated suggestions
-│       ├── customer-service-ai.yml
-│       └── payment-service-ai.yml
-└── reports/                             # Generated reports
-    ├── customer-service-report.html
-    ├── customer-service-report.json
-    └── customer-service-report.csv
-```
-
-### Common Commands
-
-```bash
-npm run generate              # Generate AI scenarios
-npm run continue              # Analyze coverage
-npm run generate && npm run continue  # Combined workflow
-npm run install:hooks         # Install pre-commit hook
-```
-
-### Priority Guidelines
-
-| Priority | Blocks | Example |
-|----------|--------|---------|
-| P0 | YES | Auth, payments, security |
-| P1 | Configurable | CRUD operations, core features |
-| P2 | NO | Edge cases, validation |
-| P3 | NO | UI formatting, nice-to-have |
+- **📖 [Getting Started](GETTING_STARTED.md)** - Initial setup
+- **📊 [Reports Guide](REPORTS_GUIDE.md)** - Understanding reports
+- **⚙️ [Configuration](CONFIGURATION.md)** - System configuration
+- **👨‍💻 [Developer Guide](DEV_GUIDE.md)** - For developers
+- **❓ [Troubleshooting](TROUBLESHOOTING.md)** - Common issues
 
 ---
 
-## 📚 Additional Resources
+## 🎯 QA Checklist
 
-- **Main Documentation:**
-  - `README.md` - Project overview and quick start
-  - `docs/DEV_GUIDE.md` - Developer guide and implementation
-  - `docs/TESTING-GUIDE.md` - Testing and validation guide
+### Daily
+- [ ] Run `npm run continue` to check coverage
+- [ ] Review P0 gaps (should be 0)
+- [ ] Check for new orphan business tests
+- [ ] Monitor coverage trend
 
-- **Test Case Documentation:**
-  - `docs/DETAILED-CASE-MAPPINGS.md` - Complete traceability matrix for all 5 APIs (Cases 1, 3, 4, 5, 6)
-  - `docs/AI-PRIORITY-LOGIC.md` - How P0/P1/P2/P3 priorities work
-  - `docs/TWO-PHASE-ANALYSIS-EXPLAINED.md` - Baseline vs completeness
-  - `docs/DETAILED-CASE-MAPPINGS.md` - All 3 cases with exact mappings and details
+### Weekly
+- [ ] Review AI suggestions
+- [ ] Update baseline with valuable scenarios
+- [ ] Sync with dev team on gaps
+- [ ] Review journey coverage
+- [ ] Update sprint backlog with P1 gaps
 
-- **Technical Documentation:**
-  - `docs/SCENARIO-COMPLETENESS-DETECTION.md` - Completeness detection
-  - `IMPLEMENTATION_SUMMARY.md` - Implementation overview
+### Sprint Planning
+- [ ] Generate coverage report
+- [ ] Export CSV for analysis
+- [ ] Prioritize gaps for sprint
+- [ ] Create tickets for P0/P1 gaps
+- [ ] Define E2E test requirements
 
----
-
-## 📜 Version History
-
-### v6.2.0 (December 13, 2025) - Current Release
-**Major Features:**
-- **Business Journeys (E2E)** - Track end-to-end user workflows
-- **Historical Trend Analysis** - 30-day coverage tracking with charts
-- **Journey Status** - FULLY_COVERED / PARTIAL_COVERAGE / AT_RISK / NOT_COVERED
-- Fixed journey status calculation for accurate reporting
-- AI stability improvements (temperature=0.0)
-
-### v6.1.0 (December 10, 2025)
-**Major Features:**
-- Premium Report Redesign with colored badges
-- Collapsible sections and priority-first layout
-- Professional design for stakeholders
-
-### v6.0.0 (December 2025)
-**Major Features:**
-- Orphan Unit Test Detection with AI-suggested scenarios
-- Orphan API Detection for completely untracked endpoints
-- Visual Analytics Dashboard with interactive charts
-- Enhanced 3-Layer Completeness Detection with reverse check
-- Improved Git Change Detection with impact analysis
-
-### v5.0.0
-**Features:**
-- 3-Layer Scenario Completeness Detection
-- Bidirectional gap analysis
-- Change Impact Analysis with affected tests tracking
-
-### v4.0.0
-**Features:**
-- Multi-format reporting (HTML, JSON, CSV, Markdown)
-- Git integration for change detection
-- Orphan test categorization (Technical vs Business)
-
-### v3.0.0
-**Features:**
-- Claude AI integration for coverage analysis
-- Pre-commit hook validation
-- Automated scenario-to-test mapping
+### Monthly
+- [ ] Generate stakeholder report
+- [ ] Track coverage trend
+- [ ] Review quality metrics
+- [ ] Update journey definitions
+- [ ] Archive historical reports
 
 ---
 
-**Version:** 6.2.0  
-**Powered By:** Claude AI (Anthropic)  
-**Status:** Production Ready  
-**Business Journeys:** 🚀 E2E Workflow Tracking  
-**Historical Trends:** 📈 30-Day Coverage Tracking
-
----
-
-**Key Takeaway for QA:** This system uses Claude AI to understand scenarios and tests through natural language, not manual pattern matching. Focus on writing clear, descriptive scenarios in "When...then..." format, and let the AI handle the intelligent matching and analysis.
+**Version:** 6.3.0 | **Status:** Production Ready ✅

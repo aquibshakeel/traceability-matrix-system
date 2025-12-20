@@ -641,7 +641,7 @@
             </div>
         </div>
 
-        <!-- Orphan Unit Tests Card - MOVED TO TOP -->
+<!-- Orphan Unit Tests Card - MOVED TO TOP -->
         <div class="expandable-card">
             <div class="card-header" onclick="toggleCard('tests-card')">
                 <div class="card-header-left">
@@ -739,103 +739,47 @@
             </div>
         </div>
 
-        <!-- Scenarios Without Unit Test Card - MOVED TO TOP -->
-        <div class="expandable-card">
-            <div class="card-header" onclick="toggleCard('gaps-card')">
+<!-- Business Journeys Card (NEW) -->
+        <div class="expandable-card" id="journeys-card-wrapper" style="display: none;">
+            <div class="card-header" onclick="toggleCard('journeys-card')">
                 <div class="card-header-left">
-                    <span class="card-icon">⚠️</span>
-                    <span class="card-title">Scenarios Without Unit Test</span>
+                    <span class="card-icon">🚀</span>
+                    <span class="card-title">Business Journeys (E2E)</span>
                 </div>
                 <div class="card-summary">
                     <div class="summary-item">
-                        <div class="summary-value" style="color: var(--danger);">{{P0_GAPS}}</div>
-                        <div class="summary-label">P0 Gaps</div>
+                        <div class="summary-value" style="color: var(--success);" id="journeys-covered">0</div>
+                        <div class="summary-label">Fully Covered</div>
                     </div>
                     <div class="summary-item">
-                        <div class="summary-value">{{TOTAL_GAPS}}</div>
-                        <div class="summary-label">Total Gaps</div>
+                        <div class="summary-value" style="color: var(--warning);" id="journeys-partial">0</div>
+                        <div class="summary-label">Partially Covered</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" style="color: var(--danger);" id="journeys-notcovered">0</div>
+                        <div class="summary-label">Not Covered</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="journeys-total">0</div>
+                        <div class="summary-label">Total Journeys</div>
                     </div>
                 </div>
-                <span class="card-toggle" id="gaps-card-toggle">▼</span>
+                <span class="card-toggle" id="journeys-card-toggle">▼</span>
             </div>
-            <div class="card-content" id="gaps-card-content">
+            <div class="card-content" id="journeys-card-content">
                 <div class="card-content-inner">
-                    <div class="stats-row">
-                        <div class="stat-box">
-                            <div class="value" style="color: #dc2626;">{{P0_GAPS}}</div>
-                            <div class="label">P0 (Critical)</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="value" style="color: var(--warning);">{{P1_GAPS}}</div>
-                            <div class="label">P1 (High)</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="value" style="color: var(--info);">{{P2_GAPS}}</div>
-                            <div class="label">P2 (Medium)</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="value" style="color: var(--text-secondary);">{{P3_GAPS}}</div>
-                            <div class="label">P3 (Low)</div>
-                        </div>
-                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 1.05em;">
+                        End-to-end business journeys represent complete user workflows across multiple API steps.
+                    </p>
                     
-                    <!-- Gap List -->
-                    <div class="gap-list" style="margin-top: 30px;">
-                        {{GAPS_LIST}}
+                    <div id="journeys-content">
+                        <!-- Populated by JavaScript -->
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Visual Analytics Card - HIDDEN (code kept for future use) -->
-        <div class="expandable-card" style="display: none;">
-            <div class="card-header" onclick="toggleCard('analytics-card')">
-                <div class="card-header-left">
-                    <span class="card-icon">📈</span>
-                    <span class="card-title">Visual Analytics</span>
-                </div>
-                <div class="card-summary">
-                    <div class="summary-item">
-                        <div class="summary-label">4 Charts Available</div>
-                    </div>
-                </div>
-                <span class="card-toggle" id="analytics-card-toggle">▼</span>
-            </div>
-            <div class="card-content" id="analytics-card-content">
-                <div class="card-content-inner">
-                    <div class="charts-grid">
-                        <div>
-                            <h3 style="margin-bottom: 15px; color: var(--text-secondary);">Coverage Distribution</h3>
-                            <div class="chart-container">
-                                <canvas id="coverageChart"></canvas>
-                            </div>
-                        </div>
-                        <div>
-                            <h3 style="margin-bottom: 15px; color: var(--text-secondary);">Scenarios Without Unit Test</h3>
-                            <div class="chart-container">
-                                <canvas id="gapChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="charts-grid" style="margin-top: 30px;">
-                        <div>
-                            <h3 style="margin-bottom: 15px; color: var(--text-secondary);">Orphan Test Priority Breakdown (Unit test without Scenario)</h3>
-                            <div class="chart-container">
-                                <canvas id="orphanChart"></canvas>
-                            </div>
-                        </div>
-                        <div>
-                            <h3 style="margin-bottom: 15px; color: var(--text-secondary);">Coverage Trend Over Time</h3>
-                            <div class="chart-container">
-                                <canvas id="trendChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Coverage Card - SECOND, WITH SEE MORE -->
+<!-- Coverage Card - SECOND, WITH SEE MORE -->
         <div class="expandable-card">
             <div class="card-header" onclick="toggleCard('coverage-card')">
                 <div class="card-header-left">
@@ -894,54 +838,62 @@
             </div>
         </div>
 
-        <!-- Business Journeys Card (NEW) -->
-        <div class="expandable-card" id="journeys-card-wrapper" style="display: none;">
-            <div class="card-header" onclick="toggleCard('journeys-card')">
+<!-- Scenarios Without Unit Test Card - MOVED TO TOP -->
+        <div class="expandable-card">
+            <div class="card-header" onclick="toggleCard('gaps-card')">
                 <div class="card-header-left">
-                    <span class="card-icon">🚀</span>
-                    <span class="card-title">Business Journeys (E2E)</span>
+                    <span class="card-icon">⚠️</span>
+                    <span class="card-title">Scenarios Without Unit Test</span>
                 </div>
                 <div class="card-summary">
                     <div class="summary-item">
-                        <div class="summary-value" style="color: var(--success);" id="journeys-covered">0</div>
-                        <div class="summary-label">Fully Covered</div>
+                        <div class="summary-value" style="color: var(--danger);">{{P0_GAPS}}</div>
+                        <div class="summary-label">P0 Gaps</div>
                     </div>
                     <div class="summary-item">
-                        <div class="summary-value" style="color: var(--warning);" id="journeys-partial">0</div>
-                        <div class="summary-label">Partially Covered</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-value" style="color: var(--danger);" id="journeys-notcovered">0</div>
-                        <div class="summary-label">Not Covered</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-value" id="journeys-total">0</div>
-                        <div class="summary-label">Total Journeys</div>
+                        <div class="summary-value">{{TOTAL_GAPS}}</div>
+                        <div class="summary-label">Total Gaps</div>
                     </div>
                 </div>
-                <span class="card-toggle" id="journeys-card-toggle">▼</span>
+                <span class="card-toggle" id="gaps-card-toggle">▼</span>
             </div>
-            <div class="card-content" id="journeys-card-content">
+            <div class="card-content" id="gaps-card-content">
                 <div class="card-content-inner">
-                    <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 1.05em;">
-                        End-to-end business journeys represent complete user workflows across multiple API steps.
-                    </p>
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <div class="value" style="color: #dc2626;">{{P0_GAPS}}</div>
+                            <div class="label">P0 (Critical)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="value" style="color: var(--warning);">{{P1_GAPS}}</div>
+                            <div class="label">P1 (High)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="value" style="color: var(--info);">{{P2_GAPS}}</div>
+                            <div class="label">P2 (Medium)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="value" style="color: var(--text-secondary);">{{P3_GAPS}}</div>
+                            <div class="label">P3 (Low)</div>
+                        </div>
+                    </div>
                     
-                    <div id="journeys-content">
-                        <!-- Populated by JavaScript -->
+                    <!-- Gap List -->
+                    <div class="gap-list" style="margin-top: 30px;">
+                        {{GAPS_LIST}}
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- API Coverage Analysis - Now inside Coverage Card -->
-        <!-- Traceability Matrix - Now inside Coverage Card -->
+        <!-- Orphan APIs -->
+        {{ORPHAN_APIS_SECTION}}
 
         <!-- Git Changes (NEW) -->
         {{GIT_CHANGES_SECTION}}
 
-        <!-- Orphan APIs -->
-        {{ORPHAN_APIS_SECTION}}
+        <!-- API Coverage Analysis - Now inside Coverage Card -->
+        <!-- Traceability Matrix - Now inside Coverage Card -->
 
         <!-- Orphan Tests (DEPRECATED - Now shown in card above) -->
         <!-- {{ORPHAN_TESTS_SECTION}} -->
