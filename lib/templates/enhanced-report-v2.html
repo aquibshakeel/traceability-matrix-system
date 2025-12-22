@@ -480,12 +480,8 @@
             </div>
             <div class="card-content" id="total-scenarios-panel-content">
                 <div class="card-content-inner">
-                    <!-- Coverage Statistics -->
-                    <div class="stats-row">
-                        <div class="stat-box">
-                            <div class="value" style="color: var(--success);">{{FULLY_COVERED}}</div>
-                            <div class="label">✅ Fully Covered</div>
-                        </div>
+                    <!-- Coverage Statistics (Breakdown) -->
+                    <div class="stats-row" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
                         <div class="stat-box">
                             <div class="value" style="color: var(--warning);">{{PARTIALLY_COVERED}}</div>
                             <div class="label">⚠️ Partially Covered</div>
