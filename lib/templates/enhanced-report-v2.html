@@ -288,7 +288,8 @@
         }
 
         .card-content.expanded {
-            max-height: 10000px;
+            max-height: none;
+            overflow: visible;
         }
 
         .card-content-inner {
@@ -590,7 +591,7 @@
             </div>
         </div>
 
-        <!-- Total Scenarios Card - MOVED TO TOP -->
+        <!-- Total Scenarios Card - 1st -->
         <div class="expandable-card">
             <div class="card-header" onclick="toggleCard('scenarios-card')">
                 <div class="card-header-left">
@@ -641,12 +642,71 @@
             </div>
         </div>
 
-<!-- Orphan Unit Tests Card - MOVED TO TOP -->
+        <!-- Coverage Card - 2nd (MOVED FROM 4th) -->
+        <div class="expandable-card">
+            <div class="card-header" onclick="toggleCard('coverage-card')">
+                <div class="card-header-left">
+                    <span class="card-icon">📊</span>
+                    <span class="card-title">Coverage</span>
+                </div>
+                <div class="card-summary">
+                    <div class="summary-item">
+                        <div class="summary-value">{{COVERAGE_PERCENT}}%</div>
+                        <div class="summary-label">Coverage</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value">{{FULLY_COVERED}}/{{TOTAL_SCENARIOS}}</div>
+                        <div class="summary-label">Scenarios</div>
+                    </div>
+                </div>
+                <span class="card-toggle" id="coverage-card-toggle">▼</span>
+            </div>
+            <div class="card-content" id="coverage-card-content">
+                <div class="card-content-inner">
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: {{COVERAGE_PERCENT}}%">
+                            {{COVERAGE_PERCENT}}% Covered
+                        </div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <div class="value" style="color: var(--success);">{{FULLY_COVERED}}</div>
+                            <div class="label">✅ Fully Covered</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="value" style="color: var(--warning);">{{PARTIALLY_COVERED}}</div>
+                            <div class="label">⚠️ Partially Covered</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="value" style="color: var(--danger);">{{NOT_COVERED}}</div>
+                            <div class="label">❌ Not Covered</div>
+                        </div>
+                    </div>
+
+                    <!-- See More Section -->
+                    <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                        <button onclick="toggleDetailedCoverage()" id="see-more-btn" style="background: var(--accent-primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 0.95em; font-weight: 600; width: 100%; transition: all 0.2s;">
+                            📊 See Detailed Coverage Analysis ▼
+                        </button>
+                        
+                        <div id="detailed-coverage-content" style="display: none; margin-top: 20px;">
+                            <!-- API Coverage Analysis -->
+                            {{API_COVERAGE_SECTION}}
+
+                            <!-- Traceability Matrix -->
+                            {{TRACEABILITY_SECTION}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orphan Unit Tests Card - 3rd (RENAMED FROM "Unit Tests") -->
         <div class="expandable-card">
             <div class="card-header" onclick="toggleCard('tests-card')">
                 <div class="card-header-left">
                     <span class="card-icon">🔍</span>
-                    <span class="card-title">Unit Tests</span>
+                    <span class="card-title">Orphan Unit Tests</span>
                 </div>
                 <div class="card-summary">
                     <div class="summary-item">
@@ -739,7 +799,7 @@
             </div>
         </div>
 
-<!-- Business Journeys Card (NEW) -->
+        <!-- Business Journeys Card - 4th -->
         <div class="expandable-card" id="journeys-card-wrapper" style="display: none;">
             <div class="card-header" onclick="toggleCard('journeys-card')">
                 <div class="card-header-left">
@@ -779,66 +839,7 @@
             </div>
         </div>
 
-<!-- Coverage Card - SECOND, WITH SEE MORE -->
-        <div class="expandable-card">
-            <div class="card-header" onclick="toggleCard('coverage-card')">
-                <div class="card-header-left">
-                    <span class="card-icon">📊</span>
-                    <span class="card-title">Coverage</span>
-                </div>
-                <div class="card-summary">
-                    <div class="summary-item">
-                        <div class="summary-value">{{COVERAGE_PERCENT}}%</div>
-                        <div class="summary-label">Coverage</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-value">{{FULLY_COVERED}}/{{TOTAL_SCENARIOS}}</div>
-                        <div class="summary-label">Scenarios</div>
-                    </div>
-                </div>
-                <span class="card-toggle" id="coverage-card-toggle">▼</span>
-            </div>
-            <div class="card-content" id="coverage-card-content">
-                <div class="card-content-inner">
-                    <div class="coverage-bar">
-                        <div class="coverage-fill" style="width: {{COVERAGE_PERCENT}}%">
-                            {{COVERAGE_PERCENT}}% Covered
-                        </div>
-                    </div>
-                    <div class="stats-row">
-                        <div class="stat-box">
-                            <div class="value" style="color: var(--success);">{{FULLY_COVERED}}</div>
-                            <div class="label">✅ Fully Covered</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="value" style="color: var(--warning);">{{PARTIALLY_COVERED}}</div>
-                            <div class="label">⚠️ Partially Covered</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="value" style="color: var(--danger);">{{NOT_COVERED}}</div>
-                            <div class="label">❌ Not Covered</div>
-                        </div>
-                    </div>
-
-                    <!-- See More Section -->
-                    <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;">
-                        <button onclick="toggleDetailedCoverage()" id="see-more-btn" style="background: var(--accent-primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 0.95em; font-weight: 600; width: 100%; transition: all 0.2s;">
-                            📊 See Detailed Coverage Analysis ▼
-                        </button>
-                        
-                        <div id="detailed-coverage-content" style="display: none; margin-top: 20px;">
-                            <!-- API Coverage Analysis -->
-                            {{API_COVERAGE_SECTION}}
-
-                            <!-- Traceability Matrix -->
-                            {{TRACEABILITY_SECTION}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-<!-- Scenarios Without Unit Test Card - MOVED TO TOP -->
+        <!-- Scenarios Without Unit Test Card - 5th -->
         <div class="expandable-card">
             <div class="card-header" onclick="toggleCard('gaps-card')">
                 <div class="card-header-left">
@@ -886,8 +887,10 @@
             </div>
         </div>
 
-        <!-- Orphan APIs -->
-        {{ORPHAN_APIS_SECTION}}
+        <!-- Orphan APIs - HIDDEN IN V1 -->
+        <div style="display: none;">
+            {{ORPHAN_APIS_SECTION}}
+        </div>
 
         <!-- Git Changes (NEW) -->
         {{GIT_CHANGES_SECTION}}
