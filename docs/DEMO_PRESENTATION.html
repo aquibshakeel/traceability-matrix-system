@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Presentation - AI-Driven Test Coverage System V2</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #6366f1; border-bottom: 3px solid #6366f1; padding-bottom: 10px; }
+        h2 { color: #4338ca; margin-top: 30px; border-left: 4px solid #6366f1; padding-left: 15px; }
+        h3 { color: #5b21b6; margin-top: 20px; }
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 0 4px;
+        }
+        .badge-success { background: #10b981; color: white; }
+        .badge-warning { background: #f59e0b; color: white; }
+        .badge-danger { background: #ef4444; color: white; }
+        .badge-info { background: #3b82f6; color: white; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+        tr:hover { background: #f9fafb; }
+        .note {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        ul { line-height: 2; }
+        .card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 AI-Driven Test Coverage System - V2</h1>
+        <h2>Demo Presentation</h2>
+        
+        <p><strong>Version:</strong> 6.3.0 (V2)<br>
+        <strong>Last Updated:</strong> December 22, 2025<br>
+        <strong>Target Audience:</strong> QA & Development Teams</p>
+
+        <div class="note">
+            <strong>📚 Quick Links:</strong>
+            <ul style="margin: 10px 0;">
+                <li><a href="GETTING_STARTED.html">Getting Started Guide</a></li>
+                <li><a href="REPORTS_GUIDE.html">Reports Guide</a></li>
+                <li><a href="QA_GUIDE.html">QA Guide</a></li>
+                <li><a href="DEV_GUIDE.html">Developer Guide</a></li>
+            </ul>
+        </div>
+
+        <h2>📊 Executive Summary</h2>
+        
+        <h3>What Is This?</h3>
+        <p>An <strong>AI-powered framework</strong> that creates bidirectional mapping between QA baseline scenarios and unit tests, with automatic gap detection and intelligent recommendations.</p>
+
+        <h3>Current Project Stats</h3>
+        <table>
+            <tr>
+                <th>Metric</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td><strong>Coverage</strong></td>
+                <td><span class="badge badge-success">56.7%</span> (17/30 scenarios)</td>
+            </tr>
+            <tr>
+                <td><strong>P0 Critical Gaps</strong></td>
+                <td><span class="badge badge-danger">1</span> (authentication)</td>
+            </tr>
+            <tr>
+                <td><strong>P1 High Priority</strong></td>
+                <td><span class="badge badge-warning">1</span> (validation)</td>
+            </tr>
+            <tr>
+                <td><strong>Services Analyzed</strong></td>
+                <td>2 services</td>
+            </tr>
+            <tr>
+                <td><strong>Orphan Tests</strong></td>
+                <td>10 tests</td>
+            </tr>
+        </table>
+
+        <h3>Key Capabilities</h3>
+        <ul>
+            <li>✅ Automatic API discovery from code</li>
+            <li>✅ Dynamic test parsing (Java/TS/Python/Go)</li>
+            <li>✅ AI-powered gap analysis with Claude</li>
+            <li>✅ Intelligent test-to-scenario matching</li>
+            <li>✅ Priority-based gaps (P0→P3)</li>
+            <li>✅ Orphan categorization (Business vs Technical)</li>
+            <li>✅ Pre-commit validation</li>
+            <li>✅ V2 Premium Reports (HTML/JSON/CSV/MD)</li>
+            <li>✅ External repository support</li>
+        </ul>
+
+        <h2>🎨 V2 Report Structure</h2>
+
+        <h3>What's New in V2?</h3>
+        <div class="card">
+            <p><strong>Simplified to 3 focused cards:</strong></p>
+            <pre>
+┌─────────────────────────────────┐
+│  Card 1: Total Scenarios Panel  │ ← Metrics + API breakdown
+├─────────────────────────────────┤
+│  Card 2: Orphan Unit Tests      │ ← Unmapped tests
+├─────────────────────────────────┤
+│  Card 3: AI Suggested Scenarios │ ← P0/P1 recommendations
+└─────────────────────────────────┘</pre>
+        </div>
+
+        <h3>Removed from V2:</h3>
+        <ul>
+            <li>❌ Business Journeys card (was 4th card)</li>
+            <li>❌ Redundant progress bars</li>
+            <li>❌ Separate detailed tables</li>
+        </ul>
+
+        <h3>Improved in V2:</h3>
+        <ul>
+            <li>✅ Single unified API table (one row per scenario)</li>
+            <li>✅ Direct status in table (✅/⚠️/❌)</li>
+            <li>✅ Test mapping in table (file, line, confidence)</li>
+            <li>✅ Cleaner, more actionable</li>
+        </ul>
+
+        <h2>🔍 How It Works</h2>
+
+        <h3>Step 1: QA Defines Scenarios</h3>
+        <pre><code>service: customer-service
+
+POST /api/customers:
+  happy_case:
+    - When customer created with valid data, return 201
+  error_case:
+    - When customer created with invalid email, return 400
+  security:
+    - When request without authentication, return 401</code></pre>
+
+        <h3>Step 2: System Scans Tests</h3>
+        <pre><code>@Test
+@DisplayName("When customer created with invalid email, return 400")
+void testCreateCustomer_InvalidEmail() {
+    // Test implementation
+}</code></pre>
+
+        <h3>Step 3: AI Matches & Analyzes</h3>
+        <div class="card">
+            <p><strong>Result:</strong></p>
+            <ul>
+                <li>✅ <strong>HIGH confidence</strong> - Exact match</li>
+                <li>Status: <span class="badge badge-success">FULLY COVERED</span></li>
+                <li>Mapping: <code>CustomerControllerTest.java Line: 45</code></li>
+            </ul>
+        </div>
+
+        <h2>📊 V2 Report Walkthrough</h2>
+
+        <h3>Card 1: Total Scenarios Panel</h3>
+        <p><strong>Summary Metrics:</strong></p>
+        <div class="card">
+            <code>30 Total | 3 APIs | 60% Coverage | 18 Covered | 12 Gaps</code>
+        </div>
+        <p><strong>API Breakdown Table:</strong></p>
+        <ul>
+            <li>One row per scenario</li>
+            <li>Shows: API | Scenario | Status | Test Mapping</li>
+            <li>Status badges: ✅ Covered / ⚠️ Partial / ❌ Not Covered</li>
+            <li>Direct action: Click to see test details</li>
+        </ul>
+
+        <h3>Card 2: Orphan Unit Tests</h3>
+        <p><strong>Two Categories:</strong></p>
+        <div class="card">
+            <p><strong>💼 Business Orphans</strong> (Action Required):</p>
+            <ul>
+                <li>Tests without baseline scenarios</li>
+                <li>QA must add scenarios</li>
+                <li>Copy-ready YAML provided</li>
+            </ul>
+            <p><strong>🔧 Technical Orphans</strong> (No Action):</p>
+            <ul>
+                <li>Infrastructure tests</li>
+                <li>Expected and acceptable</li>
+            </ul>
+        </div>
+
+        <h3>Card 3: AI Suggested Scenarios</h3>
+        <p><strong>High-Priority Recommendations (P0/P1):</strong></p>
+        <pre><code>API: POST /identity/login
+• 🆕 When multiple failed attempts, rate limit
+• 🆕 When SQL injection in password, sanitize
+• 🆕 When CSRF token missing, reject</code></pre>
+
+        <h2>🎯 Priority System</h2>
+
+        <table>
+            <tr>
+                <th>Priority</th>
+                <th>Risk</th>
+                <th>Action</th>
+                <th>Examples</th>
+            </tr>
+            <tr>
+                <td><span class="badge badge-danger">P0</span></td>
+                <td>Critical</td>
+                <td>Fix now</td>
+                <td>Auth, SQL injection</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-warning">P1</span></td>
+                <td>High</td>
+                <td>This sprint</td>
+                <td>Validation, errors</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-info">P2</span></td>
+                <td>Medium</td>
+                <td>Next sprint</td>
+                <td>Edge cases</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-info">P3</span></td>
+                <td>Low</td>
+                <td>Backlog</td>
+                <td>Nice-to-have</td>
+            </tr>
+        </table>
+
+        <h2>🚀 Getting Started</h2>
+
+        <h3>Quick Setup</h3>
+        <pre><code># 1. Install
+npm install
+npm run build
+
+# 2. Set API key
+export CLAUDE_API_KEY="sk-ant-your-key"
+
+# 3. Run analysis
+npm run continue
+
+# 4. View V2 report
+# Opens automatically in browser</code></pre>
+
+        <h3>Next Steps</h3>
+        <ol>
+            <li><strong>Review V2 Report</strong> - Understand 3 cards</li>
+            <li><strong>Fix P0 Gaps</strong> - Critical security issues</li>
+            <li><strong>Add Orphan Scenarios</strong> - Map business tests</li>
+            <li><strong>Track Progress</strong> - Monitor coverage increase</li>
+        </ol>
+
+        <h2>💡 Key Benefits</h2>
+
+        <div class="card">
+            <h3>For Developers 👨‍💻</h3>
+            <ul>
+                <li>✅ See exactly what's tested</li>
+                <li>✅ AI prompts speed up test creation</li>
+                <li>✅ Pre-commit blocks P0 gaps</li>
+                <li>✅ Clear traceability</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>For QA 🧪</h3>
+            <ul>
+                <li>✅ Direct requirements-to-tests link</li>
+                <li>✅ Gaps visible with priorities</li>
+                <li>✅ AI scenario suggestions</li>
+                <li>✅ Auto-generated reports</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>For Leadership 📊</h3>
+            <ul>
+                <li>✅ Risk management (P0 visibility)</li>
+                <li>✅ Progress tracking</li>
+                <li>✅ Data-driven decisions</li>
+                <li>✅ Compliance evidence</li>
+            </ul>
+        </div>
+
+        <h2>📚 Documentation</h2>
+
+        <h3>Complete Guides</h3>
+        <ul>
+            <li><a href="GETTING_STARTED.html"><strong>Getting Started</strong></a> - Setup & first run</li>
+            <li><a href="REPORTS_GUIDE.html"><strong>Reports Guide</strong></a> - V2 report deep dive</li>
+            <li><a href="QA_GUIDE.html"><strong>QA Guide</strong></a> - For QA workflows</li>
+            <li><a href="CONFIGURATION.html"><strong>Configuration</strong></a> - All config options</li>
+            <li><a href="TROUBLESHOOTING.html"><strong>Troubleshooting</strong></a> - Common issues</li>
+        </ul>
+
+        <h3>Quick Commands</h3>
+        <pre><code>npm run generate   # Generate AI scenarios
+npm run continue   # Analyze coverage
+npm run build      # Build TypeScript</code></pre>
+
+        <h2>🎉 Success Stories</h2>
+
+        <h3>Before</h3>
+        <ul>
+            <li>❌ Unknown coverage</li>
+            <li>❌ Manual gap identification</li>
+            <li>❌ No traceability</li>
+            <li>❌ P0 bugs in production</li>
+        </ul>
+
+        <h3>After</h3>
+        <ul>
+            <li>✅ 56.7% coverage measured</li>
+            <li>✅ Gaps identified in seconds</li>
+            <li>✅ Complete traceability</li>
+            <li>✅ P0 gaps blocked pre-commit</li>
+        </ul>
+
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid #e5e7eb;">
+
+        <p style="text-align: center; color: #6b7280; font-size: 0.9em;">
+            <strong>Version 6.3.0 (V2)</strong> | Status: <span class="badge badge-success">Production Ready</span>
+        </p>
+
+        <p style="text-align: center; margin-top: 20px;">
+            <a href="../README.html">← Back to Main README</a> |
+            <a href="GETTING_STARTED.html">Get Started →</a>
+        </p>
+    </div>
+</body>
+</html>

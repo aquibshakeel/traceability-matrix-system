@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Guide - AI-Driven Test Coverage System V2</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #6366f1; border-bottom: 3px solid #6366f1; padding-bottom: 10px; }
+        h2 { color: #4338ca; margin-top: 30px; border-left: 4px solid #6366f1; padding-left: 15px; }
+        h3 { color: #5b21b6; margin-top: 20px; }
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .note {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        ul { line-height: 2; }
+        .card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 QA Guide</h1>
+        
+        <p><strong>Version:</strong> 6.3.0<br>
+        <strong>Last Updated:</strong> December 22, 2025</p>
+
+        <div class="note">
+            <strong>For QA Engineers:</strong> This guide covers V2 report workflows, baseline management, and gap prioritization.
+        </div>
+
+        <h2>📖 Overview</h2>
+        <p>Guide for QA team members managing test scenarios and using V2 reports.</p>
+
+        <h2>🎯 Key Responsibilities</h2>
+        <ul>
+            <li>Create and maintain baseline scenarios</li>
+            <li>Review V2 coverage reports</li>
+            <li>Prioritize gaps (P0-P3)</li>
+            <li>Add scenarios for orphan tests</li>
+            <li>Review AI suggestions</li>
+        </ul>
+
+        <h2>📊 V2 Report Structure</h2>
+        <h3>Three Cards:</h3>
+        <div class="card">
+            <p><strong>Card 1: Total Scenarios Panel</strong></p>
+            <ul>
+                <li>Summary metrics</li>
+                <li>API breakdown table (one row per scenario)</li>
+                <li>Direct status badges (✅/⚠️/❌)</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <p><strong>Card 2: Orphan Unit Tests</strong></p>
+            <ul>
+                <li>Business orphans (need scenarios)</li>
+                <li>Technical orphans (no action)</li>
+                <li>Copy-ready YAML</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <p><strong>Card 3: AI Suggestions</strong></p>
+            <ul>
+                <li>P0/P1 scenarios only</li>
+                <li>Review and add if relevant</li>
+            </ul>
+        </div>
+
+        <h2>📝 Writing Baseline Scenarios</h2>
+        <h3>Good vs Bad:</h3>
+        <pre><code># ✅ Good - Clear, testable
+- When customer created with invalid email, return 400
+
+# ❌ Bad - Vague
+- Test email validation</code></pre>
+
+        <h3>Structure:</h3>
+        <pre><code>service: customer-service
+
+POST /api/customers:
+  happy_case:
+    - When customer created with valid data, return 201
+  error_case:
+    - When customer created with invalid email, return 400
+  edge_case:
+    - When customer name at max length, accept
+  security:
+    - When request without auth, return 401</code></pre>
+
+        <h2>🔄 Daily Workflow</h2>
+        <ol>
+            <li><strong>Run Analysis:</strong> <code>npm run continue</code></li>
+            <li><strong>Review V2 Report:</strong> Check 3 cards</li>
+            <li><strong>Address P0 Gaps:</strong> Critical issues first</li>
+            <li><strong>Add Orphan Scenarios:</strong> For business tests</li>
+            <li><strong>Review AI Suggestions:</strong> Add relevant ones</li>
+        </ol>
+
+        <h2>🎯 Gap Prioritization</h2>
+        <ul>
+            <li><strong>P0 (Critical):</strong> Auth, SQL injection - Fix immediately</li>
+            <li><strong>P1 (High):</strong> Validation, errors - This sprint</li>
+            <li><strong>P2 (Medium):</strong> Edge cases - Next sprint</li>
+            <li><strong>P3 (Low):</strong> Nice-to-have - Backlog</li>
+        </ul>
+
+        <h2>📚 Related Documentation</h2>
+        <ul>
+            <li><a href="DEMO_PRESENTATION.html">Demo Presentation</a></li>
+            <li><a href="REPORTS_GUIDE.html">Reports Guide</a></li>
+            <li><a href="GETTING_STARTED.html">Getting Started</a></li>
+        </ul>
+
+        <hr style="margin: 40px 0;">
+        <p style="text-align: center; color: #6b7280;">
+            <strong>Version 6.3.0</strong> | Production Ready ✅
+        </p>
+    </div>
+</body>
+</html>
