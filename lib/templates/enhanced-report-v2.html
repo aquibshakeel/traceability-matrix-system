@@ -492,77 +492,17 @@
                         </div>
                     </div>
 
-                    <!-- Coverage Bar -->
-                    <div class="coverage-bar">
-                        <div class="coverage-fill" style="width: {{COVERAGE_PERCENT}}%">
-                            {{COVERAGE_PERCENT}}% Covered
-                        </div>
-                    </div>
-
                     <h4 style="color: var(--text-primary); margin-top: 30px; margin-bottom: 15px; font-size: 1.2em;">
-                        📊 API Coverage Summary
+                        📊 API Coverage Breakdown
                     </h4>
-                    <div style="overflow-x: auto;">
-                        <table id="consolidated-coverage-table">
-                            <thead>
-                                <tr style="background: var(--bg-primary);">
-                                    <th style="padding: 12px; text-align: left;">API</th>
-                                    <th style="padding: 12px; text-align: center;">Total Scenarios</th>
-                                    <th style="padding: 12px; text-align: center;">Covered</th>
-                                    <th style="padding: 12px; text-align: center;">Not Covered</th>
-                                    <th style="padding: 12px; text-align: center;">Partial</th>
-                                    <th style="padding: 12px; text-align: center;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="consolidated-table-body">
-                                <!-- Populated by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Gap Details -->
-                    <h4 style="color: var(--text-primary); margin-top: 40px; margin-bottom: 15px; font-size: 1.2em;">
-                        ⚠️ Coverage Gaps Breakdown
-                    </h4>
-                    <div class="stats-row">
-                        <div class="stat-box">
-                            <div class="value" style="color: #dc2626;">{{P0_GAPS}}</div>
-                            <div class="label">P0 (Critical)</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="value" style="color: var(--warning);">{{P1_GAPS}}</div>
-                            <div class="label">P1 (High)</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="value" style="color: var(--info);">{{P2_GAPS}}</div>
-                            <div class="label">P2 (Medium)</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="value" style="color: var(--text-secondary);">{{P3_GAPS}}</div>
-                            <div class="label">P3 (Low)</div>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 20px; overflow-x: auto;">
-                        <table id="gaps-table">
-                            <thead>
-                                <tr style="background: var(--bg-primary);">
-                                    <th style="padding: 12px; text-align: left;">Priority</th>
-                                    <th style="padding: 12px; text-align: left;">API</th>
-                                    <th style="padding: 12px; text-align: left;">Scenario</th>
-                                    <th style="padding: 12px; text-align: left;">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="gaps-table-body">
-                                <!-- Populated by JavaScript -->
-                            </tbody>
-                        </table>
+                    <div id="api-breakdown-content">
+                        <!-- Populated by JavaScript with detailed API breakdowns -->
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Card 2: Orphan Unit Tests (UNCHANGED) -->
+        <!-- Card 2: Orphan Unit Tests -->
         <div class="expandable-card">
             <div class="card-header" onclick="toggleCard('tests-card')">
                 <div class="card-header-left">
@@ -693,8 +633,8 @@
             </div>
         </div>
 
-        <!-- Card 4: Business Journeys (UNCHANGED - optional) -->
-        <div class="expandable-card" id="journeys-card-wrapper" style="display: none;">
+        <!-- Card 4: Business Journeys (E2E) -->
+        <div class="expandable-card" id="journeys-card-wrapper">
             <div class="card-header" onclick="toggleCard('journeys-card')">
                 <div class="card-header-left">
                     <span class="card-icon">🚀</span>
@@ -780,73 +720,176 @@
             
             // Populate tables
             populateConsolidatedTable();
-            populateGapsTable();
             populateOrphanTestsTable();
             populateAISuggestionsTable();
             populateBusinessJourneys();
         });
         
-        // Populate Consolidated Coverage Table
+        // Populate API Breakdown with summary table and detailed coverage
         function populateConsolidatedTable() {
-            const tbody = document.getElementById('consolidated-table-body');
-            if (!tbody || !reportData || !reportData.apis) return;
+            const container = document.getElementById('api-breakdown-content');
+            if (!container || !reportData || !reportData.apis) return;
             
             const apis = reportData.apis;
             if (apis.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-secondary);">No API data available</td></tr>';
+                container.innerHTML = '<p style="text-align: center; padding: 20px; color: var(--text-secondary);">No API data available</p>';
                 return;
             }
             
             let html = '';
-            apis.forEach((api) => {
+            
+            // Summary Table First
+            html += '<div style="overflow-x: auto; margin-bottom: 40px;">';
+            html += '<table style="width: 100%; border: 2px solid var(--border-color); border-radius: 8px;">';
+            html += '<thead>';
+            html += '<tr style="background: var(--bg-primary);">';
+            html += '<th style="padding: 12px; text-align: left;">API</th>';
+            html += '<th style="padding: 12px; text-align: center;">Total Scenarios</th>';
+            html += '<th style="padding: 12px; text-align: center;">Covered</th>';
+            html += '<th style="padding: 12px; text-align: center;">Not Covered</th>';
+            html += '<th style="padding: 12px; text-align: center;">Partial</th>';
+            html += '</tr>';
+            html += '</thead>';
+            html += '<tbody>';
+            
+            apis.forEach((api, idx) => {
                 const totalScenarios = api.coveredScenarios + api.partiallyCoveredScenarios + api.uncoveredScenarios;
+                const rowBg = idx % 2 === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)';
                 
-                html += `<tr style="border-bottom: 1px solid var(--border-color);">`;
+                html += `<tr style="background: ${rowBg}; border-bottom: 1px solid var(--border-color);">`;
                 html += `<td style="padding: 12px;"><code style="background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px;">${api.api}</code></td>`;
                 html += `<td style="padding: 12px; text-align: center; font-weight: 600;">${totalScenarios}</td>`;
                 html += `<td style="padding: 12px; text-align: center;"><span style="color: var(--success); font-weight: 600;">✅ ${api.coveredScenarios}</span></td>`;
                 html += `<td style="padding: 12px; text-align: center;"><span style="color: var(--danger); font-weight: 600;">❌ ${api.uncoveredScenarios}</span></td>`;
                 html += `<td style="padding: 12px; text-align: center;"><span style="color: var(--warning); font-weight: 600;">⚠️ ${api.partiallyCoveredScenarios}</span></td>`;
-                html += `<td style="padding: 12px; text-align: center;">-</td>`;
                 html += `</tr>`;
             });
             
-            tbody.innerHTML = html;
+            html += '</tbody>';
+            html += '</table>';
+            html += '</div>';
+            
+            // Detailed Breakdown Section
+            html += '<h4 style="color: var(--text-primary); margin-top: 40px; margin-bottom: 20px; font-size: 1.1em;">📋 Detailed Coverage Breakdown</h4>';
+            html += '<div style="overflow-x: auto;">';
+            
+            apis.forEach((api, apiIndex) => {
+                const totalScenarios = api.coveredScenarios + api.partiallyCoveredScenarios + api.uncoveredScenarios;
+                
+                // API Section with detailed table
+                html += '<div style="margin-bottom: 40px;">';
+                
+                // API Header
+                html += '<div style="background: var(--bg-tertiary); padding: 12px 16px; border-radius: 8px 8px 0 0; border: 2px solid var(--border-color); border-bottom: none;">';
+                html += '<div style="display: flex; justify-content: space-between; align-items: center;">';
+                html += `<code style="background: var(--bg-secondary); padding: 6px 12px; border-radius: 6px; font-size: 1.1em; font-weight: 600;">${api.api}</code>`;
+                html += '<div style="display: flex; gap: 20px; font-size: 0.9em;">';
+                html += `<span style="color: var(--success);"><strong>${api.coveredScenarios}</strong> Fully covered</span>`;
+                html += `<span style="color: var(--warning);"><strong>${api.partiallyCoveredScenarios}</strong> Partially covered</span>`;
+                html += `<span style="color: var(--danger);"><strong>${api.uncoveredScenarios}</strong> Missing unit tests</span>`;
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+                
+                // Detailed Table for scenarios
+                if (api.matchedTests && api.matchedTests.length > 0) {
+                    html += '<table style="width: 100%; border: 2px solid var(--border-color); border-radius: 0 0 8px 8px; border-top: none;">';
+                    html += '<thead>';
+                    html += '<tr style="background: var(--bg-primary);">';
+                    html += '<th style="padding: 12px; text-align: left; width: 50%;">Baseline Scenario</th>';
+                    html += '<th style="padding: 12px; text-align: center; width: 15%;">Status</th>';
+                    html += '<th style="padding: 12px; text-align: left; width: 35%;">Covering Unit Test(s)</th>';
+                    html += '</tr>';
+                    html += '</thead>';
+                    html += '<tbody>';
+                    
+                    // Group by status
+                    const fullyCovered = api.matchedTests.filter(m => m.status === 'FULLY_COVERED');
+                    const partiallyCovered = api.matchedTests.filter(m => m.status === 'PARTIALLY_COVERED');
+                    const notCovered = api.matchedTests.filter(m => m.status === 'NOT_COVERED');
+                    
+                    // Fully Covered
+                    fullyCovered.forEach((match, idx) => {
+                        const rowBg = idx % 2 === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)';
+                        html += `<tr style="background: ${rowBg}; border-bottom: 1px solid var(--border-color);">`;
+                        html += `<td style="padding: 12px; vertical-align: top;"><strong>${match.scenario}</strong></td>`;
+                        html += '<td style="padding: 12px; text-align: center; vertical-align: top;">';
+                        html += '<span style="background: var(--success); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; font-weight: 600; white-space: nowrap;">FULLY COVERED</span>';
+                        html += '</td>';
+                        html += '<td style="padding: 12px; vertical-align: top;">';
+                        
+                        if (match.matchDetails && match.matchDetails.length > 0) {
+                            match.matchDetails.forEach((detail, detailIdx) => {
+                                if (detailIdx > 0) html += '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-light);"></div>';
+                                html += '<div>';
+                                html += `<div style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">${detail.testDescription}</div>`;
+                                html += `<div style="color: var(--text-tertiary); font-size: 0.85em;">`;
+                                html += `<code style="font-size: 0.85em;">${detail.file}</code>`;
+                                if (detail.lineNumber) html += ` Line: ${detail.lineNumber}`;
+                                html += ` <span style="color: var(--success); font-weight: 600;">${detail.matchConfidence}</span> Confidence`;
+                                html += '</div>';
+                                html += '</div>';
+                            });
+                        }
+                        
+                        html += '</td>';
+                        html += '</tr>';
+                    });
+                    
+                    // Partially Covered
+                    partiallyCovered.forEach((match, idx) => {
+                        const rowBg = (idx + fullyCovered.length) % 2 === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)';
+                        html += `<tr style="background: ${rowBg}; border-bottom: 1px solid var(--border-color);">`;
+                        html += `<td style="padding: 12px; vertical-align: top;"><strong>${match.scenario}</strong></td>`;
+                        html += '<td style="padding: 12px; text-align: center; vertical-align: top;">';
+                        html += '<span style="background: var(--warning); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; font-weight: 600; white-space: nowrap;">PARTIALLY COVERED</span>';
+                        html += '</td>';
+                        html += '<td style="padding: 12px; vertical-align: top;">';
+                        
+                        if (match.matchDetails && match.matchDetails.length > 0) {
+                            match.matchDetails.forEach((detail, detailIdx) => {
+                                if (detailIdx > 0) html += '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-light);"></div>';
+                                html += '<div>';
+                                html += `<div style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">${detail.testDescription}</div>`;
+                                html += `<div style="color: var(--text-tertiary); font-size: 0.85em;">`;
+                                html += `<code style="font-size: 0.85em;">${detail.file}</code>`;
+                                if (detail.lineNumber) html += ` Line: ${detail.lineNumber}`;
+                                html += ` <span style="color: var(--warning); font-weight: 600;">${detail.matchConfidence}</span> Confidence`;
+                                html += '</div>';
+                                html += '</div>';
+                            });
+                        }
+                        
+                        html += '</td>';
+                        html += '</tr>';
+                    });
+                    
+                    // Not Covered
+                    notCovered.forEach((match, idx) => {
+                        const rowBg = (idx + fullyCovered.length + partiallyCovered.length) % 2 === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)';
+                        html += `<tr style="background: ${rowBg}; border-bottom: 1px solid var(--border-color);">`;
+                        html += `<td style="padding: 12px; vertical-align: top;"><strong>${match.scenario}</strong></td>`;
+                        html += '<td style="padding: 12px; text-align: center; vertical-align: top;">';
+                        html += '<span style="background: var(--danger); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; font-weight: 600; white-space: nowrap;">NOT COVERED</span>';
+                        html += '</td>';
+                        html += '<td style="padding: 12px; vertical-align: top; color: var(--text-tertiary); font-style: italic;">(0 tests)</td>';
+                        html += '</tr>';
+                    });
+                    
+                    html += '</tbody>';
+                    html += '</table>';
+                }
+                
+                html += '</div>';
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
         }
         
-        // Populate Gaps Table
+        // Keep gaps table function for compatibility (no longer used in UI)
         function populateGapsTable() {
-            const tbody = document.getElementById('gaps-table-body');
-            if (!tbody || !reportData || !reportData.gaps) return;
-            
-            const gaps = reportData.gaps;
-            if (!Array.isArray(gaps) || gaps.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--text-secondary);">No coverage gaps found</td></tr>';
-                return;
-            }
-            
-            // Sort by priority (P0 first, then P1, P2, P3)
-            const sorted = [...gaps].sort((a, b) => {
-                const priorityOrder = { 'P0': 0, 'P1': 1, 'P2': 2, 'P3': 3 };
-                const prioA = priorityOrder[a.priority || 'P3'] ?? 999;
-                const prioB = priorityOrder[b.priority || 'P3'] ?? 999;
-                return prioA - prioB;
-            });
-            
-            let html = '';
-            sorted.forEach((gap) => {
-                const priority = gap.priority || 'P3';
-                const priorityColor = priority === 'P0' ? '#dc2626' : priority === 'P1' ? '#f59e0b' : priority === 'P2' ? '#3b82f6' : '#6b7280';
-                
-                html += `<tr style="border-bottom: 1px solid var(--border-color);">`;
-                html += `<td style="padding: 12px;"><span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; background: ${priorityColor}; color: white;">${priority}</span></td>`;
-                html += `<td style="padding: 12px;"><code style="background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px;">${gap.api || 'N/A'}</code></td>`;
-                html += `<td style="padding: 12px;">${gap.scenario || gap.description || 'N/A'}</td>`;
-                html += `<td style="padding: 12px;"><span style="color: var(--danger); font-weight: 600;">Not Covered</span></td>`;
-                html += `</tr>`;
-            });
-            
-            tbody.innerHTML = html;
+            // Function kept for compatibility but not rendered
         }
         
         // Populate Orphan Tests Table
@@ -938,15 +981,110 @@
             tbody.innerHTML = html;
         }
         
-        // Populate Business Journeys (copied from V1)
+        // Populate Business Journeys with full visualization
         function populateBusinessJourneys() {
-            if (!reportData || !reportData.journeyAnalysis) return;
+            const container = document.getElementById('journeys-content');
+            if (!container) return;
             
-            const wrapper = document.getElementById('journeys-card-wrapper');
-            if (wrapper) wrapper.style.display = 'block';
+            // If no journey data, show message
+            if (!reportData || !reportData.journeyAnalysis) {
+                container.innerHTML = '<p style="text-align: center; padding: 20px; color: var(--text-secondary);">No business journeys configured</p>';
+                return;
+            }
             
-            // Rest of the journey logic from V1 would go here
-            // For now, keeping it simple as it's unchanged
+            const journeyData = reportData.journeyAnalysis;
+            
+            // Update summary counts
+            document.getElementById('journeys-covered').textContent = journeyData.coveredJourneys || 0;
+            document.getElementById('journeys-partial').textContent = journeyData.partialJourneys || 0;
+            document.getElementById('journeys-notcovered').textContent = journeyData.notCoveredJourneys || 0;
+            document.getElementById('journeys-total').textContent = journeyData.totalJourneys || 0;
+            
+            if (!journeyData.journeys || journeyData.journeys.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 20px; color: var(--text-secondary);">No business journeys configured</p>';
+                return;
+            }
+            
+            let html = '';
+            
+            journeyData.journeys.forEach((journeyAnalysis, idx) => {
+                // Extract journey data from the analysis object
+                const journey = journeyAnalysis.journey;
+                const status = journeyAnalysis.status;
+                const overallCoverage = journeyAnalysis.overallCoverage || 0;
+                const e2eTestsFound = journeyAnalysis.e2eTestsFound || false;
+                const weakSteps = journeyAnalysis.weakSteps || [];
+                
+                const statusIcon = status === 'FULLY_COVERED' ? '✅' : 
+                                  status === 'PARTIAL_COVERAGE' ? '🟡' : 
+                                  status === 'AT_RISK' ? '⚠️' : '❌';
+                const priorityColor = journey.priority === 'P0' ? '#dc2626' : 
+                                     journey.priority === 'P1' ? '#f59e0b' : 
+                                     journey.priority === 'P2' ? '#3b82f6' : '#6b7280';
+                
+                const bgColor = idx % 2 === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)';
+                
+                html += '<div style="margin-bottom: 20px; border: 2px solid var(--border-color); border-radius: 12px; overflow: hidden;">';
+                
+                // Journey Header
+                html += `<div style="background: ${bgColor}; padding: 16px 20px;">`;
+                html += '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">';
+                
+                // Left side - Title and description
+                html += '<div style="flex: 1;">';
+                html += `<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">`;
+                html += `<span style="font-size: 1.5em;">${statusIcon}</span>`;
+                html += `<h4 style="margin: 0; color: var(--text-primary); font-size: 1.1em;">${journey.name}</h4>`;
+                html += '</div>';
+                html += `<p style="color: var(--text-secondary); margin: 0; font-size: 0.95em;">${journey.description || ''}</p>`;
+                html += '</div>';
+                
+                // Right side - Priority badge
+                html += `<span style="background: ${priorityColor}; color: white; padding: 4px 12px; border-radius: 12px; font-weight: 600; font-size: 0.85em; white-space: nowrap;">${journey.priority}</span>`;
+                
+                html += '</div>';
+                html += '</div>';
+                
+                // Journey Stats
+                html += '<div style="padding: 16px 20px; background: var(--bg-primary); border-top: 1px solid var(--border-color);">';
+                html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">';
+                
+                // Steps
+                html += '<div style="text-align: center; padding: 10px; background: var(--bg-tertiary); border-radius: 8px;">';
+                html += `<div style="font-size: 1.5em; font-weight: 700; color: var(--text-primary);">${journey.steps.length}</div>`;
+                html += '<div style="font-size: 0.8em; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Steps</div>';
+                html += '</div>';
+                
+                // Unit Test Coverage
+                const utColor = overallCoverage >= 80 ? 'var(--success)' : overallCoverage >= 50 ? 'var(--warning)' : 'var(--danger)';
+                html += '<div style="text-align: center; padding: 10px; background: var(--bg-tertiary); border-radius: 8px;">';
+                html += `<div style="font-size: 1.5em; font-weight: 700; color: ${utColor};">${overallCoverage}%</div>`;
+                html += '<div style="font-size: 0.8em; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Unit Tests</div>';
+                html += '</div>';
+                
+                // E2E Test Status
+                const e2eIcon = e2eTestsFound ? '✓' : '✗';
+                const e2eColor = e2eTestsFound ? 'var(--success)' : 'var(--danger)';
+                html += '<div style="text-align: center; padding: 10px; background: var(--bg-tertiary); border-radius: 8px;">';
+                html += `<div style="font-size: 1.5em; font-weight: 700; color: ${e2eColor};">${e2eIcon}</div>`;
+                html += '<div style="font-size: 0.8em; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">E2E Test</div>';
+                html += '</div>';
+                
+                // Weak Points
+                const weakPoints = weakSteps.length;
+                const wpColor = weakPoints === 0 ? 'var(--success)' : weakPoints <= 2 ? 'var(--warning)' : 'var(--danger)';
+                html += '<div style="text-align: center; padding: 10px; background: var(--bg-tertiary); border-radius: 8px;">';
+                html += `<div style="font-size: 1.5em; font-weight: 700; color: ${wpColor};">${weakPoints}</div>`;
+                html += '<div style="font-size: 0.8em; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Weak Points</div>';
+                html += '</div>';
+                
+                html += '</div>';
+                html += '</div>';
+                
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
         }
         
         // Card Toggle

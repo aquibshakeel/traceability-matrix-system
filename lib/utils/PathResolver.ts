@@ -199,12 +199,24 @@ export class PathResolver {
   }
 
   /**
-   * Resolve journey path with four-tier fallback (same as baseline)
-   * Priority: Per-Service ENV > Shared ENV > Config > Default
+   * Resolve journey path with five-tier fallback (same as baseline)
+   * Priority: CLI Override > Per-Service ENV > Shared ENV > Config > Default
    * Journeys are stored in external QA repo alongside baselines
    */
   resolveJourneyPath(serviceName: string): string | null {
     const journeyFileName = `${serviceName}-journeys.yml`;
+
+    // Tier -1: CLI override - derive journey path from baseline path
+    if (this.cliOverrides.baselinePath) {
+      // If baseline is /path/to/baseline/service-baseline.yml
+      // Then journey is /path/to/journeys/service-journeys.yml
+      const baselineDir = path.dirname(this.cliOverrides.baselinePath);
+      const parentDir = path.dirname(baselineDir); // Go up one level from 'baseline' folder
+      const journeyPath = path.join(parentDir, 'journeys', journeyFileName);
+      if (fs.existsSync(journeyPath)) {
+        return journeyPath;
+      }
+    }
 
     // Tier 0: Per-service journey environment variable (highest priority)
     // e.g., IDENTITY_SERVICE_JOURNEY for identity-service
