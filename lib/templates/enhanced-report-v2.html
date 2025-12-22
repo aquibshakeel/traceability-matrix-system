@@ -633,44 +633,6 @@
             </div>
         </div>
 
-        <!-- Card 4: Business Journeys (E2E) -->
-        <div class="expandable-card" id="journeys-card-wrapper">
-            <div class="card-header" onclick="toggleCard('journeys-card')">
-                <div class="card-header-left">
-                    <span class="card-icon">🚀</span>
-                    <span class="card-title">Business Journeys (E2E)</span>
-                </div>
-                <div class="card-summary">
-                    <div class="summary-item">
-                        <div class="summary-value" style="color: var(--success);" id="journeys-covered">0</div>
-                        <div class="summary-label">Fully Covered</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-value" style="color: var(--warning);" id="journeys-partial">0</div>
-                        <div class="summary-label">Partially Covered</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-value" style="color: var(--danger);" id="journeys-notcovered">0</div>
-                        <div class="summary-label">Not Covered</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-value" id="journeys-total">0</div>
-                        <div class="summary-label">Total Journeys</div>
-                    </div>
-                </div>
-                <span class="card-toggle" id="journeys-card-toggle">▼</span>
-            </div>
-            <div class="card-content" id="journeys-card-content">
-                <div class="card-content-inner">
-                    <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 1.05em;">
-                        End-to-end business journeys represent complete user workflows across multiple API steps.
-                    </p>
-                    <div id="journeys-content">
-                        <!-- Populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Hidden sections -->
         <div style="display: none;">
@@ -722,10 +684,9 @@
             populateConsolidatedTable();
             populateOrphanTestsTable();
             populateAISuggestionsTable();
-            populateBusinessJourneys();
         });
         
-        // Populate API Breakdown with summary table and detailed coverage
+        // Populate API Breakdown - Simple table with one row per scenario
         function populateConsolidatedTable() {
             const container = document.getElementById('api-breakdown-content');
             if (!container || !reportData || !reportData.apis) return;
@@ -736,154 +697,80 @@
                 return;
             }
             
-            let html = '';
-            
-            // Summary Table First
-            html += '<div style="overflow-x: auto; margin-bottom: 40px;">';
-            html += '<table style="width: 100%; border: 2px solid var(--border-color); border-radius: 8px;">';
+            let html = '<div style="overflow-x: auto;">';
+            html += '<table style="width: 100%; border: 2px solid var(--border-color); border-collapse: collapse;">';
             html += '<thead>';
             html += '<tr style="background: var(--bg-primary);">';
-            html += '<th style="padding: 12px; text-align: left;">API</th>';
-            html += '<th style="padding: 12px; text-align: center;">Total Scenarios</th>';
-            html += '<th style="padding: 12px; text-align: center;">Covered</th>';
-            html += '<th style="padding: 12px; text-align: center;">Not Covered</th>';
-            html += '<th style="padding: 12px; text-align: center;">Partial</th>';
+            html += '<th style="padding: 12px; text-align: left; width: 20%; border-bottom: 2px solid var(--border-color);">API</th>';
+            html += '<th style="padding: 12px; text-align: left; width: 35%; border-bottom: 2px solid var(--border-color);">Baseline Scenario</th>';
+            html += '<th style="padding: 12px; text-align: center; width: 15%; border-bottom: 2px solid var(--border-color);">Status</th>';
+            html += '<th style="padding: 12px; text-align: left; width: 30%; border-bottom: 2px solid var(--border-color);">Covering Unit Test(s) / File Mapping</th>';
             html += '</tr>';
             html += '</thead>';
             html += '<tbody>';
             
-            apis.forEach((api, idx) => {
-                const totalScenarios = api.coveredScenarios + api.partiallyCoveredScenarios + api.uncoveredScenarios;
-                const rowBg = idx % 2 === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)';
+            let rowIndex = 0;
+            apis.forEach((api) => {
+                if (!api.matchedTests || api.matchedTests.length === 0) return;
                 
-                html += `<tr style="background: ${rowBg}; border-bottom: 1px solid var(--border-color);">`;
-                html += `<td style="padding: 12px;"><code style="background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px;">${api.api}</code></td>`;
-                html += `<td style="padding: 12px; text-align: center; font-weight: 600;">${totalScenarios}</td>`;
-                html += `<td style="padding: 12px; text-align: center;"><span style="color: var(--success); font-weight: 600;">✅ ${api.coveredScenarios}</span></td>`;
-                html += `<td style="padding: 12px; text-align: center;"><span style="color: var(--danger); font-weight: 600;">❌ ${api.uncoveredScenarios}</span></td>`;
-                html += `<td style="padding: 12px; text-align: center;"><span style="color: var(--warning); font-weight: 600;">⚠️ ${api.partiallyCoveredScenarios}</span></td>`;
-                html += `</tr>`;
+                const allTests = api.matchedTests;
+                const numScenarios = allTests.length;
+                
+                allTests.forEach((match, scenarioIdx) => {
+                    const rowBg = rowIndex % 2 === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)';
+                    rowIndex++;
+                    
+                    html += `<tr style="background: ${rowBg}; border-bottom: 1px solid var(--border-color);">`;
+                    
+                    // API column (row span for first scenario)
+                    if (scenarioIdx === 0) {
+                        html += `<td style="padding: 12px; vertical-align: top; border-right: 1px solid var(--border-color);" rowspan="${numScenarios}">`;
+                        html += `<code style="background: var(--bg-tertiary); padding: 6px 10px; border-radius: 6px; font-size: 0.95em; font-weight: 600; display: inline-block;">${api.api}</code>`;
+                        html += '</td>';
+                    }
+                    
+                    // Scenario column
+                    html += `<td style="padding: 12px; vertical-align: top; border-right: 1px solid var(--border-color);"><strong>${match.scenario}</strong></td>`;
+                    
+                    // Status column
+                    html += '<td style="padding: 12px; text-align: center; vertical-align: top; border-right: 1px solid var(--border-color);">';
+                    if (match.status === 'FULLY_COVERED') {
+                        html += '<span style="background: var(--success); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; font-weight: 600; white-space: nowrap;">✅ COVERED</span>';
+                    } else if (match.status === 'PARTIALLY_COVERED') {
+                        html += '<span style="background: var(--warning); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; font-weight: 600; white-space: nowrap;">⚠️ PARTIAL</span>';
+                    } else {
+                        html += '<span style="background: var(--danger); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; font-weight: 600; white-space: nowrap;">❌ NOT COVERED</span>';
+                    }
+                    html += '</td>';
+                    
+                    // Mapping column
+                    html += '<td style="padding: 12px; vertical-align: top;">';
+                    if (match.matchDetails && match.matchDetails.length > 0) {
+                        match.matchDetails.forEach((detail, detailIdx) => {
+                            if (detailIdx > 0) html += '<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-light);"></div>';
+                            html += '<div>';
+                            html += `<div style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px; font-size: 0.9em;">${detail.testDescription}</div>`;
+                            html += `<div style="color: var(--text-tertiary); font-size: 0.85em;">`;
+                            html += `<code style="font-size: 0.8em; background: var(--bg-tertiary); padding: 2px 6px; border-radius: 3px;">${detail.file}</code>`;
+                            if (detail.lineNumber) html += ` Line: ${detail.lineNumber}`;
+                            const confColor = detail.matchConfidence === 'HIGH' ? 'var(--success)' : detail.matchConfidence === 'MEDIUM' ? 'var(--warning)' : 'var(--danger)';
+                            html += ` <span style="color: ${confColor}; font-weight: 600;">${detail.matchConfidence}</span>`;
+                            html += '</div>';
+                            html += '</div>';
+                        });
+                    } else {
+                        html += '<span style="color: var(--text-tertiary); font-style: italic; font-size: 0.9em;">(No tests found)</span>';
+                    }
+                    html += '</td>';
+                    
+                    html += '</tr>';
+                });
             });
             
             html += '</tbody>';
             html += '</table>';
             html += '</div>';
             
-            // Detailed Breakdown Section
-            html += '<h4 style="color: var(--text-primary); margin-top: 40px; margin-bottom: 20px; font-size: 1.1em;">📋 Detailed Coverage Breakdown</h4>';
-            html += '<div style="overflow-x: auto;">';
-            
-            apis.forEach((api, apiIndex) => {
-                const totalScenarios = api.coveredScenarios + api.partiallyCoveredScenarios + api.uncoveredScenarios;
-                
-                // API Section with detailed table
-                html += '<div style="margin-bottom: 40px;">';
-                
-                // API Header
-                html += '<div style="background: var(--bg-tertiary); padding: 12px 16px; border-radius: 8px 8px 0 0; border: 2px solid var(--border-color); border-bottom: none;">';
-                html += '<div style="display: flex; justify-content: space-between; align-items: center;">';
-                html += `<code style="background: var(--bg-secondary); padding: 6px 12px; border-radius: 6px; font-size: 1.1em; font-weight: 600;">${api.api}</code>`;
-                html += '<div style="display: flex; gap: 20px; font-size: 0.9em;">';
-                html += `<span style="color: var(--success);"><strong>${api.coveredScenarios}</strong> Fully covered</span>`;
-                html += `<span style="color: var(--warning);"><strong>${api.partiallyCoveredScenarios}</strong> Partially covered</span>`;
-                html += `<span style="color: var(--danger);"><strong>${api.uncoveredScenarios}</strong> Missing unit tests</span>`;
-                html += '</div>';
-                html += '</div>';
-                html += '</div>';
-                
-                // Detailed Table for scenarios
-                if (api.matchedTests && api.matchedTests.length > 0) {
-                    html += '<table style="width: 100%; border: 2px solid var(--border-color); border-radius: 0 0 8px 8px; border-top: none;">';
-                    html += '<thead>';
-                    html += '<tr style="background: var(--bg-primary);">';
-                    html += '<th style="padding: 12px; text-align: left; width: 50%;">Baseline Scenario</th>';
-                    html += '<th style="padding: 12px; text-align: center; width: 15%;">Status</th>';
-                    html += '<th style="padding: 12px; text-align: left; width: 35%;">Covering Unit Test(s)</th>';
-                    html += '</tr>';
-                    html += '</thead>';
-                    html += '<tbody>';
-                    
-                    // Group by status
-                    const fullyCovered = api.matchedTests.filter(m => m.status === 'FULLY_COVERED');
-                    const partiallyCovered = api.matchedTests.filter(m => m.status === 'PARTIALLY_COVERED');
-                    const notCovered = api.matchedTests.filter(m => m.status === 'NOT_COVERED');
-                    
-                    // Fully Covered
-                    fullyCovered.forEach((match, idx) => {
-                        const rowBg = idx % 2 === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)';
-                        html += `<tr style="background: ${rowBg}; border-bottom: 1px solid var(--border-color);">`;
-                        html += `<td style="padding: 12px; vertical-align: top;"><strong>${match.scenario}</strong></td>`;
-                        html += '<td style="padding: 12px; text-align: center; vertical-align: top;">';
-                        html += '<span style="background: var(--success); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; font-weight: 600; white-space: nowrap;">FULLY COVERED</span>';
-                        html += '</td>';
-                        html += '<td style="padding: 12px; vertical-align: top;">';
-                        
-                        if (match.matchDetails && match.matchDetails.length > 0) {
-                            match.matchDetails.forEach((detail, detailIdx) => {
-                                if (detailIdx > 0) html += '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-light);"></div>';
-                                html += '<div>';
-                                html += `<div style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">${detail.testDescription}</div>`;
-                                html += `<div style="color: var(--text-tertiary); font-size: 0.85em;">`;
-                                html += `<code style="font-size: 0.85em;">${detail.file}</code>`;
-                                if (detail.lineNumber) html += ` Line: ${detail.lineNumber}`;
-                                html += ` <span style="color: var(--success); font-weight: 600;">${detail.matchConfidence}</span> Confidence`;
-                                html += '</div>';
-                                html += '</div>';
-                            });
-                        }
-                        
-                        html += '</td>';
-                        html += '</tr>';
-                    });
-                    
-                    // Partially Covered
-                    partiallyCovered.forEach((match, idx) => {
-                        const rowBg = (idx + fullyCovered.length) % 2 === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)';
-                        html += `<tr style="background: ${rowBg}; border-bottom: 1px solid var(--border-color);">`;
-                        html += `<td style="padding: 12px; vertical-align: top;"><strong>${match.scenario}</strong></td>`;
-                        html += '<td style="padding: 12px; text-align: center; vertical-align: top;">';
-                        html += '<span style="background: var(--warning); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; font-weight: 600; white-space: nowrap;">PARTIALLY COVERED</span>';
-                        html += '</td>';
-                        html += '<td style="padding: 12px; vertical-align: top;">';
-                        
-                        if (match.matchDetails && match.matchDetails.length > 0) {
-                            match.matchDetails.forEach((detail, detailIdx) => {
-                                if (detailIdx > 0) html += '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-light);"></div>';
-                                html += '<div>';
-                                html += `<div style="color: var(--text-primary); font-weight: 600; margin-bottom: 4px;">${detail.testDescription}</div>`;
-                                html += `<div style="color: var(--text-tertiary); font-size: 0.85em;">`;
-                                html += `<code style="font-size: 0.85em;">${detail.file}</code>`;
-                                if (detail.lineNumber) html += ` Line: ${detail.lineNumber}`;
-                                html += ` <span style="color: var(--warning); font-weight: 600;">${detail.matchConfidence}</span> Confidence`;
-                                html += '</div>';
-                                html += '</div>';
-                            });
-                        }
-                        
-                        html += '</td>';
-                        html += '</tr>';
-                    });
-                    
-                    // Not Covered
-                    notCovered.forEach((match, idx) => {
-                        const rowBg = (idx + fullyCovered.length + partiallyCovered.length) % 2 === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)';
-                        html += `<tr style="background: ${rowBg}; border-bottom: 1px solid var(--border-color);">`;
-                        html += `<td style="padding: 12px; vertical-align: top;"><strong>${match.scenario}</strong></td>`;
-                        html += '<td style="padding: 12px; text-align: center; vertical-align: top;">';
-                        html += '<span style="background: var(--danger); color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; font-weight: 600; white-space: nowrap;">NOT COVERED</span>';
-                        html += '</td>';
-                        html += '<td style="padding: 12px; vertical-align: top; color: var(--text-tertiary); font-style: italic;">(0 tests)</td>';
-                        html += '</tr>';
-                    });
-                    
-                    html += '</tbody>';
-                    html += '</table>';
-                }
-                
-                html += '</div>';
-            });
-            
-            html += '</div>';
             container.innerHTML = html;
         }
         
