@@ -298,6 +298,68 @@
             background: var(--bg-primary);
         }
 
+        /* Stats within card */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            padding: 24px 20px;
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+            border-radius: 16px;
+            text-align: center;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .stat-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-color: var(--accent-primary);
+        }
+
+        .stat-box .value {
+            font-size: 2.8em;
+            font-weight: 900;
+            color: var(--text-primary);
+            line-height: 1;
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
+        }
+
+        .stat-box .label {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+        }
+
+        /* Coverage Bar */
+        .coverage-bar {
+            height: 40px;
+            background: var(--border-color);
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .coverage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success) 0%, #059669 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: width 1s ease;
+        }
+
         /* Table */
         table {
             width: 100%;
@@ -418,8 +480,31 @@
             </div>
             <div class="card-content" id="total-scenarios-panel-content">
                 <div class="card-content-inner">
-                    <h4 style="color: var(--text-primary); margin-bottom: 15px; font-size: 1.2em;">
-                        📊 Comprehensive Coverage Overview
+                    <!-- Coverage Statistics -->
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <div class="value" style="color: var(--success);">{{FULLY_COVERED}}</div>
+                            <div class="label">✅ Fully Covered</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="value" style="color: var(--warning);">{{PARTIALLY_COVERED}}</div>
+                            <div class="label">⚠️ Partially Covered</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="value" style="color: var(--danger);">{{NOT_COVERED}}</div>
+                            <div class="label">❌ Not Covered</div>
+                        </div>
+                    </div>
+
+                    <!-- Coverage Bar -->
+                    <div class="coverage-bar">
+                        <div class="coverage-fill" style="width: {{COVERAGE_PERCENT}}%">
+                            {{COVERAGE_PERCENT}}% Covered
+                        </div>
+                    </div>
+
+                    <h4 style="color: var(--text-primary); margin-top: 30px; margin-bottom: 15px; font-size: 1.2em;">
+                        📊 API Coverage Summary
                     </h4>
                     <div style="overflow-x: auto;">
                         <table id="consolidated-coverage-table">
@@ -430,9 +515,49 @@
                                     <th style="padding: 12px; text-align: center;">Covered</th>
                                     <th style="padding: 12px; text-align: center;">Not Covered</th>
                                     <th style="padding: 12px; text-align: center;">Partial</th>
+                                    <th style="padding: 12px; text-align: center;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="consolidated-table-body">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Gap Details -->
+                    <h4 style="color: var(--text-primary); margin-top: 40px; margin-bottom: 15px; font-size: 1.2em;">
+                        ⚠️ Coverage Gaps Breakdown
+                    </h4>
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <div class="value" style="color: #dc2626;">{{P0_GAPS}}</div>
+                            <div class="label">P0 (Critical)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="value" style="color: var(--warning);">{{P1_GAPS}}</div>
+                            <div class="label">P1 (High)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="value" style="color: var(--info);">{{P2_GAPS}}</div>
+                            <div class="label">P2 (Medium)</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="value" style="color: var(--text-secondary);">{{P3_GAPS}}</div>
+                            <div class="label">P3 (Low)</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; overflow-x: auto;">
+                        <table id="gaps-table">
+                            <thead>
+                                <tr style="background: var(--bg-primary);">
+                                    <th style="padding: 12px; text-align: left;">Priority</th>
+                                    <th style="padding: 12px; text-align: left;">API</th>
+                                    <th style="padding: 12px; text-align: left;">Scenario</th>
+                                    <th style="padding: 12px; text-align: left;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gaps-table-body">
                                 <!-- Populated by JavaScript -->
                             </tbody>
                         </table>
@@ -659,6 +784,7 @@
             
             // Populate tables
             populateConsolidatedTable();
+            populateGapsTable();
             populateOrphanTestsTable();
             populateAISuggestionsTable();
             populateBusinessJourneys();
@@ -671,7 +797,7 @@
             
             const apis = reportData.apis;
             if (apis.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: var(--text-secondary);">No API data available</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-secondary);">No API data available</td></tr>';
                 return;
             }
             
@@ -685,6 +811,42 @@
                 html += `<td style="padding: 12px; text-align: center;"><span style="color: var(--success); font-weight: 600;">✅ ${api.coveredScenarios}</span></td>`;
                 html += `<td style="padding: 12px; text-align: center;"><span style="color: var(--danger); font-weight: 600;">❌ ${api.uncoveredScenarios}</span></td>`;
                 html += `<td style="padding: 12px; text-align: center;"><span style="color: var(--warning); font-weight: 600;">⚠️ ${api.partiallyCoveredScenarios}</span></td>`;
+                html += `<td style="padding: 12px; text-align: center;">-</td>`;
+                html += `</tr>`;
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        // Populate Gaps Table
+        function populateGapsTable() {
+            const tbody = document.getElementById('gaps-table-body');
+            if (!tbody || !reportData || !reportData.gaps) return;
+            
+            const gaps = reportData.gaps;
+            if (!Array.isArray(gaps) || gaps.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--text-secondary);">No coverage gaps found</td></tr>';
+                return;
+            }
+            
+            // Sort by priority (P0 first, then P1, P2, P3)
+            const sorted = [...gaps].sort((a, b) => {
+                const priorityOrder = { 'P0': 0, 'P1': 1, 'P2': 2, 'P3': 3 };
+                const prioA = priorityOrder[a.priority || 'P3'] ?? 999;
+                const prioB = priorityOrder[b.priority || 'P3'] ?? 999;
+                return prioA - prioB;
+            });
+            
+            let html = '';
+            sorted.forEach((gap) => {
+                const priority = gap.priority || 'P3';
+                const priorityColor = priority === 'P0' ? '#dc2626' : priority === 'P1' ? '#f59e0b' : priority === 'P2' ? '#3b82f6' : '#6b7280';
+                
+                html += `<tr style="border-bottom: 1px solid var(--border-color);">`;
+                html += `<td style="padding: 12px;"><span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; background: ${priorityColor}; color: white;">${priority}</span></td>`;
+                html += `<td style="padding: 12px;"><code style="background: var(--bg-tertiary); padding: 4px 8px; border-radius: 4px;">${gap.api || 'N/A'}</code></td>`;
+                html += `<td style="padding: 12px;">${gap.scenario || gap.description || 'N/A'}</td>`;
+                html += `<td style="padding: 12px;"><span style="color: var(--danger); font-weight: 600;">Not Covered</span></td>`;
                 html += `</tr>`;
             });
             
