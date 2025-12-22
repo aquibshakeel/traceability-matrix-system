@@ -1,631 +1,188 @@
 # AI-Driven Test Coverage System v6.3.0
 
-Complete AI-powered test coverage analysis with **multi-provider AI support**, **premium enterprise report design**, **Business Journeys (E2E) tracking**, **historical trend analysis**, **orphan unit test detection**, **orphan API detection**, **visual analytics**, bidirectional scenario completeness detection, and multi-format reporting.
+🤖 **100% AI-powered test coverage analysis** with intelligent scenario generation, coverage matching, and premium enterprise reports. Zero static rules - everything powered by AI.
+
+[![Version](https://img.shields.io/badge/version-6.3.0-blue.svg)](CHANGELOG.md)
+[![Status](https://img.shields.io/badge/status-production%20ready-green.svg)]()
+[![AI Powered](https://img.shields.io/badge/AI-100%25-purple.svg)]()
+
+---
 
 ## 🎯 What It Does
 
-This system provides **100% AI-powered test coverage analysis** with zero static rules. Every aspect—from test case generation to coverage matching to gap detection—uses AI intelligence.
+Analyzes your codebase to answer critical questions:
+- **Are our unit tests complete?** AI matches tests to QA scenarios
+- **What's missing?** Identifies gaps with P0/P1/P2/P3 priorities  
+- **Is there traceability?** Maps tests to requirements with confidence levels
+- **What changed?** Detects API changes and impact automatically
 
-### Core Features
+**Result:** Premium HTML dashboard showing exactly what needs testing.
 
-1. **AI Test Case Generation** - Generates comprehensive test scenarios from API specs
-2. **AI Coverage Analysis** - Intelligent scenario-to-test matching with gap detection
-3. **Premium Enterprise Reports** - Professional dashboard with interactive visualizations
-4. **Business Journeys (E2E)** - Track end-to-end user workflow coverage
-5. **Historical Trend Analysis** - Coverage tracking over time with visual charts
-6. **Orphan Unit Test Detection** - Detects tests without baseline scenarios
-7. **Orphan API Detection** - Identifies completely untracked APIs
-8. **Orphan Test Categorization** - AI categorizes as Technical vs Business
-9. **Git Change Detection** - Automatically detects API changes
-10. **Visual Analytics** - Interactive charts and progress indicators
-11. **Multi-Format Reports** - HTML, JSON, CSV, and Markdown
-12. **Pre-Commit Validation** - Comprehensive validation on every commit
+---
+
+## ✨ Key Features
+
+- 🤖 **AI-Powered Everything** - Claude/OpenAI for generation, matching, and categorization
+- 📊 **V2 Premium Reports** - Enterprise dashboard with 3 focused cards
+- 🎯 **Smart Gap Detection** - P0/P1/P2/P3 priority-based analysis
+- 🔍 **Orphan Detection** - Finds tests without scenarios (categorized as Technical vs Business)
+- 📈 **Historical Trends** - 30-day coverage tracking with charts
+- 🔄 **Git Integration** - Automatic API change detection
+- 🏢 **External Repos** - Services and scenarios in separate repositories
+- 🎨 **Multi-Format** - HTML, JSON, CSV, Markdown reports
+
+---
 
 ## 🚀 Quick Start
 
-### Installation
+### 1. Install
 
 ```bash
 npm install
 npm run build
 ```
 
-### External Repository Setup (Recommended)
+### 2. Set AI Provider
 
-For production use, store services and test scenarios in separate repositories:
+```bash
+# Claude (recommended)
+export CLAUDE_API_KEY="sk-ant-your-key"
+
+# Or OpenAI
+export OPENAI_API_KEY="sk-your-key"
+export AI_PROVIDER="openai"
+```
+
+### 3. Generate AI Scenarios
+
+```bash
+npm run generate
+```
+
+Creates baseline scenarios in `.traceability/test-cases/ai_cases/`
+
+### 4. Analyze Coverage
+
+```bash
+# Using config file
+npm run continue
+
+# Or external repos (CLI)
+npm run continue -- customer-service \
+  --service-path=/path/to/service \
+  --baseline-path=/path/to/baseline.yml
+```
+
+**Output:** Premium HTML report at `.traceability/reports/{service}-report.html`
+
+---
+
+## 📊 V2 Report Features (Latest)
+
+The V2 report provides a focused, action-oriented dashboard:
+
+### **Card 1: Total Scenarios Panel**
+- Summary metrics (Total, Coverage %, Gaps)
+- **API Coverage Breakdown** - Single table showing:
+  - One row per scenario
+  - Status badges (✅ Covered / ⚠️ Partial / ❌ Not Covered)
+  - Unit test mappings with file locations
+  - Match confidence levels
+
+### **Card 2: Orphan Unit Tests**
+- Tests without baseline scenarios
+- **AI Categorization:**
+  - 💼 Business Tests (QA must add scenarios)
+  - 🔧 Technical Tests (no action needed)
+- Copy-ready YAML for QA team
+- Priority assignments (P0/P1/P2/P3)
+
+### **Card 3: AI Suggested Scenarios (P0/P1)**
+- High-priority AI recommendations
+- API-specific suggestions
+- Ready to add to baseline
+
+**What Changed in V2:**
+- ✅ Simplified table structure (one row = one scenario)
+- ✅ Removed redundant progress bars
+- ✅ Focused on actionable insights
+- ✅ Removed Business Journeys (moved to separate feature)
+
+---
+
+## 📋 Commands Reference
+
+| Command | Description |
+|---------|-------------|
+| `npm run generate` | Generate AI test scenarios from APIs |
+| `npm run continue` | Analyze coverage and generate reports |
+| `npm run build` | Compile TypeScript |
+| `npm run install:hooks` | Install pre-commit validation hook |
+| `npm run generate:api` | Generate scenarios for single API (QA tool) |
+
+---
+
+## 📁 Project Structure
+
+```
+.traceability/
+├── config.json                    # Configuration
+├── reports/                       # Generated reports
+│   ├── {service}-report.html      # Premium V2 dashboard
+│   ├── {service}-report.json      # CI/CD integration
+│   ├── {service}-report.csv       # Spreadsheet export
+│   └── {service}-report.md        # Documentation
+└── test-cases/
+    ├── baseline/                  # QA-approved scenarios
+    │   └── {service}-baseline.yml
+    └── ai_cases/                  # AI-generated (auto-updated)
+        └── {service}-ai.yml
+```
+
+---
+
+## 🏢 External Repository Setup
+
+**NEW in v6.3.0:** Analyze services and scenarios in separate repos!
 
 ```bash
 # Set environment variables
 export SERVICE_PATH=/path/to/services-repo
-export TEST_SCENARIO_PATH=/path/to/test-scenarios-repo/baseline
+export TEST_SCENARIO_PATH=/path/to/scenarios-repo/baseline
 
-# Or per-service paths for granular control
-export IDENTITY_SERVICE_PATH=/path/to/services/identity-service
-export IDENTITY_SERVICE_BASELINE=/path/to/scenarios/identity-baseline.yml
-```
+# Or use per-service paths
+export IDENTITY_SERVICE_PATH=/path/to/identity-service
+export IDENTITY_SERVICE_BASELINE=/path/to/identity-baseline.yml
 
-**See [QUICKSTART_EXTERNAL_REPOS.md](QUICKSTART_EXTERNAL_REPOS.md) for detailed setup guide.**
-
-### Setup AI Provider
-
-**Option 1: Environment Variables (Recommended)**
-```bash
-# API Key (Required)
-export CLAUDE_API_KEY="sk-ant-..."
-
-# Optional: Override config.json settings
-export AI_PROVIDER="anthropic"     # anthropic|openai
-export AI_MODEL="auto"              # auto or specific model
-export AI_TEMPERATURE="0.3"         # 0.0-1.0
-export AI_MAX_TOKENS="2000"         # token limit
-```
-
-**Option 2: Config File**
-```bash
-# Edit .traceability/config.json
-{
-  "ai": {
-    "provider": "anthropic",
-    "model": "auto",
-    "temperature": 0.3,
-    "maxTokens": 2000
-  }
-}
-
-export CLAUDE_API_KEY="sk-ant-..."
-```
-
-**Option 3: Switch to OpenAI**
-```bash
-export AI_PROVIDER="openai"
-export OPENAI_API_KEY="sk-..."
-# OR edit config.json and set provider to "openai"
-```
-
-**Priority:** Environment Variables > Config File > Defaults
-
-The system supports multiple AI providers:
-- ✅ **Anthropic** (Claude 4.5 Sonnet, Claude 3.7/3.5)
-- ✅ **OpenAI** (GPT-4 Turbo, GPT-4)
-- 🔮 **Coming Soon:** Google Gemini, local models
-
-**Available Environment Variables:**
-```bash
-# AI Configuration
-AI_PROVIDER="anthropic|openai"      # Override provider
-AI_MODEL="auto|model-name"          # Override model
-AI_TEMPERATURE="0.0-1.0"            # Override temperature
-AI_MAX_TOKENS="1000-8000"           # Override max tokens
-
-# API Keys
-CLAUDE_API_KEY="sk-ant-..."         # Claude/Anthropic
-ANTHROPIC_API_KEY="sk-ant-..."      # Alias for Claude
-OPENAI_API_KEY="sk-..."             # OpenAI/GPT
-
-# Feature Flags
-VERBOSE="true|false"                 # Verbose logging
-AUTO_OPEN_REPORTS="true|false"      # Auto-open HTML reports
-SKIP_GIT_DETECTION="true|false"     # Skip git change detection
-
-# Service Configuration
-HEALTH_CHECK_TIMEOUT="5000"         # Health check timeout (ms)
-```
-
-### Configure Services
-
-Edit `.traceability/config.json`:
-
-```json
-{
-  "services": [
-    {
-      "name": "customer-service",
-      "enabled": true,
-      "path": "./services/customer-service",
-      "language": "java",
-      "testFramework": "junit",
-      "testDirectory": "src/test/java",
-      "testPattern": "*Test.java"
-    }
-  ]
-}
-```
-
-### Generate AI Test Cases
-
-```bash
-npm run generate
-```
-
-Creates baseline scenarios in `.traceability/test-cases/baseline/{service}-baseline.yml`
-
-### Analyze Coverage
-
-#### Option 1: Using Config File
-
-```bash
+# Run analysis
 npm run continue
 ```
 
-#### Option 2: External Repository CLI (v6.3.0) 🆕
-
-**NEW:** Pass service and baseline paths directly via command line!
-
-```bash
-# Analyze customer-service from external repos
-npm run continue -- customer-service \
-  --service-path=/Users/username/pulse-services/customer-service \
-  --baseline-path=/Users/username/qa-test-scenario/baseline/customer-service-baseline.yml
-
-# Analyze identity-service
-npm run continue -- identity-service \
-  --service-path=/Users/username/pulse-services/identity-service \
-  --baseline-path=/Users/username/qa-test-scenario/baseline/identity-service-baseline.yml
-```
-
-**When to use CLI arguments:**
-- ✅ Services in separate repository
-- ✅ QA scenarios in separate repository  
-- ✅ CI/CD pipelines
-- ✅ On-the-fly path overrides
-
-This comprehensive command:
-- ✅ Analyzes coverage using AI
-- ✅ Categorizes orphan tests (Technical vs Business)
-- ✅ Detects Git API changes
-- ✅ Generates premium HTML report with visualizations
-- ✅ Generates JSON, CSV, and Markdown reports
-- ✅ Auto-opens HTML report in browser
-
-**Output:**
-- **HTML:** Premium interactive dashboard (`.traceability/reports/{service}-report.html`)
-- **JSON:** CI/CD integration (`.traceability/reports/{service}-report.json`)
-- **CSV:** Spreadsheet analysis (`.traceability/reports/{service}-report.csv`)
-- **Markdown:** Documentation (`.traceability/reports/{service}-report.md`)
-
-## 🎨 Premium Report Features (v6.2.0)
-
-### Enterprise-Grade Design
-- ✨ Modern animated header with shimmer effect
-- 🎨 Professional color palette with gradients
-- 📊 Interactive visualizations and charts
-- 🔄 Collapsible sections for better navigation
-- 📱 Responsive design for all devices
-
-### Visual Intelligence
-- 🟢 **Colored Coverage Badges** - Green/Yellow/Red for instant status
-- 📈 **Progress Indicators** - Visual coverage progress
-- 📊 **Coverage Trend Chart** - Historical tracking with 30-day timeline
-- 🚀 **Business Journeys Card** - E2E workflow coverage visualization
-- 🎯 **Priority-First Layout** - Critical gaps shown first
-- 💡 **Clear Action Items** - Concise, non-redundant messaging
-- 🔍 **Smart Filtering** - Hide empty data automatically
-
-### Enhanced User Experience
-- **Collapsible Sections** - Toggle API Coverage and Traceability sections
-- **Clear Headers** - "Unit Tests vs Baseline" explicitly labeled
-- **AI Badges** - Clear distinction between actual results and AI suggestions
-- **No Redundancy** - Action items reference lists above, no duplication
-- **Clean Spacing** - Professional YAML formatting with proper spacing
-
-## 🧠 AI Intelligence Features
-
-### 1. AI-Powered Coverage Analysis
-- Natural language understanding for scenario matching
-- Intelligent gap detection with priority assignment
-- Semantic similarity matching (no regex or keyword rules)
-- Context-aware test categorization
-
-### 2. Orphan Test Categorization
-AI automatically categorizes orphan tests:
-
-**Technical Tests** (No action needed)
-- Entity tests, DTOs, Mappers
-- Validation tests
-- Infrastructure tests
-
-**Business Tests** (QA must add scenarios)
-- Controller tests
-- Service tests
-- API integration tests
-
-### 3. Git Change Detection
-Automatically detects:
-- **APIs Added** - New endpoints
-- **APIs Modified** - Parameter/response changes
-- **APIs Removed** - Deleted endpoints
-- **Impact on Tests** - Which tests may be affected
-
-### 4. Premium HTML Report
-
-**Executive Summary**
-- Coverage percentage with visual progress
-- Key metrics cards (scenarios, gaps, orphans)
-- Status indicators with color coding
-- Trend information
-
-**Priority-First Content**
-1. ⚠️ **Coverage Gaps** - Critical issues first
-2. 🎯 **API Coverage Analysis** - Per-endpoint details
-3. 🔗 **Traceability Matrix** - Scenario-to-test mapping
-4. ⚠️ **Orphan APIs** - Untracked endpoints
-5. 🔍 **Orphan Tests** - Tests without scenarios
-
-**Interactive Features**
-- Collapsible sections (▼ toggle buttons)
-- Copy-ready YAML for QA
-- Detailed drill-down views
-- File locations and line numbers
-- Match confidence levels
-
-## 📊 Report Sections Explained
-
-### 📈 Visual Analytics (NEW in v6.2.0)
-- **Coverage Distribution** - Pie chart showing covered/partial/missing scenarios
-- **Scenarios Without Unit Test** - Bar chart by priority (P0/P1/P2/P3)
-- **Orphan Test Priority Breakdown** - Tests without scenarios by priority
-- **Coverage Trend Over Time** - Historical tracking with 30-day timeline
-
-### 🚀 Business Journeys (E2E) (NEW in v6.2.0)
-- **End-to-end workflow tracking** across multiple API steps
-- **Journey Status:** Fully Covered / Partially Covered / At Risk / Not Covered
-- **Step-by-step coverage** analysis for each journey
-- **Weak point identification** - Steps with insufficient coverage
-- **E2E test presence** validation
-- **Recommendations** for improving journey coverage
-
-### 🎯 API Coverage Analysis (Unit Tests vs Baseline)
-- **Per-API detailed breakdown**
-- Shows covered/partial/missing for each endpoint
-- Lists all scenarios with their status
-- Individual action items per API
-- AI suggestions for additional scenarios (when available)
-
-### ⚠️ Coverage Gaps
-- **Flat list of ALL missing scenarios across all APIs**
-- Sorted by priority (P0 → P1 → P2 → P3)
-- Quick action-first view
-- Recommendations for each gap
-- Color-coded priority badges
-
-### 🔗 Traceability Matrix
-- **Exact mapping** between baseline scenarios and unit tests
-- Shows which tests cover which scenarios
-- Match confidence levels (HIGH/MEDIUM/LOW)
-- File locations and line numbers
-- Verification support
-
-### ⚠️ Orphan APIs
-- **APIs with ZERO scenarios AND ZERO tests**
-- Completely untracked endpoints
-- Discovered from code but not documented
-- Action items for both QA and DEV teams
-
-### 🔍 Orphan Tests
-- **Unit tests without baseline scenarios**
-- Categorized as Technical vs Business
-- Priority assigned by AI
-- Copy-ready YAML for QA team
-- Clear action requirements
-
-## 📂 File Structure
-
-```
-.traceability/
-├── config.json                    # Service configuration
-├── reports/                       # Generated reports
-│   ├── {service}-report.html      # Premium interactive dashboard
-│   ├── {service}-report.json      # CI/CD integration
-│   ├── {service}-report.csv       # Spreadsheet analysis
-│   └── {service}-report.md        # Documentation
-└── test-cases/
-    ├── baseline/                  # QA-managed (version controlled)
-    │   └── {service}-baseline.yml
-    └── ai_cases/                  # AI-generated (fresh every run)
-        └── {service}-ai.yml
-```
-
-## 🔧 Commands
-
-```bash
-# Generate AI test cases
-npm run generate
-
-# Full analysis with premium reports
-npm run continue
-
-# Build TypeScript
-npm run build
-
-# Install pre-commit hook
-npm run install:hooks
-
-# Generate scenarios for specific API (QA tool)
-npm run generate:api -- --service customer-service --endpoint "POST /api/customers"
-```
-
-## 📋 Baseline File Format
-
-Example `.traceability/test-cases/baseline/customer-service-baseline.yml`:
-
-```yaml
-service: customer-service
-
-POST /api/customers:
-  happy_case:
-    - When customer is created with valid data, return 201 and customer ID
-    - When customer is created with all optional fields, return 201 and store all fields
-  edge_case:
-    - When customer name is at maximum length (255 chars), accept successfully
-    - When customer email has unusual but valid format, accept successfully
-  error_case:
-    - When customer is created with missing required fields, return 400
-    - When customer is created with invalid email format, return 400
-    - When customer is created with duplicate email, return 409
-  security:
-    - When request is made without authentication token, return 401
-    - When customer name contains SQL injection attempt, reject with 400
-
-GET /api/customers/{id}:
-  happy_case:
-    - When customer is retrieved by valid ID, return 200 with complete object
-  error_case:
-    - When customer is retrieved by non-existent ID, return 404
-```
-
-Format: "When [condition], [expected result]"
-
-## 🎯 Key Features
-
-### AI-Powered (Zero Static Rules)
-- ✅ AI test case generation from API specs
-- ✅ AI-powered scenario-to-test matching
-- ✅ AI orphan test categorization
-- ✅ AI gap priority assignment
-- ✅ Semantic similarity matching
-- ✅ Context-aware analysis
-
-### Premium Reporting
-- ✅ Enterprise-grade design with animations
-- ✅ Interactive visualizations
-- ✅ Colored coverage badges
-- ✅ Collapsible sections
-- ✅ Priority-first layout
-- ✅ Clear action items
-- ✅ Multi-format output (HTML, JSON, CSV, MD)
-
-### Workflow Integration
-- ✅ Pre-commit validation
-- ✅ Git change detection
-- ✅ CI/CD compatible
-- ✅ Auto-opening HTML reports
-- ✅ Independent service analysis
-
-## 🚀 Advanced Usage
-
-### Run on Specific Service
-
-Configure the service in `.traceability/config.json` and run:
-
-```bash
-npm run continue
-```
-
-The system analyzes each enabled service independently.
-
-### CI/CD Integration
-
-Use JSON reports for automation:
-
-```bash
-npm run continue
-
-# Parse JSON in your CI pipeline
-jq '.summary.coveragePercent' .traceability/reports/customer-service-report.json
-jq '.summary.p0Gaps' .traceability/reports/customer-service-report.json
-
-# Fail build if P0 gaps exist
-P0_GAPS=$(jq '.summary.p0Gaps' .traceability/reports/customer-service-report.json)
-if [ "$P0_GAPS" -gt 0 ]; then
-  echo "❌ Build failed: $P0_GAPS P0 gaps detected"
-  exit 1
-fi
-```
-
-### Pre-Commit Hook
-
-Install the hook:
-
-```bash
-npm run install:hooks
-```
-
-Every commit triggers:
-1. **Phase 1:** AI test case generation
-2. **Phase 2:** Coverage analysis with premium reports
-3. **Validation:** Blocks commits if P0 gaps detected
-
-Configure in `.traceability/config.json`:
-
-```json
-{
-  "preCommit": {
-    "enabled": true,
-    "blockOnP0Gaps": true,
-    "blockOnP1Gaps": false
-  }
-}
-```
-
-### QA-Specific Tool: Generate for Single API
-
-QA can quickly generate scenarios for one endpoint:
-
-```bash
-npm run generate:api -- --service customer-service --endpoint "POST /api/customers"
-```
-
-This generates scenarios just for that specific API and saves them for QA review.
-
-## 🛠 Troubleshooting
-
-### Claude API Key Not Set
-```bash
-# Set the key
-export CLAUDE_API_KEY="sk-ant-..."
-
-# Verify
-echo $CLAUDE_API_KEY
-```
-
-### Build Fails
-```bash
-# Reinstall dependencies
-rm -rf node_modules package-lock.json
-npm install
-npm run build
-```
-
-### No Coverage Analysis
-```bash
-# Ensure baseline file exists
-ls .traceability/test-cases/baseline/
-
-# Generate baseline if missing
-npm run generate
-```
-
-### HTML Report Doesn't Open
-- Report is still generated at `.traceability/reports/*.html`
-- Open manually in your browser
-- Check console output for exact file path
-
-## 📚 Documentation
-
-### 🚀 Getting Started
-
-**New to the system?** Start here:
-- **[📖 Getting Started Guide](docs/GETTING_STARTED.md)** - Complete 15-minute tutorial for beginners
-  - Installation and setup
-  - Your first analysis
-  - Understanding reports
-  - Next steps
-
-### 📖 Core Documentation
-
-**Essential guides for all users:**
-- **[⚙️ Configuration Guide](docs/CONFIGURATION.md)** - All configuration options
-  - AI provider setup (Claude & OpenAI)
-  - Service configuration
-  - External repositories
-  - Environment variables
-  
-- **[📊 Reports Guide](docs/REPORTS_GUIDE.md)** - Understanding reports
-  - Reading all 8 report sections
-  - Acting on gaps and orphans
-  - Export formats (JSON, CSV, MD)
-  - Daily workflows
-
-- **[❓ Troubleshooting Guide](docs/TROUBLESHOOTING.md)** - Common issues & solutions
-  - Installation, configuration, API key issues
-  - Analysis and report problems
-  - Performance optimization
-  - FAQ section
-
-### 👥 Role-Specific Guides
-
-**For your team:**
-- **[🧪 QA Engineer Guide](docs/QA_GUIDE.md)** - For QA team members
-  - Writing baseline scenarios
-  - Managing business journeys
-  - Reviewing AI suggestions
-  - Gap management
-  
-- **[👨‍💻 Developer Guide](docs/DEV_GUIDE.md)** - For developers
-  - Contributing to the system
-  - Adding new features
-  - Debugging techniques
-  - Extension points
-
-### 🏗 Technical Documentation
-
-**Deep dive into the system:**
-- **[🏗 Architecture Guide](docs/ARCHITECTURE.md)** - System design
-  - High-level architecture
-  - Component relationships
-  - Data flow
-  - Extension points
-
-### 📋 Additional Resources
-
-- **Feature Documentation:**
-  - `FEATURES.md` - Complete feature list with examples
-  - `IMPLEMENTATION_SUMMARY.md` - Implementation overview
-  - `docs/SCENARIO-COMPLETENESS-DETECTION.md` - Completeness detection
-  - `docs/EXTERNAL_REPOS.md` - External repository setup
-
-- **Test Case Documentation:**
-  - `docs/TEST-CASES-GUIDE.md` - Demonstration cases overview
-  - `docs/AI-PRIORITY-LOGIC.md` - P0/P1/P2/P3 priorities
-  - `docs/TWO-PHASE-ANALYSIS-EXPLAINED.md` - Baseline vs completeness
-  - `docs/DETAILED-CASE-MAPPINGS.md` - Complete mappings
-
-### 🎯 Quick Links by Task
-
-| I want to... | Read this guide |
-|--------------|----------------|
-| Get started quickly | [Getting Started](docs/GETTING_STARTED.md) |
-| Configure the system | [Configuration](docs/CONFIGURATION.md) |
-| Understand reports | [Reports Guide](docs/REPORTS_GUIDE.md) |
-| Fix an issue | [Troubleshooting](docs/TROUBLESHOOTING.md) |
-| Write test scenarios (QA) | [QA Guide](docs/QA_GUIDE.md) |
-| Contribute code (Dev) | [Developer Guide](docs/DEV_GUIDE.md) |
-| Understand architecture | [Architecture](docs/ARCHITECTURE.md) |
+**Benefits:**
+- ✅ Services and QA scenarios in different repos
+- ✅ Team independence (Dev vs QA)
+- ✅ Flexible versioning
+- ✅ CI/CD friendly
+
+See [External Repos Guide](docs/EXTERNAL_REPOS.md) for details.
 
 ---
 
-## 📜 Version History
+## 🤖 AI Provider Configuration
 
-### v6.3.0 (December 18, 2025) - **CURRENT RELEASE**
+### Supported Providers
 
-**🏢 External Repository Architecture + Multi-Provider AI Support**
+| Provider | Models | Best For |
+|----------|--------|----------|
+| **Anthropic** (Default) | Claude 3.5 Sonnet, 3.7 | Accuracy, context understanding |
+| **OpenAI** | GPT-4, GPT-4 Turbo | Speed, cost optimization |
 
-Complete production-ready architecture with enterprise features:
+### Configuration Priority
 
-**External Repository Support:**
-- **Complete Decoupling** - Framework reads from external repos
-- **PathResolver** - 4-tier fallback system (Per-Service ENV → Shared ENV → Config → Default)
-- **Per-Service Paths** - Granular control per microservice
-- **Journey Integration** - E2E journeys supported in external repos
-- **Production Ready** - Services/QA scenarios in separate repos
+1. **Environment Variables** (highest)
+2. **Config File** (`.traceability/config.json`)
+3. **Defaults** (Claude/Anthropic)
 
-**Multi-Provider AI Support:**
-
-1. **True Multi-Provider Architecture**
-   - Switch between AI providers via config file
-   - No code changes required - just edit config.json
-   - Provider-specific optimizations
-   - Extensible for unlimited future providers
-
-2. **Currently Supported Providers**
-   - ✅ **Anthropic** (Claude 4.5 Sonnet, Claude 3.7, Claude 3.5)
-   - ✅ **OpenAI** (GPT-4 Turbo, GPT-4)
-   - Auto-detects best available model per provider
-
-3. **Configuration System**
-   - Reads from `.traceability/config.json`
-   - Supports `provider` field: "anthropic" or "openai"
-   - Model selection per provider
-   - Intelligent API key resolution
-
-4. **Provider Benefits**
-   - 🚫 No vendor lock-in
-   - 💰 Cost optimization (cheaper models for dev/test)
-   - 🔄 Provider redundancy (fallback if primary down)
-   - 📊 A/B testing (compare provider performance)
-   - 🎯 Model-specific optimizations
-
-**Configuration Example:**
 ```json
 {
   "ai": {
@@ -637,224 +194,129 @@ Complete production-ready architecture with enterprise features:
 }
 ```
 
-**Switching Providers:**
-```bash
-# Option 1: Claude (Default)
-export CLAUDE_API_KEY="sk-ant-..."
+---
 
-# Option 2: OpenAI
-{
-  "ai": { "provider": "openai", "model": "auto" }
-}
-export OPENAI_API_KEY="sk-..."
-```
+## 📚 Documentation
 
-**Technical Implementation:**
-- New `lib/ai/` directory with provider abstraction
-- `AIProvider` interface for all providers
-- `AIProviderFactory` with config-based creation
-- `AnthropicProvider` and `OpenAIProvider` implementations
-- All core classes use the abstraction layer
-- 100% backwards compatible
+### 🚀 Getting Started
+- **[Getting Started Guide](docs/GETTING_STARTED.md)** - 15-minute beginner tutorial
+- **[Configuration Guide](docs/CONFIGURATION.md)** - All configuration options
+- **[External Repos Setup](docs/EXTERNAL_REPOS.md)** - Multi-repo architecture
 
-### v6.2.0 (December 13, 2025)
+### 📊 Understanding Reports
+- **[Reports Guide](docs/REPORTS_GUIDE.md)** - V2 report deep dive
+- **[QA Guide](docs/QA_GUIDE.md)** - For QA team members
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues & solutions
 
-**🚀 Business Journeys & Historical Tracking**
+### 🛠 For Developers
+- **[Developer Guide](docs/DEV_GUIDE.md)** - Contributing & extending
+- **[Architecture](docs/ARCHITECTURE.md)** - System design & concepts
+- **[Features](FEATURES.md)** - Complete feature list
 
-Major new features and improvements:
-
-1. **Business Journeys (E2E) Tracking**
-   - Define multi-step user workflows in YAML
-   - Track E2E test coverage for complete user journeys
-   - Step-by-step unit test coverage analysis
-   - Journey status: FULLY_COVERED / PARTIAL_COVERAGE / AT_RISK / NOT_COVERED
-   - Weak point identification in user workflows
-   - Comprehensive recommendations for each journey
-
-2. **Historical Trend Analysis**
-   - Coverage Trend Over Time chart with 30-day history
-   - Automatic snapshot tracking on each analysis run
-   - Visual trend line showing coverage progression
-   - Smart date formatting (time/day/date based on range)
-   - Historical data persistence in `.traceability/history/`
-
-3. **Enhanced Journey Analysis**
-   - Fixed journey status calculation logic
-   - Properly detects PARTIAL_COVERAGE (some unit tests, no E2E)
-   - AT_RISK status (has E2E but missing unit tests OR has unit tests but missing E2E)
-   - Accurate counting of Fully Covered/Partially Covered/Not Covered journeys
-
-4. **Report Improvements**
-   - Fixed "Scenarios Without Unit Test" capitalization
-   - Priority-based sorting (P0 → P1 → P2 → P3) in detailed test list
-   - Improved trend chart date parsing (no more "Invalid Date")
-   - Enhanced visual analytics with 4 comprehensive charts
-
-5. **AI Stability Enhancements**
-   - Set `temperature=0.0` for deterministic AI outputs
-   - Consistent P0/P1 recommendations across runs
-   - No more random variations in AI-generated scenarios
-
-**Journey File Format** (`.traceability/test-cases/journeys/{service}-journeys.yml`):
-```yaml
-service: identity-service
-
-business_journeys:
-  - id: user-registration-flow
-    name: "Complete User Registration Flow"
-    description: "User registers → receives OTP → verifies account"
-    priority: P0
-    steps:
-      - api: "POST /identity/register"
-        description: "Create new user account"
-        required: true
-      - api: "POST /identity/verify-otp"
-        description: "Verify user email with OTP"
-        required: true
-    e2e_tests:
-      - file: "RegistrationFlowE2ETest.java"
-        methods:
-          - "testCompleteRegistrationFlow"
-    tags: ["onboarding", "authentication"]
-```
-
-**Technical Improvements:**
-- New `JourneyCoverageAnalyzer` for E2E workflow analysis
-- `HistoryManager` integration for trend tracking
-- Improved data structure compatibility
-- Better timestamp handling for charts
-
-**All Documentation Updated:**
-- ✅ README.md updated to v6.2.0
-- ✅ FEATURES.md with Business Journeys
-- ✅ DEV_GUIDE.md with implementation details
-- ✅ QA_GUIDE.md with journey management
-- ✅ New journey examples added
-
-### v6.1.0 (December 10, 2025)
-
-**🎨 Premium Report Redesign - Enterprise Edition**
-
-Major visual and UX improvements:
-
-1. **Enterprise-Grade Design**
-   - Modern animated header with shimmer effect
-   - Professional color palette with gradients
-   - Premium shadows and visual hierarchy
-   - Inter font family for modern typography
-   - Smooth transitions and animations
-
-2. **Enhanced Visual Intelligence**
-   - 🟢🟡🔴 Colored coverage badges (Fully/Partially/Missing)
-   - Interactive progress indicators
-   - Visual priority badges
-   - Clear status icons throughout
-   - Professional card-based layout
-
-3. **Improved User Experience**
-   - ▼ Collapsible sections (API Coverage, Traceability)
-   - Priority-first content ordering (Gaps shown first)
-   - Clear section headers: "Unit Tests vs Baseline"
-   - No redundant information (action items reference lists above)
-   - Clean YAML spacing in generated content
-
-4. **Smart Data Presentation**
-   - AI Analysis positioned AFTER tables for better flow
-   - Empty APIs automatically filtered out
-   - Clear "AI SUGGESTION" badges
-   - Distinction between actual results and AI recommendations
-   - Centered, prominent action items
-
-5. **Report Organization**
-   - ⚠️ Coverage Gaps (priority-first view at top)
-   - 🎯 API Coverage Analysis (per-endpoint detailed view)
-   - 🔗 Traceability Matrix (scenario-to-test mapping)
-   - ⚠️ Orphan APIs (untracked endpoints)
-   - 🔍 Orphan Tests (tests without scenarios)
-
-**Technical Improvements:**
-- Enhanced template engine
-- Better section filtering
-- Improved YAML generation (no extra spaces)
-- Optimized rendering performance
-
-**All Documentation Updated:**
-- ✅ README.md updated to v6.1.0
-- ✅ FEATURES.md updated with premium report features
-- ✅ DEV_GUIDE.md updated with new architecture
-- ✅ QA_GUIDE.md updated with new report sections
-- ✅ TESTING-GUIDE.md updated with latest workflows
-- ✅ IMPLEMENTATION_SUMMARY.md updated
-
-### v6.0.0 (December 2025)
-
-**Major Features:**
-- Orphan Unit Test Detection with AI suggestions
-- Orphan API Detection
-- Visual Analytics Dashboard
-- Enhanced Reverse Check with AI-suggested scenarios
-- Multi-format reporting (HTML, JSON, CSV, MD)
-
-### v5.0.0 (November 2025)
-
-**Major Features:**
-- Bidirectional Scenario Completeness Detection
-- 3-Layer Intelligent Analysis
-- Change Impact Analysis
-- Enhanced console output
-
-### v4.0.0 (October 2025)
-
-**Major Features:**
-- Orphan Test Categorization with AI
-- Git API Change Detection
-- Pre-commit hook integration
+### 📜 Reference
+- **[Changelog](CHANGELOG.md)** - Version history
+- **[License](LICENSE)** - MIT License
 
 ---
 
-## 🎯 Demonstration Test Cases
+## 🎯 Common Workflows
 
-The system includes three comprehensive test cases that demonstrate all coverage states:
+### Daily Development
+```bash
+# 1. Make changes, add/update tests
+# 2. Run analysis
+npm run continue
+# 3. Review V2 report
+# 4. Fix P0 gaps if any
+```
 
-### **Case 4: Full Coverage** (GET /v1/customers)
-- ✅ 10 scenarios, 10 tests, 100% coverage
-- Demonstrates perfect 1:1 traceability
-- All scenarios FULLY_COVERED
+### QA Workflow
+```bash
+# 1. Review AI-generated scenarios
+cat .traceability/test-cases/ai_cases/service-ai.yml
+# 2. Create baseline from approved scenarios
+# 3. Run analysis
+npm run continue
+# 4. Report gaps to dev team
+```
 
-### **Case 5: Intelligent Gap Detection** (DELETE /v1/customers/{id})
-- ✅ 5 scenarios, 5 tests, 100% baseline coverage
-- 🤖 AI suggests 22 additional scenarios
-- Demonstrates two-phase analysis
+### CI/CD Integration
+```bash
+npm run continue
+# Check P0 gaps
+P0_GAPS=$(jq '.summary.p0Gaps' .traceability/reports/service-report.json)
+if [ "$P0_GAPS" -gt 0 ]; then
+  echo "❌ P0 gaps detected"
+  exit 1
+fi
+```
 
-### **Case 6: Partial Coverage** (PUT /v1/customers/{id})
-- ⚠️ 5 scenarios, 4 tests, mixed states
-- Shows FULLY_COVERED, PARTIALLY_COVERED, and NOT_COVERED states
-- Demonstrates real-world quality issues
+---
 
-**Learn More:** See `docs/TEST-CASES-GUIDE.md` for complete details on all three cases.
+## ⚡ Performance Tips
+
+- **First run:** 2-5 minutes (AI generation)
+- **Subsequent runs:** 1-2 minutes (matching only)
+- **Parallel analysis:** Run services independently
+- **Cache:** AI responses cached for 24 hours
+
+---
+
+## 🆘 Quick Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| "API key not set" | `export CLAUDE_API_KEY="sk-ant-..."` |
+| "No scenarios found" | Run `npm run generate` first |
+| "Build failed" | `rm -rf node_modules && npm install && npm run build` |
+| "Report doesn't open" | Open manually: `.traceability/reports/*.html` |
+
+See [Troubleshooting Guide](docs/TROUBLESHOOTING.md) for more.
+
+---
+
+## 🔄 Version Info
+
+**Current:** v6.3.0 (December 18, 2025)
+
+**Major Features:**
+- External repository architecture
+- Multi-provider AI support (Claude & OpenAI)
+- V2 simplified report design
+- Historical trend tracking (30 days)
+- Orphan test AI categorization
+
+See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 
 ---
 
 ## 📄 License
 
-MIT
-
-## 🤝 Support
-
-For issues or questions:
-1. Check documentation in `docs/` directory
-2. Review `FEATURES.md` for detailed feature documentation
-3. Check generated reports for specific issues
-4. Ensure Claude API key is set correctly
+MIT License - See [LICENSE](LICENSE) for details
 
 ---
 
-**Version:** 6.3.0  
-**Release Date:** December 18, 2025  
-**Status:** ✅ Production Ready  
-**Build:** ✅ Passing  
-**AI-Powered:** 100% (Zero Static Rules)
-**Multi-Provider:** 🤖 Anthropic & OpenAI Support
-**Premium Reports:** ✨ Enterprise Edition
-**Business Journeys:** 🚀 E2E Workflow Tracking
-**Historical Trends:** 📈 30-Day Coverage Tracking
+## 🤝 Contributing
+
+We welcome contributions! See [Developer Guide](docs/DEV_GUIDE.md) for:
+- Code structure and organization
+- Development workflow
+- Testing and debugging
+- Extension points
+
+---
+
+## 📞 Support
+
+- 📖 **Documentation:** Check `docs/` directory
+- 🐛 **Issues:** Review [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
+- 💡 **Features:** See [FEATURES.md](FEATURES.md) for detailed feature docs
+- 🔍 **Reports:** Check generated reports for specific issues
+
+---
+
+**Built with ❤️ using 100% AI Intelligence**
+
+[![AI Powered](https://img.shields.io/badge/Powered%20by-Claude%20%26%20OpenAI-purple.svg)]()
+[![Version](https://img.shields.io/badge/version-6.3.0-blue.svg)](CHANGELOG.md)
+[![Status](https://img.shields.io/badge/status-production%20ready-green.svg)]()
