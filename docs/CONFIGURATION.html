@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Guide - AI-Driven Test Coverage System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '⚙️';
+            position: absolute;
+            font-size: 20em;
+            opacity: 0.1;
+            top: -50px;
+            right: -50px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin: 40px 0;
+            padding: 30px;
+            background: #eef2ff;
+            border-radius: 15px;
+            border-left: 5px solid #6366f1;
+        }
+
+        .section h2 {
+            color: #4f46e5;
+            font-size: 2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h3 {
+            color: #6366f1;
+            font-size: 1.4em;
+            margin: 25px 0 15px;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #eef2ff;
+            font-weight: 600;
+            color: #3730a3;
+        }
+
+        tr:hover {
+            background: #f5f3ff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 5px;
+        }
+
+        .badge-required { background: #fee2e2; color: #991b1b; }
+        .badge-optional { background: #dbeafe; color: #1e40af; }
+        .badge-new { background: #d1fae5; color: #065f46; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .config-box {
+            background: #eef2ff;
+            border-left: 4px solid #6366f1;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .config-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-top: 4px solid #6366f1;
+        }
+
+        .config-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .config-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 10px;
+        }
+
+        .priority-list {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #6366f1;
+            margin: 20px 0;
+        }
+
+        .priority-item {
+            padding: 10px;
+            margin: 10px 0;
+            background: #f5f3ff;
+            border-radius: 5px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            background: #eef2ff;
+            color: #4f46e5;
+            border-top: 3px solid #6366f1;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2em;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-content">
+                <h1>⚙️ Configuration Guide</h1>
+                <p class="hero-subtitle">Complete Reference for All Configuration Options</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Overview -->
+            <div class="section">
+                <h2>📖 Overview</h2>
+                <p>Complete reference for configuring the AI-Driven Test Coverage System.</p>
+                
+                <div class="card-grid" style="margin-top: 20px;">
+                    <div class="config-card">
+                        <div class="config-title">🤖 AI Provider</div>
+                        <p>Claude or OpenAI setup and options</p>
+                    </div>
+                    <div class="config-card">
+                        <div class="config-title">🏢 Services</div>
+                        <p>Language, frameworks, test patterns</p>
+                    </div>
+                    <div class="config-card">
+                        <div class="config-title">🔗 External Repos</div>
+                        <p>Multiple repository configuration</p>
+                    </div>
+                    <div class="config-card">
+                        <div class="config-title">📊 Reporting</div>
+                        <p>Report formats and customization</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration File -->
+            <div class="section">
+                <h2>📂 Configuration File</h2>
+                <p><strong>Location:</strong> <code>.traceability/config.json</code></p>
+                
+                <h3>Basic Structure</h3>
+                <div class="code-block">{
+  "services": [
+    {
+      "name": "service-name",
+      "enabled": true,
+      "path": "./path/to/service",
+      "language": "java",
+      "testFramework": "junit",
+      "testDirectory": "src/test/java",
+      "testPattern": "*Test.java"
+    }
+  ],
+  "ai": {
+    "provider": "anthropic",
+    "model": "auto",
+    "temperature": 0.3,
+    "maxTokens": 2000
+  }
+}</div>
+            </div>
+
+            <!-- AI Provider -->
+            <div class="section">
+                <h2>🤖 AI Provider Configuration</h2>
+                
+                <h3>Supported Providers</h3>
+                <table>
+                    <tr>
+                        <th>Provider</th>
+                        <th>Models</th>
+                        <th>API Key Variable</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Anthropic</strong></td>
+                        <td>Claude 4.5/3.7/3.5 Sonnet</td>
+                        <td><code>CLAUDE_API_KEY</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>OpenAI</strong></td>
+                        <td>GPT-4 Turbo/GPT-4/GPT-3.5</td>
+                        <td><code>OPENAI_API_KEY</code></td>
+                    </tr>
+                </table>
+
+                <h3>Configuration Options</h3>
+                <div class="code-block">{
+  "ai": {
+    "provider": "anthropic",
+    "model": "auto",
+    "temperature": 0.3,
+    "maxTokens": 2000
+  }
+}</div>
+
+                <table style="margin-top: 20px;">
+                    <tr>
+                        <th>Field</th>
+                        <th>Values</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>provider</code></td>
+                        <td>"anthropic" / "openai"</td>
+                        <td>AI service to use</td>
+                    </tr>
+                    <tr>
+                        <td><code>model</code></td>
+                        <td>"auto" / specific</td>
+                        <td>Model selection (auto recommended)</td>
+                    </tr>
+                    <tr>
+                        <td><code>temperature</code></td>
+                        <td>0.0 - 1.0</td>
+                        <td>Creativity (0.3 recommended)</td>
+                    </tr>
+                    <tr>
+                        <td><code>maxTokens</code></td>
+                        <td>1000 - 8000</td>
+                        <td>Response length (2000 recommended)</td>
+                    </tr>
+                </table>
+
+                <h3>Setting API Keys</h3>
+                <div class="code-block"># Claude (recommended)
+export CLAUDE_API_KEY="sk-ant-your-key"
+
+# Or OpenAI
+export OPENAI_API_KEY="sk-your-key"
+export AI_PROVIDER="openai"</div>
+
+                <div class="info-box">
+                    <strong>💡 Make it permanent:</strong>
+                    <div class="code-block" style="margin-top: 10px;">echo 'export CLAUDE_API_KEY="sk-ant-your-key"' >> ~/.bashrc
+source ~/.bashrc</div>
+                </div>
+            </div>
+
+            <!-- Service Configuration -->
+            <div class="section">
+                <h2>🏢 Service Configuration</h2>
+                
+                <h3>Single Service Example</h3>
+                <div class="code-block">{
+  "services": [{
+    "name": "customer-service",
+    "enabled": true,
+    "path": "./services/customer-service",
+    "language": "java",
+    "testFramework": "junit",
+    "testDirectory": "src/test/java",
+    "testPattern": "*Test.java"
+  }]
+}</div>
+
+                <h3>Field Reference</h3>
+                <table>
+                    <tr>
+                        <th>Field</th>
+                        <th>Required</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>name</code></td>
+                        <td><span class="badge badge-required">Required</span></td>
+                        <td>Service identifier</td>
+                    </tr>
+                    <tr>
+                        <td><code>enabled</code></td>
+                        <td><span class="badge badge-required">Required</span></td>
+                        <td>Analyze this service? (true/false)</td>
+                    </tr>
+                    <tr>
+                        <td><code>path</code></td>
+                        <td><span class="badge badge-required">Required</span></td>
+                        <td>Service directory path</td>
+                    </tr>
+                    <tr>
+                        <td><code>language</code></td>
+                        <td><span class="badge badge-required">Required</span></td>
+                        <td>java / typescript / python / go</td>
+                    </tr>
+                    <tr>
+                        <td><code>testFramework</code></td>
+                        <td><span class="badge badge-required">Required</span></td>
+                        <td>junit / jest / pytest / go test</td>
+                    </tr>
+                    <tr>
+                        <td><code>testDirectory</code></td>
+                        <td><span class="badge badge-required">Required</span></td>
+                        <td>Test file location</td>
+                    </tr>
+                    <tr>
+                        <td><code>testPattern</code></td>
+                        <td><span class="badge badge-required">Required</span></td>
+                        <td>Test file matching pattern</td>
+                    </tr>
+                    <tr>
+                        <td><code>apiSpec</code></td>
+                        <td><span class="badge badge-optional">Optional</span></td>
+                        <td>Swagger/OpenAPI file path</td>
+                    </tr>
+                    <tr>
+                        <td><code>baselineFile</code></td>
+                        <td><span class="badge badge-optional">Optional</span></td>
+                        <td>Custom baseline YAML path</td>
+                    </tr>
+                </table>
+
+                <h3>Language Templates</h3>
+                <div class="card-grid">
+                    <div class="config-card">
+                        <div class="config-title">☕ Java</div>
+                        <div class="code-block" style="font-size: 0.9em;">{
+  "language": "java",
+  "testFramework": "junit",
+  "testDirectory": "src/test/java",
+  "testPattern": "*Test.java"
+}</div>
+                    </div>
+                    <div class="config-card">
+                        <div class="config-title">📘 TypeScript</div>
+                        <div class="code-block" style="font-size: 0.9em;">{
+  "language": "typescript",
+  "testFramework": "jest",
+  "testDirectory": "src/__tests__",
+  "testPattern": "*.test.ts"
+}</div>
+                    </div>
+                    <div class="config-card">
+                        <div class="config-title">🐍 Python</div>
+                        <div class="code-block" style="font-size: 0.9em;">{
+  "language": "python",
+  "testFramework": "pytest",
+  "testDirectory": "tests",
+  "testPattern": "test_*.py"
+}</div>
+                    </div>
+                    <div class="config-card">
+                        <div class="config-title">🔷 Go</div>
+                        <div class="code-block" style="font-size: 0.9em;">{
+  "language": "go",
+  "testFramework": "go test",
+  "testDirectory": ".",
+  "testPattern": "*_test.go"
+}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- External Repositories -->
+            <div class="section">
+                <h2>🔗 External Repositories</h2>
+                
+                <h3>CLI Arguments <span class="badge badge-new">v6.3.0 New</span></h3>
+                <p><strong>Most flexible - pass paths directly:</strong></p>
+                <div class="code-block">npm run continue -- customer-service \
+  --service-path=/path/to/service \
+  --baseline-path=/path/to/baseline.yml</div>
+                <div class="info-box">
+                    <strong>Benefits:</strong> No config changes needed, perfect for CI/CD pipelines
+                </div>
+
+                <h3>Environment Variables</h3>
+                <p><strong>Shared paths:</strong></p>
+                <div class="code-block">export SERVICE_PATH=/path/to/services-repo
+export TEST_SCENARIO_PATH=/path/to/scenarios/baseline</div>
+
+                <p style="margin-top: 20px;"><strong>Per-service paths:</strong></p>
+                <div class="code-block">export CUSTOMER_SERVICE_PATH=/path/to/customer-service
+export CUSTOMER_SERVICE_BASELINE=/path/to/customer-baseline.yml</div>
+
+                <h3>Path Resolution Priority</h3>
+                <div class="priority-list">
+                    <div class="priority-item" style="border-left: 5px solid #ef4444;">
+                        <strong>1. Per-service env vars</strong> (highest priority)
+                    </div>
+                    <div class="priority-item" style="border-left: 5px solid #f59e0b;">
+                        <strong>2. Shared env vars</strong>
+                    </div>
+                    <div class="priority-item" style="border-left: 5px solid #3b82f6;">
+                        <strong>3. Config file paths</strong>
+                    </div>
+                    <div class="priority-item" style="border-left: 5px solid #6b7280;">
+                        <strong>4. Defaults</strong> (lowest priority)
+                    </div>
+                </div>
+
+                <h3>Example Setup</h3>
+                <div class="code-block">/repos/
+├── services/              # Dev repo
+│   ├── customer-service/
+│   └── identity-service/
+├── qa-scenarios/          # QA repo
+│   └── baseline/
+│       ├── customer-baseline.yml
+│       └── identity-baseline.yml
+└── traceability/          # This tool
+    └── .traceability/</div>
+
+                <div class="code-block" style="margin-top: 10px;">export SERVICE_PATH=/repos/services
+export TEST_SCENARIO_PATH=/repos/qa-scenarios/baseline</div>
+            </div>
+
+            <!-- Reporting -->
+            <div class="section">
+                <h2>📊 Reporting Configuration</h2>
+                
+                <div class="code-block">{
+  "reporting": {
+    "autoOpen": true,
+    "formats": ["html", "json", "csv", "markdown"],
+    "outputDir": ".traceability/reports"
+  }
+}</div>
+
+                <h3>Options</h3>
+                <table>
+                    <tr>
+                        <th>Option</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>autoOpen</code></td>
+                        <td>boolean</td>
+                        <td>Auto-open HTML report in browser</td>
+                    </tr>
+                    <tr>
+                        <td><code>formats</code></td>
+                        <td>array</td>
+                        <td>Report formats to generate</td>
+                    </tr>
+                    <tr>
+                        <td><code>outputDir</code></td>
+                        <td>string</td>
+                        <td>Output directory for reports</td>
+                    </tr>
+                </table>
+
+                <h3>Environment Overrides</h3>
+                <div class="code-block">export AUTO_OPEN_REPORTS=false  # Disable auto-open
+export REPORT_FORMATS="json"    # Only JSON format</div>
+            </div>
+
+            <!-- Pre-Commit Hooks -->
+            <div class="section">
+                <h2>🔨 Pre-Commit Hooks</h2>
+                
+                <div class="code-block">{
+  "preCommit": {
+    "enabled": false,
+    "blockOnP0Gaps": true,
+    "blockOnP1Gaps": false
+  }
+}</div>
+
+                <h3>Options</h3>
+                <table>
+                    <tr>
+                        <th>Option</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>enabled</code></td>
+                        <td>false</td>
+                        <td>Enable pre-commit hook</td>
+                    </tr>
+                    <tr>
+                        <td><code>blockOnP0Gaps</code></td>
+                        <td>true</td>
+                        <td>Block if P0 gaps exist (recommended)</td>
+                    </tr>
+                    <tr>
+                        <td><code>blockOnP1Gaps</code></td>
+                        <td>false</td>
+                        <td>Block if P1 gaps exist</td>
+                    </tr>
+                </table>
+
+                <h3>Installation</h3>
+                <div class="code-block">npm run install:hooks</div>
+
+                <h3>Bypass Once</h3>
+                <div class="code-block">git commit --no-verify -m "emergency fix"</div>
+            </div>
+
+            <!-- Environment Variables -->
+            <div class="section">
+                <h2>🌍 Environment Variables Reference</h2>
+                
+                <h3>Core Variables</h3>
+                <table>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Description</th>
+                        <th>Default</th>
+                    </tr>
+                    <tr>
+                        <td><code>CLAUDE_API_KEY</code></td>
+                        <td>Anthropic API key</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><code>OPENAI_API_KEY</code></td>
+                        <td>OpenAI API key</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><code>AI_PROVIDER</code></td>
+                        <td>Provider to use</td>
+                        <td>anthropic</td>
+                    </tr>
+                    <tr>
+                        <td><code>AI_MODEL</code></td>
+                        <td>Specific model name</td>
+                        <td>auto</td>
+                    </tr>
+                    <tr>
+                        <td><code>AI_TEMPERATURE</code></td>
+                        <td>Creativity (0-1)</td>
+                        <td>0.3</td>
+                    </tr>
+                    <tr>
+                        <td><code>AI_MAX_TOKENS</code></td>
+                        <td>Max response length</td>
+                        <td>2000</td>
+                    </tr>
+                    <tr>
+                        <td><code>VERBOSE</code></td>
+                        <td>Verbose logging</td>
+                        <td>false</td>
+                    </tr>
+                    <tr>
+                        <td><code>AUTO_OPEN_REPORTS</code></td>
+                        <td>Auto-open HTML reports</td>
+                        <td>true</td>
+                    </tr>
+                </table>
+
+                <h3>Service Path Variables</h3>
+                <table>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>SERVICE_PATH</code></td>
+                        <td>Shared path for all services</td>
+                    </tr>
+                    <tr>
+                        <td><code>TEST_SCENARIO_PATH</code></td>
+                        <td>Shared path for baseline scenarios</td>
+                    </tr>
+                    <tr>
+                        <td><code>{SERVICE}_PATH</code></td>
+                        <td>Per-service specific path</td>
+                    </tr>
+                    <tr>
+                        <td><code>{SERVICE}_BASELINE</code></td>
+                        <td>Per-service baseline file path</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Validation -->
+            <div class="section">
+                <h2>✅ Configuration Validation</h2>
+                
+                <h3>Verify Configuration</h3>
+                <div class="code-block"># Validate JSON syntax
+node -e "require('./.traceability/config.json')"
+
+# Check paths exist
+ls -la ./services/customer-service</div>
+
+                <h3>Check Environment</h3>
+                <div class="code-block"># Show AI variables
+env | grep -E "(CLAUDE|OPENAI|AI_)"
+
+# Verify API key format
+echo $CLAUDE_API_KEY | head -c 10  # Should show "sk-ant-"</div>
+            </div>
+
+            <!-- Quick Troubleshooting -->
+            <div class="section">
+                <h2>🔧 Quick Troubleshooting</h2>
+                
+                <table>
+                    <tr>
+                        <th>Issue</th>
+                        <th>Solution</th>
+                    </tr>
+                    <tr>
+                        <td>Config not found</td>
+                        <td><code>mkdir -p .traceability && cp config.example.json .traceability/config.json</code></td>
+                    </tr>
+                    <tr>
+                        <td>Invalid JSON</td>
+                        <td><code>node -e "require('./.traceability/config.json')"</code></td>
+                    </tr>
+                    <tr>
+                        <td>API key not recognized</td>
+                        <td>Check format: <code>sk-ant-</code> (Claude) or <code>sk-</code> (OpenAI)</td>
+                    </tr>
+                    <tr>
+                        <td>Path not found</td>
+                        <td><code>export PATH=$(realpath ./service)</code> (use absolute paths)</td>
+                    </tr>
+                </table>
+                
+                <p style="margin-top: 20px;">For detailed troubleshooting, see <a href="TROUBLESHOOTING.html" style="color: #6366f1;">Troubleshooting Guide</a></p>
+            </div>
+
+            <!-- Related Documentation -->
+            <div class="section">
+                <h2>📚 Related Documentation</h2>
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="GETTING_STARTED.html" class="btn">🚀 Getting Started</a>
+                    <a href="REPORTS_GUIDE.html" class="btn">📊 Reports Guide</a>
+                    <a href="QA_GUIDE.html" class="btn">🧪 QA Guide</a>
+                    <a href="TROUBLESHOOTING.html" class="btn">❓ Troubleshooting</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Version 6.3.0</strong> | Status: <span class="badge badge-success">Production Ready</span></p>
+            <p style="margin-top: 10px;">
+                <a href="ARCHITECTURE.html" style="color: #4f46e5; text-decoration: none;">← Architecture</a> |
+                <a href="TROUBLESHOOTING.html" style="color: #4f46e5; text-decoration: none;">Troubleshooting →</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

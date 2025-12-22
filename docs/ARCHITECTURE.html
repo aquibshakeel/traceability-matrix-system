@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture Guide - AI-Driven Test Coverage System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', monospace;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            color: white;
+            padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '🏗';
+            position: absolute;
+            font-size: 20em;
+            opacity: 0.1;
+            top: -50px;
+            right: -50px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin: 40px 0;
+            padding: 30px;
+            background: #f1f5f9;
+            border-radius: 15px;
+            border-left: 5px solid #475569;
+        }
+
+        .section h2 {
+            color: #334155;
+            font-size: 2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h3 {
+            color: #475569;
+            font-size: 1.4em;
+            margin: 25px 0 15px;
+        }
+
+        .diagram-box {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            overflow-x: auto;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .component-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-top: 4px solid #475569;
+        }
+
+        .component-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(71, 85, 105, 0.3);
+        }
+
+        .component-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .flow-diagram {
+            background: white;
+            border: 2px solid #475569;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 5px;
+        }
+
+        .badge-advanced { background: #fef3c7; color: #92400e; }
+        .badge-core { background: #dbeafe; color: #1e40af; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-grey { background: #f1f5f9; color: #334155; }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            box-shadow: 0 4px 15px rgba(71, 85, 105, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(71, 85, 105, 0.4);
+        }
+
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .tech-box {
+            background: #f1f5f9;
+            border-left: 4px solid #475569;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .layer-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .layer {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #475569;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .layer-title {
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .extension-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .extension-card {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #475569;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            background: #f1f5f9;
+            color: #475569;
+            border-top: 3px solid #475569;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2em;
+            }
+            
+            .component-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .extension-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-content">
+                <h1>🏗 Architecture Guide</h1>
+                <p class="hero-subtitle">System Design for Developers & Technical Users</p>
+                <p style="margin-top: 10px; opacity: 0.9;">
+                    <span class="badge badge-advanced">Advanced</span>
+                    <span class="badge badge-grey">Version 6.3.0</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Overview -->
+            <div class="section">
+                <h2>📖 Overview</h2>
+                <p>Complete system architecture for developers and technical users.</p>
+                
+                <div class="component-grid" style="margin-top: 20px;">
+                    <div class="component-card">
+                        <div class="component-title">🎯 High-Level Design</div>
+                        <p>Understanding the overall architecture</p>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">🧩 Core Components</div>
+                        <p>Deep dive into major modules</p>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">📊 Data Flow</div>
+                        <p>How data moves through the system</p>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">🔌 Extension Points</div>
+                        <p>How to extend functionality</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- High-Level Architecture -->
+            <div class="section">
+                <h2>🎯 High-Level Architecture</h2>
+                
+                <div class="diagram-box">USER INPUT (config, baseline, code)
+         ↓
+ORCHESTRATION (ServiceManager, PathResolver)
+         ↓
+    ┌────┴─────┐
+SCANNERS    AI PROVIDERS
+    └────┬─────┘
+         ↓
+ANALYSIS (Coverage, Gaps, Orphans)
+         ↓
+REPORTS (HTML, JSON, CSV, MD)
+         ↓
+OUTPUT (Reports, History)</div>
+
+                <div class="layer-stack" style="margin-top: 30px;">
+                    <div class="layer">
+                        <div class="layer-title">🔝 Input Layer</div>
+                        <p>Configuration files, baseline scenarios, source code</p>
+                    </div>
+                    <div class="layer">
+                        <div class="layer-title">⚙️ Orchestration Layer</div>
+                        <p>ServiceManager coordinates, PathResolver handles paths</p>
+                    </div>
+                    <div class="layer">
+                        <div class="layer-title">🔍 Scanning Layer</div>
+                        <p>API scanners, test parsers, E2E test detection</p>
+                    </div>
+                    <div class="layer">
+                        <div class="layer-title">🤖 AI Layer</div>
+                        <p>Anthropic/OpenAI providers, scenario generation, matching</p>
+                    </div>
+                    <div class="layer">
+                        <div class="layer-title">📊 Analysis Layer</div>
+                        <p>Coverage calculation, gap detection, orphan classification</p>
+                    </div>
+                    <div class="layer">
+                        <div class="layer-title">📄 Output Layer</div>
+                        <p>Report generation (HTML/JSON/CSV), history tracking</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Core Components -->
+            <div class="section">
+                <h2>🧩 Core Components</h2>
+                
+                <h3>1. ServiceManager</h3>
+                <p><strong>Purpose:</strong> Orchestrates entire analysis workflow</p>
+                
+                <div class="flow-diagram">Flow:
+1. Load config
+2. For each service:
+   - Scan APIs/tests
+   - Run AI analysis
+   - Generate reports
+3. Save history</div>
+
+                <h3>2. PathResolver</h3>
+                <p><strong>Purpose:</strong> 4-tier path resolution system</p>
+                
+                <div class="tech-box">
+                    <strong>Priority Order:</strong>
+                    <ol style="margin-top: 10px; line-height: 2;">
+                        <li>Per-service env vars (highest priority)</li>
+                        <li>Shared env vars</li>
+                        <li>Config file</li>
+                        <li>Defaults (lowest priority)</li>
+                    </ol>
+                </div>
+
+                <div class="code-block">// Resolving customer-service path
+1. Check: $CUSTOMER_SERVICE_PATH
+2. Check: $SERVICE_PATH/customer-service
+3. Check: config.services[].path
+4. Default: ./services/customer-service</div>
+
+                <h3>3. AI Provider Layer</h3>
+                <div class="diagram-box">AIProvider (interface)
+    ├── AnthropicProvider
+    └── OpenAIProvider</div>
+
+                <div class="code-block">interface AIProvider {
+  generateTestScenarios(api: API): Promise<Scenarios>
+  matchTestToScenario(test: Test, scenarios: Scenario[]): Promise<Match>
+  categorizeOrphanTest(test: Test): Promise<Category>
+  suggestAdditionalScenarios(api: API): Promise<Scenarios>
+}</div>
+
+                <h3>4. Scanner Layer</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <div class="component-title">📡 APIScanner</div>
+                        <ul style="margin-top: 10px; line-height: 2;">
+                            <li>Scans code for endpoints</li>
+                            <li>Extracts HTTP methods, paths</li>
+                        </ul>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">🧪 TestParsers</div>
+                        <ul style="margin-top: 10px; line-height: 2;">
+                            <li>JavaTestParser - JUnit</li>
+                            <li>TypeScriptTestParser - Jest</li>
+                            <li>PythonTestParser - pytest</li>
+                            <li>GoTestParser - Go tests</li>
+                        </ul>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">🎯 E2ETestScanner</div>
+                        <ul style="margin-top: 10px; line-height: 2;">
+                            <li>Finds E2E test files</li>
+                            <li>Links to journey definitions</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>5. Analysis Layer</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <div class="component-title">🤖 AITestCaseGenerator</div>
+                        <div class="flow-diagram" style="font-size: 0.9em; margin-top: 10px;">1. Scan APIs
+2. For each endpoint:
+   - Build AI prompt
+   - Generate scenarios
+   - Parse response
+3. Save to ai_cases/</div>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">📊 EnhancedCoverageAnalyzer</div>
+                        <div class="flow-diagram" style="font-size: 0.9em; margin-top: 10px;">1. Load baseline
+2. Scan tests
+3. AI matches tests → scenarios
+4. Detect gaps/orphans
+5. Calculate metrics</div>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">🎯 JourneyCoverageAnalyzer</div>
+                        <div class="flow-diagram" style="font-size: 0.9em; margin-top: 10px;">1. Load journey definitions
+2. Check step coverage
+3. Check E2E test exists
+4. Identify weak points</div>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">📜 GitChangeDetector</div>
+                        <div class="flow-diagram" style="font-size: 0.9em; margin-top: 10px;">1. Check git repo
+2. Get recent commits
+3. Extract API changes
+4. Return change summary</div>
+                    </div>
+                </div>
+
+                <h3>6. Report Layer</h3>
+                <p><strong>ReportGenerator</strong> produces multiple formats:</p>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <div class="component-title">📄 HTML</div>
+                        <p>Interactive dashboard with Chart.js visualizations</p>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">🔧 JSON</div>
+                        <p>CI/CD automation and programmatic access</p>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">📊 CSV</div>
+                        <p>Spreadsheet analysis in Excel</p>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">📝 Markdown</div>
+                        <p>Documentation and wiki integration</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Complete Data Flow -->
+            <div class="section">
+                <h2>📊 Complete Data Flow</h2>
+                
+                <div class="diagram-box">npm run continue
+    ↓
+Load config.json
+    ↓
+For each service:
+    ↓
+[SCAN]
+  - APIScanner
+  - TestParsers
+  - E2ETestScanner
+    ↓
+[LOAD]
+  - Baseline scenarios
+  - Journey definitions
+    ↓
+[ANALYSIS]
+  - AI Provider
+  - Match tests → scenarios
+  - Detect gaps/orphans
+  - Generate suggestions
+    ↓
+[REPORT]
+  - Generate HTML/JSON/CSV/MD
+  - Auto-open
+    ↓
+[HISTORY]
+  - Save snapshot
+    ↓
+Done</div>
+            </div>
+
+            <!-- Extension Points -->
+            <div class="section">
+                <h2>🔌 Extension Points</h2>
+                
+                <h3>Add New AI Provider</h3>
+                <div class="extension-grid">
+                    <div class="extension-card">
+                        <h4 style="color: #334155; margin-bottom: 10px;">Step 1: Create Provider</h4>
+                        <div class="code-block" style="font-size: 0.9em;">// lib/ai/providers/GeminiProvider.ts
+export class GeminiProvider implements AIProvider {
+  async generateTestScenarios(api: API) {
+    // Implementation
+  }
+}</div>
+                    </div>
+                    <div class="extension-card">
+                        <h4 style="color: #334155; margin-bottom: 10px;">Step 2: Register in Factory</h4>
+                        <div class="code-block" style="font-size: 0.9em;">// lib/ai/AIProviderFactory.ts
+case 'gemini':
+  return new GeminiProvider(config)</div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Add New Language Parser</h3>
+                <div class="extension-grid">
+                    <div class="extension-card">
+                        <h4 style="color: #334155; margin-bottom: 10px;">Step 1: Create Parser</h4>
+                        <div class="code-block" style="font-size: 0.9em;">// lib/parsers/RustTestParser.ts
+export class RustTestParser implements TestParser {
+  parseTestFile(path: string): Test[] {
+    // Parse #[test] annotations
+  }
+}</div>
+                    </div>
+                    <div class="extension-card">
+                        <h4 style="color: #334155; margin-bottom: 10px;">Step 2: Register</h4>
+                        <div class="code-block" style="font-size: 0.9em;">// lib/core/TestParserFactory.ts
+case 'rust':
+  return new RustTestParser()</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Storage -->
+            <div class="section">
+                <h2>💾 Data Storage</h2>
+                
+                <div class="diagram-box">.traceability/
+├── config.json              # Config (version controlled)
+├── test-cases/
+│   ├── baseline/            # QA scenarios (versioned)
+│   ├── ai_cases/            # AI generated (not versioned)
+│   └── journeys/            # E2E workflows (versioned)
+├── reports/                 # Generated reports (optional versioning)
+└── history/                 # Snapshots (optional versioning)</div>
+
+                <div class="tech-box" style="margin-top: 20px;">
+                    <strong>Version Control Strategy:</strong>
+                    <ul style="margin-top: 10px; line-height: 2;">
+                        <li>✅ <strong>Version controlled:</strong> Config, baseline, journeys</li>
+                        <li>❌ <strong>Not versioned:</strong> AI cases, reports, history (regenerated)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Security -->
+            <div class="section">
+                <h2>🔐 Security</h2>
+                
+                <div class="component-grid">
+                    <div class="component-card">
+                        <div class="component-title">🔑 API Keys</div>
+                        <ul style="margin-top: 10px; line-height: 2;">
+                            <li>Environment variables only</li>
+                            <li>Never in code</li>
+                            <li>Validated before use</li>
+                        </ul>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">🔒 Data Privacy</div>
+                        <ul style="margin-top: 10px; line-height: 2;">
+                            <li>No source code sent to AI</li>
+                            <li>Only descriptions & specs</li>
+                            <li>User controls data</li>
+                        </ul>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">📦 Dependencies</div>
+                        <ul style="margin-top: 10px; line-height: 2;">
+                            <li>Minimal external deps</li>
+                            <li>Trusted packages only</li>
+                            <li>Dependency pinning</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance -->
+            <div class="section">
+                <h2>📈 Performance</h2>
+                
+                <div class="component-grid">
+                    <div class="component-card">
+                        <div class="component-title">⚡ Caching</div>
+                        <ul style="margin-top: 10px; line-height: 2;">
+                            <li>Config cached per run</li>
+                            <li>AI responses cached</li>
+                            <li>File system caching</li>
+                        </ul>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">🔄 Parallel Processing</div>
+                        <div class="code-block" style="margin-top: 10px; font-size: 0.9em;">await Promise.all(
+  services.map(s => 
+    analyzeService(s)
+  )
+)</div>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">📊 Incremental Analysis</div>
+                        <ul style="margin-top: 10px; line-height: 2;">
+                            <li>Only re-analyze changes</li>
+                            <li>Git-based detection</li>
+                            <li>Skip unchanged parts</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Future Plans -->
+            <div class="section">
+                <h2>🔮 Future Plans</h2>
+                
+                <div class="component-grid">
+                    <div class="component-card">
+                        <div class="component-title">🤖 Local AI Models</div>
+                        <p>Ollama support for offline analysis</p>
+                        <span class="badge badge-grey">Planned</span>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">🔌 Plugin System</div>
+                        <p>Custom extensions and integrations</p>
+                        <span class="badge badge-grey">Planned</span>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">💾 Database Backend</div>
+                        <p>PostgreSQL for enterprise scale</p>
+                        <span class="badge badge-grey">Planned</span>
+                    </div>
+                    <div class="component-card">
+                        <div class="component-title">⚡ Real-time Analysis</div>
+                        <p>Watch mode for instant feedback</p>
+                        <span class="badge badge-grey">Planned</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Guides -->
+            <div class="section">
+                <h2>📚 Related Guides</h2>
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="GETTING_STARTED.html" class="btn">🚀 Getting Started</a>
+                    <a href="CONFIGURATION.html" class="btn">⚙️ Configuration</a>
+                    <a href="DEV_GUIDE.html" class="btn">👨‍💻 Developer Guide</a>
+                    <a href="REPORTS_GUIDE.html" class="btn">📊 Reports Guide</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Version 6.3.0</strong> | Status: <span class="badge badge-success">Production Ready</span></p>
+            <p style="margin-top: 10px;">
+                <a href="DEV_GUIDE.html" style="color: #475569; text-decoration: none;">← Developer Guide</a> |
+                <a href="CONFIGURATION.html" style="color: #475569; text-decoration: none;">Configuration →</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

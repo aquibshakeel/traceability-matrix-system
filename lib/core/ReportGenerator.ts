@@ -94,7 +94,7 @@ export class ReportGenerator {
 
   private generateHTML(analysis: CoverageAnalysis, gitChanges: GitChangeAnalysis, serviceName: string): string {
     // Load the enhanced template v2 (card-based layout)
-    const templatePath = path.join(__dirname, '../templates/enhanced-report-v2.html');
+    const templatePath = path.join(__dirname, '../templates/enhanced-report.html');
     let template = fs.readFileSync(templatePath, 'utf-8');
     
     const { summary, apis, orphanTests, orphanAPIs, gaps, visualAnalytics } = analysis;

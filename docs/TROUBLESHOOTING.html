@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Troubleshooting Guide - AI-Driven Test Coverage System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '🔧';
+            position: absolute;
+            font-size: 20em;
+            opacity: 0.1;
+            top: -50px;
+            right: -50px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin: 40px 0;
+            padding: 30px;
+            background: #fef2f2;
+            border-radius: 15px;
+            border-left: 5px solid #ef4444;
+        }
+
+        .section h2 {
+            color: #dc2626;
+            font-size: 2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h3 {
+            color: #ef4444;
+            font-size: 1.4em;
+            margin: 25px 0 15px;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .problem-box {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .solution-box {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .issue-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            border-left: 5px solid #ef4444;
+        }
+
+        .issue-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #dc2626;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #fef2f2;
+            font-weight: 600;
+            color: #991b1b;
+        }
+
+        tr:hover {
+            background: #fef2f2;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 5px;
+        }
+
+        .badge-error { background: #fee2e2; color: #991b1b; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .nav-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #ef4444;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #333;
+            display: block;
+        }
+
+        .nav-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+        }
+
+        .faq-item {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .faq-q {
+            font-weight: 600;
+            color: #d97706;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            background: #fef2f2;
+            color: #dc2626;
+            border-top: 3px solid #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2em;
+            }
+            
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-content">
+                <h1>🔧 Troubleshooting Guide</h1>
+                <p class="hero-subtitle">Diagnose and Resolve Common Issues</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Overview -->
+            <div class="section">
+                <h2>📖 Overview</h2>
+                <p>This guide helps you diagnose and resolve common issues. Issues are organized by category for quick reference.</p>
+                
+                <h3>Quick Navigation</h3>
+                <div class="nav-grid">
+                    <a href="#installation" class="nav-card">
+                        <strong>🛠 Installation</strong>
+                        <p style="margin-top: 5px; font-size: 0.9em;">npm install issues</p>
+                    </a>
+                    <a href="#configuration" class="nav-card">
+                        <strong>⚙️ Configuration</strong>
+                        <p style="margin-top: 5px; font-size: 0.9em;">Config file problems</p>
+                    </a>
+                    <a href="#api-keys" class="nav-card">
+                        <strong>🔑 API Keys</strong>
+                        <p style="margin-top: 5px; font-size: 0.9em;">Key setup and validation</p>
+                    </a>
+                    <a href="#analysis" class="nav-card">
+                        <strong>📊 Analysis</strong>
+                        <p style="margin-top: 5px; font-size: 0.9em;">Scenario and test issues</p>
+                    </a>
+                    <a href="#reports" class="nav-card">
+                        <strong>📝 Reports</strong>
+                        <p style="margin-top: 5px; font-size: 0.9em;">Report generation</p>
+                    </a>
+                    <a href="#performance" class="nav-card">
+                        <strong>⚡ Performance</strong>
+                        <p style="margin-top: 5px; font-size: 0.9em;">Speed and memory</p>
+                    </a>
+                    <a href="#integration" class="nav-card">
+                        <strong>🔄 Integration</strong>
+                        <p style="margin-top: 5px; font-size: 0.9em;">CI/CD and hooks</p>
+                    </a>
+                    <a href="#faq" class="nav-card">
+                        <strong>❓ FAQ</strong>
+                        <p style="margin-top: 5px; font-size: 0.9em;">Common questions</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Installation Issues -->
+            <div class="section" id="installation">
+                <h2>🛠 Installation Issues</h2>
+                
+                <div class="issue-card">
+                    <div class="issue-title">"npm install" fails</div>
+                    
+                    <div class="problem-box">
+                        <strong>Symptoms:</strong>
+                        <div class="code-block" style="margin-top: 10px;">npm ERR! code ERESOLVE
+npm ERR! ERESOLVE unable to resolve dependency tree</div>
+                    </div>
+
+                    <div class="solution-box">
+                        <strong>Solutions:</strong>
+                        <div class="code-block" style="margin-top: 10px;"># 1. Clear npm cache
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm install
+
+# 2. Use legacy peer deps
+npm install --legacy-peer-deps
+
+# 3. Update Node.js
+node --version  # Should be v16+</div>
+                    </div>
+                </div>
+
+                <div class="issue-card">
+                    <div class="issue-title">"npm run build" fails</div>
+                    
+                    <div class="solution-box">
+                        <strong>Quick fix:</strong>
+                        <div class="code-block" style="margin-top: 10px;">rm -rf node_modules dist
+npm install
+npm run build</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration Issues -->
+            <div class="section" id="configuration">
+                <h2>⚙️ Configuration Issues</h2>
+                
+                <div class="issue-card">
+                    <div class="issue-title">"Configuration file not found"</div>
+                    
+                    <div class="solution-box">
+                        <strong>Create config file:</strong>
+                        <div class="code-block" style="margin-top: 10px;">mkdir -p .traceability
+cat > .traceability/config.json << 'EOF'
+{
+  "services": [{
+    "name": "my-service",
+    "enabled": true,
+    "path": "./path/to/service",
+    "language": "java",
+    "testFramework": "junit",
+    "testDirectory": "src/test/java",
+    "testPattern": "*Test.java"
+  }]
+}
+EOF</div>
+                    </div>
+                </div>
+
+                <div class="issue-card">
+                    <div class="issue-title">"Invalid JSON in config file"</div>
+                    
+                    <div class="solution-box">
+                        <strong>Validate JSON:</strong>
+                        <div class="code-block" style="margin-top: 10px;"># Check syntax
+node -e "JSON.parse(require('fs').readFileSync('.traceability/config.json'))"</div>
+                    </div>
+
+                    <div class="warning-box" style="margin-top: 15px;">
+                        <strong>⚠️ Common mistake:</strong> Trailing commas in JSON
+                        <div class="code-block" style="margin-top: 10px;">{
+  "name": "test",
+  "enabled": true,  // ❌ Remove this comma!
+}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Key Issues -->
+            <div class="section" id="api-keys">
+                <h2>🔑 API Key Issues</h2>
+                
+                <div class="issue-card">
+                    <div class="issue-title">"Claude API key not set"</div>
+                    
+                    <div class="solution-box">
+                        <strong>Set environment variable:</strong>
+                        <div class="code-block" style="margin-top: 10px;"># Temporary
+export CLAUDE_API_KEY="sk-ant-your-api-key-here"
+
+# Verify
+echo $CLAUDE_API_KEY
+
+# Permanent
+echo 'export CLAUDE_API_KEY="sk-ant-your-key"' >> ~/.bashrc
+source ~/.bashrc</div>
+                    </div>
+                </div>
+
+                <div class="issue-card">
+                    <div class="issue-title">"API rate limit exceeded"</div>
+                    
+                    <div class="solution-box">
+                        <strong>Solutions:</strong>
+                        <ol style="margin-top: 10px; line-height: 2;">
+                            <li>Wait 60 seconds and retry</li>
+                            <li>Reduce temperature to 0.0 (fewer tokens)</li>
+                            <li>Analyze one service at a time</li>
+                            <li>Check your API usage limits</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="issue-card">
+                    <div class="issue-title">"Insufficient API credits"</div>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ Action required:</strong>
+                        <p style="margin-top: 10px;">Add credits to your account:</p>
+                        <ul style="margin-top: 10px; line-height: 2;">
+                            <li>Anthropic: console.anthropic.com</li>
+                            <li>OpenAI: platform.openai.com</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Issues -->
+            <div class="section" id="analysis">
+                <h2>📊 Analysis Issues</h2>
+                
+                <div class="issue-card">
+                    <div class="issue-title">"No scenarios found"</div>
+                    
+                    <div class="solution-box">
+                        <strong>Generate scenarios first:</strong>
+                        <div class="code-block" style="margin-top: 10px;"># Step 1: Generate
+npm run generate
+
+# Step 2: Verify
+ls -la .traceability/test-cases/baseline/
+
+# Step 3: Run analysis
+npm run continue</div>
+                    </div>
+                </div>
+
+                <div class="issue-card">
+                    <div class="issue-title">"No unit tests found"</div>
+                    
+                    <div class="solution-box">
+                        <strong>Check test pattern:</strong>
+                        <table style="margin-top: 10px;">
+                            <tr>
+                                <th>Language</th>
+                                <th>Pattern</th>
+                            </tr>
+                            <tr>
+                                <td>Java</td>
+                                <td><code>*Test.java</code></td>
+                            </tr>
+                            <tr>
+                                <td>TypeScript</td>
+                                <td><code>*.test.ts</code></td>
+                            </tr>
+                            <tr>
+                                <td>Python</td>
+                                <td><code>test_*.py</code></td>
+                            </tr>
+                            <tr>
+                                <td>Go</td>
+                                <td><code>*_test.go</code></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Issues -->
+            <div class="section" id="reports">
+                <h2>📝 Report Generation Issues</h2>
+                
+                <div class="issue-card">
+                    <div class="issue-title">"Report doesn't open automatically"</div>
+                    
+                    <div class="solution-box">
+                        <strong>Open manually:</strong>
+                        <div class="code-block" style="margin-top: 10px;"># macOS
+open .traceability/reports/my-service-report.html
+
+# Linux
+xdg-open .traceability/reports/my-service-report.html
+
+# Windows
+start .traceability/reports/my-service-report.html</div>
+                    </div>
+                </div>
+
+                <div class="issue-card">
+                    <div class="issue-title">"Report shows 'No data available'"</div>
+                    
+                    <div class="solution-box">
+                        <strong>Verify data exists:</strong>
+                        <div class="code-block" style="margin-top: 10px;"># Check JSON report
+cat .traceability/reports/my-service-report.json
+
+# Re-run with verbose mode
+export VERBOSE=true
+npm run continue</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Issues -->
+            <div class="section" id="performance">
+                <h2>⚡ Performance Issues</h2>
+                
+                <div class="warning-box">
+                    <strong>💡 Expected timing:</strong>
+                    <ul style="margin-top: 10px; line-height: 2;">
+                        <li><strong>First run:</strong> 2-5 minutes (generating scenarios)</li>
+                        <li><strong>Subsequent runs:</strong> 1-2 minutes (matching only)</li>
+                        <li><strong>Large projects:</strong> May take longer</li>
+                    </ul>
+                    <p style="margin-top: 10px;">This is normal! AI analysis requires API calls.</p>
+                </div>
+
+                <div class="issue-card">
+                    <div class="issue-title">"High memory usage"</div>
+                    
+                    <div class="solution-box">
+                        <strong>Increase Node.js memory:</strong>
+                        <div class="code-block" style="margin-top: 10px;">export NODE_OPTIONS="--max-old-space-size=4096"
+npm run continue</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integration Issues -->
+            <div class="section" id="integration">
+                <h2>🔄 Integration Issues</h2>
+                
+                <div class="issue-card">
+                    <div class="issue-title">"Pre-commit hook not working"</div>
+                    
+                    <div class="solution-box">
+                        <strong>Install and verify:</strong>
+                        <div class="code-block" style="margin-top: 10px;"># Install
+npm run install:hooks
+
+# Make executable
+chmod +x .git/hooks/pre-commit
+chmod +x scripts/pre-commit.sh
+
+# Test manually
+.git/hooks/pre-commit</div>
+                    </div>
+                </div>
+
+                <div class="issue-card">
+                    <div class="issue-title">"CI/CD pipeline fails"</div>
+                    
+                    <div class="solution-box">
+                        <strong>CI/CD setup:</strong>
+                        <div class="code-block" style="margin-top: 10px;"># Set API key in CI
+export CLAUDE_API_KEY="${CLAUDE_API_KEY}"
+
+# Disable auto-open
+export AUTO_OPEN_REPORTS=false
+
+# Use JSON for parsing
+npm run continue
+jq '.summary.coveragePercent' .traceability/reports/service-report.json</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="section" id="faq">
+                <h2>❓ Frequently Asked Questions</h2>
+                
+                <div class="faq-item">
+                    <div class="faq-q">Q: How long should AI analysis take?</div>
+                    <p><strong>A:</strong> First run: 2-5 minutes. Subsequent runs: 1-2 minutes. This is normal!</p>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">Q: Can I use both Claude and OpenAI?</div>
+                    <p><strong>A:</strong> Yes! Switch using the <code>AI_PROVIDER</code> environment variable.</p>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">Q: Do I need an API key for every developer?</div>
+                    <p><strong>A:</strong> Yes, each developer needs their own API key. Never commit keys to git!</p>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">Q: What if I don't have an API key?</div>
+                    <p><strong>A:</strong> You must sign up for Anthropic (Claude) or OpenAI, get an API key, and add credits. Free tiers are available for testing.</p>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">Q: Can I run without internet?</div>
+                    <p><strong>A:</strong> No, the system requires internet for AI API calls. Consider local AI models for offline use (coming soon).</p>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">Q: How much does it cost?</div>
+                    <p><strong>A:</strong> Claude: ~$0.015 per API call. OpenAI: ~$0.02 per API call. Typical project analysis: $0.10-$0.50 per run.</p>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">Q: What languages are supported?</div>
+                    <p><strong>A:</strong> Java (JUnit), TypeScript/JavaScript (Jest), Python (PyTest), Go (go test). More coming soon!</p>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">Q: How do I update to the latest version?</div>
+                    <div class="code-block" style="margin-top: 10px;">git pull origin main
+npm install
+npm run build</div>
+                </div>
+            </div>
+
+            <!-- Debug Mode -->
+            <div class="section">
+                <h2>🔍 Debug Mode</h2>
+                <p>Enable detailed logging for troubleshooting:</p>
+                
+                <div class="code-block" style="margin-top: 15px;"># Maximum verbosity
+export VERBOSE=true
+export DEBUG="*"
+
+# Run analysis
+npm run continue
+
+# Save logs to file
+npm run continue 2>&1 | tee debug.log</div>
+            </div>
+
+            <!-- Reporting Bugs -->
+            <div class="section">
+                <h2>🐛 Reporting Bugs</h2>
+                <p>If you've tried everything and still have issues:</p>
+
+                <div class="solution-box" style="margin-top: 20px;">
+                    <strong>1. Gather system information:</strong>
+                    <div class="code-block" style="margin-top: 10px;"># Version info
+node --version
+npm --version
+git --version
+
+# Package versions
+npm list --depth=0
+
+# Environment
+env | grep -E "(CLAUDE|OPENAI|AI_)"</div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>2. Include in bug report:</strong>
+                    <ul style="margin-top: 10px; line-height: 2;">
+                        <li>Error message (full stack trace)</li>
+                        <li>System information</li>
+                        <li>Steps to reproduce</li>
+                        <li>Expected vs actual behavior</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Related Documentation -->
+            <div class="section">
+                <h2>📚 Related Documentation</h2>
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="GETTING_STARTED.html" class="btn">🚀 Getting Started</a>
+                    <a href="CONFIGURATION.html" class="btn">⚙️ Configuration</a>
+                    <a href="REPORTS_GUIDE.html" class="btn">📊 Reports Guide</a>
+                    <a href="DEV_GUIDE.html" class="btn">👨‍💻 Developer Guide</a>
+                </div>
+            </div>
+
+            <!-- Final Note -->
+            <div class="warning-box" style="margin: 40px 0;">
+                <h3 style="margin-top:0; color: #92400e;">💡 Still Stuck?</h3>
+                <p style="margin-top: 10px;">Check the documentation links above or report an issue with detailed information including error messages, system info, and reproduction steps.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Version 6.3.0</strong> | Status: <span class="badge badge-success">Production Ready</span></p>
+            <p style="margin-top: 10px;">
+                <a href="CONFIGURATION.html" style="color: #dc2626; text-decoration: none;">← Configuration</a> |
+                <a href="GETTING_STARTED.html" style="color: #dc2626; text-decoration: none;">Getting Started →</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

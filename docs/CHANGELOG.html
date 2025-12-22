@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changelog - AI-Driven Test Coverage System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        .version-block {
+            margin-bottom: 50px;
+            border-left: 4px solid #667eea;
+            padding-left: 30px;
+        }
+
+        .version-header {
+            display: flex;
+            align-items: baseline;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .version-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .version-date {
+            font-size: 1.1em;
+            color: #666;
+        }
+
+        .version-title {
+            font-size: 1.5em;
+            color: #764ba2;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .change-category {
+            margin-bottom: 25px;
+        }
+
+        .category-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge-added {
+            background: #48bb78;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .badge-changed {
+            background: #4299e1;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .badge-fixed {
+            background: #ed8936;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .badge-removed {
+            background: #f56565;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .change-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .change-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .change-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .note {
+            background: #f7fafc;
+            border-left: 4px solid #4299e1;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .note strong {
+            color: #4299e1;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .back-link:hover {
+            transform: translateY(-2px);
+        }
+
+        code {
+            background: #f7fafc;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📜 Changelog</h1>
+            <p>All notable changes to the AI-Driven Test Coverage System</p>
+        </div>
+
+        <div class="content">
+            <div class="intro">
+                <p>This document tracks all significant changes, new features, improvements, and bug fixes for each version.</p>
+            </div>
+
+            <!-- Version 6.3.0 -->
+            <div class="version-block">
+                <div class="version-header">
+                    <span class="version-number">[6.3.0]</span>
+                    <span class="version-date">2025-12-22</span>
+                </div>
+                <div class="version-title">V2 Report Design + Documentation Reorganization</div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge-added">ADDED</span>
+                    </div>
+                    <ul class="change-list">
+                        <li>V2 Report with simplified 3-card layout</li>
+                        <li>Single unified table for API breakdown (one row per scenario)</li>
+                        <li>Direct status and test mapping in table</li>
+                        <li><code>CHANGELOG.md</code> for version history tracking</li>
+                        <li>Streamlined <code>README.md</code> (reduced from 700+ to 250 lines)</li>
+                        <li>External repository architecture support</li>
+                        <li>Multi-provider AI support (Claude & OpenAI)</li>
+                        <li>Historical trend tracking (30 days)</li>
+                        <li>Orphan test AI categorization (Technical vs Business)</li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <span class="badge-changed">CHANGED</span>
+                    </div>
+                    <ul class="change-list">
+                        <li>Removed Business Journeys card from V2 report</li>
+                        <li>Removed redundant progress bars</li>
+                        <li>Updated all documentation for V2 report structure</li>
+                        <li>Moved version history from <code>README.md</code> to <code>CHANGELOG.md</code></li>
+                        <li>Simplified report design with focus on actionable insights</li>
+                    </ul>
+                </div>
+
+                <div class="change-category">
+                    <div class="category-title">
+                        <strong>Documentation</strong>
+                    </div>
+                    <ul class="change-list">
+                        <li>Reorganized <code>README.md</code> for clarity</li>
+                        <li>Updated <code>REPORTS_GUIDE.md</code> for V2</li>
+                        <li>Created comprehensive <code>CHANGELOG.md</code></li>
+                        <li>Enhanced <code>QA_GUIDE.md</code> with Phase 1 usage details</li>
+                        <li>Added workflow examples for single API generation</li>
+                    </ul>
+                </div>
+
+                <div class="note">
+                    <strong>Note:</strong> See <a href="README.html">README.md</a> for full details on the V2 report features and external repository setup.
+                </div>
+            </div>
+
+            <!-- Future Versions Section -->
+            <div class="version-block">
+                <div class="version-header">
+                    <span class="version-number">Previous Versions</span>
+                </div>
+                <p style="color: #666; font-style: italic;">
+                    Previous version history is being consolidated. Major features introduced in earlier versions include:
+                </p>
+                <ul class="change-list" style="margin-top: 15px;">
+                    <li>AI-powered test scenario generation</li>
+                    <li>Smart gap detection with P0/P1/P2/P3 priorities</li>
+                    <li>Confidence-based test matching</li>
+                    <li>Git integration for change detection</li>
+                    <li>Multi-format report generation (HTML, JSON, CSV, Markdown)</li>
+                    <li>Swagger/OpenAPI parsing</li>
+                    <li>E2E journey coverage analysis</li>
+                    <li>Historical tracking and trend analysis</li>
+                </ul>
+            </div>
+
+            <div style="text-align: center; margin-top: 50px;">
+                <a href="README.html" class="back-link">← Back to README</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>For the latest updates, see the <a href="https://github.com/aquibshakeel/traceability-matrix-system" style="color: #4299e1;">GitHub repository</a></p>
+            <p style="margin-top: 10px; opacity: 0.8;">AI-Driven Test Coverage System v6.3.0</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports Guide - AI-Driven Test Coverage System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: white;
+            padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '📊';
+            position: absolute;
+            font-size: 20em;
+            opacity: 0.1;
+            top: -50px;
+            right: -50px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin: 40px 0;
+            padding: 30px;
+            background: #ecfeff;
+            border-radius: 15px;
+            border-left: 5px solid #06b6d4;
+        }
+
+        .section h2 {
+            color: #0891b2;
+            font-size: 2em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h3 {
+            color: #06b6d4;
+            font-size: 1.4em;
+            margin: 25px 0 15px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-top: 4px solid #06b6d4;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.3);
+        }
+
+        .card-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #0891b2;
+            margin-bottom: 10px;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .diagram-box {
+            background: white;
+            border: 2px solid #06b6d4;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #ecfeff;
+            font-weight: 600;
+            color: #164e63;
+        }
+
+        tr:hover {
+            background: #f0fdfa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 5px;
+        }
+
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        .badge-primary { background: #ecfeff; color: #164e63; }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .success-box {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .workflow-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #06b6d4;
+        }
+
+        .workflow-card h4 {
+            color: #0891b2;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .dos-donts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .do-card {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #10b981;
+        }
+
+        .dont-card {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #ef4444;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            background: #ecfeff;
+            color: #164e63;
+            border-top: 3px solid #06b6d4;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2em;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dos-donts {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-content">
+                <h1>📊 Reports Guide</h1>
+                <p class="hero-subtitle">Master the Premium Report Dashboard</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Overview -->
+            <div class="section">
+                <h2>📖 Overview</h2>
+                <p>This guide explains the <strong>Premium Report</strong> - a simplified, action-oriented dashboard focusing on what matters most.</p>
+                
+                <h3>You'll Learn:</h3>
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-icon">🎯</div>
+                        <div class="card-title">Navigate Dashboard</div>
+                        <p>Understand the 3-card structure</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">📈</div>
+                        <div class="card-title">Read Metrics</div>
+                        <p>Interpret coverage data correctly</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">✅</div>
+                        <div class="card-title">Take Action</div>
+                        <p>Fix gaps and address orphans</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">📄</div>
+                        <div class="card-title">Use Formats</div>
+                        <p>HTML, JSON, CSV, Markdown</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Formats -->
+            <div class="section">
+                <h2>🎯 Report Formats</h2>
+                <table>
+                    <tr>
+                        <th>Format</th>
+                        <th>Purpose</th>
+                        <th>Location</th>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-primary">HTML</span></td>
+                        <td>Interactive dashboard</td>
+                        <td><code>.traceability/reports/{service}-report.html</code></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">JSON</span></td>
+                        <td>CI/CD automation</td>
+                        <td><code>.traceability/reports/{service}-report.json</code></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-success">CSV</span></td>
+                        <td>Excel analysis</td>
+                        <td><code>.traceability/reports/{service}-report.csv</code></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">MD</span></td>
+                        <td>Documentation</td>
+                        <td><code>.traceability/reports/{service}-report.md</code></td>
+                    </tr>
+                </table>
+
+                <div class="code-block"># Generate all formats
+npm run continue
+
+# Auto-opens HTML report</div>
+            </div>
+
+            <!-- Report Structure -->
+            <div class="section">
+                <h2>🌟 Report Structure</h2>
+                <p>The report is streamlined into <strong>3 focused cards</strong>:</p>
+                
+                <div class="diagram-box">┌─────────────────────────────────────┐
+│  Header: Executive Summary           │ ← Coverage %, Status, Timestamp
+├─────────────────────────────────────┤
+│  Card 1: Total Scenarios Panel       │ ← Metrics + API Breakdown Table
+├─────────────────────────────────────┤
+│  Card 2: Orphan Unit Tests           │ ← Tests without scenarios
+├─────────────────────────────────────┤
+│  Card 3: AI Suggested Scenarios      │ ← P0/P1 recommendations
+└─────────────────────────────────────┘</div>
+
+                <div class="success-box">
+                    <strong>Key Improvements:</strong>
+                    <ul style="margin-top: 10px; line-height: 2;">
+                        <li>✅ Single unified table in Card 1 (one row = one scenario)</li>
+                        <li>✅ Removed redundant progress bars</li>
+                        <li>✅ Direct status and mapping in table</li>
+                        <li>✅ Focus on actionable insights</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Header -->
+            <div class="section">
+                <h2>📊 Header: Executive Summary</h2>
+                <p>Shows high-level metrics at a glance:</p>
+                
+                <div class="diagram-box">🎯 Unit-Test Traceability Report | customer-service
+
+Status: ✅ SUCCESS | Timestamp: 2025-12-22 04:30:00 | Duration: 1234ms</div>
+
+                <h3>Key Indicators</h3>
+                <ul style="line-height: 2; margin-top: 10px;">
+                    <li>Service name</li>
+                    <li>Overall status (Success/Failure)</li>
+                    <li>Analysis timestamp</li>
+                    <li>Execution time</li>
+                </ul>
+            </div>
+
+            <!-- Card 1 -->
+            <div class="section">
+                <h2>📋 Card 1: Total Scenarios Panel</h2>
+                
+                <h3>Summary Metrics (5 boxes)</h3>
+                <div class="diagram-box">┌─────────────┬─────────────┬─────────────┬─────────────┬─────────────┐
+│   30        │     3       │    60%      │     18      │     12      │
+│ Total       │  Total      │  Coverage   │  Covered    │   Total     │
+│ Baseline    │  APIs       │             │  Scenarios  │   Gaps      │
+└─────────────┴─────────────┴─────────────┴─────────────┴─────────────┘</div>
+
+                <h3>Status Badges</h3>
+                <p style="margin: 15px 0;">
+                    <span class="badge badge-success">✅ COVERED</span> - Has complete unit test<br>
+                    <span class="badge badge-warning">⚠️ PARTIAL</span> - Has test but incomplete<br>
+                    <span class="badge badge-danger">❌ NOT COVERED</span> - No test exists
+                </p>
+
+                <h3>Match Confidence</h3>
+                <p style="margin: 15px 0;">
+                    <span class="badge badge-success">HIGH</span> - Strong match, reliable<br>
+                    <span class="badge badge-warning">MEDIUM</span> - Partial match, may need review<br>
+                    <span class="badge badge-info">LOW</span> - Weak match, verify manually
+                </p>
+
+                <div class="info-box">
+                    <strong>💡 Table Feature:</strong> One unified table showing all scenarios with merged API cells for same endpoint. Direct status badges and test mappings visible in single view.
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="section">
+                <h2>🔍 Card 2: Orphan Unit Tests</h2>
+                <p>Tests that exist but aren't linked to baseline scenarios.</p>
+
+                <div class="card-grid" style="margin-top: 20px;">
+                    <div class="card">
+                        <div class="card-icon">💼</div>
+                        <div class="card-title">Business Tests</div>
+                        <p>Cover business logic</p>
+                        <span class="badge badge-danger">QA MUST add scenarios</span>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🔧</div>
+                        <div class="card-title">Technical Tests</div>
+                        <p>Infrastructure/utility tests</p>
+                        <span class="badge badge-info">No action needed</span>
+                    </div>
+                </div>
+
+                <h3>Copy-Ready YAML</h3>
+                <p>The report provides ready-to-paste YAML:</p>
+                <div class="code-block"># 📋 Copy this to your baseline file
+
+service: identity-service
+
+POST /identity/register:
+  happy_case:
+    - When register with valid credentials, return 201
+  error_case:
+    - When register with duplicate email, return 409</div>
+
+                <div class="success-box">
+                    <strong>How to Use:</strong>
+                    <ol style="margin-top: 10px; line-height: 2;">
+                        <li>Click "📋 Copy YAML" button</li>
+                        <li>Paste into baseline YAML file</li>
+                        <li>Re-run analysis to verify</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="section">
+                <h2>🤖 Card 3: AI Suggested Scenarios (P0/P1)</h2>
+                <p>High-priority AI recommendations for additional test scenarios.</p>
+
+                <div class="diagram-box">┌──────────────────────────────────────────────────────────────┐
+│ API: POST /identity/login                                     │
+│                                                               │
+│ • 🆕 When multiple failed attempts, implement rate limiting   │
+│ • 🆕 When SQL injection in password field, sanitize safely    │
+│ • 🆕 When CSRF token missing, reject with 403                 │
+└──────────────────────────────────────────────────────────────┘</div>
+
+                <h3>Understanding AI Suggestions</h3>
+                <ul style="line-height: 2; margin-top: 10px;">
+                    <li><strong>Not in baseline</strong> - These are additional recommendations</li>
+                    <li><strong>P0/P1 only</strong> - Only high-priority shown</li>
+                    <li><strong>Optional</strong> - Consider adding to baseline</li>
+                    <li><strong>AI-generated</strong> - Based on API analysis</li>
+                </ul>
+
+                <div class="workflow-grid" style="margin-top: 20px;">
+                    <div class="workflow-card">
+                        <h4>1. Review</h4>
+                        <p>Read AI suggestions carefully</p>
+                    </div>
+                    <div class="workflow-card">
+                        <h4>2. Discuss</h4>
+                        <p>Team decides relevance</p>
+                    </div>
+                    <div class="workflow-card">
+                        <h4>3. Add</h4>
+                        <p>Include in baseline if needed</p>
+                    </div>
+                    <div class="workflow-card">
+                        <h4>4. Verify</h4>
+                        <p>Re-run analysis to confirm</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JSON Report -->
+            <div class="section">
+                <h2>📊 JSON Report (CI/CD)</h2>
+                
+                <h3>Structure</h3>
+                <div class="code-block">{
+  "service": "customer-service",
+  "timestamp": "2025-12-22T04:30:00Z",
+  "summary": {
+    "coveragePercent": 66.7,
+    "totalScenarios": 30,
+    "fullyCovered": 18,
+    "p0Gaps": 2,
+    "p1Gaps": 3
+  }
+}</div>
+
+                <h3>CI/CD Integration</h3>
+                <div class="code-block"># Check coverage threshold
+COVERAGE=$(jq '.summary.coveragePercent' report.json)
+if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+  echo "❌ Coverage below 80%: $COVERAGE%"
+  exit 1
+fi
+
+# Block on P0 gaps
+P0_GAPS=$(jq '.summary.p0Gaps' report.json)
+if [ "$P0_GAPS" -gt 0 ]; then
+  echo "❌ P0 gaps detected: $P0_GAPS"
+  exit 1
+fi</div>
+            </div>
+
+            <!-- Daily Workflow -->
+            <div class="section">
+                <h2>🔄 Daily Workflow</h2>
+                
+                <div class="workflow-grid">
+                    <div class="workflow-card">
+                        <h4>🌅 Morning Check</h4>
+                        <div class="code-block" style="font-size: 0.9em;">npm run continue</div>
+                        <p style="margin-top: 10px;">Review P0/P1 gaps, plan testing tasks</p>
+                    </div>
+                    <div class="workflow-card">
+                        <h4>💻 During Development</h4>
+                        <div class="code-block" style="font-size: 0.9em;">npm run continue</div>
+                        <p style="margin-top: 10px;">Verify gaps closed, coverage improved</p>
+                    </div>
+                    <div class="workflow-card">
+                        <h4>✅ Before Commit</h4>
+                        <div class="code-block" style="font-size: 0.9em;">npm run continue</div>
+                        <p style="margin-top: 10px;">Final check: no P0 gaps, all tests mapped</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Taking Action -->
+            <div class="section">
+                <h2>🎯 Taking Action on Reports</h2>
+                
+                <h3>Priority-Based Approach</h3>
+                <table>
+                    <tr>
+                        <th>Priority</th>
+                        <th>When</th>
+                        <th>Who</th>
+                        <th>Focus</th>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-danger">P0</span></td>
+                        <td>Immediately</td>
+                        <td>Dev + QA pair</td>
+                        <td>Security, data integrity</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">P1</span></td>
+                        <td>Current sprint</td>
+                        <td>Development team</td>
+                        <td>Error handling, features</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">P2/P3</span></td>
+                        <td>Future sprints</td>
+                        <td>Backlog planning</td>
+                        <td>Edge cases, enhancements</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Troubleshooting -->
+            <div class="section">
+                <h2>🆘 Report Troubleshooting</h2>
+                
+                <h3>Common Issues</h3>
+                <table>
+                    <tr>
+                        <th>Issue</th>
+                        <th>Solution</th>
+                    </tr>
+                    <tr>
+                        <td>Report doesn't open</td>
+                        <td><code>open .traceability/reports/service-report.html</code></td>
+                    </tr>
+                    <tr>
+                        <td>Missing data in report</td>
+                        <td>Check service path, baseline file, re-run with <code>VERBOSE=true</code></td>
+                    </tr>
+                    <tr>
+                        <td>Incorrect coverage</td>
+                        <td>Clear cache: <code>rm -rf .traceability/cache</code></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Best Practices -->
+            <div class="section">
+                <h2>🎓 Best Practices</h2>
+                
+                <div class="dos-donts">
+                    <div class="do-card">
+                        <h3 style="margin-top:0; color: #065f46;">✅ For Developers</h3>
+                        <ul style="line-height: 2; margin-top: 10px;">
+                            <li>Run analysis before committing</li>
+                            <li>Fix P0 gaps immediately</li>
+                            <li>Keep coverage above 80%</li>
+                            <li>Map tests to scenarios</li>
+                        </ul>
+                    </div>
+                    <div class="dont-card">
+                        <h3 style="margin-top:0; color: #991b1b;">❌ Don't</h3>
+                        <ul style="line-height: 2; margin-top: 10px;">
+                            <li>Ignore orphan business tests</li>
+                            <li>Skip pre-commit checks</li>
+                            <li>Let P0 gaps accumulate</li>
+                            <li>Write tests without scenarios</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="dos-donts" style="margin-top: 20px;">
+                    <div class="do-card">
+                        <h3 style="margin-top:0; color: #065f46;">✅ For QA</h3>
+                        <ul style="line-height: 2; margin-top: 10px;">
+                            <li>Review AI suggestions</li>
+                            <li>Add scenarios for business orphans</li>
+                            <li>Prioritize P0/P1 coverage</li>
+                            <li>Keep baseline updated</li>
+                        </ul>
+                    </div>
+                    <div class="dont-card">
+                        <h3 style="margin-top:0; color: #991b1b;">❌ Don't</h3>
+                        <ul style="line-height: 2; margin-top: 10px;">
+                            <li>Worry about technical orphans</li>
+                            <li>Skip baseline updates</li>
+                            <li>Accept <80% coverage</li>
+                            <li>Add scenarios without verification</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Documentation -->
+            <div class="section">
+                <h2>📚 Related Documentation</h2>
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="GETTING_STARTED.html" class="btn">🚀 Getting Started</a>
+                    <a href="CONFIGURATION.html" class="btn">⚙️ Configuration</a>
+                    <a href="QA_GUIDE.html" class="btn">🧪 QA Guide</a>
+                    <a href="TROUBLESHOOTING.html" class="btn">❓ Troubleshooting</a>
+                    <a href="ARCHITECTURE.html" class="btn">🏗️ Architecture</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Version 6.3.0</strong> | Status: <span class="badge badge-success">Production Ready</span></p>
+            <p style="margin-top: 10px;">
+                <a href="GETTING_STARTED.html" style="color: #0891b2; text-decoration: none;">← Getting Started</a> |
+                <a href="CONFIGURATION.html" style="color: #0891b2; text-decoration: none;">Configuration →</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
