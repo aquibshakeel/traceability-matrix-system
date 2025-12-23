@@ -1311,7 +1311,7 @@ void test${gap.scenario.replace(/\W+/g, '_').replace(/^_+|_+$/g, '')}() {
   private generateOrphanYAML(businessTests: any[], serviceName: string): string {
     if (businessTests.length === 0) return '';
     
-    // Convert test name to simple baseline format
+    // Convert test name to simple "When X, Y" baseline format
     const convertToBaselineFormat = (testDesc: string): string => {
       // Remove test prefixes/suffixes
       let scenario = testDesc
@@ -1326,10 +1326,38 @@ void test${gap.scenario.replace(/\W+/g, '_').replace(/^_+|_+$/g, '')}() {
         .replace(/\s+/g, ' ')
         .trim();
       
-      // Capitalize first letter
-      scenario = scenario.charAt(0).toUpperCase() + scenario.slice(1);
-      
-      return scenario;
+      // Convert to "When X, Y" format
+      // Handle common patterns
+      if (scenario.includes('with') && scenario.includes('return')) {
+        // "get customer by id with existing customer returns complete object"
+        // -> "When customer by id with existing customer, returns complete object"
+        const parts = scenario.split('return');
+        let condition = parts[0].replace(/^(get|post|put|delete|create|update)\s+/, '').trim();
+        let result = parts[1] ? parts[1].trim() : 'process successfully';
+        return `When ${condition}, ${result}`;
+      } else if (scenario.includes('with') && scenario.includes('throw')) {
+        // "get customer with invalid id throws exception"
+        // -> "When customer with invalid id, throws exception"
+        const parts = scenario.split('throw');
+        let condition = parts[0].replace(/^(get|post|put|delete|create|update)\s+/, '').trim();
+        return `When ${condition}, throw${parts[1] ? parts[1].trim() : 's exception'}`;
+      } else if (scenario.includes('with')) {
+        // "get customer with valid id"
+        // -> "When customer with valid id, return successfully"
+        let condition = scenario.replace(/^(get|post|put|delete|create|update)\s+/, '').trim();
+        return `When ${condition}, process successfully`;
+      } else if (scenario.includes('is empty') || scenario.includes('is null')) {
+        // "customer name is empty string"
+        // -> "When customer name is empty string, handle appropriately"
+        return `When ${scenario}, handle appropriately`;
+      } else if (scenario.includes('has special')) {
+        // "customer name has special characters"
+        // -> "When customer name has special characters, accept and store"
+        return `When ${scenario}, accept and store`;
+      } else {
+        // Generic fallback
+        return `When ${scenario}, process successfully`;
+      }
     };
     
     interface GroupedTests {
