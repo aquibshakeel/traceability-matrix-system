@@ -3,24 +3,6 @@
   "gitChanges": [],
   "coverageTrends": [
     {
-      "timestamp": "2025-12-12T21:00:02.252Z",
-      "commit": "ffdabdb",
-      "coveragePercent": 27.27272727272727,
-      "scenariosCovered": 3,
-      "totalScenarios": 11,
-      "p0Gaps": 2,
-      "p1Gaps": 1
-    },
-    {
-      "timestamp": "2025-12-12T21:04:19.796Z",
-      "commit": "ffdabdb",
-      "coveragePercent": 27.27272727272727,
-      "scenariosCovered": 3,
-      "totalScenarios": 11,
-      "p0Gaps": 2,
-      "p1Gaps": 1
-    },
-    {
       "timestamp": "2025-12-12T21:09:16.239Z",
       "commit": "ffdabdb",
       "coveragePercent": 27.27272727272727,
@@ -901,8 +883,26 @@
       "totalScenarios": 11,
       "p0Gaps": 5,
       "p1Gaps": 3
+    },
+    {
+      "timestamp": "2025-12-22T13:22:28.722Z",
+      "commit": "b420023",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 5,
+      "p1Gaps": 3
+    },
+    {
+      "timestamp": "2025-12-22T13:58:03.518Z",
+      "commit": "b420023",
+      "coveragePercent": 27.27272727272727,
+      "scenariosCovered": 3,
+      "totalScenarios": 11,
+      "p0Gaps": 5,
+      "p1Gaps": 3
     }
   ],
   "apiRiskScores": [],
-  "lastUpdated": "2025-12-22T11:00:05.481Z"
+  "lastUpdated": "2025-12-22T13:58:03.518Z"
 }

@@ -1311,27 +1311,25 @@ void test${gap.scenario.replace(/\W+/g, '_').replace(/^_+|_+$/g, '')}() {
   private generateOrphanYAML(businessTests: any[], serviceName: string): string {
     if (businessTests.length === 0) return '';
     
-    // Convert test name to baseline "When X, then Y" format
+    // Convert test name to simple baseline format
     const convertToBaselineFormat = (testDesc: string): string => {
+      // Remove test prefixes/suffixes
       let scenario = testDesc
         .replace(/^test/i, '')
         .replace(/Test$/i, '')
-        .trim()
+        .trim();
+      
+      // Convert camelCase to readable text
+      scenario = scenario
         .replace(/([A-Z])/g, ' $1')
         .toLowerCase()
         .replace(/\s+/g, ' ')
         .trim();
       
-      if (scenario.includes('with') && scenario.includes('return')) {
-        const parts = scenario.split('return');
-        const condition = parts[0].replace(/^get |^post |^put |^delete /, '').trim();
-        const result = parts[1] ? parts[1].trim() : '';
-        return `When ${condition}, return ${result}`;
-      } else if (scenario.includes('with')) {
-        const condition = scenario.replace(/^get |^post |^put |^delete /, '').trim();
-        return `When ${condition}, process successfully`;
-      }
-      return scenario.charAt(0).toUpperCase() + scenario.slice(1);
+      // Capitalize first letter
+      scenario = scenario.charAt(0).toUpperCase() + scenario.slice(1);
+      
+      return scenario;
     };
     
     interface GroupedTests {
@@ -1345,11 +1343,21 @@ void test${gap.scenario.replace(/\W+/g, '_').replace(/^_+|_+$/g, '')}() {
     const grouped: GroupedTests = {};
     
     businessTests.forEach((test: any) => {
-      let api = 'GET /v1/customers/{id}';
+      // Infer API from test description
+      let api = 'GET /v1/customers/{id}'; // Default
       const desc = test.description.toLowerCase();
       
-      if (desc.includes('register') || desc.includes('post')) api = 'POST /v1/register';
-      else if (desc.includes('login')) api = 'POST /v1/login';
+      if (desc.includes('register') || desc.includes('post customer') || desc.includes('create customer')) {
+        api = 'POST /v1/customers';
+      } else if (desc.includes('login')) {
+        api = 'POST /v1/login';
+      } else if (desc.includes('put') || desc.includes('update')) {
+        api = 'PUT /v1/customers/{id}';
+      } else if (desc.includes('delete')) {
+        api = 'DELETE /v1/customers/{id}';
+      } else if (desc.includes('get') && !desc.includes('{id}') && !desc.includes('by id')) {
+        api = 'GET /v1/customers';
+      }
       
       if (!grouped[api]) {
         grouped[api] = { happy_case: [], edge_case: [], error_case: [] };
@@ -1357,9 +1365,10 @@ void test${gap.scenario.replace(/\W+/g, '_').replace(/^_+|_+$/g, '')}() {
       
       const scenario = convertToBaselineFormat(test.description);
       
-      if (desc.includes('error') || desc.includes('invalid') || desc.includes('empty')) {
+      // Categorize by keywords
+      if (desc.includes('exception') || desc.includes('error') || desc.includes('invalid') || desc.includes('missing') || desc.includes('empty')) {
         grouped[api].error_case.push(scenario);
-      } else if (desc.includes('edge') || desc.includes('minimum') || desc.includes('special')) {
+      } else if (desc.includes('edge') || desc.includes('minimum') || desc.includes('maximum') || desc.includes('boundary') || desc.includes('special character')) {
         grouped[api].edge_case.push(scenario);
       } else {
         grouped[api].happy_case.push(scenario);
@@ -1376,23 +1385,24 @@ void test${gap.scenario.replace(/\W+/g, '_').replace(/^_+|_+$/g, '')}() {
         grouped[api].happy_case.forEach(scenario => {
           yaml += `    - ${scenario}\n`;
         });
+        yaml += '\n';
       }
       
       if (grouped[api].edge_case.length > 0) {
-        yaml += '\n  edge_case:\n';
+        yaml += '  edge_case:\n';
         grouped[api].edge_case.forEach(scenario => {
           yaml += `    - ${scenario}\n`;
         });
+        yaml += '\n';
       }
       
       if (grouped[api].error_case.length > 0) {
-        yaml += '\n  error_case:\n';
+        yaml += '  error_case:\n';
         grouped[api].error_case.forEach(scenario => {
           yaml += `    - ${scenario}\n`;
         });
+        yaml += '\n';
       }
-      
-      yaml += '\n';
     });
     
     return yaml;

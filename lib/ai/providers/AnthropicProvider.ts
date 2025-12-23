@@ -251,7 +251,7 @@ No explanation needed, just the priority.`;
    * Build scenario generation prompt
    */
   private buildScenarioPrompt(api: APIDefinition): string {
-    return `Generate test scenarios for this API in simple one-liner format.
+    return `Generate API-LEVEL BUSINESS test scenarios ONLY for this API in simple, natural language format.
 
 **API:** ${api.method} ${api.endpoint}
 **Description:** ${api.description || 'N/A'}
@@ -259,27 +259,44 @@ No explanation needed, just the priority.`;
 **Request Body:** ${JSON.stringify(api.requestBody || {})}
 **Responses:** ${JSON.stringify(api.responses || {})}
 
-Generate simple one-liner test scenarios:
+IMPORTANT RULES:
+- Focus ONLY on API-level business scenarios (what the API does)
+- DO NOT include security tests (SQL injection, XSS, CSRF, authentication, authorization)
+- DO NOT include infrastructure tests (database connection, service health, timeouts)
+- DO NOT include technical implementation details
+- Use simple, natural language that QA can understand
+- Keep scenarios short and clear (1-2 lines max)
 
-1. **happy_case** - Valid inputs, success responses
-2. **edge_case** - Boundaries, special chars, empty/null, long inputs  
-3. **error_case** - 400, 401, 403, 404, 409, 422, 500 errors
-4. **security** - SQL injection, XSS, auth bypass
+Generate these types of scenarios:
 
-Format: "When [condition], [expected result]"
+1. **happy_case** - Valid business flows and successful operations
+2. **edge_case** - Boundary conditions, special values, optional fields
+3. **error_case** - Invalid business inputs, missing required data, business rule violations
 
-Examples:
-- When customer created with valid data, return 201
-- When name has special characters, accept and store
-- When created with missing required fields, return 400
-- When name contains SQL injection, reject with 400
+Format examples (simple and clear):
+- Customer created with valid details
+- Update customer with new email address
+- Retrieve customer by ID
+- Delete existing customer
+- Create customer with minimum required fields
+- Update with missing required field returns error
+- Get non-existent customer returns 404
 
-Respond in JSON:
+EXCLUDE (DO NOT generate):
+- SQL injection scenarios
+- XSS attack scenarios
+- Authentication/authorization tests
+- Rate limiting tests
+- Session management tests
+- HTTPS/TLS tests
+- Database connection tests
+- Any security-focused scenarios
+
+Respond in JSON (NO security category):
 {
-  "happy_case": ["one-liner 1", "one-liner 2"],
-  "edge_case": ["one-liner 1", "one-liner 2"],
-  "error_case": ["one-liner 1", "one-liner 2"],
-  "security": ["one-liner 1", "one-liner 2"]
+  "happy_case": ["scenario 1", "scenario 2"],
+  "edge_case": ["scenario 1", "scenario 2"],
+  "error_case": ["scenario 1", "scenario 2"]
 }`;
   }
 
