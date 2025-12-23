@@ -1319,45 +1319,52 @@ void test${gap.scenario.replace(/\W+/g, '_').replace(/^_+|_+$/g, '')}() {
         .replace(/Test$/i, '')
         .trim();
       
-      // Convert camelCase to readable text
+      // Convert camelCase to readable text with proper spacing
       scenario = scenario
         .replace(/([A-Z])/g, ' $1')
         .toLowerCase()
         .replace(/\s+/g, ' ')
         .trim();
       
+      // Remove method prefixes
+      scenario = scenario.replace(/^(get|post|put|delete|create|update)\s+/, '');
+      
       // Convert to "When X, Y" format
-      // Handle common patterns
-      if (scenario.includes('with') && scenario.includes('return')) {
-        // "get customer by id with existing customer returns complete object"
-        // -> "When customer by id with existing customer, returns complete object"
-        const parts = scenario.split('return');
-        let condition = parts[0].replace(/^(get|post|put|delete|create|update)\s+/, '').trim();
-        let result = parts[1] ? parts[1].trim() : 'process successfully';
-        return `When ${condition}, ${result}`;
-      } else if (scenario.includes('with') && scenario.includes('throw')) {
-        // "get customer with invalid id throws exception"
-        // -> "When customer with invalid id, throws exception"
-        const parts = scenario.split('throw');
-        let condition = parts[0].replace(/^(get|post|put|delete|create|update)\s+/, '').trim();
-        return `When ${condition}, throw${parts[1] ? parts[1].trim() : 's exception'}`;
-      } else if (scenario.includes('with')) {
-        // "get customer with valid id"
-        // -> "When customer with valid id, return successfully"
-        let condition = scenario.replace(/^(get|post|put|delete|create|update)\s+/, '').trim();
-        return `When ${condition}, process successfully`;
-      } else if (scenario.includes('is empty') || scenario.includes('is null')) {
-        // "customer name is empty string"
-        // -> "When customer name is empty string, handle appropriately"
+      // Pattern 1: "customer by id with existing customer returns complete object"
+      if (scenario.includes('return')) {
+        const parts = scenario.split(/\s+return[s]?\s+/);
+        if (parts.length === 2) {
+          return `When ${parts[0].trim()}, return ${parts[1].trim()}`;
+        }
+      }
+      
+      // Pattern 2: "customer by id with invalid id throws exception"
+      if (scenario.includes('throw')) {
+        const parts = scenario.split(/\s+throw[s]?\s+/);
+        if (parts.length === 2) {
+          return `When ${parts[0].trim()}, throw ${parts[1].trim()}`;
+        } else {
+          return `When ${parts[0].trim()}, throw exception`;
+        }
+      }
+      
+      // Pattern 3: "customer name is empty" or "is null"
+      if (scenario.includes('is empty') || scenario.includes('is null')) {
         return `When ${scenario}, handle appropriately`;
-      } else if (scenario.includes('has special')) {
-        // "customer name has special characters"
-        // -> "When customer name has special characters, accept and store"
+      }
+      
+      // Pattern 4: "customer name has special characters"
+      if (scenario.includes('has special')) {
         return `When ${scenario}, accept and store`;
-      } else {
-        // Generic fallback
+      }
+      
+      // Pattern 5: "with X" patterns
+      if (scenario.includes('with')) {
         return `When ${scenario}, process successfully`;
       }
+      
+      // Fallback: just add "When" prefix
+      return `When ${scenario}, process successfully`;
     };
     
     interface GroupedTests {
