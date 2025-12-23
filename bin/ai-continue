@@ -97,6 +97,9 @@ async function main() {
   // Get current commit info for history tracking
   const commitInfo = historyManager.getCommitInfo();
   
+  // Import AI Test Case Generator
+  const { AITestCaseGenerator } = require('../lib/core/AITestCaseGenerator');
+  
   // Check if specific service was provided as argument
   const targetServiceName = cliArgs.serviceName;
   
@@ -135,6 +138,24 @@ async function main() {
     console.log('\n✅ No services to analyze');
     process.exit(0);
   }
+
+  // 🤖 AUTOMATICALLY REGENERATE AI CASES FOR SERVICES TO ANALYZE
+  console.log('\n🤖 Regenerating AI test cases...');
+  console.log('='.repeat(70));
+  const aiGenerator = new AITestCaseGenerator(apiKey, projectRoot, config, cliOverrides);
+  
+  for (const service of servicesToAnalyze) {
+    try {
+      console.log(`\n🔄 Generating AI cases for: ${service.name}`);
+      await aiGenerator.generate(service);
+    } catch (error) {
+      console.warn(`   ⚠️  AI generation warning for ${service.name}: ${error.message}`);
+      // Continue even if AI generation fails
+    }
+  }
+  
+  console.log('\n✅ AI cases regenerated');
+  console.log('='.repeat(70));
 
   let allAnalyses = [];
   let hasP0Gaps = false;
