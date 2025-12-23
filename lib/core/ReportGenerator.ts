@@ -1326,11 +1326,23 @@ void test${gap.scenario.replace(/\W+/g, '_').replace(/^_+|_+$/g, '')}() {
         .replace(/\s+/g, ' ')
         .trim();
       
-      // Remove method prefixes
-      scenario = scenario.replace(/^(get|post|put|delete|create|update)\s+/, '');
+      // Add action verb if it starts with entity name
+      if (scenario.match(/^(customer|user|order|product|identity|account)/)) {
+        // Extract the HTTP method from original test description if possible
+        const origLower = testDesc.toLowerCase();
+        if (origLower.includes('get') || origLower.includes('retrieve') || origLower.includes('fetch')) {
+          scenario = 'getting ' + scenario;
+        } else if (origLower.includes('post') || origLower.includes('create')) {
+          scenario = 'creating ' + scenario;
+        } else if (origLower.includes('put') || origLower.includes('update')) {
+          scenario = 'updating ' + scenario;
+        } else if (origLower.includes('delete') || origLower.includes('remove')) {
+          scenario = 'deleting ' + scenario;
+        }
+      }
       
       // Convert to "When X, Y" format
-      // Pattern 1: "customer by id with existing customer returns complete object"
+      // Pattern 1: "getting customer by id with existing customer returns complete object"
       if (scenario.includes('return')) {
         const parts = scenario.split(/\s+return[s]?\s+/);
         if (parts.length === 2) {
@@ -1338,7 +1350,7 @@ void test${gap.scenario.replace(/\W+/g, '_').replace(/^_+|_+$/g, '')}() {
         }
       }
       
-      // Pattern 2: "customer by id with invalid id throws exception"
+      // Pattern 2: "getting customer by id with invalid id throws exception"
       if (scenario.includes('throw')) {
         const parts = scenario.split(/\s+throw[s]?\s+/);
         if (parts.length === 2) {
