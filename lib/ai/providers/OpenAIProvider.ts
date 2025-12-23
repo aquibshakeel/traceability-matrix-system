@@ -59,11 +59,78 @@ export class OpenAIProvider implements AIProvider {
       });
 
       const content = response.choices[0]?.message?.content || '{}';
-      return this.parseJSON(content);
+      const scenarios = this.parseJSON(content);
+      
+      // Filter out non-API testing scenarios
+      return this.filterNonAPIScenarios(scenarios);
     } catch (error) {
       console.error(`OpenAI API error: ${error}`);
       return {};
     }
+  }
+
+  /**
+   * Filter out security, infrastructure, and non-API testing scenarios
+   */
+  private filterNonAPIScenarios(scenarios: Scenarios): Scenarios {
+    const filtered: any = {};
+    
+    // Keywords to exclude (security, infrastructure, auth)
+    const excludePatterns = [
+      /\btoken\b/i,
+      /\bauth(entication|orization)?\b/i,
+      /\bjwt\b/i,
+      /\boauth\b/i,
+      /\bsession\b/i,
+      /\bpermission\b/i,
+      /\brole\b/i,
+      /\baccess control\b/i,
+      /\bsql injection\b/i,
+      /\bxss\b/i,
+      /\bcsrf\b/i,
+      /\brate limit\b/i,
+      /\bthrottl/i,
+      /\bdatabase.*unavailable\b/i,
+      /\bdatabase.*connection\b/i,
+      /\bdatabase.*fail/i,
+      /\bservice.*unavailable\b/i,
+      /\b500\b/,
+      /\b503\b/,
+      /\bhttps\b/i,
+      /\btls\b/i,
+      /\bssl\b/i,
+      /\bnetwork\b/i,
+      /\btimeout\b/i,
+      /\bddos\b/i,
+      /\bbrute force\b/i,
+      /\breplay attack\b/i,
+      /\bexpired.*token\b/i,
+      /\binvalid.*token\b/i,
+      /\btamper\b/i,
+      /\btenant\b/i,
+      /\banother user\b/i,
+      /\bexcessive requests\b/i,
+      /\b429\b/
+    ];
+    
+    for (const [category, scenarioList] of Object.entries(scenarios)) {
+      if (!scenarioList || !Array.isArray(scenarioList)) continue;
+      
+      filtered[category] = scenarioList.filter((scenario: string) => {
+        const lowerScenario = scenario.toLowerCase();
+        
+        // Check if scenario matches any exclude pattern
+        for (const pattern of excludePatterns) {
+          if (pattern.test(scenario)) {
+            return false; // Exclude this scenario
+          }
+        }
+        
+        return true; // Keep this scenario
+      });
+    }
+    
+    return filtered as Scenarios;
   }
 
   /**
@@ -230,7 +297,7 @@ No explanation needed, just the priority.`;
    * Build scenario generation prompt
    */
   private buildScenarioPrompt(api: APIDefinition): string {
-    return `Generate test scenarios for this API in simple one-liner format.
+    return `You are an API testing expert. Generate FUNCTIONAL API test scenarios for this endpoint.
 
 **API:** ${api.method} ${api.endpoint}
 **Description:** ${api.description || 'N/A'}
@@ -238,27 +305,67 @@ No explanation needed, just the priority.`;
 **Request Body:** ${JSON.stringify(api.requestBody || {})}
 **Responses:** ${JSON.stringify(api.responses || {})}
 
-Generate simple one-liner test scenarios:
+CRITICAL: Generate ONLY functional API testing scenarios. Focus on:
 
-1. **happy_case** - Valid inputs, success responses
-2. **edge_case** - Boundaries, special chars, empty/null, long inputs  
-3. **error_case** - 400, 401, 403, 404, 409, 422, 500 errors
-4. **security** - SQL injection, XSS, auth bypass
+✅ INCLUDE (API Functional Testing):
+- Valid API requests with required fields
+- Invalid API requests (missing fields, wrong data types, format validation)
+- Boundary values (min/max length, empty strings, special characters in data)
+- API response validation (200, 400, 404, 422 status codes)
+- Business logic validation (duplicate checks, data constraints)
+- Query parameter combinations
+- Request body field validation
+- Response data structure validation
 
-Format: "When [condition], [expected result]"
+❌ ABSOLUTELY EXCLUDE (NOT API Testing):
+- Authentication tokens (JWT, OAuth, session) - SKIP
+- Authorization permissions (user roles, access control) - SKIP
+- Security attacks (SQL injection, XSS, CSRF) - SKIP
+- Rate limiting or throttling - SKIP
+- Database connection failures - SKIP
+- Service availability (500, 503 errors) - SKIP
+- HTTPS/TLS/SSL transport security - SKIP
+- Network timeouts or connection issues - SKIP
+- DDoS or brute force attacks - SKIP
+- Session management or expiry - SKIP
+- Any infrastructure or security concerns - SKIP
 
-Examples:
-- When customer created with valid data, return 201
-- When name has special characters, accept and store
-- When created with missing required fields, return 400
-- When name contains SQL injection, reject with 400
+SCENARIO FORMAT RULES:
+- Start with "When" followed by the API action
+- Focus on DATA and BUSINESS LOGIC only
+- Use simple, clear language (1 line each)
+- Specify expected HTTP status code when relevant
+- Do NOT mention tokens, auth, permissions, security
 
-Respond in JSON:
+GOOD EXAMPLES:
+- When creating customer with valid email, name, and phone, return 201
+- When email format is invalid, return 400 with validation error
+- When required field 'name' is missing, return 400
+- When email already exists in system, return 409 conflict
+- When customer ID does not exist, return 404
+- When email exceeds maximum length of 255 characters, return 400
+- When retrieving customer with valid ID, return customer details
+- When updating customer with new email, update succeeds
+
+BAD EXAMPLES (Don't generate these):
+- When authentication token is missing, return 401 ❌
+- When user lacks permission, return 403 ❌
+- When database is unavailable, return 500 ❌
+- When rate limit exceeded, return 429 ❌
+- When HTTPS not used, reject request ❌
+- When CSRF token invalid, return 403 ❌
+
+Generate scenarios in 3 categories:
+
+1. **happy_case**: Valid API requests that should succeed (200, 201, 204)
+2. **edge_case**: Boundary conditions, optional fields, special characters in data
+3. **error_case**: Invalid API requests that should fail (400, 404, 409, 422)
+
+Respond ONLY with JSON (no explanations):
 {
-  "happy_case": ["one-liner 1", "one-liner 2"],
-  "edge_case": ["one-liner 1", "one-liner 2"],
-  "error_case": ["one-liner 1", "one-liner 2"],
-  "security": ["one-liner 1", "one-liner 2"]
+  "happy_case": ["scenario 1", "scenario 2", ...],
+  "edge_case": ["scenario 1", "scenario 2", ...],
+  "error_case": ["scenario 1", "scenario 2", ...]
 }`;
   }
 

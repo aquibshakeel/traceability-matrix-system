@@ -59,11 +59,78 @@ export class AnthropicProvider implements AIProvider {
       });
 
       const content = response.content[0].type === 'text' ? response.content[0].text : '';
-      return this.parseJSON(content);
+      const scenarios = this.parseJSON(content);
+      
+      // Filter out non-API testing scenarios
+      return this.filterNonAPIScenarios(scenarios);
     } catch (error) {
       console.error(`Anthropic API error: ${error}`);
       return {};
     }
+  }
+
+  /**
+   * Filter out security, infrastructure, and non-API testing scenarios
+   */
+  private filterNonAPIScenarios(scenarios: Scenarios): Scenarios {
+    const filtered: any = {};
+    
+    // Keywords to exclude (security, infrastructure, auth)
+    const excludePatterns = [
+      /\btoken\b/i,
+      /\bauth(entication|orization)?\b/i,
+      /\bjwt\b/i,
+      /\boauth\b/i,
+      /\bsession\b/i,
+      /\bpermission\b/i,
+      /\brole\b/i,
+      /\baccess control\b/i,
+      /\bsql injection\b/i,
+      /\bxss\b/i,
+      /\bcsrf\b/i,
+      /\brate limit\b/i,
+      /\bthrottl/i,
+      /\bdatabase.*unavailable\b/i,
+      /\bdatabase.*connection\b/i,
+      /\bdatabase.*fail/i,
+      /\bservice.*unavailable\b/i,
+      /\b500\b/,
+      /\b503\b/,
+      /\bhttps\b/i,
+      /\btls\b/i,
+      /\bssl\b/i,
+      /\bnetwork\b/i,
+      /\btimeout\b/i,
+      /\bddos\b/i,
+      /\bbrute force\b/i,
+      /\breplay attack\b/i,
+      /\bexpired.*token\b/i,
+      /\binvalid.*token\b/i,
+      /\btamper\b/i,
+      /\btenant\b/i,
+      /\banother user\b/i,
+      /\bexcessive requests\b/i,
+      /\b429\b/
+    ];
+    
+    for (const [category, scenarioList] of Object.entries(scenarios)) {
+      if (!scenarioList || !Array.isArray(scenarioList)) continue;
+      
+      filtered[category] = scenarioList.filter((scenario: string) => {
+        const lowerScenario = scenario.toLowerCase();
+        
+        // Check if scenario matches any exclude pattern
+        for (const pattern of excludePatterns) {
+          if (pattern.test(scenario)) {
+            return false; // Exclude this scenario
+          }
+        }
+        
+        return true; // Keep this scenario
+      });
+    }
+    
+    return filtered as Scenarios;
   }
 
   /**
@@ -251,7 +318,7 @@ No explanation needed, just the priority.`;
    * Build scenario generation prompt
    */
   private buildScenarioPrompt(api: APIDefinition): string {
-    return `Generate API-LEVEL BUSINESS test scenarios ONLY for this API in simple, natural language format.
+    return `You are an API testing expert. Generate FUNCTIONAL API test scenarios for this endpoint.
 
 **API:** ${api.method} ${api.endpoint}
 **Description:** ${api.description || 'N/A'}
@@ -259,44 +326,67 @@ No explanation needed, just the priority.`;
 **Request Body:** ${JSON.stringify(api.requestBody || {})}
 **Responses:** ${JSON.stringify(api.responses || {})}
 
-IMPORTANT RULES:
-- Focus ONLY on API-level business scenarios (what the API does)
-- DO NOT include security tests (SQL injection, XSS, CSRF, authentication, authorization)
-- DO NOT include infrastructure tests (database connection, service health, timeouts)
-- DO NOT include technical implementation details
-- Use simple, natural language that QA can understand
-- Keep scenarios short and clear (1-2 lines max)
+CRITICAL: Generate ONLY functional API testing scenarios. Focus on:
 
-Generate these types of scenarios:
+✅ INCLUDE (API Functional Testing):
+- Valid API requests with required fields
+- Invalid API requests (missing fields, wrong data types, format validation)
+- Boundary values (min/max length, empty strings, special characters in data)
+- API response validation (200, 400, 404, 422 status codes)
+- Business logic validation (duplicate checks, data constraints)
+- Query parameter combinations
+- Request body field validation
+- Response data structure validation
 
-1. **happy_case** - Valid business flows and successful operations
-2. **edge_case** - Boundary conditions, special values, optional fields
-3. **error_case** - Invalid business inputs, missing required data, business rule violations
+❌ ABSOLUTELY EXCLUDE (NOT API Testing):
+- Authentication tokens (JWT, OAuth, session) - SKIP
+- Authorization permissions (user roles, access control) - SKIP
+- Security attacks (SQL injection, XSS, CSRF) - SKIP
+- Rate limiting or throttling - SKIP
+- Database connection failures - SKIP
+- Service availability (500, 503 errors) - SKIP
+- HTTPS/TLS/SSL transport security - SKIP
+- Network timeouts or connection issues - SKIP
+- DDoS or brute force attacks - SKIP
+- Session management or expiry - SKIP
+- Any infrastructure or security concerns - SKIP
 
-Format examples (simple and clear):
-- Customer created with valid details
-- Update customer with new email address
-- Retrieve customer by ID
-- Delete existing customer
-- Create customer with minimum required fields
-- Update with missing required field returns error
-- Get non-existent customer returns 404
+SCENARIO FORMAT RULES:
+- Start with "When" followed by the API action
+- Focus on DATA and BUSINESS LOGIC only
+- Use simple, clear language (1 line each)
+- Specify expected HTTP status code when relevant
+- Do NOT mention tokens, auth, permissions, security
 
-EXCLUDE (DO NOT generate):
-- SQL injection scenarios
-- XSS attack scenarios
-- Authentication/authorization tests
-- Rate limiting tests
-- Session management tests
-- HTTPS/TLS tests
-- Database connection tests
-- Any security-focused scenarios
+GOOD EXAMPLES:
+- When creating customer with valid email, name, and phone, return 201
+- When email format is invalid, return 400 with validation error
+- When required field 'name' is missing, return 400
+- When email already exists in system, return 409 conflict
+- When customer ID does not exist, return 404
+- When email exceeds maximum length of 255 characters, return 400
+- When retrieving customer with valid ID, return customer details
+- When updating customer with new email, update succeeds
 
-Respond in JSON (NO security category):
+BAD EXAMPLES (Don't generate these):
+- When authentication token is missing, return 401 ❌
+- When user lacks permission, return 403 ❌
+- When database is unavailable, return 500 ❌
+- When rate limit exceeded, return 429 ❌
+- When HTTPS not used, reject request ❌
+- When CSRF token invalid, return 403 ❌
+
+Generate scenarios in 3 categories:
+
+1. **happy_case**: Valid API requests that should succeed (200, 201, 204)
+2. **edge_case**: Boundary conditions, optional fields, special characters in data
+3. **error_case**: Invalid API requests that should fail (400, 404, 409, 422)
+
+Respond ONLY with JSON (no explanations):
 {
-  "happy_case": ["scenario 1", "scenario 2"],
-  "edge_case": ["scenario 1", "scenario 2"],
-  "error_case": ["scenario 1", "scenario 2"]
+  "happy_case": ["scenario 1", "scenario 2", ...],
+  "edge_case": ["scenario 1", "scenario 2", ...],
+  "error_case": ["scenario 1", "scenario 2", ...]
 }`;
   }
 
